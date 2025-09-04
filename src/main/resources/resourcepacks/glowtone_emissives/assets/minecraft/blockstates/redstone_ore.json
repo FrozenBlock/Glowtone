@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "minecraft:block/redstone_ore"
+    },
+    "lit=true": {
+      "model": "glowtone:block/redstone_ore_lit"
+    }
+  }
+}

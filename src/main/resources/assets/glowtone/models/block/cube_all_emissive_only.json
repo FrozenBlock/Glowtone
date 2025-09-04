@@ -1,0 +1,12 @@
+{
+  "parent": "glowtone:block/cube_emissive_only",
+  "textures": {
+    "particle": "#particle",
+    "down_emissive": "#all_emissive",
+    "up_emissive": "#all_emissive",
+    "north_emissive": "#all_emissive",
+    "east_emissive": "#all_emissive",
+    "south_emissive": "#all_emissive",
+    "west_emissive": "#all_emissive"
+  }
+}

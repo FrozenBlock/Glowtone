@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.frozenblock.glowtone.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+  ],
+  "client": [
+    "client.FaceBakeryMixin",
+    "client.ModelManagerMixin",
+    "client.SimpleUnbakedGeometryMixin",
+    "client.SpriteLoaderMixin",
+    "client.magma.BlocksMixin",
+    "client.redstone_dust.DustColorTransitionOptionsMixin",
+    "client.redstone_dust.DustColorTransitionParticleMixin",
+    "client.redstone_dust.DustParticleMixin",
+    "client.redstone_dust.DustParticleOptionsMixin",
+    "client.redstone_dust.ParticleMixin",
+    "client.redstone_dust.RedstoneWireBlockMixin",
+    "client.shade.LavaShadeMixin",
+    "client.shade.sodium.LavaShadeSodiumMixin"
+  ]
+}

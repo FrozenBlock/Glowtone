@@ -1,0 +1,6 @@
+{
+  "parent": "netheriernether:block/redstone_dust_side_emissive",
+  "textures": {
+    "line": "minecraft:block/redstone_dust_line0"
+  }
+}

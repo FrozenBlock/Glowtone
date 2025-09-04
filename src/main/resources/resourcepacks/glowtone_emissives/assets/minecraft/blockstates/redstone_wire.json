@@ -1,0 +1,2612 @@
+﻿{
+  "multipart": [
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_1"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_2"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_3"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_4"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_5"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_6"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_7"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_8"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_9"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_10"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_11"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_12"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_13"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_14"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_dot_emissive_15"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "OR": [
+              {
+                "east": "none",
+                "north": "none",
+                "south": "none",
+                "west": "none"
+              },
+              {
+                "east": "side|up",
+                "north": "side|up"
+              },
+              {
+                "east": "side|up",
+                "south": "side|up"
+              },
+              {
+                "south": "side|up",
+                "west": "side|up"
+              },
+              {
+                "north": "side|up",
+                "west": "side|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_1"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_2"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_3"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_4"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_5"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_6"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_7"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_8"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_9"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_10"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_11"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_12"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_13"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_14"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side0_emissive_15"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "north": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_1"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_2"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_3"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_4"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_5"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_6"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_7"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_8"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_9"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_10"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_11"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_12"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_13"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_14"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt0_emissive_15"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "south": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_1",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_2",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_3",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_4",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_5",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_6",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_7",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_8",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_9",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_10",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_11",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_12",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_13",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_14",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side_alt1_emissive_15",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "east": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_1",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_2",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_3",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_4",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_5",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_6",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_7",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_8",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_9",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_10",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_11",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_12",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_13",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_14",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_side1_emissive_15",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "west": "side|up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_1"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_2"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_3"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_4"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_5"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_6"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_7"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_8"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_9"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_10"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_11"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_12"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_13"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_14"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_15"
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "north": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_1",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_2",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_3",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_4",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_5",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_6",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_7",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_8",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_9",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_10",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_11",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_12",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_13",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_14",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_15",
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "east": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_1",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_2",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_3",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_4",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_5",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_6",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_7",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_8",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_9",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_10",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_11",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_12",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_13",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_14",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_15",
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "south": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "0"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_1",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "1"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_2",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "2"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_3",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "3"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_4",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "4"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_5",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "5"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_6",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "6"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_7",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "7"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_8",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "8"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_9",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "9"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_10",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "10"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_11",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "11"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_12",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "12"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_13",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "13"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_14",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "14"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "glowtone:block/redstone_dust_up_emissive_15",
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "power": "15"
+          },
+          {
+            "west": "up"
+          }
+        ]
+      }
+    }
+  ]
+}

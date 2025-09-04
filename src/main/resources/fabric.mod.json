@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "Glowtone",
+  "description": "Allows for emissive textures to be quickly added as an overlay on both Block and Item models, as well as changing the render layers of blocks.",
+  "authors": [
+    "Luna/AViewFromTheTop"
+  ],
+  "contributors": [
+    "Lufurrius"
+  ],
+  "contact": {
+    "homepage": "https://www.modrinth.com/mod/Glowtone",
+    "sources": "https://github.com/FrozenBlock/Glowtone",
+    "issues": "https://github.com/FrozenBlock/Glowtone/issues"
+  },
+  "license": "FrozenBlock Modding Oasis License v1.0",
+  "icon": "assets/glowtone/icon.png",
+  "environment": "*",
+  "entrypoints": {
+	  "client": [
+      "net.frozenblock.glowtone.GlowtoneClient"
+	  ]
+  },
+  "mixins": [
+    "glowtone.mixins.json"
+  ],
+  "accessWidener": "glowtone.accesswidener",
+  "depends": {
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  },
+  "suggests": {
+    "cloth-config": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "X": "https://x.com/FB_Oasis",
+        "Bluesky": "https://bsky.app/profile/frozenblock.bsky.social",
+        "modmenu.discord": "https://discord.gg/frozenblock",
+        "modmenu.modrinth": "https://modrinth.com/organization/frozenblock",
+        "modmenu.youtube": "https://www.youtube.com/@frozenblockmoddingoasismod",
+        "modmenu.kofi": "https://ko-fi.com/frozenblock"
+      },
+      "badges": [
+        "frozenblock"
+      ]
+    }
+  }
+}

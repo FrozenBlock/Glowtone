@@ -1,0 +1,8 @@
+{
+  "parent": "glowtone:block/cube_all_emissive",
+  "textures": {
+    "all": "minecraft:block/redstone_ore",
+    "all_emissive": "glowtone:block/redstone_ore_active_emissive",
+    "particle": "minecraft:block/redstone_ore"
+  }
+}

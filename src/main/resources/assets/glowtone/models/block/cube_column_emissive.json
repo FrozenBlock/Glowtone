@@ -1,0 +1,18 @@
+{
+  "parent": "glowtone:block/cube_emissive",
+  "textures": {
+    "particle": "#particle",
+    "down": "#end",
+    "up": "#end",
+    "north": "#side",
+    "east": "#side",
+    "south": "#side",
+    "west": "#side",
+    "down_emissive": "#end_emissive",
+    "up_emissive": "#end_emissive",
+    "north_emissive": "#side_emissive",
+    "east_emissive": "#side_emissive",
+    "south_emissive": "#side_emissive",
+    "west_emissive": "#side_emissive"
+  }
+}
