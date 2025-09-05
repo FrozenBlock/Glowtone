@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.shade;
+package net.frozenblock.glowtone.mixin.client.shading;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(LiquidBlockRenderer.class)
-public class LavaShadeMixin {
+public class LavaShadingMixin {
 
 	@Inject(method = "tesselate", at = @At("HEAD"))
 	public void glowtone$setUnshadeIfApplicable(

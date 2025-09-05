@@ -15,16 +15,16 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.redstone_dust;
+package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.particle.impl.GlowingDustParticleInterface;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.DustColorTransitionParticle;
+import net.minecraft.client.particle.DustParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.core.particles.DustColorTransitionOptions;
+import net.minecraft.core.particles.DustParticleOptions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,8 +32,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DustColorTransitionParticle.class)
-public class DustColorTransitionParticleMixin implements GlowingDustParticleInterface {
+@Mixin(DustParticle.class)
+public class DustParticleMixin implements GlowingDustParticleInterface {
 
 	@Unique
 	private int glowtone$lightEmission;
@@ -43,7 +43,7 @@ public class DustColorTransitionParticleMixin implements GlowingDustParticleInte
 		ClientLevel level,
 		double x, double y, double z,
 		double xSpeed, double ySpeed, double zSpeed,
-		DustColorTransitionOptions options,
+		DustParticleOptions options,
 		SpriteSet sprites,
 		CallbackInfo info
 	) {

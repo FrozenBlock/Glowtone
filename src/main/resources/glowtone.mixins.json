@@ -7,20 +7,21 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "block.BlocksMixin"
   ],
   "client": [
     "client.FaceBakeryMixin",
     "client.ModelManagerMixin",
     "client.SimpleUnbakedGeometryMixin",
     "client.SpriteLoaderMixin",
-    "client.magma.BlocksMixin",
-    "client.redstone_dust.DustColorTransitionOptionsMixin",
-    "client.redstone_dust.DustColorTransitionParticleMixin",
-    "client.redstone_dust.DustParticleMixin",
-    "client.redstone_dust.DustParticleOptionsMixin",
-    "client.redstone_dust.ParticleMixin",
-    "client.redstone_dust.RedstoneWireBlockMixin",
-    "client.shade.LavaShadeMixin",
-    "client.shade.sodium.LavaShadeSodiumMixin"
+    "client.block.BlocksMixin",
+    "client.redstone_dust_particle.DustColorTransitionOptionsMixin",
+    "client.redstone_dust_particle.DustColorTransitionParticleMixin",
+    "client.redstone_dust_particle.DustParticleMixin",
+    "client.redstone_dust_particle.DustParticleOptionsMixin",
+    "client.redstone_dust_particle.ParticleMixin",
+    "client.redstone_dust_particle.RedstoneWireBlockMixin",
+    "client.shading.LavaShadingMixin",
+    "client.shading.sodium.LavaShadingSodiumMixin"
   ]
 }

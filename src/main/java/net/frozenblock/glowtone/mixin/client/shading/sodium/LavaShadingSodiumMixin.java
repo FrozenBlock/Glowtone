@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.shade.sodium;
+package net.frozenblock.glowtone.mixin.client.shading.sodium;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Pseudo
 @Environment(EnvType.CLIENT)
 @Mixin(DefaultFluidRenderer.class)
-public class LavaShadeSodiumMixin {
+public class LavaShadingSodiumMixin {
 
 	@Inject(method = "render", at = @At("HEAD"))
 	private void glowtone$setUnshadeIfApplicable(

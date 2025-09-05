@@ -34,5 +34,5 @@ public record EmissiveMetadataSection(int lightEmission, Optional<Boolean> shade
 			)
 			.apply(instance, EmissiveMetadataSection::new)
 	);
-	public static final MetadataSectionType<EmissiveMetadataSection> TYPE = new MetadataSectionType<>("frozenlib_emissive", CODEC);
+	public static final MetadataSectionType<EmissiveMetadataSection> TYPE = new MetadataSectionType<>("glowtone_emissive", CODEC);
 }

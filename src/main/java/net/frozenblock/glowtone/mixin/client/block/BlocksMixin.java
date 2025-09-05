@@ -15,21 +15,18 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.magma;
+package net.frozenblock.glowtone.mixin.client.block;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
-
-import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 @Mixin(Blocks.class)
@@ -39,7 +36,7 @@ public class BlocksMixin {
 		method = "<clinit>",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/block/Blocks;register(Ljava/lang/String;Ljava/util/function/Function;Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;)Lnet/minecraft/world/level/block/Block;",
+			target = "Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;emissiveRendering(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;",
 			ordinal = 0
 		),
 		slice = @Slice(
@@ -49,11 +46,10 @@ public class BlocksMixin {
 			)
 		)
 	)
-	private static Block glowtone$newMagma(
-		String string, Function<BlockBehaviour.Properties, Block> function, BlockBehaviour.Properties properties, Operation<Block> original
+	private static BlockBehaviour.Properties glowtone$newRedstoneOreLightEmission(
+		BlockBehaviour.Properties instance, BlockBehaviour.StatePredicate statePredicate, Operation<BlockBehaviour.Properties> original
 	) {
-		properties = properties.emissiveRendering(((blockState, blockGetter, blockPos) -> !GlowtoneConstants.GLOWTONE_EMISSIVES));
-		return original.call(string, function, properties);
+		return original.call(instance, (BlockBehaviour.StatePredicate) (state, level, pos) -> !GlowtoneConstants.GLOWTONE_EMISSIVES);
 	}
 
 }
