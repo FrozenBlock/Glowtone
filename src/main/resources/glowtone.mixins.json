@@ -7,7 +7,7 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "block.BlocksMixin"
+    "block.BlockStateBaseMixin"
   ],
   "client": [
     "client.FaceBakeryMixin",
