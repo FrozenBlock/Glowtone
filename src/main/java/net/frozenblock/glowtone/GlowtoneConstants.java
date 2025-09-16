@@ -28,7 +28,7 @@ public final class GlowtoneConstants {
 	public static final String MOD_ID = "glowtone";
 
 	public static boolean GLOWTONE_EMISSIVES = false;
-	public static boolean GLOWSTONE_SHADING = false;
+	public static boolean GLOWTONE_SHADING = false;
 
 	@Contract("_ -> new")
 	@NotNull

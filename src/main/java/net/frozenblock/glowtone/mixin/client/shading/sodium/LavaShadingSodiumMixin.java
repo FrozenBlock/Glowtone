@@ -44,7 +44,7 @@ public class LavaShadingSodiumMixin {
 		@Local(argsOnly = true) FluidState fluidState,
 		@Share("glowtone$shouldUnshade") LocalBooleanRef shouldUnshade
 	) {
-		shouldUnshade.set(GlowtoneConstants.GLOWSTONE_SHADING && fluidState.is(FluidTags.LAVA));
+		shouldUnshade.set(GlowtoneConstants.GLOWTONE_SHADING && fluidState.is(FluidTags.LAVA));
 	}
 
 	@ModifyExpressionValue(

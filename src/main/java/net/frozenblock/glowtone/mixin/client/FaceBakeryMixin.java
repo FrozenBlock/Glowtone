@@ -45,20 +45,21 @@ public class FaceBakeryMixin {
 		@Local(argsOnly = true) LocalBooleanRef shade,
 		@Local(argsOnly = true) LocalIntRef lightEmission
 	) {
-		SpriteContents contents = sprite.contents();
-		ResourceMetadata metadata = contents.metadata();
+		if (GlowtoneConstants.GLOWTONE_EMISSIVES) {
+			SpriteContents contents = sprite.contents();
+			ResourceMetadata metadata = contents.metadata();
 
-		Optional<EmissiveMetadataSection> optionalEmissiveMetadata = metadata.getSection(EmissiveMetadataSection.TYPE);
-		if (optionalEmissiveMetadata.isPresent()) {
-			EmissiveMetadataSection emissiveMetadata = optionalEmissiveMetadata.get();
-			shade.set(emissiveMetadata.shade().orElse(shade.get()));
-			lightEmission.set(emissiveMetadata.lightEmission());
-		} else {
-			lightEmission.set(contents.name().getPath().endsWith("_glowtone_emissive") ? 15 : lightEmission.get());
+			Optional<EmissiveMetadataSection> optionalEmissiveMetadata = metadata.getSection(EmissiveMetadataSection.TYPE);
+			if (optionalEmissiveMetadata.isPresent()) {
+				EmissiveMetadataSection emissiveMetadata = optionalEmissiveMetadata.get();
+				shade.set(emissiveMetadata.shade().orElse(shade.get()));
+				lightEmission.set(emissiveMetadata.lightEmission());
+			} else {
+				lightEmission.set(contents.name().getPath().endsWith("_glowtone_emissive") ? 15 : lightEmission.get());
+			}
 		}
 
-		if (!GlowtoneConstants.GLOWSTONE_SHADING) return;
-		shade.set(shade.get() && lightEmission.get() != 15);
+		if (GlowtoneConstants.GLOWTONE_SHADING) shade.set(shade.get() && lightEmission.get() != 15);
 	}
 
 }

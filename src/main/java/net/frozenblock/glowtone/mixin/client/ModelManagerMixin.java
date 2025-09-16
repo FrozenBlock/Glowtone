@@ -46,7 +46,7 @@ public class ModelManagerMixin {
 			}
 			return false;
 		});
-		GlowtoneConstants.GLOWSTONE_SHADING = resourceManager.listPacks().anyMatch(packResources -> {
+		GlowtoneConstants.GLOWTONE_SHADING = resourceManager.listPacks().anyMatch(packResources -> {
 			if (packResources.knownPackInfo().isPresent()) {
 				return packResources.knownPackInfo().get().id().equals(GlowtoneConstants.string("glowtone_shading"));
 			}
