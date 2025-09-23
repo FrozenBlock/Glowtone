@@ -263,6 +263,10 @@ tasks {
         from(sourceSets.main.get().allSource)
     }
 
+    shadowJar {
+        isZip64 = true
+    }
+
     remapJar {
         dependsOn(shadowJar)
         input = shadowJar.get().archiveFile
