@@ -206,19 +206,11 @@ dependencies {
     // Mod Menu
     modCompileOnlyApi("com.terraformersmc:modmenu:${modmenu_version}")
 
-    // Cloth Config
-    modImplementation("me.shedaniel.cloth:cloth-config-fabric:$cloth_config_version") {
-        exclude(group = "net.fabricmc.fabric-api")
-        exclude(group = "com.terraformersmc")
-    }
-
     // Sodium
     if (shouldRunSodium)
         modImplementation("maven.modrinth:sodium:${sodium_version}")
     else
         modCompileOnly("maven.modrinth:sodium:${sodium_version}")
-
-    "datagenImplementation"(sourceSets.main.get().output)
 }
 
 tasks {
@@ -261,15 +253,6 @@ tasks {
         dependsOn(classes)
         archiveClassifier = "sources"
         from(sourceSets.main.get().allSource)
-    }
-
-    shadowJar {
-        isZip64 = true
-    }
-
-    remapJar {
-        dependsOn(shadowJar)
-        input = shadowJar.get().archiveFile
     }
 
     withType(JavaCompile::class) {
