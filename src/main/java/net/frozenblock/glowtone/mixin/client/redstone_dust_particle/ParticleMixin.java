@@ -37,6 +37,7 @@ public class ParticleMixin {
 			if (emission == 0) return original;
 			int j = Math.max(original & 0xFF, emission * 16);
 			int k = original >> 16 & 0xFF;
+			if (j > 240) j = 240;
 
 			return j | k << 16;
 		}
