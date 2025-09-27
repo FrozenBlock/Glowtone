@@ -120,7 +120,6 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 							.replace(".json", "")
 							.replaceFirst(REPLACEMENT_DIRECTORY, "")
 					);
-					LOGGER.info(blockName.toString());
 
 					Block block = BuiltInRegistries.BLOCK.getOptional(blockName).orElse(null);
 					if (block != null) {
