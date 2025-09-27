@@ -10,10 +10,10 @@
     "block.BlockStateBaseMixin"
   ],
   "client": [
+    "client.AtlasConfigMixin",
     "client.FaceBakeryMixin",
     "client.ModelManagerMixin",
     "client.SimpleUnbakedGeometryMixin",
-    "client.SpriteLoaderMixin",
     "client.block.BlocksMixin",
     "client.redstone_dust_particle.DustColorTransitionOptionsMixin",
     "client.redstone_dust_particle.DustColorTransitionParticleMixin",

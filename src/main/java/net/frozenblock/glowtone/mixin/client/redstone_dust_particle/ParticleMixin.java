@@ -35,8 +35,8 @@ public class ParticleMixin {
 		if (GlowtoneConstants.GLOWTONE_EMISSIVES && Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingParticle) {
 			final int emission = glowingParticle.glowtone$getLightEmission();
 			if (emission == 0) return original;
-			int j = Math.max(original & 0xFF, emission * 16);
-			int k = original >> 16 & 0xFF;
+			int j = Math.max(original & 255, emission * 16);
+			int k = original >> 16 & 255;
 			if (j > 240) j = 240;
 
 			return j | k << 16;

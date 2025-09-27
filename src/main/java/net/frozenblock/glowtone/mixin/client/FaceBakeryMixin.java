@@ -27,7 +27,6 @@ import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.server.packs.resources.ResourceMetadata;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,9 +46,8 @@ public class FaceBakeryMixin {
 	) {
 		if (GlowtoneConstants.GLOWTONE_EMISSIVES) {
 			SpriteContents contents = sprite.contents();
-			ResourceMetadata metadata = contents.metadata();
 
-			Optional<EmissiveMetadataSection> optionalEmissiveMetadata = metadata.getSection(EmissiveMetadataSection.TYPE);
+			Optional<EmissiveMetadataSection> optionalEmissiveMetadata = contents.getAdditionalMetadata(EmissiveMetadataSection.TYPE);
 			if (optionalEmissiveMetadata.isPresent()) {
 				EmissiveMetadataSection emissiveMetadata = optionalEmissiveMetadata.get();
 				shade.set(emissiveMetadata.shade().orElse(shade.get()));
