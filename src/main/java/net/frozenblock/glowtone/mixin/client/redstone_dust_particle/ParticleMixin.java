@@ -23,7 +23,6 @@ import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.particle.impl.GlowingDustParticleInterface;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SingleQuadParticle;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -33,7 +32,7 @@ public class ParticleMixin {
 
 	@ModifyReturnValue(method = "getLightColor", at = @At(value = "RETURN"))
 	public int glowtone$renderDustWithEmission(int original) {
-		if (GlowtoneConstants.GLOWTONE_EMISSIVES && SingleQuadParticle.class.cast(this) instanceof GlowingDustParticleInterface glowingParticle) {
+		if (GlowtoneConstants.GLOWTONE_EMISSIVES && Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingParticle) {
 			final int emission = glowingParticle.glowtone$getLightEmission();
 			if (emission == 0) return original;
 			int j = Math.max(original & 0xFF, emission * 16);
