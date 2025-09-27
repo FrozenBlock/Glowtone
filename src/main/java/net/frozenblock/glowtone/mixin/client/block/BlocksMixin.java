@@ -46,7 +46,7 @@ public class BlocksMixin {
 			)
 		)
 	)
-	private static BlockBehaviour.Properties glowtone$newRedstoneOreLightEmission(
+	private static BlockBehaviour.Properties glowtone$fixedMagmaRendering(
 		BlockBehaviour.Properties instance, BlockBehaviour.StatePredicate statePredicate, Operation<BlockBehaviour.Properties> original
 	) {
 		return original.call(instance, (BlockBehaviour.StatePredicate) (state, level, pos) -> !GlowtoneConstants.GLOWTONE_EMISSIVES);
