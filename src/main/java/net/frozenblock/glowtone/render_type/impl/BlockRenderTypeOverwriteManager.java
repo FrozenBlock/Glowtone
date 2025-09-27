@@ -24,7 +24,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -71,10 +71,8 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 	}
 
 	private void applyOverwrites() {
-		BlockRenderLayerMap renderLayerRegistry = BlockRenderLayerMap.INSTANCE;
-
 		this.overwrites.forEach(overwrite -> {
-			renderLayerRegistry.putBlock(overwrite.getBlock(), overwrite.getRenderType());
+			BlockRenderLayerMap.putBlock(overwrite.getBlock(), overwrite.getRenderType());
 		});
 	}
 

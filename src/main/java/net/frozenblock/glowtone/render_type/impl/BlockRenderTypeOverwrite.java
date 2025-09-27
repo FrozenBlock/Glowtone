@@ -21,7 +21,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.ApiStatus;
@@ -48,7 +48,7 @@ public class BlockRenderTypeOverwrite {
 		return this.renderTypeOverwrite;
 	}
 
-	public RenderType getRenderType() {
+	public ChunkSectionLayer getRenderType() {
 		return this.getRenderTypeOverwrite().get();
 	}
 
@@ -61,22 +61,22 @@ public class BlockRenderTypeOverwrite {
 	}
 
 	public enum RenderTypeOverwrite implements StringRepresentable {
-		SOLID("solid", RenderType::solid),
-		CUTOUT_MIPPED("cutout_mipped", RenderType::cutoutMipped),
-		CUTOUT("cutout", RenderType::cutout),
-		TRANSLUCENT("translucent", RenderType::translucent),
-		TRIPWIRE("tripwire", RenderType::tripwire);
+		SOLID("solid", () -> ChunkSectionLayer.SOLID),
+		CUTOUT_MIPPED("cutout_mipped", () -> ChunkSectionLayer.CUTOUT_MIPPED),
+		CUTOUT("cutout", () -> ChunkSectionLayer.CUTOUT),
+		TRANSLUCENT("translucent", () -> ChunkSectionLayer.TRANSLUCENT),
+		TRIPWIRE("tripwire", () -> ChunkSectionLayer.TRIPWIRE);
 		public static final Codec<RenderTypeOverwrite> CODEC = StringRepresentable.fromEnum(RenderTypeOverwrite::values);
 
 		private final String name;
-		private final Supplier<RenderType> renderTypeSupplier;
+		private final Supplier<ChunkSectionLayer> renderTypeSupplier;
 
-		RenderTypeOverwrite(String name, Supplier<RenderType> renderTypeSupplier) {
+		RenderTypeOverwrite(String name, Supplier<ChunkSectionLayer> renderTypeSupplier) {
 			this.name = name;
 			this.renderTypeSupplier = renderTypeSupplier;
 		}
 
-		public RenderType get() {
+		public ChunkSectionLayer get() {
 			return this.renderTypeSupplier.get();
 		}
 
