@@ -24,7 +24,6 @@ plugins {
 	id("org.ajoberstar.grgit") version("+")
 	id("org.quiltmc.gradle.licenser") version("+")
 	id("com.modrinth.minotaur") version("+")
-    id("com.gradleup.shadow") version("+")
     `maven-publish`
     eclipse
     idea
