@@ -1,5 +1,5 @@
 ﻿{
-  "parent": "netheriernether:block/redstone_dust_side_emissive_13",
+  "parent": "glowtone:block/redstone_dust_side_emissive_13",
   "textures": {
     "line": "minecraft:block/redstone_dust_line0"
   }
