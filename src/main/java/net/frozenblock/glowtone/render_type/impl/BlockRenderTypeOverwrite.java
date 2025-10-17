@@ -62,7 +62,6 @@ public class BlockRenderTypeOverwrite {
 
 	public enum RenderTypeOverwrite implements StringRepresentable {
 		SOLID("solid", () -> ChunkSectionLayer.SOLID),
-		CUTOUT_MIPPED("cutout_mipped", () -> ChunkSectionLayer.CUTOUT_MIPPED),
 		CUTOUT("cutout", () -> ChunkSectionLayer.CUTOUT),
 		TRANSLUCENT("translucent", () -> ChunkSectionLayer.TRANSLUCENT),
 		TRIPWIRE("tripwire", () -> ChunkSectionLayer.TRIPWIRE);
