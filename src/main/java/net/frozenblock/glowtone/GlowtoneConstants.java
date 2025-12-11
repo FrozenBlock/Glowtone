@@ -17,10 +17,9 @@
 
 package net.frozenblock.glowtone;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
 public final class GlowtoneConstants {
@@ -31,17 +30,14 @@ public final class GlowtoneConstants {
 	public static boolean GLOWTONE_SHADING = false;
 
 	@Contract("_ -> new")
-	@NotNull
-	public static ResourceLocation id(String path) {
-		return ResourceLocation.fromNamespaceAndPath(GlowtoneConstants.MOD_ID, path);
+	public static Identifier id(String path) {
+		return Identifier.fromNamespaceAndPath(GlowtoneConstants.MOD_ID, path);
 	}
 
-	@NotNull
 	public static String string(String path) {
 		return id(path).toString();
 	}
 
-	@NotNull
 	public static String safeString(String path) {
 		return id(path).toString().replace(":", "_");
 	}

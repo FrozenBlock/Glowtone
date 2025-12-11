@@ -45,9 +45,9 @@ public class FaceBakeryMixin {
 		@Local(argsOnly = true) LocalIntRef lightEmission
 	) {
 		if (GlowtoneConstants.GLOWTONE_EMISSIVES) {
-			SpriteContents contents = sprite.contents();
+			final SpriteContents contents = sprite.contents();
 
-			Optional<EmissiveMetadataSection> optionalEmissiveMetadata = contents.getAdditionalMetadata(EmissiveMetadataSection.TYPE);
+			final Optional<EmissiveMetadataSection> optionalEmissiveMetadata = contents.getAdditionalMetadata(EmissiveMetadataSection.TYPE);
 			if (optionalEmissiveMetadata.isPresent()) {
 				EmissiveMetadataSection emissiveMetadata = optionalEmissiveMetadata.get();
 				shade.set(emissiveMetadata.shade().orElse(shade.get()));

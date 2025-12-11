@@ -32,15 +32,15 @@ public class ParticleMixin {
 
 	@ModifyReturnValue(method = "getLightColor", at = @At(value = "RETURN"))
 	public int glowtone$renderDustWithEmission(int original) {
-		if (GlowtoneConstants.GLOWTONE_EMISSIVES && Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingParticle) {
-			final int emission = glowingParticle.glowtone$getLightEmission();
-			if (emission == 0) return original;
-			int j = Math.max(original & 255, emission * 16);
-			int k = original >> 16 & 255;
-			if (j > 240) j = 240;
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingParticle)) return original;
 
-			return j | k << 16;
-		}
-		return original;
+		final int emission = glowingParticle.glowtone$getLightEmission();
+		if (emission == 0) return original;
+
+		int j = Math.max(original & 255, emission * 16);
+		int k = original >> 16 & 255;
+		if (j > 240) j = 240;
+
+		return j | k << 16;
 	}
 }

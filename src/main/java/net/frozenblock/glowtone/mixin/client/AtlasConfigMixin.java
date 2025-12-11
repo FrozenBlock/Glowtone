@@ -42,7 +42,7 @@ public class AtlasConfigMixin {
 	Set<MetadataSectionType<?>> additionalMetadata;
 
 	@Inject(
-		method = "<init>(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;ZLjava/util/Set;)V",
+		method = "<init>(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;ZLjava/util/Set;)V",
 		at = @At("TAIL")
 	)
 	private void glowtone$addEmissiveMetadataSection(CallbackInfo info) {

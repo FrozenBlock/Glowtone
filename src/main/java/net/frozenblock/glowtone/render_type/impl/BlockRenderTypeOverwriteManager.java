@@ -28,13 +28,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
@@ -63,7 +62,7 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 	}
 
 	@Override
-	public CompletableFuture<Void> apply(@NotNull BlockRenderTypeOverwriteManager.RenderTypeLoader prepared, ResourceManager manager, Executor executor) {
+	public CompletableFuture<Void> apply(BlockRenderTypeOverwriteManager.RenderTypeLoader prepared, ResourceManager manager, Executor executor) {
 		this.overwrites.clear();
 		prepared.getOverwrites().forEach(this::addFinalizedOverwrite);
 		this.applyOverwrites();
@@ -76,8 +75,7 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 		});
 	}
 
-	@NotNull
-	public ResourceLocation getFabricId() {
+	public Identifier getFabricId() {
 		return GlowtoneConstants.id("block_render_type_overwrites");
 	}
 
@@ -92,14 +90,14 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 		}
 
 		private void loadRenderTypeOverwrites() {
-			Map<ResourceLocation, Resource> resources = manager.listResources(DIRECTORY, id -> id.getPath().endsWith(".json"));
+			Map<Identifier, Resource> resources = manager.listResources(DIRECTORY, id -> id.getPath().endsWith(".json"));
 			var entrySet = resources.entrySet();
-			for (Map.Entry<ResourceLocation, Resource> entry : entrySet) {
+			for (Map.Entry<Identifier, Resource> entry : entrySet) {
 				this.addOverwrite(entry.getKey(), entry.getValue());
 			}
 		}
 
-		private void addOverwrite(ResourceLocation location, @NotNull Resource resource) {
+		private void addOverwrite(Identifier location, Resource resource) {
 			BufferedReader reader;
 			try {
 				reader = resource.openAsReader();
@@ -114,7 +112,7 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 
 			dataResult.resultOrPartial((string) -> LOGGER.error("Failed to parse render type override for file: '{}'", location))
 				.ifPresent(overwrite -> {
-					ResourceLocation blockName = ResourceLocation.fromNamespaceAndPath(
+					final Identifier blockName = Identifier.fromNamespaceAndPath(
 						location.getNamespace(),
 						location.getPath()
 							.replace(".json", "")

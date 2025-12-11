@@ -47,9 +47,8 @@ public class DustColorTransitionParticleMixin implements GlowingDustParticleInte
 		SpriteSet sprites,
 		CallbackInfo info
 	) {
-		if (GlowtoneConstants.GLOWTONE_EMISSIVES && options instanceof GlowingDustParticleInterface glowingDustParticleInterface) {
-			this.glowtone$lightEmission = glowingDustParticleInterface.glowtone$getLightEmission();
-		}
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(options instanceof GlowingDustParticleInterface glowingDustParticleInterface))return;
+		this.glowtone$lightEmission = glowingDustParticleInterface.glowtone$getLightEmission();
 	}
 
 	@Unique
