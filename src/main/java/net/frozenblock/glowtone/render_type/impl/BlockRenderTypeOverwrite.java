@@ -25,31 +25,15 @@ import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public class BlockRenderTypeOverwrite {
-	private final Block block;
-	private final RenderTypeOverwrite renderTypeOverwrite;
-
-	public BlockRenderTypeOverwrite(Block block, RenderTypeOverwrite renderTypeOverwrite) {
-		this.block = block;
-		this.renderTypeOverwrite = renderTypeOverwrite;
-	}
-
-	public Block getBlock() {
-		return this.block;
-	}
-
-	public RenderTypeOverwrite getRenderTypeOverwrite() {
-		return this.renderTypeOverwrite;
-	}
+public record BlockRenderTypeOverwrite(Block block, RenderTypeOverwrite renderTypeOverwrite) {
 
 	public ChunkSectionLayer getRenderType() {
-		return this.getRenderTypeOverwrite().get();
+		return this.renderTypeOverwrite().get();
 	}
 
 	protected record RenderTypeOverwriteHolder(RenderTypeOverwrite renderTypeOverwrite) {
@@ -80,7 +64,7 @@ public class BlockRenderTypeOverwrite {
 		}
 
 		@Override
-		public @NotNull String getSerializedName() {
+		public String getSerializedName() {
 			return this.name;
 		}
 	}

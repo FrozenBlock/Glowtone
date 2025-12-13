@@ -58,8 +58,11 @@ public abstract class SimpleUnbakedGeometryMixin {
 		TextureAtlasSprite original,
 		@Local(argsOnly = true) ModelBaker modelBaker,
 		@Local(argsOnly = true) ModelDebugName modelDebugName,
-		@Share("glowtone$emissiveSprite") LocalRef<TextureAtlasSprite> emissiveSpriteRef
+		@Share("glowtone$emissiveSprite") LocalRef<TextureAtlasSprite> emissiveSpriteRef,
+		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
+		emissiveSpriteRef.set(null);
+		emissiveQuadRef.set(null);
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return original;
 
 		final Identifier location = original.contents().name();

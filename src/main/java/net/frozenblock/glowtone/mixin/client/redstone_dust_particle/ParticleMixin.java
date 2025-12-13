@@ -30,17 +30,15 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Particle.class)
 public class ParticleMixin {
 
-	@ModifyReturnValue(method = "getLightColor", at = @At(value = "RETURN"))
+	@ModifyReturnValue(method = "getLightColor", at = @At("RETURN"))
 	public int glowtone$renderDustWithEmission(int original) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingParticle)) return original;
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingInterface)) return original;
 
-		final int emission = glowingParticle.glowtone$getLightEmission();
+		final int emission = glowingInterface.glowtone$getLightEmission();
 		if (emission == 0) return original;
 
-		int j = Math.max(original & 255, emission * 16);
-		int k = original >> 16 & 255;
-		if (j > 240) j = 240;
-
+		final int j = Math.min(Math.max(original & 255, emission * 16), 240);
+		final int k = original >> 16 & 255;
 		return j | k << 16;
 	}
 }

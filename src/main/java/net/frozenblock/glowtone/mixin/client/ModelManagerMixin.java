@@ -41,16 +41,12 @@ public class ModelManagerMixin {
 	)
 	public ResourceManager glowtone$toggleShading(ResourceManager resourceManager) {
 		GlowtoneConstants.GLOWTONE_EMISSIVES = resourceManager.listPacks().anyMatch(packResources -> {
-			if (packResources.knownPackInfo().isPresent()) {
-				return packResources.knownPackInfo().get().id().equals(GlowtoneConstants.string("glowtone_emissives"));
-			}
-			return false;
+			if (!packResources.knownPackInfo().isPresent()) return false;
+			return packResources.knownPackInfo().get().id().equals(GlowtoneConstants.string("glowtone_emissives"));
 		});
 		GlowtoneConstants.GLOWTONE_SHADING = resourceManager.listPacks().anyMatch(packResources -> {
-			if (packResources.knownPackInfo().isPresent()) {
-				return packResources.knownPackInfo().get().id().equals(GlowtoneConstants.string("glowtone_shading"));
-			}
-			return false;
+			if (!packResources.knownPackInfo().isPresent()) return false;
+			return packResources.knownPackInfo().get().id().equals(GlowtoneConstants.string("glowtone_shading"));
 		});
 		return resourceManager;
 	}

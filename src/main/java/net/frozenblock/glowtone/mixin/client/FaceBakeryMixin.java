@@ -49,7 +49,7 @@ public class FaceBakeryMixin {
 
 			final Optional<EmissiveMetadataSection> optionalEmissiveMetadata = contents.getAdditionalMetadata(EmissiveMetadataSection.TYPE);
 			if (optionalEmissiveMetadata.isPresent()) {
-				EmissiveMetadataSection emissiveMetadata = optionalEmissiveMetadata.get();
+				final EmissiveMetadataSection emissiveMetadata = optionalEmissiveMetadata.get();
 				shade.set(emissiveMetadata.shade().orElse(shade.get()));
 				lightEmission.set(emissiveMetadata.lightEmission());
 			} else {

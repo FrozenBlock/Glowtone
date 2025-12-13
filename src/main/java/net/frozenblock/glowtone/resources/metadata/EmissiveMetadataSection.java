@@ -31,8 +31,7 @@ public record EmissiveMetadataSection(int lightEmission, Optional<Boolean> shade
 		instance -> instance.group(
 				ExtraCodecs.intRange(0, 15).optionalFieldOf("light_emission", 15).forGetter(EmissiveMetadataSection::lightEmission),
 				Codec.BOOL.optionalFieldOf("shade").forGetter(EmissiveMetadataSection::shade)
-			)
-			.apply(instance, EmissiveMetadataSection::new)
+			).apply(instance, EmissiveMetadataSection::new)
 	);
 	public static final MetadataSectionType<EmissiveMetadataSection> TYPE = new MetadataSectionType<>("glowtone_emissive", CODEC);
 }

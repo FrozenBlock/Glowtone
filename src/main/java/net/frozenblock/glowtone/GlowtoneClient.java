@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.frozenblock.glowtone.render_type.impl.BlockRenderTypeOverwriteManager;
@@ -31,24 +31,27 @@ public final class GlowtoneClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		Optional<ModContainer> modContainer = FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID);
-		if (modContainer.isEmpty()) return;
-		final ModContainer container = modContainer.get();
+		final Optional<ModContainer> optionalModContainer = FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID);
+		if (optionalModContainer.isEmpty()) return;
+		final ModContainer modContainer = optionalModContainer.get();
 
-		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(BlockRenderTypeOverwriteManager.INSTANCE);
-
-		ResourceManagerHelper.registerBuiltinResourcePack(
-			GlowtoneConstants.id("glowtone_shading"),
-			container,
-			Component.translatable("pack.glowtone.glowtone_shading"),
-			ResourcePackActivationType.NORMAL
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(
+			GlowtoneConstants.id("block_render_type_overwrite_manager"),
+			BlockRenderTypeOverwriteManager.INSTANCE
 		);
 
-		ResourceManagerHelper.registerBuiltinResourcePack(
+		ResourceLoader.registerBuiltinPack(
+			GlowtoneConstants.id("glowtone_shading"),
+			modContainer,
+			Component.translatable("pack.glowtone.glowtone_shading"),
+			PackActivationType.NORMAL
+		);
+
+		ResourceLoader.registerBuiltinPack(
 			GlowtoneConstants.id("glowtone_emissives"),
-			container,
+			modContainer,
 			Component.translatable("pack.glowtone.glowtone_emissives"),
-			ResourcePackActivationType.DEFAULT_ENABLED
+			PackActivationType.DEFAULT_ENABLED
 		);
 	}
 

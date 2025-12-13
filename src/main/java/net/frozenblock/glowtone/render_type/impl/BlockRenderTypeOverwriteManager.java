@@ -25,8 +25,7 @@ import com.mojang.serialization.JsonOps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
-import net.frozenblock.glowtone.GlowtoneConstants;
+import net.fabricmc.fabric.api.resource.v1.reloader.SimpleResourceReloader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
@@ -39,12 +38,10 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 @ApiStatus.Internal
 @Environment(EnvType.CLIENT)
-public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadListener<BlockRenderTypeOverwriteManager.RenderTypeLoader> {
+public class BlockRenderTypeOverwriteManager extends SimpleResourceReloader<BlockRenderTypeOverwriteManager.RenderTypeLoader> {
 	private static final Logger LOGGER = LoggerFactory.getLogger("Block Render Type Overwrite Manager");
 	private static final String DIRECTORY = "glowtone_block_render_type_overwrites";
 
@@ -56,27 +53,27 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 		this.overwrites.add(overwrite);
 	}
 
-	@Override
-	public CompletableFuture<RenderTypeLoader> load(ResourceManager manager, Executor executor) {
-		return CompletableFuture.supplyAsync(() -> new RenderTypeLoader(manager), executor);
-	}
-
-	@Override
-	public CompletableFuture<Void> apply(BlockRenderTypeOverwriteManager.RenderTypeLoader prepared, ResourceManager manager, Executor executor) {
-		this.overwrites.clear();
-		prepared.getOverwrites().forEach(this::addFinalizedOverwrite);
-		this.applyOverwrites();
-		return CompletableFuture.runAsync(() -> {});
-	}
-
 	private void applyOverwrites() {
 		this.overwrites.forEach(overwrite -> {
-			BlockRenderLayerMap.putBlock(overwrite.getBlock(), overwrite.getRenderType());
+			BlockRenderLayerMap.putBlock(overwrite.block(), overwrite.getRenderType());
 		});
 	}
 
-	public Identifier getFabricId() {
-		return GlowtoneConstants.id("block_render_type_overwrites");
+	@Override
+	protected RenderTypeLoader prepare(SharedState sharedState) {
+		return new RenderTypeLoader(sharedState.resourceManager());
+	}
+
+	@Override
+	protected void apply(RenderTypeLoader renderTypeLoader, SharedState sharedState) {
+		this.overwrites.clear();
+		renderTypeLoader.getOverwrites().forEach(this::addFinalizedOverwrite);
+		this.applyOverwrites();
+	}
+
+	@Override
+	public String getName() {
+		return "Block Render Type Overwrite Manager";
 	}
 
 	public static class RenderTypeLoader {
@@ -90,36 +87,34 @@ public class BlockRenderTypeOverwriteManager implements SimpleResourceReloadList
 		}
 
 		private void loadRenderTypeOverwrites() {
-			Map<Identifier, Resource> resources = manager.listResources(DIRECTORY, id -> id.getPath().endsWith(".json"));
-			var entrySet = resources.entrySet();
-			for (Map.Entry<Identifier, Resource> entry : entrySet) {
-				this.addOverwrite(entry.getKey(), entry.getValue());
-			}
+			final Map<Identifier, Resource> resources = this.manager.listResources(DIRECTORY, id -> id.getPath().endsWith(".json"));
+			final Set<Map.Entry<Identifier, Resource>> entrySet = resources.entrySet();
+			for (Map.Entry<Identifier, Resource> entry : entrySet) this.addOverwrite(entry.getKey(), entry.getValue());
 		}
 
-		private void addOverwrite(Identifier location, Resource resource) {
+		private void addOverwrite(Identifier id, Resource resource) {
 			BufferedReader reader;
 			try {
 				reader = resource.openAsReader();
 			} catch (IOException e) {
-				LOGGER.error("Unable to open BufferedReader for file: `{}`", location);
+				LOGGER.error("Unable to open BufferedReader for file: `{}`", id);
 				return;
 			}
 
-			JsonObject json = GsonHelper.parse(reader);
-			DataResult<? extends Pair<? extends BlockRenderTypeOverwrite.RenderTypeOverwriteHolder, JsonElement>> dataResult
+			final JsonObject json = GsonHelper.parse(reader);
+			final DataResult<? extends Pair<? extends BlockRenderTypeOverwrite.RenderTypeOverwriteHolder, JsonElement>> dataResult
 				= BlockRenderTypeOverwrite.RenderTypeOverwriteHolder.CODEC.decode(JsonOps.INSTANCE, json);
 
-			dataResult.resultOrPartial((string) -> LOGGER.error("Failed to parse render type override for file: '{}'", location))
+			dataResult.resultOrPartial(string -> LOGGER.error("Failed to parse render type override for file: '{}'", id))
 				.ifPresent(overwrite -> {
 					final Identifier blockName = Identifier.fromNamespaceAndPath(
-						location.getNamespace(),
-						location.getPath()
+						id.getNamespace(),
+						id.getPath()
 							.replace(".json", "")
 							.replaceFirst(REPLACEMENT_DIRECTORY, "")
 					);
 
-					Block block = BuiltInRegistries.BLOCK.getOptional(blockName).orElse(null);
+					final Block block = BuiltInRegistries.BLOCK.getOptional(blockName).orElse(null);
 					if (block != null) {
 						parsedOverwrites.add(new BlockRenderTypeOverwrite(block, overwrite.getFirst().renderTypeOverwrite()));
 					} else {
