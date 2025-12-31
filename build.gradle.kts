@@ -46,9 +46,6 @@ val archives_base_name: String by project
 
 val fabric_api_version: String by project
 
-val modmenu_version: String by project
-val cloth_config_version: String by project
-
 val sodium_version: String by project
 val run_sodium: String by project
 val shouldRunSodium = run_sodium == "true"
@@ -201,9 +198,6 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabric_api_version")
-
-    // Mod Menu
-    modCompileOnlyApi("com.terraformersmc:modmenu:${modmenu_version}")
 
     // Sodium
     if (shouldRunSodium)
@@ -470,8 +464,6 @@ modrinth {
 
     dependencies {
         required.project("fabric-api")
-        optional.project("cloth-config")
-        optional.project("modmenu")
     }
 }
 
