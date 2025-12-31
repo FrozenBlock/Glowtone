@@ -56,11 +56,11 @@ Avoid the use of abbreviations in javadocs, except if they describe the name of 
 `@ModifyConstant` should never be used in a case where a `ModifyExpressionValue` could be used.
 
 The `$` character can be used in mixins to mark a semantic separation in the name.
-It allows to separate the actual name of the variable and the namespace, `wilderWild`.
+It allows to separate the actual name of the variable and the namespace, `glowtone`.
 
-Fields marked as `@Unique` must be prefixed with `wilderWild$` or `WILDERWILD$` if the field is static and final.
+Fields marked as `@Unique` must be prefixed with `glowtone$` or `GLOWTONE$` if the field is static and final.
 
-Methods marked with `@Unique` must be prefixed with `wilderWild$`.
+Methods marked with `@Unique` must be prefixed with `glowtone$`.
 
 Injector or modifier methods do not need to be prefixed. Fabric takes care of that.
 
