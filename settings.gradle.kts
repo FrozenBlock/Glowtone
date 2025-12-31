@@ -14,4 +14,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "FrozenLib"
+rootProject.name = "Glowtone"
