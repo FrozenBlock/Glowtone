@@ -29,10 +29,10 @@ import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.block.model.BlockElementRotation;
+import net.minecraft.client.renderer.block.model.Material;
 import net.minecraft.client.renderer.block.model.SimpleUnbakedGeometry;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelDebugName;
 import net.minecraft.client.resources.model.ModelState;
@@ -51,26 +51,27 @@ public abstract class SimpleUnbakedGeometryMixin {
 		method = "bake(Ljava/util/List;Lnet/minecraft/client/renderer/block/model/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/QuadCollection;",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/resources/model/SpriteGetter;resolveSlot(Lnet/minecraft/client/renderer/block/model/TextureSlots;Ljava/lang/String;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"
+			target = "Lnet/minecraft/client/resources/model/MaterialBaker;resolveSlot(Lnet/minecraft/client/renderer/block/model/TextureSlots;Ljava/lang/String;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/renderer/block/model/Material$Baked;"
 		)
 	)
-	private static TextureAtlasSprite glowtone$findEmissiveTexture(
-		TextureAtlasSprite original,
+	private static Material.Baked glowtone$findEmissiveTexture(
+		Material.Baked original,
 		@Local(argsOnly = true) ModelBaker modelBaker,
 		@Local(argsOnly = true) ModelDebugName modelDebugName,
-		@Share("glowtone$emissiveSprite") LocalRef<TextureAtlasSprite> emissiveSpriteRef,
+		@Share("glowtone$emissiveMaterial") LocalRef<Material.Baked> emissiveMaterialRef,
 		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
-		emissiveSpriteRef.set(null);
+		emissiveMaterialRef.set(null);
 		emissiveQuadRef.set(null);
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return original;
 
-		final Identifier location = original.contents().name();
-		final Identifier emissiveLocation = Identifier.fromNamespaceAndPath(location.getNamespace(), location.getPath() + "_glowtone_emissive");
+		final TextureAtlasSprite sprite = original.sprite();
+		final Identifier location = sprite.contents().name();
+		final Identifier emissiveLocation = location.withSuffix("_glowtone_emissive");
 
-		final TextureAtlasSprite emissiveSprite = modelBaker.sprites().get(new Material(original.atlasLocation(), emissiveLocation), modelDebugName);
-		if (emissiveSprite != null && !emissiveSprite.contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
-			emissiveSpriteRef.set(emissiveSprite);
+		final Material.Baked emissiveMaterial = modelBaker.materials().get(new Material(emissiveLocation), modelDebugName);
+		if (emissiveMaterial != null && !emissiveMaterial.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
+			emissiveMaterialRef.set(emissiveMaterial);
 		}
 
 		return original;
@@ -80,30 +81,30 @@ public abstract class SimpleUnbakedGeometryMixin {
 		method = "bake(Ljava/util/List;Lnet/minecraft/client/renderer/block/model/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/QuadCollection;",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/renderer/block/model/FaceBakery;bakeQuad(Lnet/minecraft/client/resources/model/ModelBaker$PartCache;Lorg/joml/Vector3fc;Lorg/joml/Vector3fc;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/renderer/block/model/BlockElementRotation;ZI)Lnet/minecraft/client/renderer/block/model/BakedQuad;"
+			target = "Lnet/minecraft/client/renderer/block/model/FaceBakery;bakeQuad(Lnet/minecraft/client/resources/model/ModelBaker;Lorg/joml/Vector3fc;Lorg/joml/Vector3fc;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/block/model/Material$Baked;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/renderer/block/model/BlockElementRotation;ZI)Lnet/minecraft/client/renderer/block/model/BakedQuad;"
 		)
 	)
 	private static BakedQuad glowtone$bakeEmissiveQuad(
-		ModelBaker.PartCache parts,
+		ModelBaker modelBaker,
 		Vector3fc from,
 		Vector3fc to,
 		BlockElementFace face,
-		TextureAtlasSprite sprite,
+		Material.Baked material,
 		Direction direction,
 		ModelState modelState,
 		BlockElementRotation rotation,
 		boolean shade,
 		int lightEmission,
 		Operation<BakedQuad> original,
-		@Share("glowtone$emissiveSprite") LocalRef<TextureAtlasSprite> emissiveSpriteRef,
+		@Share("glowtone$emissiveMaterial") LocalRef<Material.Baked> emissiveMaterialRef,
 		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
-		final BakedQuad originalQuad = original.call(parts, from, to, face, sprite, direction, modelState, rotation, shade, lightEmission);
+		final BakedQuad originalQuad = original.call(modelBaker, from, to, face, material, direction, modelState, rotation, shade, lightEmission);
 
-		final TextureAtlasSprite emissiveSprite = emissiveSpriteRef.get();
-		if (emissiveSprite == null) return originalQuad;
+		final Material.Baked emissiveMaterial = emissiveMaterialRef.get();
+		if (emissiveMaterial == null) return originalQuad;
 
-		final BakedQuad emissiveQuad = original.call(parts, from, to, face, emissiveSprite, direction, modelState, rotation, shade, lightEmission);
+		final BakedQuad emissiveQuad = original.call(modelBaker, from, to, face, emissiveMaterial, direction, modelState, rotation, shade, lightEmission);
 		emissiveQuadRef.set(emissiveQuad);
 
 		return originalQuad;

@@ -37,15 +37,18 @@ import java.util.Optional;
 @Mixin(FaceBakery.class)
 public class FaceBakeryMixin {
 
-	@Inject(method = "bakeQuad", at = @At("HEAD"))
+	@Inject(
+		method = "bakeQuad(Lnet/minecraft/client/resources/model/ModelBaker$Interner;Lorg/joml/Vector3fc;Lorg/joml/Vector3fc;Lnet/minecraft/client/renderer/block/model/BlockElementFace$UVs;Lcom/mojang/math/Quadrant;ILnet/minecraft/client/renderer/block/model/BakedQuad$SpriteInfo;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/renderer/block/model/BlockElementRotation;ZI)Lnet/minecraft/client/renderer/block/model/BakedQuad;",
+		at = @At("HEAD")
+	)
 	private static void glowtone$bakeWithEmission(
 		CallbackInfoReturnable<BakedQuad> info,
-		@Local(argsOnly = true) TextureAtlasSprite sprite,
+		@Local(argsOnly = true) BakedQuad.SpriteInfo spriteInfo,
 		@Local(argsOnly = true) LocalBooleanRef shade,
-		@Local(argsOnly = true) LocalIntRef lightEmission
+		@Local(argsOnly = true, ordinal = 1) LocalIntRef lightEmission
 	) {
 		if (GlowtoneConstants.GLOWTONE_EMISSIVES) {
-			final SpriteContents contents = sprite.contents();
+			final SpriteContents contents = spriteInfo.sprite().contents();
 
 			final Optional<EmissiveMetadataSection> optionalEmissiveMetadata = contents.getAdditionalMetadata(EmissiveMetadataSection.TYPE);
 			if (optionalEmissiveMetadata.isPresent()) {

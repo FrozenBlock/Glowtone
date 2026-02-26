@@ -1,46 +1,43 @@
 import groovy.xml.XmlSlurper
 import org.codehaus.groovy.runtime.ResourceGroovyMethods
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileInputStream
+import java.nio.file.Files
+import java.util.Properties
 import org.kohsuke.github.GHReleaseBuilder
 import org.kohsuke.github.GitHub
-import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.net.URI
-import java.nio.file.Files
-import java.util.*
+import java.net.URL
 
 buildscript {
-	repositories {
-		gradlePluginPortal()
-	}
-	dependencies {
-		classpath("org.kohsuke:github-api:+")
-	}
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath("org.kohsuke:github-api:+")
+    }
 }
 
 plugins {
-	id("fabric-loom") version("1.14-SNAPSHOT")
-	id("org.ajoberstar.grgit") version("+")
-	id("org.quiltmc.gradle.licenser") version("+")
-	id("com.modrinth.minotaur") version("+")
+    id("net.fabricmc.fabric-loom") version("1.15-SNAPSHOT")
+    id("org.quiltmc.gradle.licenser") version("+")
+    id("org.ajoberstar.grgit") version("+")
+    id("com.modrinth.minotaur") version("+")
     `maven-publish`
     eclipse
     idea
     `java-library`
     java
-    kotlin("jvm") version("2.2.0")
+    checkstyle
 }
 
+val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
+val licenseChecks: Boolean = githubActions
+
 val minecraft_version: String by project
-val quilt_mappings: String by project
-val parchment_mappings: String by project
 val loader_version: String by project
-val min_loader_version: String by project
 
 val mod_id: String by project
 val mod_version: String by project
-val mod_loader: String by project
 val maven_group: String by project
 val archives_base_name: String by project
 
@@ -49,19 +46,15 @@ val fabric_api_version: String by project
 val sodium_version: String by project
 val run_sodium: String by project
 val shouldRunSodium = run_sodium == "true"
-val iris_version: String by project
-
-val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
-val licenseChecks: Boolean = githubActions
 
 base {
-    archivesName.set(archives_base_name)
+    archivesName = archives_base_name
 }
 
 version = getModVersion()
 group = maven_group
 
-val release = findProperty("releaseType")?.equals("stable")
+val release = findProperty("releaseType") == "stable"
 
 val datagen by sourceSets.registering {
     compileClasspath += sourceSets.main.get().compileClasspath
@@ -71,7 +64,7 @@ val datagen by sourceSets.registering {
 loom {
     runtimeOnlyLog4j.set(true)
 
-    accessWidenerPath.set(file("src/main/resources/$mod_id.accesswidener"))
+    accessWidenerPath.set(file("src/main/resources/$mod_id.classtweaker"))
     interfaceInjection {
         // When enabled, injected interfaces from dependencies will be applied.
         enableDependencyInterfaceInjection.set(true)
@@ -110,42 +103,19 @@ loom {
     }
 }
 
-val includeModImplementation: Configuration by configurations.creating
-val includeImplementation: Configuration by configurations.creating
+checkstyle {
+    configFile = rootProject.file("checkstyle.xml")
+    toolVersion = "10.20.2"
+}
+
+val includeImplementation by configurations.creating
 
 configurations {
     include {
         extendsFrom(includeImplementation)
-        extendsFrom(includeModImplementation)
     }
     implementation {
         extendsFrom(includeImplementation)
-    }
-    modImplementation {
-        extendsFrom(includeModImplementation)
-    }
-}
-
-val api by sourceSets.registering {
-    java {
-        compileClasspath += sourceSets.main.get().compileClasspath
-    }
-}
-
-val relocModImplementation: Configuration by configurations.creating {
-    configurations.modImplementation.get().extendsFrom(this)
-}
-
-val relocModApi: Configuration by configurations.creating {
-    configurations.modApi.get().extendsFrom(this)
-}
-
-sourceSets {
-    main {
-        java {
-            compileClasspath += api.get().output
-            runtimeClasspath += api.get().output
-        }
     }
 }
 
@@ -153,10 +123,14 @@ repositories {
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    maven("https://api.modrinth.com/maven") {
-        name = "Modrinth"
-
-        content {
+    maven("https://jitpack.io")
+    exclusiveContent {
+        forRepository {
+            maven("https://api.modrinth.com/maven") {
+                name = "Modrinth"
+            }
+        }
+        filter {
             includeGroup("maven.modrinth")
         }
     }
@@ -166,10 +140,12 @@ repositories {
         }
     }
     maven("https://maven.shedaniel.me/")
-    maven("https://maven.minecraftforge.net")
-    maven("https://maven.parchmentmc.org")
-    maven("https://maven.quiltmc.org/repository/release") {
-        name = "Quilt"
+    maven("https://maven.blamejared.com")
+    maven("https://maven.minecraftforge.net/")
+    maven("https://maven.jamieswhiteshirt.com/libs-release") {
+        content {
+            includeGroup("com.jamieswhiteshirt")
+        }
     }
     maven("https://maven.frozenblock.net/release") {
         name = "FrozenBlock"
@@ -179,31 +155,23 @@ repositories {
         dirs("libs")
     }
     mavenCentral()
-    maven("https://jitpack.io")
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
+    // To change the versions, see the gradle.properties file
     minecraft("com.mojang:minecraft:$minecraft_version")
-	mappings(loom.layered {
-		// please annoy treetrain if this doesn't work
-        // mappings("org.quiltmc:quilt-mappings:$quilt_mappings:intermediary-v2")
-        // parchment("org.parchmentmc.data:parchment-$parchment_mappings@zip")
-		officialMojangMappings {
-			nameSyntheticMembers = false
-		}
-	})
-    modImplementation("net.fabricmc:fabric-loader:$loader_version")
-	testImplementation("net.fabricmc:fabric-loader-junit:$loader_version")
+    implementation("net.fabricmc:fabric-loader:$loader_version")
+    implementation("net.fabricmc.fabric-api:fabric-api:$fabric_api_version")
 
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabric_api_version")
-
+    /*
     // Sodium
     if (shouldRunSodium)
         modImplementation("maven.modrinth:sodium:${sodium_version}")
     else
         modCompileOnly("maven.modrinth:sodium:${sodium_version}")
+     */
+
+    "datagenImplementation"(sourceSets.main.get().output)
 }
 
 tasks {
@@ -211,14 +179,28 @@ tasks {
         val properties = mapOf(
             "mod_id" to mod_id,
             "version" to version,
-            "minecraft_version" to "~1.21-",//minecraft_version,
+            "minecraft_version" to "~26.1-",//minecraft_version,
 
-            "fabric_api_version" to ">=$fabric_api_version"
+            "fabric_api_version" to ">=$fabric_api_version",
         )
 
         properties.forEach { (a, b) -> inputs.property(a, b) }
 
-        filesMatching("fabric.mod.json") {
+        filesNotMatching(
+            listOf(
+                "**/*.java",
+                "**/sounds.json",
+                "**/lang/*.json",
+                "**/.cache/*",
+                "**/*.accesswidener",
+                "**/*.classtweaker",
+                "**/*.nbt",
+                "**/*.png",
+                "**/*.ogg",
+                "**/*.mixins.json",
+                "**/*.zip"
+            )
+        ) {
             expand(properties)
         }
     }
@@ -227,38 +209,29 @@ tasks {
         if (licenseChecks) {
             rule(file("codeformat/HEADER"))
 
-            include("**//*.java")
-            include("**//*.kt")
+            include("**/*.java")
         }
     }
 
-    test {
-        useJUnitPlatform()
-    }
 
     register("javadocJar", Jar::class) {
         dependsOn(javadoc)
-        archiveClassifier = "javadoc"
-        from(javadoc.get().destinationDir!!)
+        archiveClassifier.set("javadoc")
+        from(javadoc.get().destinationDir)
     }
 
     register("sourcesJar", Jar::class) {
         dependsOn(classes)
-        archiveClassifier = "sources"
+        archiveClassifier.set("sources")
         from(sourceSets.main.get().allSource)
     }
 
     withType(JavaCompile::class) {
         options.encoding = "UTF-8"
-        options.release = 21
+        // Minecraft 26.1 (26.1-snapshot-1) upwards uses Java 25.
+        options.release.set(25)
         options.isFork = true
         options.isIncremental = true
-    }
-
-    withType(KotlinCompile::class) {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_21
-        }
     }
 
     withType(Test::class) {
@@ -266,31 +239,23 @@ tasks {
     }
 }
 
-val build: Task by tasks
 val applyLicenses: Task by tasks
 val test: Task by tasks
 val runClient: Task by tasks
+val runDatagen: Task by tasks
 
-val remapJar: Task by tasks
-val sourcesJar: Task by tasks
-val javadocJar: Task by tasks
+val jar: Jar by tasks
+val sourcesJar: Jar by tasks
+val javadocJar: Jar by tasks
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
     // if it is present.
     // If you remove this line, sources will not be generated.
     withSourcesJar()
-}
-
-tasks {
-    jar {
-        from("LICENSE") {
-            rename { "${it}_${base.archivesName.get()}" }
-        }
-    }
 }
 
 artifacts {
@@ -302,33 +267,20 @@ fun getModVersion(): String {
     var version = "$mod_version-mc$minecraft_version"
 
     if (release != null && !release) {
-        version += "-unstable"
+        //version += "-unstable"
     }
 
     return version
 }
 
-val dev by configurations.creating {
-    isCanBeResolved = true // maybe do false? idk?
-    isCanBeConsumed = true
-}
-
-tasks {
-    artifacts {
-        archives(remapJar)
-        archives(sourcesJar)
-        add("dev", jar)
-    }
-}
-
-val env: MutableMap<String, String> = System.getenv()
+val env = System.getenv()
 
 publishing {
     val mavenUrl = env["MAVEN_URL"]
     val mavenUsername = env["MAVEN_USERNAME"]
     val mavenPassword = env["MAVEN_PASSWORD"]
 
-    //val release = mavenUrl?.contains("release")
+    val release = mavenUrl?.contains("release")
     val snapshot = mavenUrl?.contains("snapshot")
 
     val publishingValid = rootProject == project && !mavenUrl.isNullOrEmpty() && !mavenUsername.isNullOrEmpty() && !mavenPassword.isNullOrEmpty()
@@ -345,9 +297,7 @@ publishing {
         try {
             if (publishingValid) {
                 try {
-                    val xml = ResourceGroovyMethods.getText(
-                        URI.create("$mavenUrl/${publishGroup.replace('.', '/')}/$snapshotPublishVersion/$publishVersion.pom").toURL()
-                    )
+                    val xml = ResourceGroovyMethods.getText(URL("$mavenUrl/${publishGroup.replace('.', '/')}/$snapshotPublishVersion/$publishVersion.pom"))
                     val metadata = XmlSlurper().parseText(xml)
 
                     if (metadata.getProperty("hash").equals(hash)) {
@@ -415,7 +365,7 @@ val display_name = makeName(mod_version)
 val changelog_text = getChangelog(file(changelog_file))
 
 fun makeName(version: String): String {
-    return "$version (${minecraft_version})"
+    return "${version} (${minecraft_version})"
 }
 
 fun makeModrinthVersion(version: String): String {
@@ -446,29 +396,33 @@ fun getBranch(): String {
 }
 
 modrinth {
-    token = System.getenv("MODRINTH_TOKEN")
-    projectId = modrinth_id
-    versionNumber = modrinth_version
-    versionName = display_name
-    versionType = release_type
-    changelog = changelog_text
-    uploadFile = remapJar
-    gameVersions = listOf(minecraft_version)
-    loaders = listOf("fabric", "quilt")
-    /*
-    additionalFiles = listOf(
-        tasks.remapSourcesJar.get(),
-        javadocJar
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set(modrinth_id)
+    versionNumber.set(modrinth_version)
+    versionName.set(display_name)
+    versionType.set(release_type)
+    changelog.set(changelog_text)
+    uploadFile.set(jar)
+    gameVersions.set(listOf(minecraft_version))
+    loaders.set(listOf("fabric", "quilt"))
+    additionalFiles.set(
+        listOf(
+            //tasks.remapSourcesJar.get(),
+            //javadocJar
+        )
     )
-     */
-
     dependencies {
         required.project("fabric-api")
+        optional.project("wilder-wild")
+        optional.project("trailier-tales")
+        optional.project("the-copperier-age")
+        optional.project("netherier-nether")
     }
 }
 
+
 val github by tasks.register("github") {
-    dependsOn(remapJar)
+    dependsOn(jar)
     dependsOn(sourcesJar)
     dependsOn(javadocJar)
 
@@ -490,8 +444,8 @@ val github by tasks.register("github") {
         releaseBuilder.prerelease(release_type != "release")
 
         val ghRelease = releaseBuilder.create()
-        ghRelease.uploadAsset(tasks.remapJar.get().archiveFile.get().asFile, "application/java-archive")
-        ghRelease.uploadAsset(tasks.remapSourcesJar.get().archiveFile.get().asFile, "application/java-archive")
+        ghRelease.uploadAsset(jar.archiveFile.get().asFile, "application/java-archive")
+        ghRelease.uploadAsset(sourcesJar.archiveFile.get().asFile, "application/java-archive")
         ghRelease.uploadAsset(javadocJar.outputs.files.singleFile, "application/java-archive")
     }
 }

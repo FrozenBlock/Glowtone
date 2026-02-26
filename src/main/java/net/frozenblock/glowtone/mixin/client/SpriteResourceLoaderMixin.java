@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public interface SpriteResourceLoaderMixin {
 
 	@Inject(
-		method = "method_52851",
+		method = "lambda$create$0",
 		at = @At(
 			value = "INVOKE",
 			target = "Ljava/util/Optional;isPresent()Z"
@@ -47,7 +47,7 @@ public interface SpriteResourceLoaderMixin {
 	private static void glowtone$discardEmptyOverlays(
 		CallbackInfoReturnable<SpriteContents> info,
 		@Local(argsOnly = true) Identifier id,
-		@Local NativeImage image
+		@Local(name = "image") NativeImage image
 	) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
 		if (image == null) return;

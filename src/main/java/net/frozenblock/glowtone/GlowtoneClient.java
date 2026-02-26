@@ -22,9 +22,7 @@ import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.frozenblock.glowtone.render_type.impl.BlockRenderTypeOverwriteManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.packs.PackType;
 import java.util.Optional;
 
 public final class GlowtoneClient implements ClientModInitializer {
@@ -34,11 +32,6 @@ public final class GlowtoneClient implements ClientModInitializer {
 		final Optional<ModContainer> optionalModContainer = FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID);
 		if (optionalModContainer.isEmpty()) return;
 		final ModContainer modContainer = optionalModContainer.get();
-
-		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloader(
-			GlowtoneConstants.id("block_render_type_overwrite_manager"),
-			BlockRenderTypeOverwriteManager.INSTANCE
-		);
 
 		ResourceLoader.registerBuiltinPack(
 			GlowtoneConstants.id("glowtone_shading"),

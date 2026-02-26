@@ -26,7 +26,7 @@
   "mixins": [
     "glowtone.mixins.json"
   ],
-  "accessWidener": "glowtone.accesswidener",
+  "accessWidener": "glowtone.classtweaker",
   "depends": {
     "fabric-api": "*",
     "minecraft": "${minecraft_version}"

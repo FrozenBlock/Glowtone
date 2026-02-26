@@ -39,7 +39,7 @@ public class AtlasConfigMixin {
 	@Mutable
 	@Shadow
 	@Final
-	Set<MetadataSectionType<?>> additionalMetadata;
+	private Set<MetadataSectionType<?>> additionalMetadata;
 
 	@Inject(
 		method = "<init>(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;ZLjava/util/Set;)V",

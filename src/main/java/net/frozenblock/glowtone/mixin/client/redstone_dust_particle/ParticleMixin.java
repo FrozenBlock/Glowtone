@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Particle.class)
 public class ParticleMixin {
 
-	@ModifyReturnValue(method = "getLightColor", at = @At("RETURN"))
+	@ModifyReturnValue(method = "getLightCoords", at = @At("RETURN"))
 	public int glowtone$renderDustWithEmission(int original) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingInterface)) return original;
 

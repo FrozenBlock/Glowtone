@@ -52,7 +52,7 @@ public class ModelManagerMixin {
 	}
 
 	@WrapWithCondition(
-		method = "method_65749",
+		method = "lambda$loadModels$1",
 		at = @At(
 			value = "INVOKE",
 			target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
@@ -64,7 +64,7 @@ public class ModelManagerMixin {
 	}
 
 	@WrapWithCondition(
-		method = "method_65754",
+		method = "lambda$loadModels$3",
 		at = @At(
 			value = "INVOKE",
 			target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
