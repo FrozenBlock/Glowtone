@@ -26,32 +26,33 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockElementFace;
-import net.minecraft.client.renderer.block.model.BlockElementRotation;
-import net.minecraft.client.renderer.block.model.Material;
-import net.minecraft.client.renderer.block.model.SimpleUnbakedGeometry;
+import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelDebugName;
-import net.minecraft.client.resources.model.ModelState;
-import net.minecraft.client.resources.model.QuadCollection;
+import net.minecraft.client.resources.model.cuboid.CuboidFace;
+import net.minecraft.client.resources.model.cuboid.CuboidRotation;
+import net.minecraft.client.resources.model.cuboid.UnbakedCuboidGeometry;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Environment(EnvType.CLIENT)
-@Mixin(SimpleUnbakedGeometry.class)
-public abstract class SimpleUnbakedGeometryMixin {
+@Mixin(UnbakedCuboidGeometry.class)
+public abstract class UnbakedCuboidGeometryMixin {
 
 	@ModifyExpressionValue(
-		method = "bake(Ljava/util/List;Lnet/minecraft/client/renderer/block/model/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/QuadCollection;",
+		method = "bake(Ljava/util/List;Lnet/minecraft/client/resources/model/sprite/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/dispatch/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/geometry/QuadCollection;",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/resources/model/MaterialBaker;resolveSlot(Lnet/minecraft/client/renderer/block/model/TextureSlots;Ljava/lang/String;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/renderer/block/model/Material$Baked;"
+			target = "Lnet/minecraft/client/resources/model/sprite/MaterialBaker;resolveSlot(Lnet/minecraft/client/resources/model/sprite/TextureSlots;Ljava/lang/String;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/sprite/Material$Baked;"
 		)
 	)
 	private static Material.Baked glowtone$findEmissiveTexture(
@@ -78,43 +79,43 @@ public abstract class SimpleUnbakedGeometryMixin {
 	}
 
 	@WrapOperation(
-		method = "bake(Ljava/util/List;Lnet/minecraft/client/renderer/block/model/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/QuadCollection;",
+		method = "bake(Ljava/util/List;Lnet/minecraft/client/resources/model/sprite/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/dispatch/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/geometry/QuadCollection;",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/renderer/block/model/FaceBakery;bakeQuad(Lnet/minecraft/client/resources/model/ModelBaker;Lorg/joml/Vector3fc;Lorg/joml/Vector3fc;Lnet/minecraft/client/renderer/block/model/BlockElementFace;Lnet/minecraft/client/renderer/block/model/Material$Baked;Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/renderer/block/model/BlockElementRotation;ZI)Lnet/minecraft/client/renderer/block/model/BakedQuad;"
+			target = "Lnet/minecraft/client/resources/model/cuboid/FaceBakery;bakeQuad(Lnet/minecraft/client/resources/model/ModelBaker;Lorg/joml/Vector3fc;Lorg/joml/Vector3fc;Lnet/minecraft/client/resources/model/cuboid/CuboidFace;Lnet/minecraft/client/resources/model/sprite/Material$Baked;Lnet/minecraft/core/Direction;Lnet/minecraft/client/renderer/block/dispatch/ModelState;Lnet/minecraft/client/resources/model/cuboid/CuboidRotation;ZI)Lnet/minecraft/client/resources/model/geometry/BakedQuad;"
 		)
 	)
 	private static BakedQuad glowtone$bakeEmissiveQuad(
 		ModelBaker modelBaker,
 		Vector3fc from,
 		Vector3fc to,
-		BlockElementFace face,
+		CuboidFace face,
 		Material.Baked material,
-		Direction direction,
+		Direction facing,
 		ModelState modelState,
-		BlockElementRotation rotation,
+		@Nullable CuboidRotation elementRotation,
 		boolean shade,
 		int lightEmission,
 		Operation<BakedQuad> original,
 		@Share("glowtone$emissiveMaterial") LocalRef<Material.Baked> emissiveMaterialRef,
 		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
-		final BakedQuad originalQuad = original.call(modelBaker, from, to, face, material, direction, modelState, rotation, shade, lightEmission);
+		final BakedQuad originalQuad = original.call(modelBaker, from, to, face, material, facing, modelState, elementRotation, shade, lightEmission);
 
 		final Material.Baked emissiveMaterial = emissiveMaterialRef.get();
 		if (emissiveMaterial == null) return originalQuad;
 
-		final BakedQuad emissiveQuad = original.call(modelBaker, from, to, face, emissiveMaterial, direction, modelState, rotation, shade, lightEmission);
+		final BakedQuad emissiveQuad = original.call(modelBaker, from, to, face, emissiveMaterial, facing, modelState, elementRotation, shade, lightEmission);
 		emissiveQuadRef.set(emissiveQuad);
 
 		return originalQuad;
 	}
 
 	@WrapOperation(
-		method = "bake(Ljava/util/List;Lnet/minecraft/client/renderer/block/model/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/QuadCollection;",
+		method = "bake(Ljava/util/List;Lnet/minecraft/client/resources/model/sprite/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/dispatch/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/geometry/QuadCollection;",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/resources/model/QuadCollection$Builder;addUnculledFace(Lnet/minecraft/client/renderer/block/model/BakedQuad;)Lnet/minecraft/client/resources/model/QuadCollection$Builder;"
+			target = "Lnet/minecraft/client/resources/model/geometry/QuadCollection$Builder;addUnculledFace(Lnet/minecraft/client/resources/model/geometry/BakedQuad;)Lnet/minecraft/client/resources/model/geometry/QuadCollection$Builder;"
 		)
 	)
 	private static QuadCollection.Builder glowtone$bakeEmissiveUnculledFace(
@@ -130,10 +131,10 @@ public abstract class SimpleUnbakedGeometryMixin {
 	}
 
 	@WrapOperation(
-		method = "bake(Ljava/util/List;Lnet/minecraft/client/renderer/block/model/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/QuadCollection;",
+		method = "bake(Ljava/util/List;Lnet/minecraft/client/resources/model/sprite/TextureSlots;Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/dispatch/ModelState;Lnet/minecraft/client/resources/model/ModelDebugName;)Lnet/minecraft/client/resources/model/geometry/QuadCollection;",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/resources/model/QuadCollection$Builder;addCulledFace(Lnet/minecraft/core/Direction;Lnet/minecraft/client/renderer/block/model/BakedQuad;)Lnet/minecraft/client/resources/model/QuadCollection$Builder;"
+			target = "Lnet/minecraft/client/resources/model/geometry/QuadCollection$Builder;addCulledFace(Lnet/minecraft/core/Direction;Lnet/minecraft/client/resources/model/geometry/BakedQuad;)Lnet/minecraft/client/resources/model/geometry/QuadCollection$Builder;"
 		)
 	)
 	private static QuadCollection.Builder glowtone$bakeEmissiveCulledFace(

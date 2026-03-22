@@ -14,7 +14,7 @@
     "client.FaceBakeryMixin",
     "client.ItemLayerKeyMixin",
     "client.ModelManagerMixin",
-    "client.SimpleUnbakedGeometryMixin",
+    "client.UnbakedCuboidGeometryMixin",
     "client.SpriteResourceLoaderMixin",
     "client.block.BlocksMixin",
     "client.redstone_dust_particle.DustColorTransitionOptionsMixin",
