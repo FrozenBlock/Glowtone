@@ -22,7 +22,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.CardinalLighting;

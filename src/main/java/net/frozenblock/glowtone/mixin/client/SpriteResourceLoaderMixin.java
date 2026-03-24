@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import java.util.Arrays;
 import com.mojang.blaze3d.platform.NativeImage;
+import java.util.Arrays;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
