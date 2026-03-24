@@ -14,8 +14,8 @@
     "client.FaceBakeryMixin",
     "client.ItemLayerKeyMixin",
     "client.ModelManagerMixin",
-    "client.UnbakedCuboidGeometryMixin",
     "client.SpriteResourceLoaderMixin",
+    "client.UnbakedCuboidGeometryMixin",
     "client.block.BlocksMixin",
     "client.redstone_dust_particle.DustColorTransitionOptionsMixin",
     "client.redstone_dust_particle.DustColorTransitionParticleMixin",
@@ -23,6 +23,7 @@
     "client.redstone_dust_particle.DustParticleOptionsMixin",
     "client.redstone_dust_particle.ParticleMixin",
     "client.redstone_dust_particle.RedstoneWireBlockMixin",
-    "client.shading.LavaShadingMixin"
+    "client.shading.LavaShadingMixin",
+    "client.shading.sodium.LavaShadingSodiumMixin"
   ]
 }

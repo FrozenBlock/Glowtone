@@ -163,13 +163,12 @@ dependencies {
     implementation("net.fabricmc:fabric-loader:$loader_version")
     implementation("net.fabricmc.fabric-api:fabric-api:$fabric_api_version")
 
-    /*
     // Sodium
     if (shouldRunSodium)
-        modImplementation("maven.modrinth:sodium:${sodium_version}")
+        implementation("maven.modrinth:sodium:${sodium_version}")
     else
-        modCompileOnly("maven.modrinth:sodium:${sodium_version}")
-     */
+        compileOnly("maven.modrinth:sodium:${sodium_version}")
+
 
     "datagenImplementation"(sourceSets.main.get().output)
 }
