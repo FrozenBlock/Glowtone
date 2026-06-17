@@ -24,9 +24,12 @@ import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
+import java.util.function.Predicate;
 
 @Environment(EnvType.CLIENT)
 @Mixin(Blocks.class)
@@ -36,20 +39,21 @@ public class BlocksMixin {
 		method = "<clinit>",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;emissiveRendering(Lnet/minecraft/world/level/block/state/BlockBehaviour$StatePredicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;",
+			target = "Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;emissiveRendering(Ljava/util/function/Predicate;)Lnet/minecraft/world/level/block/state/BlockBehaviour$Properties;",
 			ordinal = 0
 		),
 		slice = @Slice(
 			from = @At(
-				value = "CONSTANT",
-				args = "stringValue=magma_block"
+				value = "FIELD",
+				target = "Lnet/minecraft/references/BlockItemIds;MAGMA_BLOCK:Lnet/minecraft/references/BlockItemId;",
+				opcode = Opcodes.GETSTATIC
 			)
 		)
 	)
 	private static BlockBehaviour.Properties glowtone$fixedMagmaRendering(
-		BlockBehaviour.Properties instance, BlockBehaviour.StatePredicate statePredicate, Operation<BlockBehaviour.Properties> original
+		BlockBehaviour.Properties instance, Predicate<BlockState> emissiveRendering, Operation<BlockBehaviour.Properties> original
 	) {
-		return original.call(instance, (BlockBehaviour.StatePredicate) (state, level, pos) -> !GlowtoneConstants.GLOWTONE_EMISSIVES);
+		return original.call(instance, (Predicate<BlockState>) state -> !GlowtoneConstants.GLOWTONE_EMISSIVES);
 	}
 
 }

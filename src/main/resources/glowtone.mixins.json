@@ -13,6 +13,7 @@
     "client.AtlasConfigMixin",
     "client.FaceBakeryMixin",
     "client.ItemLayerKeyMixin",
+    "client.MaterialBakerMixin",
     "client.ModelManagerMixin",
     "client.SpriteResourceLoaderMixin",
     "client.UnbakedCuboidGeometryMixin",
