@@ -47,5 +47,4 @@ public final class GlowtoneClient implements ClientModInitializer {
 			PackActivationType.DEFAULT_ENABLED
 		);
 	}
-
 }

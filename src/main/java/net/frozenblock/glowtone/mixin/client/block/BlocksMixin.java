@@ -55,5 +55,4 @@ public class BlocksMixin {
 	) {
 		return original.call(instance, (Predicate<BlockState>) state -> !GlowtoneConstants.GLOWTONE_EMISSIVES);
 	}
-
 }

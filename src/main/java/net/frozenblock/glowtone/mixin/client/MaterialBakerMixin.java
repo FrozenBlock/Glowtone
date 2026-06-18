@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MaterialBaker.class)
 public class MaterialBakerMixin {
+
 	@WrapWithCondition(
 		method = "lambda$logMissingTextures$0",
 		at = @At(

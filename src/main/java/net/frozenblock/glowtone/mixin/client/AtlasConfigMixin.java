@@ -50,5 +50,4 @@ public class AtlasConfigMixin {
 		sections.add(EmissiveMetadataSection.TYPE);
 		this.additionalMetadata = Set.copyOf(sections);
 	}
-
 }

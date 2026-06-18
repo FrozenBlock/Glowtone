@@ -58,5 +58,4 @@ public class DustColorTransitionOptionsMixin implements GlowingDustParticleInter
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
 		if (SCULK_TO_REDSTONE instanceof GlowingDustParticleInterface glowingInterface) glowingInterface.glowtone$setLightEmission(15);
 	}
-
 }

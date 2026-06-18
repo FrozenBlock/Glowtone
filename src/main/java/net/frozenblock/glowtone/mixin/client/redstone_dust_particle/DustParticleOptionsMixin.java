@@ -57,5 +57,4 @@ public class DustParticleOptionsMixin implements GlowingDustParticleInterface {
 	public void glowtone$makeBaseRedstoneParticlesEmissive(int color, float scale, CallbackInfo info) {
 		if (GlowtoneConstants.GLOWTONE_EMISSIVES && color == REDSTONE_PARTICLE_COLOR) this.glowtone$setLightEmission(15);
 	}
-
 }

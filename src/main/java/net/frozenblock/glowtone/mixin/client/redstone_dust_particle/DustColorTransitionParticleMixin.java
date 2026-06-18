@@ -42,7 +42,7 @@ public class DustColorTransitionParticleMixin implements GlowingDustParticleInte
 	void glowtone$lightEmission(
 		ClientLevel level,
 		double x, double y, double z,
-		double xSpeed, double ySpeed, double zSpeed,
+		double xAux, double yAux, double zAux,
 		DustColorTransitionOptions options,
 		SpriteSet sprites,
 		CallbackInfo info

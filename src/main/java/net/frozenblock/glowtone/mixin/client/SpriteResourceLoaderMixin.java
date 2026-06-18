@@ -46,17 +46,16 @@ public interface SpriteResourceLoaderMixin {
 	)
 	private static void glowtone$discardEmptyOverlays(
 		CallbackInfoReturnable<SpriteContents> info,
-		@Local(argsOnly = true) Identifier id,
+		@Local(argsOnly = true) Identifier spriteLocation,
 		@Local(name = "image") NativeImage image
 	) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
 		if (image == null) return;
-		if (!id.getPath().endsWith("_glowtone_emissive")) return;
+		if (!spriteLocation.getPath().endsWith("_glowtone_emissive")) return;
 
 		try {
 			final int[] pixels = image.getPixels();
 			if (Arrays.stream(pixels).allMatch(pixel -> ARGB.alpha(pixel) == 0)) info.setReturnValue(null);
 		} catch (Exception ignored) {}
 	}
-
 }

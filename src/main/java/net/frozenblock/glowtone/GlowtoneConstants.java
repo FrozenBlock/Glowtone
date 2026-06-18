@@ -19,7 +19,6 @@ package net.frozenblock.glowtone;
 
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
 
 @ApiStatus.Internal
 public final class GlowtoneConstants {
@@ -29,7 +28,6 @@ public final class GlowtoneConstants {
 	public static boolean GLOWTONE_EMISSIVES = false;
 	public static boolean GLOWTONE_SHADING = false;
 
-	@Contract("_ -> new")
 	public static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath(GlowtoneConstants.MOD_ID, path);
 	}

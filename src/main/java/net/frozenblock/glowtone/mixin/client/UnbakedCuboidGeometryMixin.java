@@ -58,7 +58,7 @@ public abstract class UnbakedCuboidGeometryMixin {
 	private static Material.Baked glowtone$findEmissiveTexture(
 		Material.Baked original,
 		@Local(argsOnly = true) ModelBaker modelBaker,
-		@Local(argsOnly = true) ModelDebugName modelDebugName,
+		@Local(argsOnly = true) ModelDebugName name,
 		@Share("glowtone$emissiveMaterial") LocalRef<Material.Baked> emissiveMaterialRef,
 		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
@@ -70,7 +70,7 @@ public abstract class UnbakedCuboidGeometryMixin {
 		final Identifier location = sprite.contents().name();
 		final Identifier emissiveLocation = location.withSuffix("_glowtone_emissive");
 
-		final Material.Baked emissiveMaterial = modelBaker.materials().get(new Material(emissiveLocation), modelDebugName);
+		final Material.Baked emissiveMaterial = modelBaker.materials().get(new Material(emissiveLocation), name);
 		if (emissiveMaterial != null && !emissiveMaterial.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
 			emissiveMaterialRef.set(emissiveMaterial);
 		}
@@ -88,7 +88,7 @@ public abstract class UnbakedCuboidGeometryMixin {
 	private static BakedQuad glowtone$bakeEmissiveQuad(
 		ModelBaker modelBaker,
 		Vector3fc from,
-		Vector3fc to,
+		Vector3fc _to,
 		CuboidFace face,
 		Material.Baked material,
 		Direction facing,
@@ -100,12 +100,12 @@ public abstract class UnbakedCuboidGeometryMixin {
 		@Share("glowtone$emissiveMaterial") LocalRef<Material.Baked> emissiveMaterialRef,
 		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
-		final BakedQuad originalQuad = original.call(modelBaker, from, to, face, material, facing, modelState, elementRotation, shade, lightEmission);
+		final BakedQuad originalQuad = original.call(modelBaker, from, _to, face, material, facing, modelState, elementRotation, shade, lightEmission);
 
 		final Material.Baked emissiveMaterial = emissiveMaterialRef.get();
 		if (emissiveMaterial == null) return originalQuad;
 
-		final BakedQuad emissiveQuad = original.call(modelBaker, from, to, face, emissiveMaterial, facing, modelState, elementRotation, shade, lightEmission);
+		final BakedQuad emissiveQuad = original.call(modelBaker, from, _to, face, emissiveMaterial, facing, modelState, elementRotation, shade, lightEmission);
 		emissiveQuadRef.set(emissiveQuad);
 
 		return originalQuad;
@@ -119,10 +119,10 @@ public abstract class UnbakedCuboidGeometryMixin {
 		)
 	)
 	private static QuadCollection.Builder glowtone$bakeEmissiveUnculledFace(
-		QuadCollection.Builder instance, BakedQuad bakedQuad, Operation<QuadCollection.Builder> original,
+		QuadCollection.Builder instance, BakedQuad quad, Operation<QuadCollection.Builder> original,
 		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
-		final QuadCollection.Builder builder = original.call(instance, bakedQuad);
+		final QuadCollection.Builder builder = original.call(instance, quad);
 
 		final BakedQuad emissiveQuad = emissiveQuadRef.get();
 		if (emissiveQuad != null) original.call(instance, emissiveQuad);
@@ -138,15 +138,14 @@ public abstract class UnbakedCuboidGeometryMixin {
 		)
 	)
 	private static QuadCollection.Builder glowtone$bakeEmissiveCulledFace(
-		QuadCollection.Builder instance, Direction rotatedDirection, BakedQuad bakedQuad, Operation<QuadCollection.Builder> original,
+		QuadCollection.Builder instance, Direction direction, BakedQuad quad, Operation<QuadCollection.Builder> original,
 		@Share("glowtone$emissiveQuad") LocalRef<BakedQuad> emissiveQuadRef
 	) {
-		final QuadCollection.Builder builder = original.call(instance, rotatedDirection, bakedQuad);
+		final QuadCollection.Builder builder = original.call(instance, direction, quad);
 
 		final BakedQuad emissiveQuad = emissiveQuadRef.get();
-		if (emissiveQuad != null) original.call(instance, rotatedDirection, emissiveQuad);
+		if (emissiveQuad != null) original.call(instance, direction, emissiveQuad);
 
 		return builder;
 	}
-
 }

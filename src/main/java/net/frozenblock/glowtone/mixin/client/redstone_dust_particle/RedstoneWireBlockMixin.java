@@ -59,5 +59,4 @@ public class RedstoneWireBlockMixin {
 
 		return original;
 	}
-
 }
