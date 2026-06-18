@@ -33,7 +33,6 @@ import org.spongepowered.asm.mixin.injection.At;
 @Environment(EnvType.CLIENT)
 @Mixin(FluidRenderer.class)
 public class LavaShadingMixin {
-
 	@Unique
 	private static final CardinalLighting GLOWTONE$NO_CARDINAL_LIGHTING = new CardinalLighting(1F, 1F, 1F, 1F, 1F, 1F);
 

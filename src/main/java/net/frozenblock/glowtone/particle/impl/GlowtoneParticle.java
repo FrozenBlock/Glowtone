@@ -21,7 +21,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
-public interface GlowingDustParticleInterface {
-	void glowtone$setLightEmission(int lightEmission);
-	int glowtone$getLightEmission();
+public interface GlowtoneParticle {
+
+	default void glowtone$setLightEmission(int lightEmission) {
+		throw new AssertionError();
+	}
+
+	default int glowtone$getLightEmission() {
+		throw new AssertionError();
+	}
 }

@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.particle.impl.GlowingDustParticleInterface;
+import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.DustColorTransitionParticle;
 import net.minecraft.client.particle.SpriteSet;
@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(DustColorTransitionParticle.class)
-public class DustColorTransitionParticleMixin implements GlowingDustParticleInterface {
+public class DustColorTransitionParticleMixin implements GlowtoneParticle {
 
 	@Unique
 	private int glowtone$lightEmission;
@@ -47,8 +47,8 @@ public class DustColorTransitionParticleMixin implements GlowingDustParticleInte
 		SpriteSet sprites,
 		CallbackInfo info
 	) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(options instanceof GlowingDustParticleInterface glowingInterface))return;
-		this.glowtone$lightEmission = glowingInterface.glowtone$getLightEmission();
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
+		this.glowtone$lightEmission = options.glowtone$getLightEmission();
 	}
 
 	@Unique

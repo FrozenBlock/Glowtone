@@ -20,8 +20,9 @@ package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.particle.impl.GlowingDustParticleInterface;
+import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(DustParticleOptions.class)
-public class DustParticleOptionsMixin implements GlowingDustParticleInterface {
+public class DustParticleOptionsMixin implements GlowtoneParticle {
 
 	@Shadow
 	@Final
@@ -55,6 +56,6 @@ public class DustParticleOptionsMixin implements GlowingDustParticleInterface {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void glowtone$makeBaseRedstoneParticlesEmissive(int color, float scale, CallbackInfo info) {
-		if (GlowtoneConstants.GLOWTONE_EMISSIVES && color == REDSTONE_PARTICLE_COLOR) this.glowtone$setLightEmission(15);
+		if (GlowtoneConstants.GLOWTONE_EMISSIVES && color == REDSTONE_PARTICLE_COLOR) this.glowtone$setLightEmission(LightEngine.MAX_LEVEL);
 	}
 }

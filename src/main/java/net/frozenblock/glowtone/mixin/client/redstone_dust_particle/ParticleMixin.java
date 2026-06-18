@@ -21,8 +21,10 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.particle.impl.GlowingDustParticleInterface;
+import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
 import net.minecraft.client.particle.Particle;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -32,13 +34,10 @@ public class ParticleMixin {
 
 	@ModifyReturnValue(method = "getLightCoords", at = @At("RETURN"))
 	public int glowtone$renderDustWithEmission(int original) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(Particle.class.cast(this) instanceof GlowingDustParticleInterface glowingInterface)) return original;
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(Particle.class.cast(this) instanceof GlowtoneParticle glowingInterface)) return original;
 
 		final int emission = glowingInterface.glowtone$getLightEmission();
 		if (emission == 0) return original;
-
-		final int j = Math.min(Math.max(original & 255, emission * 16), 240);
-		final int k = original >> 16 & 255;
-		return j | k << 16;
+		return LightCoordsUtil.addSmoothBlockEmission(original, (float) emission / LightEngine.MAX_LEVEL);
 	}
 }

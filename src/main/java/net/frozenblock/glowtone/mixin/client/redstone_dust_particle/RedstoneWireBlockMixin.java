@@ -22,7 +22,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.particle.impl.GlowingDustParticleInterface;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import org.spongepowered.asm.mixin.Final;
@@ -49,11 +48,11 @@ public class RedstoneWireBlockMixin {
 		DustParticleOptions original,
 		@Local(argsOnly = true) int color
 	) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !(original instanceof GlowingDustParticleInterface glowingInterface)) return original;
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return original;
 
 		for (int i = 1; i <= 15; i++) {
 			if (COLORS[i] != color) continue;
-			glowingInterface.glowtone$setLightEmission(i);
+			original.glowtone$setLightEmission(i);
 			break;
 		}
 
