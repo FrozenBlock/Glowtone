@@ -32,14 +32,14 @@ bin/
 
 target/
 
-# fabric
+# fabric / neoforge runs
 
 run/
+runs/
 runclient/
 runserver/
 /remappedSrc/
-/src/main/generated/.cache
-/src/testmod/generated/.cache
+**/src/generated/resources/.cache
 /config/
 
 # java

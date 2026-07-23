@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${description}",
+  "authors": [
+    "Luna/AViewFromTheTop"
+  ],
+  "contributors": [
+    "Lufurrius"
+  ],
+  "contact": {
+    "homepage": "https://www.modrinth.com/mod/Glowtone",
+    "sources": "https://github.com/FrozenBlock/Glowtone",
+    "issues": "https://github.com/FrozenBlock/Glowtone/issues"
+  },
+  "license": "${license}",
+  "icon": "assets/glowtone/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.frozenblock.glowtone.fabric.GlowtoneFabricClient"
+    ]
+  },
+  "mixins": [
+    "glowtone.mixins.json",
+    "glowtone.compat.mixins.json",
+    "glowtone.fabric.mixins.json"
+  ],
+  "accessWidener": "glowtone.accesswidener",
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": "*",
+    "minecraft": ">=1.21.1 <1.22"
+  },
+  "suggests": {
+    "sodium": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "frozenblock"
+      ]
+    }
+  }
+}

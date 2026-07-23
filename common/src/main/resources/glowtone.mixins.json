@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.frozenblock.glowtone.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "block.BlockStateBaseMixin",
+    "block.RedStoneWireBlockMixin",
+    "particle.DustColorTransitionOptionsMixin",
+    "particle.DustParticleOptionsMixin"
+  ],
+  "client": [
+    "client.ModelManagerMixin",
+    "client.SpriteContentsMixin",
+    "client.SpriteLoaderMixin",
+    "client.particle.DustParticleBaseMixin",
+    "client.particle.ParticleMixin",
+    "client.particle.TerrainParticleMixin",
+    "client.shading.LavaShadingMixin"
+  ]
+}

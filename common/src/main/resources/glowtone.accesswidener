@@ -1,0 +1,10 @@
+accessWidener v2 named
+
+# Needed to build a custom fullbright, no-diffuse, cutout item render type so emissive item parts are not
+# directionally/view dimmed when the shading pack is active.
+accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+accessible class net/minecraft/client/renderer/RenderType$CompositeState
+accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
+accessible field net/minecraft/client/renderer/RenderStateShard COLOR_DEPTH_WRITE Lnet/minecraft/client/renderer/RenderStateShard$WriteMaskStateShard;
+accessible field net/minecraft/client/renderer/RenderStateShard POLYGON_OFFSET_LAYERING Lnet/minecraft/client/renderer/RenderStateShard$LayeringStateShard;
+accessible field net/minecraft/client/renderer/RenderStateShard BLOCK_SHEET Lnet/minecraft/client/renderer/RenderStateShard$TextureStateShard;

@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.frozenblock.glowtone.neoforge.mixin.compat",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "client": [
+    "NeoforgeMeshEmitterMixin",
+    "SableDynamicShadingPreProcessorMixin"
+  ]
+}
