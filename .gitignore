@@ -37,9 +37,10 @@ target/
 run/
 runclient/
 runserver/
+/fabric/run
+/neoforge/runs
 /remappedSrc/
-/src/main/generated/.cache
-/src/testmod/generated/.cache
+/common/src/generated/resources/.cache
 /config/
 
 # java
