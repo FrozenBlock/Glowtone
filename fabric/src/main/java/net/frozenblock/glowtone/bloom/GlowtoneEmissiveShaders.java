@@ -33,6 +33,15 @@ public final class GlowtoneEmissiveShaders {
 		Identifier.withDefaultNamespace("core/particle")
 	);
 
+	private static final Set<Identifier> SELF_LIT_SHADERS = Set.of(
+		Identifier.withDefaultNamespace("core/position_tex"),
+		Identifier.withDefaultNamespace("core/position_tex_color"),
+		Identifier.withDefaultNamespace("core/stars"),
+		Identifier.withDefaultNamespace("core/rendertype_beacon_beam"),
+		Identifier.withDefaultNamespace("core/rendertype_lightning"),
+		Identifier.withDefaultNamespace("core/rendertype_end_portal")
+	);
+
 	private static final String MAIN = "void main()";
 	private static final String GLOWTONE_MAIN = "void glowtone_main()";
 	private static final String SAMPLE_LIGHTMAP = "sample_lightmap(Sampler2, UV2)";
@@ -76,6 +85,19 @@ public final class GlowtoneEmissiveShaders {
 		}
 		""";
 
+	private static final String SELF_LIT_FRAGMENT_HEADER = """
+		layout(location = 1) out vec4 glowtone_EmissiveColor;
+
+		""";
+
+	private static final String SELF_LIT_FRAGMENT_FOOTER = """
+
+		void main() {
+			glowtone_main();
+			glowtone_EmissiveColor = fragColor;
+		}
+		""";
+
 	private GlowtoneEmissiveShaders() {}
 
 	public static boolean isLitShader(Identifier id) {
@@ -83,8 +105,15 @@ public final class GlowtoneEmissiveShaders {
 	}
 
 	public static String patch(Identifier id, ShaderType type, String source) {
-		if (!LIT_SHADERS.contains(id) || !source.contains(MAIN)) return source;
-		return type == ShaderType.VERTEX ? patchVertex(source) : patchFragment(source);
+		if (!source.contains(MAIN)) return source;
+
+		if (LIT_SHADERS.contains(id)) {
+			return type == ShaderType.VERTEX ? patchVertex(source) : patchFragment(source);
+		}
+		if (SELF_LIT_SHADERS.contains(id) && type == ShaderType.FRAGMENT) {
+			return patchSelfLitFragment(source);
+		}
+		return source;
 	}
 
 	private static String patchVertex(String source) {
@@ -95,5 +124,11 @@ public final class GlowtoneEmissiveShaders {
 	private static String patchFragment(String source) {
 		if (!source.contains(FRAG_COLOR_OUT)) return source;
 		return source.replace(FRAG_COLOR_OUT, GLOWTONE_FRAG_COLOR_OUT).replace(MAIN, FRAGMENT_HEADER + GLOWTONE_MAIN) + FRAGMENT_FOOTER;
+	}
+
+	private static String patchSelfLitFragment(String source) {
+		if (!source.contains(FRAG_COLOR_OUT)) return source;
+		return source.replace(FRAG_COLOR_OUT, GLOWTONE_FRAG_COLOR_OUT).replace(MAIN, SELF_LIT_FRAGMENT_HEADER + GLOWTONE_MAIN)
+			+ SELF_LIT_FRAGMENT_FOOTER;
 	}
 }

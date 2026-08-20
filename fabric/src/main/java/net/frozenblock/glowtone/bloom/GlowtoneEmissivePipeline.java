@@ -20,12 +20,24 @@ package net.frozenblock.glowtone.bloom;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import java.util.Map;
+import java.util.Set;
+import net.minecraft.resources.Identifier;
 import java.util.concurrent.ConcurrentHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneEmissivePipeline extends RenderPipeline {
+	private static final Set<Identifier> SELF_LIT_PIPELINES = Set.of(
+		Identifier.withDefaultNamespace("pipeline/fire_screen_effect"),
+		Identifier.withDefaultNamespace("pipeline/celestial"),
+		Identifier.withDefaultNamespace("pipeline/stars"),
+		Identifier.withDefaultNamespace("pipeline/beacon_beam_opaque"),
+		Identifier.withDefaultNamespace("pipeline/beacon_beam_translucent"),
+		Identifier.withDefaultNamespace("pipeline/lightning"),
+		Identifier.withDefaultNamespace("pipeline/end_portal")
+	);
+
 	private static final Map<RenderPipeline, RenderPipeline> TWINS = new ConcurrentHashMap<>();
 
 	private GlowtoneEmissivePipeline(RenderPipeline base, ColorTargetState[] colorTargetStates) {
@@ -55,7 +67,9 @@ public final class GlowtoneEmissivePipeline extends RenderPipeline {
 		if (original.length != 1) return base;
 
 		final ColorTargetState primary = original[0] != null ? original[0] : ColorTargetState.DEFAULT;
-		final ColorTargetState emissive = GlowtoneEmissiveShaders.isLitShader(base.getFragmentShader())
+		final boolean writesEmissive = GlowtoneEmissiveShaders.isLitShader(base.getFragmentShader())
+			|| SELF_LIT_PIPELINES.contains(base.getLocation());
+		final ColorTargetState emissive = writesEmissive
 			? primary
 			: new ColorTargetState(primary.blendFunction(), primary.format(), ColorTargetState.WRITE_NONE);
 		return new GlowtoneEmissivePipeline(base, new ColorTargetState[]{primary, emissive});
