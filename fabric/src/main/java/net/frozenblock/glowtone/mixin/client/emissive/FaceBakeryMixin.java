@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client;
+package net.frozenblock.glowtone.mixin.client.emissive;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
@@ -58,7 +58,7 @@ public class FaceBakeryMixin {
 				shade = emissiveMetadata.shade().orElse(shade);
 				lightEmission = emissiveMetadata.lightEmission();
 				isModified = true;
-			} else if (contents.name().getPath().endsWith("_glowtone_emissive")) {
+			} else if (contents.name().getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)) {
 				lightEmission = 15;
 				isModified = true;
 			}

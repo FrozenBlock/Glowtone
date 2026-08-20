@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client;
+package net.frozenblock.glowtone.mixin.client.emissive;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -51,7 +51,7 @@ public interface SpriteResourceLoaderMixin {
 	) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
 		if (image == null) return;
-		if (!spriteLocation.getPath().endsWith("_glowtone_emissive")) return;
+		if (!spriteLocation.getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)) return;
 
 		try {
 			final int[] pixels = image.getPixels();

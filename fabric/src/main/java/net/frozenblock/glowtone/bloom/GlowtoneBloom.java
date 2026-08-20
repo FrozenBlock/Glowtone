@@ -19,24 +19,23 @@ package net.frozenblock.glowtone.bloom;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.level.lighting.LightEngine;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneBloom {
 	public static final int EMISSIVE_MARKER = 0x1000;
-	public static final String EMISSIVE_SUFFIX = "_glowtone_emissive";
 	public static final int LIGHT_COORDS_CHANNEL_MASK = 0xFF;
-
-	private GlowtoneBloom() {}
 
 	public static boolean isEmissiveQuad(BakedQuad quad) {
 		final BakedQuad.MaterialInfo materialInfo = quad.materialInfo();
-		if (materialInfo.lightEmission() >= LightEngine.MAX_LEVEL) return true;
-		return materialInfo.sprite().contents().name().getPath().endsWith(EMISSIVE_SUFFIX);
+		return materialInfo.lightEmission() >= LightEngine.MAX_LEVEL;
 	}
 
 	public static int mark(int lightCoords) {
 		return lightCoords | EMISSIVE_MARKER;
 	}
+
+	private GlowtoneBloom() {}
 }

@@ -15,31 +15,47 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client;
+package net.frozenblock.glowtone.mixin.client.emissive.redstone_dust_particle;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.EmissivesOption;
-import net.frozenblock.glowtone.config.GlowtoneConfig;
-import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.frozenblock.glowtone.GlowtoneConstants;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.world.level.block.RedStoneWireBlock;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ModelManager.class)
-public class ModelManagerMixin {
+@Mixin(RedStoneWireBlock.class)
+public class RedstoneWireBlockMixin {
+
+	@Shadow
+	@Final
+	private static int[] COLORS;
 
 	@ModifyExpressionValue(
-		method = "reload",
+		method = "spawnParticlesAlongLine",
 		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/packs/resources/PreparableReloadListener$SharedState;resourceManager()Lnet/minecraft/server/packs/resources/ResourceManager;"
+			value = "NEW",
+			target = "Lnet/minecraft/core/particles/DustParticleOptions;"
 		)
 	)
-	public ResourceManager glowtone$toggleShading(ResourceManager resourceManager) {
-		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
-		return resourceManager;
+	private static DustParticleOptions glowtone$makeDustGlow(
+		DustParticleOptions original,
+		@Local(argsOnly = true) int color
+	) {
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return original;
+
+		for (int i = 1; i <= 15; i++) {
+			if (COLORS[i] != color) continue;
+			original.glowtone$setLightEmission(i);
+			break;
+		}
+
+		return original;
 	}
 }

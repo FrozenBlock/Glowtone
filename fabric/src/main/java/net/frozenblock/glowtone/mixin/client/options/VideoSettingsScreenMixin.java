@@ -53,5 +53,4 @@ public class VideoSettingsScreenMixin {
 
 		return withBloom.toArray(OptionInstance<?>[]::new);
 	}
-
 }

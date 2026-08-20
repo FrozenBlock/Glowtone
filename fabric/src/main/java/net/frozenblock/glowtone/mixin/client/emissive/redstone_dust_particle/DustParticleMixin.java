@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
+package net.frozenblock.glowtone.mixin.client.emissive.redstone_dust_particle;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -15,47 +15,39 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
+package net.frozenblock.glowtone.mixin.client.emissive;
 
+import java.util.ArrayList;
+import java.util.Set;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.world.level.lighting.LightEngine;
+import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DustParticleOptions.class)
-public class DustParticleOptionsMixin implements GlowtoneParticle {
+@Mixin(AtlasManager.AtlasConfig.class)
+public class AtlasConfigMixin {
 
+	@Mutable
 	@Shadow
 	@Final
-	public static int REDSTONE_PARTICLE_COLOR;
+	private Set<MetadataSectionType<?>> additionalMetadata;
 
-	@Unique
-	private int glowtone$lightEmission;
-
-	@Unique
-	@Override
-	public void glowtone$setLightEmission(int lightEmission) {
-		this.glowtone$lightEmission = lightEmission;
-	}
-
-	@Unique
-	@Override
-	public int glowtone$getLightEmission() {
-		return this.glowtone$lightEmission;
-	}
-
-	@Inject(method = "<init>", at = @At("TAIL"))
-	public void glowtone$makeBaseRedstoneParticlesEmissive(int color, float scale, CallbackInfo info) {
-		if (GlowtoneConstants.GLOWTONE_EMISSIVES && color == REDSTONE_PARTICLE_COLOR) this.glowtone$setLightEmission(LightEngine.MAX_LEVEL);
+	@Inject(
+		method = "<init>(Lnet/minecraft/resources/Identifier;Lnet/minecraft/resources/Identifier;ZLjava/util/Set;)V",
+		at = @At("TAIL")
+	)
+	private void glowtone$addEmissiveMetadataSection(CallbackInfo info) {
+		final ArrayList<MetadataSectionType<?>> sections = new ArrayList<>(this.additionalMetadata);
+		sections.add(EmissiveMetadataSection.TYPE);
+		this.additionalMetadata = Set.copyOf(sections);
 	}
 }

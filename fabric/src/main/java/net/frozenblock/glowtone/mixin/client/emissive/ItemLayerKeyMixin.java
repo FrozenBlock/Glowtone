@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client;
+package net.frozenblock.glowtone.mixin.client.emissive;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -55,7 +55,7 @@ public class ItemLayerKeyMixin {
 
 		final TextureAtlasSprite sprite = materialInfo.sprite();
 		final Identifier location = sprite.contents().name();
-		final Identifier emissiveLocation = location.withSuffix("_glowtone_emissive");
+		final Identifier emissiveLocation = location.withSuffix(GlowtoneConstants.EMISSIVE_SUFFIX);
 
 		final Material.Baked emissiveMaterial = modelBakery.materials().get(new Material(emissiveLocation), () -> "generated item");
 		if (emissiveMaterial == null || emissiveMaterial.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return;

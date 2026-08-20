@@ -24,6 +24,7 @@ import org.jetbrains.annotations.ApiStatus;
 public final class GlowtoneConstants {
 	public static final String PROJECT_ID = "Glowtone";
 	public static final String MOD_ID = "glowtone";
+	public static final String EMISSIVE_SUFFIX = "_glowtone_emissive";
 
 	public static boolean GLOWTONE_EMISSIVES = false;
 	public static boolean GLOWTONE_SHADING = false;

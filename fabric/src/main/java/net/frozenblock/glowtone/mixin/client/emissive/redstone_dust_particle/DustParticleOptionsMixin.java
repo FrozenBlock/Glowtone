@@ -15,13 +15,13 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
+package net.frozenblock.glowtone.mixin.client.emissive.redstone_dust_particle;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
-import net.minecraft.core.particles.DustColorTransitionOptions;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.level.lighting.LightEngine;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,12 +32,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DustColorTransitionOptions.class)
-public class DustColorTransitionOptionsMixin implements GlowtoneParticle {
+@Mixin(DustParticleOptions.class)
+public class DustParticleOptionsMixin implements GlowtoneParticle {
 
 	@Shadow
 	@Final
-	public static DustColorTransitionOptions SCULK_TO_REDSTONE;
+	public static int REDSTONE_PARTICLE_COLOR;
 
 	@Unique
 	private int glowtone$lightEmission;
@@ -54,9 +54,8 @@ public class DustColorTransitionOptionsMixin implements GlowtoneParticle {
 		return this.glowtone$lightEmission;
 	}
 
-	@Inject(method = "<clinit>", at = @At("TAIL"))
-	private static void glowtone$makeSculkToRedstoneRedstoneParticlesEmissive(CallbackInfo info) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
-		SCULK_TO_REDSTONE.glowtone$setLightEmission(LightEngine.MAX_LEVEL);
+	@Inject(method = "<init>", at = @At("TAIL"))
+	public void glowtone$makeBaseRedstoneParticlesEmissive(int color, float scale, CallbackInfo info) {
+		if (GlowtoneConstants.GLOWTONE_EMISSIVES && color == REDSTONE_PARTICLE_COLOR) this.glowtone$setLightEmission(LightEngine.MAX_LEVEL);
 	}
 }

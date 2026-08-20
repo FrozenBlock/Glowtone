@@ -15,41 +15,32 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
+package net.frozenblock.glowtone.mixin.client.emissive.redstone_dust_particle;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.DustColorTransitionParticle;
-import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.DustColorTransitionOptions;
+import net.minecraft.world.level.lighting.LightEngine;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DustColorTransitionParticle.class)
-public class DustColorTransitionParticleMixin implements GlowtoneParticle {
+@Mixin(DustColorTransitionOptions.class)
+public class DustColorTransitionOptionsMixin implements GlowtoneParticle {
+
+	@Shadow
+	@Final
+	public static DustColorTransitionOptions SCULK_TO_REDSTONE;
 
 	@Unique
 	private int glowtone$lightEmission;
-
-	@Inject(method = "<init>", at = @At("TAIL"))
-	void glowtone$lightEmission(
-		ClientLevel level,
-		double x, double y, double z,
-		double xAux, double yAux, double zAux,
-		DustColorTransitionOptions options,
-		SpriteSet sprites,
-		CallbackInfo info
-	) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
-		this.glowtone$lightEmission = options.glowtone$getLightEmission();
-	}
 
 	@Unique
 	@Override
@@ -61,5 +52,11 @@ public class DustColorTransitionParticleMixin implements GlowtoneParticle {
 	@Override
 	public int glowtone$getLightEmission() {
 		return this.glowtone$lightEmission;
+	}
+
+	@Inject(method = "<clinit>", at = @At("TAIL"))
+	private static void glowtone$makeSculkToRedstoneRedstoneParticlesEmissive(CallbackInfo info) {
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
+		SCULK_TO_REDSTONE.glowtone$setLightEmission(LightEngine.MAX_LEVEL);
 	}
 }

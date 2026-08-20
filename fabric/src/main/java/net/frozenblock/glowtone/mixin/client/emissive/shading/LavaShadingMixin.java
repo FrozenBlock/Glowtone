@@ -15,47 +15,39 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.redstone_dust_particle;
+package net.frozenblock.glowtone.mixin.client.emissive.shading;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.world.level.block.RedStoneWireBlock;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.client.renderer.block.FluidRenderer;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Environment(EnvType.CLIENT)
-@Mixin(RedStoneWireBlock.class)
-public class RedstoneWireBlockMixin {
-
-	@Shadow
-	@Final
-	private static int[] COLORS;
+@Mixin(FluidRenderer.class)
+public class LavaShadingMixin {
+	@Unique
+	private static final CardinalLighting GLOWTONE$NO_CARDINAL_LIGHTING = new CardinalLighting(1F, 1F, 1F, 1F, 1F, 1F);
 
 	@ModifyExpressionValue(
-		method = "spawnParticlesAlongLine",
+		method = "tesselate",
 		at = @At(
-			value = "NEW",
-			target = "Lnet/minecraft/core/particles/DustParticleOptions;"
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/renderer/block/BlockAndTintGetter;cardinalLighting()Lnet/minecraft/world/level/CardinalLighting;"
 		)
 	)
-	private static DustParticleOptions glowtone$makeDustGlow(
-		DustParticleOptions original,
-		@Local(argsOnly = true) int color
+	public CardinalLighting glowtone$unshadeIfApplicable(
+		CardinalLighting original,
+		@Local(argsOnly = true) FluidState fluidState
 	) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return original;
-
-		for (int i = 1; i <= 15; i++) {
-			if (COLORS[i] != color) continue;
-			original.glowtone$setLightEmission(i);
-			break;
-		}
-
+		if (GlowtoneConstants.GLOWTONE_SHADING && fluidState.is(FluidTags.LAVA)) return GLOWTONE$NO_CARDINAL_LIGHTING;
 		return original;
 	}
 }

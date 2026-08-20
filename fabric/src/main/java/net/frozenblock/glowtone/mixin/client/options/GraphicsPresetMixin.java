@@ -39,7 +39,7 @@ public class GraphicsPresetMixin {
 	private void glowtone$applyBloomPreset(
 		Minecraft minecraft,
 		CallbackInfo info,
-		@Local(ordinal = 0) @Nullable OptionsSubScreen screen
+		@Local(name = "screen") @Nullable OptionsSubScreen screen
 	) {
 		if (screen == null) return;
 
