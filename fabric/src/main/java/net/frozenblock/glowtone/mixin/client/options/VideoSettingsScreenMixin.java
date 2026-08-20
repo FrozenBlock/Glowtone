@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.BloomOption;
+import net.frozenblock.glowtone.config.EmissivesOption;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.options.VideoSettingsScreen;
@@ -40,11 +41,15 @@ public class VideoSettingsScreenMixin {
 		for (OptionInstance<?> option : original) {
 			withBloom.add(option);
 			if (!placed && option == options.improvedTransparency()) {
+				withBloom.add(EmissivesOption.get());
 				withBloom.add(BloomOption.get());
 				placed = true;
 			}
 		}
-		if (!placed) withBloom.add(BloomOption.get());
+		if (!placed) {
+			withBloom.add(EmissivesOption.get());
+			withBloom.add(BloomOption.get());
+		}
 
 		return withBloom.toArray(OptionInstance<?>[]::new);
 	}

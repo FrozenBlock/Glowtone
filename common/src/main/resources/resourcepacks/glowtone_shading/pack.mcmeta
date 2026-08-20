@@ -1,7 +1,0 @@
-{
-   "pack": {
-     "min_format": [65],
-     "max_format": [32767],
-     "description": "Disables face dimming on bright lights."
-   }
-}

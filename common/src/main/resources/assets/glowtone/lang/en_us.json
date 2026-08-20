@@ -1,6 +1,9 @@
 {
-  "pack.glowtone.glowtone_emissives": "Glowtone Emissive Textures",
-  "pack.glowtone.glowtone_shading": "Glowtone Block Shading",
   "options.glowtone.bloom": "Bloom",
-  "options.glowtone.bloom.max": "B100M!"
+  "options.glowtone.bloom.max": "B100M!",
+  "options.glowtone.bloom.tooltip": "Adds a soft glow around anything that glows. Higher values make the glow stronger and more visible.",
+  "options.glowtone.emissives": "Emissives",
+  "options.glowtone.emissives.shaded": "Shaded",
+  "options.glowtone.emissives.shadeless": "Shadeless",
+  "options.glowtone.emissives.tooltip": "Change the way that glowing elements appear.\nShaded: glowing elements are dimmed based on direction, like normal blocks.\nShadeless: glowing elements are lit evenly from every angle."
 }

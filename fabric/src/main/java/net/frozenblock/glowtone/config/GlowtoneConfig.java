@@ -34,10 +34,12 @@ import org.slf4j.Logger;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneConfig {
-	public static final int DEFAULT_BLOOM = 20;
+	public static final int DEFAULT_BLOOM = 25;
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final String BLOOM_KEY = "bloom";
+	private static final String EMISSIVES_KEY = "emissives";
 	private static int bloom = DEFAULT_BLOOM;
+	private static EmissivesMode emissives = EmissivesMode.DEFAULT;
 	private static boolean loaded;
 
 	private GlowtoneConfig() {}
@@ -45,6 +47,19 @@ public final class GlowtoneConfig {
 	public static int bloom() {
 		if (!loaded) load();
 		return bloom;
+	}
+
+	public static EmissivesMode emissives() {
+		if (!loaded) load();
+		return emissives;
+	}
+
+	public static void setEmissives(EmissivesMode mode) {
+		if (!loaded) load();
+		if (emissives == mode) return;
+
+		emissives = mode;
+		save();
 	}
 
 	public static void setBloom(int value) {
@@ -69,6 +84,7 @@ public final class GlowtoneConfig {
 		try (Reader reader = Files.newBufferedReader(path)) {
 			final JsonObject json = GsonHelper.parse(reader);
 			bloom = Mth.clamp(GsonHelper.getAsInt(json, BLOOM_KEY, DEFAULT_BLOOM), BloomOption.MIN, BloomOption.MAX);
+			emissives = EmissivesMode.byId(GsonHelper.getAsString(json, EMISSIVES_KEY, EmissivesMode.DEFAULT.id()));
 		} catch (IOException | RuntimeException exception) {
 			LOGGER.error("Failed to read {}", path, exception);
 		}
@@ -82,6 +98,7 @@ public final class GlowtoneConfig {
 			try (Writer writer = Files.newBufferedWriter(path)) {
 				final JsonObject json = new JsonObject();
 				json.addProperty(BLOOM_KEY, bloom);
+				json.addProperty(EMISSIVES_KEY, emissives.id());
 				writer.write(json.toString());
 			}
 		} catch (IOException exception) {

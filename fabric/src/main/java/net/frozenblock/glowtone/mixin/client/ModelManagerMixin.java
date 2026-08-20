@@ -20,7 +20,8 @@ package net.frozenblock.glowtone.mixin.client;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.config.EmissivesOption;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,14 +39,7 @@ public class ModelManagerMixin {
 		)
 	)
 	public ResourceManager glowtone$toggleShading(ResourceManager resourceManager) {
-		GlowtoneConstants.GLOWTONE_EMISSIVES = resourceManager.listPacks().anyMatch(packResources -> {
-			if (!packResources.knownPackInfo().isPresent()) return false;
-			return packResources.knownPackInfo().get().id().equals(GlowtoneConstants.string("glowtone_emissives"));
-		});
-		GlowtoneConstants.GLOWTONE_SHADING = resourceManager.listPacks().anyMatch(packResources -> {
-			if (!packResources.knownPackInfo().isPresent()) return false;
-			return packResources.knownPackInfo().get().id().equals(GlowtoneConstants.string("glowtone_shading"));
-		});
+		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
 		return resourceManager;
 	}
 }

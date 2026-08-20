@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
 public final class BloomOption {
 	public static final int MIN = 0;
 	public static final int MAX = 100;
-	public static final int PRESET_DEFAULT = 20;
+	public static final int PRESET_DEFAULT = GlowtoneConfig.DEFAULT_BLOOM;
 	private static final String CAPTION = "options.glowtone.bloom";
 	private static @Nullable OptionInstance<Integer> instance;
 
@@ -38,7 +38,7 @@ public final class BloomOption {
 		if (instance == null) {
 			instance = new OptionInstance<>(
 				CAPTION,
-				OptionInstance.noTooltip(),
+				OptionInstance.cachedConstantTooltip(Component.translatable(CAPTION + ".tooltip")),
 				(caption, value) -> value == MAX
 					? Options.genericValueLabel(caption, Component.translatable("options.glowtone.bloom.max"))
 					: Options.genericValueOrOffLabel(caption, value),
