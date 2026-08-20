@@ -21,6 +21,9 @@ pluginManagement {
         maven("https://maven.frozenblock.net/snapshot") {
             name = "FrozenBlock Snapshot"
         }
+        maven("https://maven.minecraftforge.net/") {
+            name = "MinecraftForge"
+        }
         mavenCentral()
         gradlePluginPortal()
     }

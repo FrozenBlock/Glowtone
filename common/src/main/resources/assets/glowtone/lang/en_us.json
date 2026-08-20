@@ -1,4 +1,6 @@
 {
   "pack.glowtone.glowtone_emissives": "Glowtone Emissive Textures",
-  "pack.glowtone.glowtone_shading": "Glowtone Block Shading"
+  "pack.glowtone.glowtone_shading": "Glowtone Block Shading",
+  "options.glowtone.bloom": "Bloom",
+  "options.glowtone.bloom.max": "B100M!"
 }

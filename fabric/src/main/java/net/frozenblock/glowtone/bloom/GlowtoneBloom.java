@@ -1,0 +1,42 @@
+/*
+ * Copyright 2025-2026 FrozenBlock
+ * This file is part of Glowtone.
+ *
+ * This program is free software; you can modify it under
+ * the terms of version 1 of the FrozenBlock Modding Oasis License
+ * as published by FrozenBlock Modding Oasis.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * FrozenBlock Modding Oasis License for more details.
+ *
+ * You should have received a copy of the FrozenBlock Modding Oasis License
+ * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
+ */
+
+package net.frozenblock.glowtone.bloom;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.world.level.lighting.LightEngine;
+
+@Environment(EnvType.CLIENT)
+public final class GlowtoneBloom {
+	public static final int EMISSIVE_MARKER = 0x1000;
+	public static final String EMISSIVE_SUFFIX = "_glowtone_emissive";
+	public static final int LIGHT_COORDS_CHANNEL_MASK = 0xFF;
+
+	private GlowtoneBloom() {}
+
+	public static boolean isEmissiveQuad(BakedQuad quad) {
+		final BakedQuad.MaterialInfo materialInfo = quad.materialInfo();
+		if (materialInfo.lightEmission() >= LightEngine.MAX_LEVEL) return true;
+		return materialInfo.sprite().contents().name().getPath().endsWith(EMISSIVE_SUFFIX);
+	}
+
+	public static int mark(int lightCoords) {
+		return lightCoords | EMISSIVE_MARKER;
+	}
+}
