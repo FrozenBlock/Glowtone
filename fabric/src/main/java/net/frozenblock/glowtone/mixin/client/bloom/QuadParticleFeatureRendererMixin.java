@@ -48,14 +48,14 @@ public class QuadParticleFeatureRendererMixin {
 	private RenderPass glowtone$attachEmissiveTarget(
 		CommandEncoder encoder,
 		Supplier<String> label,
-		GpuTextureView colorView,
+		GpuTextureView colorTexture,
 		Optional<Vector4fc> clearColor,
-		GpuTextureView depthView,
+		GpuTextureView depthTexture,
 		OptionalDouble clearDepth,
 		Operation<RenderPass> original
 	) {
-		final RenderPass emissivePass = GlowtoneBloomRenderer.createEmissiveRenderPass(encoder, label, colorView, clearColor, depthView, clearDepth);
-		return emissivePass != null ? emissivePass : original.call(encoder, label, colorView, clearColor, depthView, clearDepth);
+		final RenderPass emissivePass = GlowtoneBloomRenderer.createEmissiveRenderPass(encoder, label, colorTexture, clearColor, depthTexture, clearDepth);
+		return emissivePass != null ? emissivePass : original.call(encoder, label, colorTexture, clearColor, depthTexture, clearDepth);
 	}
 
 	@WrapOperation(

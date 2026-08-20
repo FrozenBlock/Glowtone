@@ -42,9 +42,8 @@ public class SingleQuadParticleMixin {
 	)
 	private int glowtone$markEmissiveParticle(int lightCoords) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !GlowtoneBloomRenderer.isEnabled()) return lightCoords;
-		if (!(SingleQuadParticle.class.cast(this) instanceof GlowtoneLitParticle litParticle)) return lightCoords;
 
-		final int worldCoords = litParticle.glowtone$getWorldLightCoords();
+		final int worldCoords = SingleQuadParticle.class.cast(this).glowtone$getWorldLightCoords();
 		if (LightCoordsUtil.smoothBlock(lightCoords) <= LightCoordsUtil.smoothBlock(worldCoords)) return lightCoords;
 
 		return GlowtoneBloom.mark(lightCoords);

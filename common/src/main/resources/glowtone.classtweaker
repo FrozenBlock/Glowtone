@@ -3,6 +3,7 @@ classTweaker v1 official
 accessible class net/minecraft/client/resources/model/cuboid/ItemModelGenerator$ItemLayerKey
 accessible method net/minecraft/client/resources/model/cuboid/ItemModelGenerator$ItemLayerKey <init> (Lnet/minecraft/client/resources/model/sprite/Material$Baked;Lnet/minecraft/client/renderer/block/dispatch/ModelState;I)V
 
+transitive-inject-interface net/minecraft/client/particle/Particle net/frozenblock/glowtone/particle/impl/GlowtoneLitParticle
 transitive-inject-interface net/minecraft/core/particles/DustColorTransitionOptions net/frozenblock/glowtone/particle/impl/GlowtoneParticle
 transitive-inject-interface net/minecraft/client/particle/DustColorTransitionParticle net/frozenblock/glowtone/particle/impl/GlowtoneParticle
 transitive-inject-interface net/minecraft/core/particles/DustParticleOptions net/frozenblock/glowtone/particle/impl/GlowtoneParticle

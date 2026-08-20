@@ -15,11 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.bloom;
+package net.frozenblock.glowtone.mixin.client.bloom.fabric;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
+import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl;
 import net.frozenblock.glowtone.bloom.GlowtoneBloom;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
 @Environment(EnvType.CLIENT)
-@Mixin(targets = "net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl", remap = false)
+@Mixin(value = AltModelBlockRendererImpl.class, remap = false)
 public class AltModelBlockRendererMixin {
 
 	@Inject(method = "transform", at = @At("RETURN"), require = 0)

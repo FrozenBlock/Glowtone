@@ -42,6 +42,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.config.BloomOption;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
@@ -94,7 +95,7 @@ public final class GlowtoneBloomRenderer {
 	private GlowtoneBloomRenderer() {}
 
 	public static boolean isEnabled() {
-		return BloomOption.strength() > 0F;
+		return GlowtoneConfig.bloomEnabled();
 	}
 
 	public static @Nullable GpuTextureView emissiveView(int width, int height) {

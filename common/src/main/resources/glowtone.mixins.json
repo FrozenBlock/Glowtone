@@ -26,7 +26,6 @@
     "client.emissive.redstone_dust_particle.RedstoneWireBlockMixin",
     "client.emissive.shading.LavaShadingMixin",
     "client.emissive.shading.sodium.LavaShadingSodiumMixin",
-    "client.bloom.AltModelBlockRendererMixin",
     "client.bloom.ChunkSectionsToRenderMixin",
     "client.bloom.FlameFeatureRendererMixin",
     "client.bloom.FluidRendererMixin",
@@ -39,6 +38,7 @@
     "client.bloom.SkyRendererMixin",
     "client.bloom.VertexConsumerMixin",
     "client.options.GraphicsPresetMixin",
-    "client.options.VideoSettingsScreenMixin"
+    "client.options.VideoSettingsScreenMixin",
+    "client.bloom.fabric.AltModelBlockRendererMixin"
   ]
 }

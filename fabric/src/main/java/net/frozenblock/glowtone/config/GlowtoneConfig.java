@@ -39,6 +39,7 @@ public final class GlowtoneConfig {
 	private static final String BLOOM_KEY = "bloom";
 	private static final String EMISSIVES_KEY = "emissives";
 	private static int bloom = DEFAULT_BLOOM;
+	private static boolean bloomEnabled = true;
 	private static EmissivesMode emissives = EmissivesMode.DEFAULT;
 	private static boolean loaded;
 
@@ -47,6 +48,10 @@ public final class GlowtoneConfig {
 	public static int bloom() {
 		if (!loaded) load();
 		return bloom;
+	}
+
+	public static boolean bloomEnabled() {
+		return bloomEnabled;
 	}
 
 	public static EmissivesMode emissives() {
@@ -69,6 +74,7 @@ public final class GlowtoneConfig {
 		if (clamped == bloom) return;
 
 		bloom = clamped;
+		bloomEnabled = bloom > 0;
 		save();
 	}
 
@@ -84,6 +90,7 @@ public final class GlowtoneConfig {
 		try (Reader reader = Files.newBufferedReader(path)) {
 			final JsonObject json = GsonHelper.parse(reader);
 			bloom = Mth.clamp(GsonHelper.getAsInt(json, BLOOM_KEY, DEFAULT_BLOOM), BloomOption.MIN, BloomOption.MAX);
+			bloomEnabled = bloom > 0;
 			emissives = EmissivesMode.byId(GsonHelper.getAsString(json, EMISSIVES_KEY, EmissivesMode.DEFAULT.id()));
 		} catch (IOException | RuntimeException exception) {
 			LOGGER.error("Failed to read {}", path, exception);
