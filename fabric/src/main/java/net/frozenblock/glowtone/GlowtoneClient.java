@@ -21,11 +21,14 @@ import net.frozenblock.glowtone.config.EmissivesOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.frozenblock.glowtone.foliage.GlowtoneFoliageChunkSectionLayers;
+import net.frozenblock.glowtone.foliage.GlowtoneFoliagePipelines;
 
 public final class GlowtoneClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		GlowtoneFoliageChunkSectionLayers.init();
 		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
 	}
 }
