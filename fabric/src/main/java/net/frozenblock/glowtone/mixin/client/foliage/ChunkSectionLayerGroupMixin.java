@@ -25,7 +25,6 @@ public class ChunkSectionLayerGroupMixin {
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void glowtone$addFoliageLayer(String layers, int par2, ChunkSectionLayer[] par3, CallbackInfo info) {
 		if (!Arrays.stream(par3).anyMatch(layer -> layer == ChunkSectionLayer.CUTOUT)) return;
-		GlowtoneFoliageChunkSectionLayers.init();
 		final List<ChunkSectionLayer> newLayers = new ArrayList<>(List.of(this.layers));
 		newLayers.add(GlowtoneFoliageChunkSectionLayers.GLOWTONE_FOLIAGE);
 		this.layers = newLayers.toArray(new ChunkSectionLayer[0]);

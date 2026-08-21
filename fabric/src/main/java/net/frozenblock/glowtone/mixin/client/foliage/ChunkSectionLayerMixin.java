@@ -12,7 +12,7 @@ public enum ChunkSectionLayerMixin {
 	GLOWTONE_FOLIAGE(GlowtoneFoliagePipelines.CUTOUT_TERRAIN, 4194304, false);
 
 	static {
-		GlowtoneFoliageChunkSectionLayers.GLOWTONE_FOLIAGE = (ChunkSectionLayer) (Object) GLOWTONE_FOLIAGE;
+		GlowtoneFoliageChunkSectionLayers.GLOWTONE_FOLIAGE = ChunkSectionLayer.class.cast(GLOWTONE_FOLIAGE);
 	}
 
 	@Shadow

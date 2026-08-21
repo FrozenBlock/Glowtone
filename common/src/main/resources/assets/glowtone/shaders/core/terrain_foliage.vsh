@@ -26,7 +26,7 @@ vec3 animateFoliage(vec3 pos, float gameTime) {
     float zOffset = 0.0;
 
     vec3 repeatPos = pos / 2.0 * PI;
-    float animTime = time * 4000.0;
+    float animTime = gameTime * 4000.0;
 
     xOffset = sin(repeatPos.x + (repeatPos.y / 2.0) + animTime) / 32.0;
     yOffset = cos(repeatPos.z + (repeatPos.y / 2.0) + animTime) / 32.0;

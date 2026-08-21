@@ -28,7 +28,6 @@ public final class GlowtoneClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		GlowtoneFoliageChunkSectionLayers.init();
 		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
 	}
 }
