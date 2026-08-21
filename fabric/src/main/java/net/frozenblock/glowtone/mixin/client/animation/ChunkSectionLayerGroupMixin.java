@@ -1,6 +1,6 @@
-package net.frozenblock.glowtone.mixin.client.foliage;
+package net.frozenblock.glowtone.mixin.client.animation;
 
-import net.frozenblock.glowtone.foliage.GlowtoneFoliageChunkSectionLayers;
+import net.frozenblock.glowtone.animation.GlowtoneAnimationChunkSectionLayers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import org.spongepowered.asm.mixin.Final;
@@ -24,9 +24,11 @@ public class ChunkSectionLayerGroupMixin {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void glowtone$addFoliageLayer(String layers, int par2, ChunkSectionLayer[] par3, CallbackInfo info) {
-		if (!Arrays.stream(par3).anyMatch(layer -> layer == ChunkSectionLayer.CUTOUT)) return;
+		if (!Arrays.stream(this.layers).anyMatch(layer -> layer == ChunkSectionLayer.CUTOUT)) return;
+
 		final List<ChunkSectionLayer> newLayers = new ArrayList<>(List.of(this.layers));
-		newLayers.add(GlowtoneFoliageChunkSectionLayers.GLOWTONE_FOLIAGE);
+		newLayers.add(GlowtoneAnimationChunkSectionLayers.GLOWTONE_ANIMATION_FOLIAGE);
+		newLayers.add(GlowtoneAnimationChunkSectionLayers.GLOWTONE_ANIMATION_FIRE);
 		this.layers = newLayers.toArray(new ChunkSectionLayer[0]);
 	}
 }

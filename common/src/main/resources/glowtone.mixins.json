@@ -40,8 +40,8 @@
     "client.options.GraphicsPresetMixin",
     "client.options.VideoSettingsScreenMixin",
     "client.bloom.fabric.AltModelBlockRendererMixin",
-    "client.foliage.BakedQuadMaterialInfoMixin",
-    "client.foliage.ChunkSectionLayerGroupMixin",
-    "client.foliage.ChunkSectionLayerMixin"
+    "client.animation.BakedQuadMaterialInfoMixin",
+    "client.animation.ChunkSectionLayerGroupMixin",
+    "client.animation.ChunkSectionLayerMixin"
   ]
 }
