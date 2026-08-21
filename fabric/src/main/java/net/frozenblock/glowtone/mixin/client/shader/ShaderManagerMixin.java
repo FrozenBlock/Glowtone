@@ -15,18 +15,21 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.bloom;
+package net.frozenblock.glowtone.mixin.client.shader;
 
+import com.google.common.collect.ImmutableMap;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.shaders.ShaderType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.animation.GlowtoneAnimationShaders;
 import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
 import net.minecraft.client.renderer.ShaderManager;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ShaderManager.class)
@@ -39,11 +42,24 @@ public class ShaderManagerMixin {
 			target = "Ljava/lang/String;join(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;"
 		)
 	)
-	private static String glowtone$patchEmissiveShader(
+	private static String glowtone$patchShaders(
 		String source,
 		@Local(argsOnly = true) Identifier location,
-		@Local(argsOnly = true) ShaderType type
+		@Local(argsOnly = true) ShaderType type,
+		@Local(argsOnly = true) ImmutableMap.Builder<ShaderManager.ShaderSourceKey, String> output
 	) {
-		return GlowtoneEmissiveShaders.patch(type.idConverter().fileToId(location), type, source);
+		final Identifier condensedId = type.idConverter().fileToId(location);
+
+		final Map<Identifier, String> animationShaders = GlowtoneAnimationShaders.createNewTerrainShaders(condensedId, type, source);
+		if (animationShaders != null) {
+			animationShaders.forEach((animationId, animationSource) -> {
+				output.put(
+					new ShaderManager.ShaderSourceKey(animationId, type),
+					GlowtoneEmissiveShaders.patch(animationId, type, animationSource)
+				);
+			});
+		}
+
+		return GlowtoneEmissiveShaders.patch(condensedId, type, source);
 	}
 }

@@ -21,13 +21,12 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneAnimationPipelines {
 	public static final RenderPipeline.Snippet TERRAIN_FOLIAGE_SNIPPET = RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET)
-		.withVertexShader(GlowtoneConstants.id("core/animation/terrain_foliage"))
+		.withVertexShader(GlowtoneAnimationShaders.createTerrainAnimationShaderId("foliage"))
 		.buildSnippet();
 	public static final RenderPipeline CUTOUT_TERRAIN_FOLIAGE = RenderPipelines.register(
 		RenderPipeline.builder(TERRAIN_FOLIAGE_SNIPPET)
@@ -37,7 +36,7 @@ public final class GlowtoneAnimationPipelines {
 	);
 
 	public static final RenderPipeline.Snippet TERRAIN_FIRE_SNIPPET = RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET)
-		.withVertexShader(GlowtoneConstants.id("core/animation/terrain_fire"))
+		.withVertexShader(GlowtoneAnimationShaders.createTerrainAnimationShaderId("fire"))
 		.buildSnippet();
 	public static final RenderPipeline CUTOUT_TERRAIN_FIRE = RenderPipelines.register(
 		RenderPipeline.builder(TERRAIN_FIRE_SNIPPET)

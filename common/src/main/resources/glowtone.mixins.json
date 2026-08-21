@@ -33,7 +33,6 @@
     "client.bloom.LevelRendererMixin",
     "client.bloom.PreparedRenderTypeMixin",
     "client.bloom.QuadParticleFeatureRendererMixin",
-    "client.bloom.ShaderManagerMixin",
     "client.bloom.SingleQuadParticleMixin",
     "client.bloom.SkyRendererMixin",
     "client.bloom.VertexConsumerMixin",
@@ -42,6 +41,7 @@
     "client.bloom.fabric.AltModelBlockRendererMixin",
     "client.animation.BakedQuadMaterialInfoMixin",
     "client.animation.ChunkSectionLayerGroupMixin",
-    "client.animation.ChunkSectionLayerMixin"
+    "client.animation.ChunkSectionLayerMixin",
+    "client.shader.ShaderManagerMixin"
   ]
 }
