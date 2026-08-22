@@ -24,11 +24,16 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
+import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(SingleQuadParticle.class)
-public class SingleQuadParticleMixin {
+public abstract class SingleQuadParticleMixin extends Particle {
+
+	protected SingleQuadParticleMixin(ClientLevel level, double x, double y, double z) {
+		super(level, x, y, z);
+	}
 
 	@WrapOperation(
 		method = "extractRotatedQuad(Lnet/minecraft/client/renderer/state/level/QuadParticleRenderState;Lorg/joml/Quaternionf;FFFF)V",
@@ -56,7 +61,8 @@ public class SingleQuadParticleMixin {
 		int lightCoords,
 		Operation<Void> original
 	) {
-		color = GlowtoneChromaFold.tintParticleColor(color, lightCoords, x, y, z);
+		// FIXME: i dont support lerped positions!
+		color = GlowtoneChromaFold.tintParticleColor(color, lightCoords, this.x, this.y, this.z);
 		original.call(instance, layer, x, y, z, xRot, yRot, zRot, wRot, scale, u0, u1, v0, v1, color, lightCoords);
 	}
 }
