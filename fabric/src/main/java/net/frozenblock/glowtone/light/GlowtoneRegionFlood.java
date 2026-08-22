@@ -316,7 +316,7 @@ public final class GlowtoneRegionFlood {
 			final SectionCopy sectionCopy = sections[i];
 			if (sectionCopy.debug) continue;
 
-			PalettedContainer<BlockState> container = sectionCopy.section;
+			final PalettedContainer<BlockState> container = sectionCopy.section;
 			if (container == null || !container.maybeHas(TINTS_DAYLIGHT)) continue;
 
 			mask |= 1 << i;
@@ -350,8 +350,8 @@ public final class GlowtoneRegionFlood {
 					if (isOutside(rx, ry, rz)) continue;
 
 					best = GlowtoneChannels.merge(
-							best,
-							this.levels[cellIndex(rx, ry, rz)] & GlowtoneChannels.LEVEL_MASK
+						best,
+						this.levels[cellIndex(rx, ry, rz)] & GlowtoneChannels.LEVEL_MASK
 					);
 				}
 			}
@@ -474,7 +474,7 @@ public final class GlowtoneRegionFlood {
 			final SectionCopy sectionCopy = sections[i];
 			if (sectionCopy.debug) continue;
 
-			PalettedContainer<BlockState> container = sectionCopy.section;
+			final PalettedContainer<BlockState> container = sectionCopy.section;
 			if (container == null || !container.maybeHas(EMITS_LIGHT)) continue;
 
 			mask |= 1 << i;

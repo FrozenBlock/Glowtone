@@ -62,6 +62,7 @@ public abstract class SingleQuadParticleMixin extends Particle {
 		Operation<Void> original
 	) {
 		// FIXME: i dont support lerped positions!
+		// FIXME: i also don't support self-emission! colored light tints me even when im glowing :(
 		color = GlowtoneChromaFold.tintParticleColor(color, lightCoords, this.x, this.y, this.z);
 		original.call(instance, layer, x, y, z, xRot, yRot, zRot, wRot, scale, u0, u1, v0, v1, color, lightCoords);
 	}
