@@ -18,12 +18,15 @@
 package net.frozenblock.glowtone.light.color;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import net.frozenblock.lib.block.api.attachment.BlockAttachmentKey;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 public final class GlowtoneEmitterColors {
+	private static final BlockAttachmentKey<Integer> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Color Emission");
 	public static final int NO_COLOUR = -1;
 
 	public static final int WHITE = 0xFFFFFF;
@@ -34,13 +37,24 @@ public final class GlowtoneEmitterColors {
 		throw new UnsupportedOperationException("GlowtoneEmitterColors is a static holder.");
 	}
 
+	public static void attachAndClearColors() {
+		BuiltInRegistries.BLOCK.forEach(block -> {
+			final int color = TABLE.get(block);
+			if (color != NO_COLOUR) {
+				block.frozenLib$setAttached(ATTACHMENT_KEY, color);
+			} else {
+				block.frozenLib$removeAttached(ATTACHMENT_KEY);
+			}
+		});
+		TABLE.clear();
+	}
+
 	public static int rgbFor(BlockState state) {
-		return TABLE.get(state.getBlock());
+		return state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, NO_COLOUR);
 	}
 
 	public static int rgbForOrWhite(BlockState state) {
-		final int rgb = TABLE.get(state.getBlock());
-		return rgb == NO_COLOUR ? WHITE : rgb;
+		return state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, WHITE);
 	}
 
 	public static int definedCount() {
@@ -90,10 +104,7 @@ public final class GlowtoneEmitterColors {
 		GlowtoneColorTable.put(table, 0xB24BFF, Blocks.NETHER_PORTAL);
 		GlowtoneColorTable.put(table, 0x9B4DFF, Blocks.CRYING_OBSIDIAN);
 		GlowtoneColorTable.put(table, 0xB14DFF, Blocks.RESPAWN_ANCHOR, Blocks.DRAGON_EGG);
-		GlowtoneColorTable.put(table, 0xC9A0FF,
-				Blocks.AMETHYST_CLUSTER, Blocks.LARGE_AMETHYST_BUD,
-				Blocks.MEDIUM_AMETHYST_BUD, Blocks.SMALL_AMETHYST_BUD
-		);
+		GlowtoneColorTable.put(table, 0xC9A0FF, Blocks.AMETHYST_CLUSTER, Blocks.LARGE_AMETHYST_BUD, Blocks.MEDIUM_AMETHYST_BUD, Blocks.SMALL_AMETHYST_BUD);
 
 		GlowtoneColorTable.put(table, 0xB6E39A, Blocks.GLOW_LICHEN);
 		GlowtoneColorTable.put(table, 0xFFCF63, Blocks.CAVE_VINES, Blocks.CAVE_VINES_PLANT);

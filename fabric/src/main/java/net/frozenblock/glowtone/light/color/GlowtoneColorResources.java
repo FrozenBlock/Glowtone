@@ -56,10 +56,6 @@ public final class GlowtoneColorResources {
 		throw new UnsupportedOperationException("GlowtoneColorResources is a static holder.");
 	}
 
-	public static void load(ResourceManager resourceManager) {
-		apply(read(resourceManager));
-	}
-
 	public static PreparableReloadListener reloadListener() {
 		return new Listener();
 	}
@@ -88,9 +84,13 @@ public final class GlowtoneColorResources {
 
 	private static void apply(Payload payload) {
 		GlowtoneEmitterColors.applyOverlay(payload.emitters().values(), payload.emitters().replace());
-		GlowtoneTransmittance.applyOverlay(payload.transmittance().values(), payload.transmittance().replace());
+		GlowtoneEmitterColors.attachAndClearColors();
 
-		LOGGER.info("Coloured lighting data ready: {} emitter colours, {} transmittance filters.",
+		GlowtoneTransmittance.applyOverlay(payload.transmittance().values(), payload.transmittance().replace());
+		GlowtoneTransmittance.attachAndClearColors();
+
+		LOGGER.info(
+			"Coloured lighting data ready: {} emitter colours, {} transmittance filters.",
 			GlowtoneEmitterColors.definedCount(), GlowtoneTransmittance.definedCount()
 		);
 	}

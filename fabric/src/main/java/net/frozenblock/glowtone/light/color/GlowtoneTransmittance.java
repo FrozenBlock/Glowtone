@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.light.color;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import net.frozenblock.lib.block.api.attachment.BlockAttachmentKey;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -25,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 public final class GlowtoneTransmittance {
+	private static final BlockAttachmentKey<Integer> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Color Transmittance");
 	public static final int FULLY_TRANSMISSIVE = 0xFFF;
 
 	public static final int MAX_CHANNEL = 0xF;
@@ -35,8 +38,20 @@ public final class GlowtoneTransmittance {
 		throw new UnsupportedOperationException("GlowtoneTransmittance is a static holder.");
 	}
 
+	public static void attachAndClearColors() {
+		BuiltInRegistries.BLOCK.forEach(block -> {
+			final int color = TABLE.get(block);
+			if (color != FULLY_TRANSMISSIVE) {
+				block.frozenLib$setAttached(ATTACHMENT_KEY, color);
+			} else {
+				block.frozenLib$removeAttached(ATTACHMENT_KEY);
+			}
+		});
+		TABLE.clear();
+	}
+
 	public static int filterFor(BlockState state) {
-		return TABLE.get(state.getBlock());
+		return state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, FULLY_TRANSMISSIVE);
 	}
 
 	public static int red(int packed) {

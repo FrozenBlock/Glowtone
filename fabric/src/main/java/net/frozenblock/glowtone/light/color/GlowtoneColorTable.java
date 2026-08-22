@@ -37,6 +37,11 @@ final class GlowtoneColorTable {
 		this.builtIns = builtIns;
 	}
 
+	public void clear() {
+		this.resolved = null;
+		this.overlay = null;
+	}
+
 	int get(Block block) {
 		var table = this.resolved;
 		if (table == null) table = this.resolve();
@@ -59,7 +64,7 @@ final class GlowtoneColorTable {
 		final Reference2IntMap<Block> existing = this.resolved;
 		if (existing != null) return existing;
 
-		final Reference2IntOpenHashMap<Block> table = new Reference2IntOpenHashMap<Block>();
+		final Reference2IntOpenHashMap<Block> table = new Reference2IntOpenHashMap<>();
 		table.defaultReturnValue(this.missingValue);
 
 		if (!this.overlayReplacesBuiltIns) this.builtIns.accept(table);

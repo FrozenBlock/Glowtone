@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BufferBuilder.class)
-public abstract class BufferBuilderMixin {
+public class BufferBuilderMixin {
 	@Shadow
 	@Final
 	private VertexFormat format;
