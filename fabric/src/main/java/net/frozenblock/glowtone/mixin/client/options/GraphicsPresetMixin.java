@@ -21,6 +21,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.BloomOption;
+import net.frozenblock.glowtone.config.ColouredLightingMode;
+import net.frozenblock.glowtone.config.ColouredLightingOption;
 import net.minecraft.client.GraphicsPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
@@ -34,6 +36,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 @Mixin(GraphicsPreset.class)
 public class GraphicsPresetMixin {
+
+	@Inject(method = "apply", at = @At("TAIL"))
+	private void glowtone$applyColouredLightingPreset(
+		Minecraft minecraft,
+		CallbackInfo info,
+		@Local(name = "screen") @Nullable OptionsSubScreen screen
+	) {
+		if (screen == null) return;
+
+		final ColouredLightingMode mode = switch (GraphicsPreset.class.cast(this)) {
+			case FAST -> ColouredLightingMode.OFF;
+			case FANCY, FABULOUS -> ColouredLightingMode.SUBTLE;
+			case CUSTOM -> null;
+		};
+		if (mode == null) return;
+
+		final OptionInstance<ColouredLightingMode> option = ColouredLightingOption.get();
+		if (option.get() == mode) return;
+
+		option.set(mode);
+		screen.resetOption(option);
+	}
 
 	@Inject(method = "apply", at = @At("TAIL"))
 	private void glowtone$applyBloomPreset(
@@ -54,6 +78,6 @@ public class GraphicsPresetMixin {
 		if (option.get().intValue() == bloom.intValue()) return;
 
 		option.set(bloom);
-		if (screen != null) screen.resetOption(option);
+		screen.resetOption(option);
 	}
 }

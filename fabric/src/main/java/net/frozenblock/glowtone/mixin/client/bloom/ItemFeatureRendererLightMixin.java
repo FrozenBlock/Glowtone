@@ -20,31 +20,24 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.bloom.GlowtoneBloom;
-import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
-import net.minecraft.client.particle.SingleQuadParticle;
-import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Environment(EnvType.CLIENT)
-@Mixin(SingleQuadParticle.class)
-public class SingleQuadParticleMixin {
+@Mixin(ItemFeatureRenderer.class)
+public class ItemFeatureRendererLightMixin {
 
 	@ModifyExpressionValue(
-		method = "extractRotatedQuad(Lnet/minecraft/client/renderer/state/level/QuadParticleRenderState;Lorg/joml/Quaternionf;FFFF)V",
+		method = "prepareMainSubmit",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/particle/SingleQuadParticle;getLightCoords(F)I"
-		)
+			target = "Lnet/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit;lightCoords()I"
+		),
+		require = 0
 	)
-	private int glowtone$markEmissiveParticle(int lightCoords) {
-		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !GlowtoneBloomRenderer.isEnabled()) return lightCoords;
-
-		final int worldCoords = SingleQuadParticle.class.cast(this).glowtone$getWorldLightCoords();
-		if (LightCoordsUtil.smoothBlock(lightCoords) <= LightCoordsUtil.smoothBlock(worldCoords)) return lightCoords;
-
-		return GlowtoneBloom.mark(lightCoords);
+	private int glowtone$dropInheritedEmissiveMarker(int lightCoords) {
+		return GlowtoneBloom.unmark(lightCoords);
 	}
 }

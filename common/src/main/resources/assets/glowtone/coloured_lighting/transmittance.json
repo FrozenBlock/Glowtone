@@ -1,0 +1,52 @@
+{
+	"replace": false,
+	"filters": {
+		"minecraft:white_stained_glass": "#EEE",
+		"minecraft:orange_stained_glass": "#F80",
+		"minecraft:magenta_stained_glass": "#F4C",
+		"minecraft:light_blue_stained_glass": "#6CF",
+		"minecraft:yellow_stained_glass": "#FE2",
+		"minecraft:lime_stained_glass": "#9F2",
+		"minecraft:pink_stained_glass": "#F8A",
+		"minecraft:gray_stained_glass": "#555",
+		"minecraft:light_gray_stained_glass": "#AAA",
+		"minecraft:cyan_stained_glass": "#2AB",
+		"minecraft:purple_stained_glass": "#82D",
+		"minecraft:blue_stained_glass": "#24E",
+		"minecraft:brown_stained_glass": "#852",
+		"minecraft:green_stained_glass": "#4A2",
+		"minecraft:red_stained_glass": "#F11",
+		"minecraft:black_stained_glass": "#111",
+
+		"minecraft:white_stained_glass_pane": "#EEE",
+		"minecraft:orange_stained_glass_pane": "#F80",
+		"minecraft:magenta_stained_glass_pane": "#F4C",
+		"minecraft:light_blue_stained_glass_pane": "#6CF",
+		"minecraft:yellow_stained_glass_pane": "#FE2",
+		"minecraft:lime_stained_glass_pane": "#9F2",
+		"minecraft:pink_stained_glass_pane": "#F8A",
+		"minecraft:gray_stained_glass_pane": "#555",
+		"minecraft:light_gray_stained_glass_pane": "#AAA",
+		"minecraft:cyan_stained_glass_pane": "#2AB",
+		"minecraft:purple_stained_glass_pane": "#82D",
+		"minecraft:blue_stained_glass_pane": "#24E",
+		"minecraft:brown_stained_glass_pane": "#852",
+		"minecraft:green_stained_glass_pane": "#4A2",
+		"minecraft:red_stained_glass_pane": "#F11",
+		"minecraft:black_stained_glass_pane": "#111",
+
+		"minecraft:glass": "#FFF",
+		"minecraft:glass_pane": "#FFF",
+		"minecraft:tinted_glass": "#111",
+
+		"minecraft:water": "#ACF",
+		"minecraft:ice": "#DEF",
+		"minecraft:packed_ice": "#DEF",
+		"minecraft:frosted_ice": "#DEF",
+		"minecraft:blue_ice": "#CDF",
+
+		"minecraft:honey_block": "#FC6",
+		"minecraft:slime_block": "#BFB",
+		"minecraft:nether_portal": "#C7F"
+	}
+}

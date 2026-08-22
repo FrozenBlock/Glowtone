@@ -38,9 +38,11 @@ public final class GlowtoneConfig {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final String BLOOM_KEY = "bloom";
 	private static final String EMISSIVES_KEY = "emissives";
+	private static final String COLOURED_LIGHTING_KEY = "coloured_lighting";
 	private static int bloom = DEFAULT_BLOOM;
 	private static boolean bloomEnabled = true;
 	private static EmissivesMode emissives = EmissivesMode.DEFAULT;
+	private static ColouredLightingMode colouredLighting = ColouredLightingMode.SUBTLE;
 	private static boolean loaded;
 
 	private GlowtoneConfig() {}
@@ -57,6 +59,19 @@ public final class GlowtoneConfig {
 	public static EmissivesMode emissives() {
 		if (!loaded) load();
 		return emissives;
+	}
+
+	public static ColouredLightingMode colouredLighting() {
+		if (!loaded) load();
+		return colouredLighting;
+	}
+
+	public static void setColouredLighting(ColouredLightingMode mode) {
+		if (!loaded) load();
+		if (colouredLighting == mode) return;
+
+		colouredLighting = mode;
+		save();
 	}
 
 	public static void setEmissives(EmissivesMode mode) {
@@ -92,8 +107,18 @@ public final class GlowtoneConfig {
 			bloom = Mth.clamp(GsonHelper.getAsInt(json, BLOOM_KEY, DEFAULT_BLOOM), BloomOption.MIN, BloomOption.MAX);
 			bloomEnabled = bloom > 0;
 			emissives = EmissivesMode.byId(GsonHelper.getAsString(json, EMISSIVES_KEY, EmissivesMode.DEFAULT.id()));
+			colouredLighting = readColouredLighting(json);
 		} catch (IOException | RuntimeException exception) {
 			LOGGER.error("Failed to read {}", path, exception);
+		}
+	}
+
+	private static ColouredLightingMode readColouredLighting(JsonObject json) {
+		final String name = GsonHelper.getAsString(json, COLOURED_LIGHTING_KEY, ColouredLightingMode.SUBTLE.name());
+		try {
+			return ColouredLightingMode.valueOf(name.toUpperCase(java.util.Locale.ROOT));
+		} catch (IllegalArgumentException exception) {
+			return ColouredLightingMode.SUBTLE;
 		}
 	}
 
@@ -106,6 +131,7 @@ public final class GlowtoneConfig {
 				final JsonObject json = new JsonObject();
 				json.addProperty(BLOOM_KEY, bloom);
 				json.addProperty(EMISSIVES_KEY, emissives.id());
+			json.addProperty(COLOURED_LIGHTING_KEY, colouredLighting.name().toLowerCase(java.util.Locale.ROOT));
 				writer.write(json.toString());
 			}
 		} catch (IOException exception) {

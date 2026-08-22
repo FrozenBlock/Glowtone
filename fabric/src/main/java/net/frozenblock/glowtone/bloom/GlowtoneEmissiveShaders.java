@@ -108,7 +108,8 @@ public final class GlowtoneEmissiveShaders {
 		if (!source.contains(MAIN)) return source;
 
 		if (LIT_SHADERS.contains(id)) {
-			return type == ShaderType.VERTEX ? patchVertex(source) : patchFragment(source);
+			final String patched = type == ShaderType.VERTEX ? patchVertex(source) : patchFragment(source);
+			return patched;
 		}
 		if (SELF_LIT_SHADERS.contains(id) && type == ShaderType.FRAGMENT) {
 			return patchSelfLitFragment(source);
