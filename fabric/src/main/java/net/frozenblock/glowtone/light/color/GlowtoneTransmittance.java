@@ -64,8 +64,8 @@ public final class GlowtoneTransmittance {
 	}
 
 	private static void putBuiltIns(Reference2IntMap<Block> table) {
-		for (var dye : DyeColor.values()) {
-			int filter = filterForDye(dye);
+		for (DyeColor dye : DyeColor.values()) {
+			final int filter = filterForDye(dye);
 			GlowtoneColorTable.put(table, filter, Blocks.STAINED_GLASS.pick(dye), Blocks.STAINED_GLASS_PANE.pick(dye));
 		}
 

@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.SectionMesh;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.core.SectionPos;
 import org.jspecify.annotations.Nullable;
 
@@ -55,6 +56,7 @@ public final class GlowtoneColorProbe {
 		final int slot = this.cache(worldX, worldY, worldZ);
 		short[] colors = this.cachedColors[slot];
 		if (colors == null) return 0;
+
 		return colors[GlowtoneRegionFlood.entityCellIndex(worldX, worldY, worldZ)] & 0xFFFF;
 	}
 
@@ -62,6 +64,7 @@ public final class GlowtoneColorProbe {
 		final int slot = this.cache(worldX, worldY, worldZ);
 		short[] hues = this.cachedSkyHues[slot];
 		if (hues == null) return WHITE_RGB;
+
 		return GlowtoneRegionFlood.skyHueToRgb(hues[GlowtoneRegionFlood.entityCellIndex(worldX, worldY, worldZ)] & 0xFFFF);
 	}
 
@@ -79,7 +82,7 @@ public final class GlowtoneColorProbe {
 		}
 
 		final int slot = Math.floorMod(Long.hashCode(sectionNode), CACHE_SLOTS);
-		final var mesh = lookup(sectionNode);
+		final GlowtoneSectionColors mesh = lookup(sectionNode);
 		this.cachedSections[slot] = sectionNode;
 		this.cachedColors[slot] = mesh == null ? null : mesh.glowtone$sectionColors();
 		this.cachedSkyHues[slot] = mesh == null ? null : mesh.glowtone$sectionSkyHues();
@@ -89,19 +92,19 @@ public final class GlowtoneColorProbe {
 	}
 
 	private static @Nullable GlowtoneSectionColors lookup(long sectionNode) {
-		Minecraft minecraft = Minecraft.getInstance();
+		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null) return null;
 
-		LevelRenderer levelRenderer = minecraft.levelRenderer;
+		final LevelRenderer levelRenderer = minecraft.levelRenderer;
 		if (levelRenderer == null) return null;
 
-		ViewArea viewArea = levelRenderer.viewArea();
+		final ViewArea viewArea = levelRenderer.viewArea();
 		if (viewArea == null) return null;
 
-		var section = ((ViewAreaInvoker) viewArea).glowtone$getRenderSection(sectionNode);
+		final SectionRenderDispatcher.RenderSection section = ((ViewAreaInvoker) viewArea).glowtone$getRenderSection(sectionNode);
 		if (section == null) return null;
 
-		SectionMesh mesh = section.sectionMesh.get();
+		final SectionMesh mesh = section.sectionMesh.get();
 		return mesh instanceof GlowtoneSectionColors colors ? colors : null;
 	}
 }

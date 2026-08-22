@@ -28,26 +28,27 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(SubmitNodeCollection.class)
-public abstract class SubmitNodeCollectionMixin {
+public class SubmitNodeCollectionMixin {
+
 	@ModifyArg(
-			method = "submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$Submit;<init>(Lnet/minecraft/client/renderer/rendertype/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/model/Model;Ljava/lang/Object;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;)V",
-					ordinal = 0
-			),
-			index = 6
+		method = "submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$Submit;<init>(Lnet/minecraft/client/renderer/rendertype/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/model/Model;Ljava/lang/Object;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lcom/mojang/blaze3d/vertex/PoseStack$Pose;)V",
+			ordinal = 0
+		),
+		index = 6
 	)
 	private int glowtone$tintSubmittedModel(
-			RenderType renderType,
-			PoseStack.Pose pose,
-			Model<?> model,
-			Object state,
-			int lightCoords,
-			int overlayCoords,
-			int tintedColor,
-			TextureAtlasSprite sprite,
-			PoseStack.Pose sheetedDecalPose
+		RenderType renderType,
+		PoseStack.Pose pose,
+		Model<?> model,
+		Object state,
+		int lightCoords,
+		int overlayCoords,
+		int tintedColor,
+		TextureAtlasSprite sprite,
+		PoseStack.Pose sheetedDecalPose
 	) {
 		return GlowtoneChromaFold.tintModelColor(tintedColor, renderType);
 	}

@@ -17,45 +17,46 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.frozenblock.glowtone.render.GlowtoneChromaFold;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(SingleQuadParticle.class)
-public abstract class SingleQuadParticleMixin extends Particle {
-	protected SingleQuadParticleMixin(ClientLevel level, double x, double y, double z) {
-		super(level, x, y, z);
-	}
+public class SingleQuadParticleMixin {
 
-	@ModifyArg(
-			method = "extractRotatedQuad(Lnet/minecraft/client/renderer/state/level/QuadParticleRenderState;Lorg/joml/Quaternionf;FFFF)V",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/renderer/state/level/QuadParticleRenderState;add(Lnet/minecraft/client/particle/SingleQuadParticle$Layer;FFFFFFFFFFFFII)V"
-			),
-			index = 13
+	@WrapOperation(
+		method = "extractRotatedQuad(Lnet/minecraft/client/renderer/state/level/QuadParticleRenderState;Lorg/joml/Quaternionf;FFFF)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/renderer/state/level/QuadParticleRenderState;add(Lnet/minecraft/client/particle/SingleQuadParticle$Layer;FFFFFFFFFFFFII)V"
+		)
 	)
-	private int glowtone$tintParticle(
-			SingleQuadParticle.Layer layer,
-			float x,
-			float y,
-			float z,
-			float rotationX,
-			float rotationY,
-			float rotationZ,
-			float rotationW,
-			float quadSize,
-			float u0,
-			float u1,
-			float v0,
-			float v1,
-			int color,
-			int lightCoords
+	private void glowtone$tintParticle(
+		QuadParticleRenderState instance,
+		SingleQuadParticle.Layer layer,
+		float x,
+		float y,
+		float z,
+		float xRot,
+		float yRot,
+		float zRot,
+		float wRot,
+		float scale,
+		float u0,
+		float u1,
+		float v0,
+		float v1,
+		int color,
+		int lightCoords,
+		Operation<Void> original
 	) {
-		return GlowtoneChromaFold.tintParticleColor(color, lightCoords, this.x, this.y, this.z);
+		color = GlowtoneChromaFold.tintParticleColor(color, lightCoords, x, y, z);
+		original.call(instance, layer, x, y, z, xRot, yRot, zRot, wRot, scale, u0, u1, v0, v1, color, lightCoords);
 	}
 }

@@ -15,30 +15,32 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.fabric;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
+import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl;
 import net.frozenblock.glowtone.render.GlowtoneChromaBake;
 import net.frozenblock.glowtone.render.GlowtoneChromaBlend;
 import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
 @Environment(EnvType.CLIENT)
-@Mixin(targets = "net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl", remap = false)
+@Mixin(value = AltModelBlockRendererImpl.class, remap = false)
 public class AltModelBlockRendererFlatMixin {
 
-	@Inject(method = "transform", at = @At("RETURN"), require = 0)
-	private void glowtone$pinFlatQuadColour(MutableQuadView quad, CallbackInfoReturnable<Boolean> info) {
-		if (!info.getReturnValueZ() || !GlowtoneChromaBlend.isEnabled()) return;
-
-		if (GlowtoneChromaBake.smoothLightingEnabled() && quad.ambientOcclusion().orElse(true)) return;
+	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0)
+	private boolean glowtone$pinFlatQuadColour(
+		boolean original,
+		MutableQuadView quad
+	) {
+		if (!original || !GlowtoneChromaBlend.isEnabled()) return original;
+		if (GlowtoneChromaBake.smoothLightingEnabled() && quad.ambientOcclusion().orElse(true)) return original;
 
 		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
 
@@ -62,5 +64,6 @@ public class AltModelBlockRendererFlatMixin {
 		}
 
 		state.beginFlatQuadLocal(x, y, z);
+		return original;
 	}
 }

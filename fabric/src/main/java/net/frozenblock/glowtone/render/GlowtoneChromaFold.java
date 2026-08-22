@@ -29,6 +29,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
+import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -52,27 +53,24 @@ public final class GlowtoneChromaFold {
 	}
 
 	public static int resolveEntity(double x, double feetY, double z, float eyeHeight, int lightCoords) {
-		var engine = GlowtoneColorProbe.get();
-		int blockX = Mth.floor(x);
-		int blockZ = Mth.floor(z);
-		int eyeY = Mth.floor(feetY + eyeHeight);
+		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
+		final int blockX = Mth.floor(x);
+		final int blockZ = Mth.floor(z);
+		final int eyeY = Mth.floor(feetY + eyeHeight);
 
-		int sky = skyTint(engine, blockX, eyeY, blockZ, lightCoords);
+		final int sky = skyTint(engine, blockX, eyeY, blockZ, lightCoords);
 
-		float weight = blockLightShare(lightCoords);
-		if (weight <= 0.0f) {
-			return sky;
-		}
+		final float weight = blockLightShare(lightCoords);
+		if (weight <= 0F) return sky;
 
 		long samples = smoothLighting()
-				? sampleTrilinear(engine, x, feetY + eyeHeight, z)
-				: sampleNearest(engine, blockX, eyeY, blockZ);
+			? sampleTrilinear(engine, x, feetY + eyeHeight, z)
+			: sampleNearest(engine, blockX, eyeY, blockZ);
 		if (GlowtoneChromaBlend.isEmpty(samples)) {
-			int feetBlockY = Mth.floor(feetY);
-			if (feetBlockY != eyeY) {
-				samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(blockX, feetBlockY, blockZ));
-			}
+			final int feetBlockY = Mth.floor(feetY);
+			if (feetBlockY != eyeY) samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(blockX, feetBlockY, blockZ));
 		}
+
 		final int chromaArgb = GlowtoneChromaBlend.toEntityArgb(samples);
 		final int folded = fold(chromaArgb, weight);
 		final int resolved = combine(folded, sky);
@@ -80,68 +78,55 @@ public final class GlowtoneChromaFold {
 	}
 
 	public static int resolveBlockEntity(BlockPos pos, int lightCoords) {
-		var engine = GlowtoneColorProbe.get();
-		int blockX = pos.getX();
-		int blockY = pos.getY();
-		int blockZ = pos.getZ();
+		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
+		final int blockX = pos.getX();
+		final int blockY = pos.getY();
+		final int blockZ = pos.getZ();
 
-		int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
-
-		float weight = blockLightShare(lightCoords);
-		if (weight <= 0.0f) {
-			return sky;
-		}
+		final int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final float weight = blockLightShare(lightCoords);
+		if (weight <= 0F) return sky;
 
 		long samples = GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, engine.getPackedLevels(blockX, blockY, blockZ));
-		if (GlowtoneChromaBlend.isEmpty(samples)) {
-			samples = addNeighbours(engine, samples, blockX, blockY, blockZ);
-		}
+		if (GlowtoneChromaBlend.isEmpty(samples)) samples = addNeighbours(engine, samples, blockX, blockY, blockZ);
 		return combine(fold(GlowtoneChromaBlend.toEntityArgb(samples), weight), sky);
 	}
 
 	public static int resolveParticle(double x, double y, double z, int lightCoords) {
-		var engine = GlowtoneColorProbe.get();
-		int blockX = Mth.floor(x);
-		int blockY = Mth.floor(y);
-		int blockZ = Mth.floor(z);
+		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
+		final int blockX = Mth.floor(x);
+		final int blockY = Mth.floor(y);
+		final int blockZ = Mth.floor(z);
 
-		int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final float weight = blockLightShare(lightCoords);
+		if (weight <= 0F) return sky;
 
-		float weight = blockLightShare(lightCoords);
-		if (weight <= 0.0f) {
-			return sky;
-		}
-
-		int levels = engine.getPackedLevels(blockX, blockY, blockZ);
+		final int levels = engine.getPackedLevels(blockX, blockY, blockZ);
 		return combine(
-				fold(GlowtoneChromaBlend.toEntityArgb(GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, levels)), weight), sky
+			fold(GlowtoneChromaBlend.toEntityArgb(GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, levels)), weight), sky
 		);
 	}
 
 	public static int resolveHand(double probeX, double probeY, double probeZ, int lightCoords) {
-		var engine = GlowtoneColorProbe.get();
-		int blockX = Mth.floor(probeX);
-		int blockY = Mth.floor(probeY);
-		int blockZ = Mth.floor(probeZ);
+		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
+		final int blockX = Mth.floor(probeX);
+		final int blockY = Mth.floor(probeY);
+		final int blockZ = Mth.floor(probeZ);
 
-		int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final float weight = blockLightShare(lightCoords);
+		if (weight <= 0F) return sky;
 
-		float weight = blockLightShare(lightCoords);
-		if (weight <= 0.0f) {
-			return sky;
-		}
-
-		long samples = smoothLighting()
-				? sampleTrilinear(engine, probeX, probeY, probeZ)
-				: sampleNearest(engine, blockX, blockY, blockZ);
+		final long samples = smoothLighting()
+			? sampleTrilinear(engine, probeX, probeY, probeZ)
+			: sampleNearest(engine, blockX, blockY, blockZ);
 		return combine(fold(GlowtoneChromaBlend.toEntityArgb(samples), weight), sky);
 	}
 
 	private static int skyTint(GlowtoneColorProbe engine, int x, int y, int z, int lightCoords) {
 		float weight = skyLightShare(lightCoords);
-		if (weight <= 0.0f) {
-			return NO_TINT;
-		}
+		if (weight <= 0F) return NO_TINT;
 
 		int red = 0;
 		int green = 0;
@@ -153,35 +138,31 @@ public final class GlowtoneChromaFold {
 			blue += rgb & 0xFF;
 		}
 
-		int count = SKY_SAMPLES.length / 3;
-		int averaged = ((red / count) << 16) | ((green / count) << 8) | (blue / count);
+		final int count = SKY_SAMPLES.length / 3;
+		final int averaged = ((red / count) << 16) | ((green / count) << 8) | (blue / count);
 		return fold(GlowtoneChromaBlend.skyTintArgb(averaged), weight);
 	}
 
 	private static float skyLightShare(int lightCoords) {
-		float skyLevel = Math.min(1.0f, LightCoordsUtil.smoothSky(lightCoords) / PACKED_LIGHT_SCALE);
-		if (skyLevel <= 0.0f) {
-			return 0.0f;
-		}
+		float skyLevel = Math.min(1F, LightCoordsUtil.smoothSky(lightCoords) / PACKED_LIGHT_SCALE);
+		if (skyLevel <= 0F) return 0F;
 
-		float blockFactor = 1.0f;
-		float skyFactor = 1.0f;
-		float ambient = 0.0f;
+		float blockFactor = 1F;
+		float skyFactor = 1F;
+		float ambient = 0F;
 
 		LightmapRenderState lightmap = lightmapRenderState();
-		if (lightmap != null && lightmap.blockFactor > 0.0f) {
+		if (lightmap != null && lightmap.blockFactor > 0F) {
 			blockFactor = lightmap.blockFactor;
-			skyFactor = Math.max(0.0f, lightmap.skyFactor);
-			var ambientColor = lightmap.ambientColor;
-			if (ambientColor != null) {
-				ambient = LUMA_RED * ambientColor.x() + LUMA_GREEN * ambientColor.y() + LUMA_BLUE * ambientColor.z();
-			}
+			skyFactor = Math.max(0F, lightmap.skyFactor);
+			final Vector3fc ambientColor = lightmap.ambientColor;
+			if (ambientColor != null) ambient = LUMA_RED * ambientColor.x() + LUMA_GREEN * ambientColor.y() + LUMA_BLUE * ambientColor.z();
 		}
 
-		float blockLevel = Math.min(1.0f, LightCoordsUtil.smoothBlock(lightCoords) / PACKED_LIGHT_SCALE);
-		float skyPart = brightness(skyLevel) * skyFactor;
-		float total = brightness(blockLevel) * blockFactor + skyPart + ambient;
-		return total <= 1.0e-5f ? 0.0f : Math.min(1.0f, skyPart / total);
+		final float blockLevel = Math.min(1F, LightCoordsUtil.smoothBlock(lightCoords) / PACKED_LIGHT_SCALE);
+		final float skyPart = brightness(skyLevel) * skyFactor;
+		final float total = brightness(blockLevel) * blockFactor + skyPart + ambient;
+		return total <= 1.0e-5f ? 0F : Math.min(1F, skyPart / total);
 	}
 
 	private static int combine(int first, int second) {
@@ -191,10 +172,10 @@ public final class GlowtoneChromaFold {
 	}
 
 	private static final int[] SKY_SAMPLES = {
-			0, 0, 0,
-			-1, 0, 0, 1, 0, 0,
-			0, -1, 0, 0, 1, 0,
-			0, 0, -1, 0, 0, 1,
+		0, 0, 0,
+		-1, 0, 0, 1, 0, 0,
+		0, -1, 0, 0, 1, 0,
+		0, 0, -1, 0, 0, 1,
 	};
 
 	private static boolean smoothLighting() {
@@ -204,8 +185,8 @@ public final class GlowtoneChromaFold {
 
 	private static long sampleNearest(GlowtoneColorProbe engine, int blockX, int blockY, int blockZ) {
 		return GlowtoneChromaBlend.add(
-				GlowtoneChromaBlend.EMPTY,
-				engine.getPackedLevels(blockX, blockY, blockZ)
+			GlowtoneChromaBlend.EMPTY,
+			engine.getPackedLevels(blockX, blockY, blockZ)
 		);
 	}
 
@@ -236,17 +217,17 @@ public final class GlowtoneChromaFold {
 			final int weightZ = offsetZ == 0 ? GlowtoneChromaBlend.WEIGHT_ONE - fracZ : fracZ;
 
 			final int weight = weightX * weightY / GlowtoneChromaBlend.WEIGHT_ONE
-					* weightZ / GlowtoneChromaBlend.WEIGHT_ONE;
+				* weightZ / GlowtoneChromaBlend.WEIGHT_ONE;
 			if (weight <= 0) continue;
 
 			samples = GlowtoneChromaBlend.addWeighted(
-					samples,
-					engine.getPackedLevels(
-							(cellX + offsetX) * step,
-							(cellY + offsetY) * step,
-							(cellZ + offsetZ) * step
-					),
-					weight
+				samples,
+				engine.getPackedLevels(
+					(cellX + offsetX) * step,
+					(cellY + offsetY) * step,
+					(cellZ + offsetZ) * step
+				),
+				weight
 			);
 		}
 		return samples;
@@ -264,14 +245,12 @@ public final class GlowtoneChromaFold {
 	}
 
 	private static int fold(int chromaArgb, float weight) {
-		if (chromaArgb == GlowtoneChromaBlend.NEUTRAL_ARGB) {
-			return NO_TINT;
-		}
+		if (chromaArgb == GlowtoneChromaBlend.NEUTRAL_ARGB) return NO_TINT;
 
-		int folded = 0xFF000000
-				| (channelTowardWhite((chromaArgb >> 16) & 0xFF, weight) << 16)
-				| (channelTowardWhite((chromaArgb >> 8) & 0xFF, weight) << 8)
-				| channelTowardWhite(chromaArgb & 0xFF, weight);
+		final int folded = 0xFF000000
+			| (channelTowardWhite((chromaArgb >> 16) & 0xFF, weight) << 16)
+			| (channelTowardWhite((chromaArgb >> 8) & 0xFF, weight) << 8)
+			| channelTowardWhite(chromaArgb & 0xFF, weight);
 		return folded == GlowtoneChromaBlend.NEUTRAL_ARGB ? NO_TINT : folded;
 	}
 
@@ -280,54 +259,46 @@ public final class GlowtoneChromaFold {
 	}
 
 	private static float blockLightShare(int lightCoords) {
-		float blockLevel = Math.min(1.0f, LightCoordsUtil.smoothBlock(lightCoords) / PACKED_LIGHT_SCALE);
-		if (blockLevel <= 0.0f) {
-			return 0.0f;
-		}
+		final float blockLevel = Math.min(1F, LightCoordsUtil.smoothBlock(lightCoords) / PACKED_LIGHT_SCALE);
+		if (blockLevel <= 0F) return 0F;
 
-		float blockFactor = 1.0f;
-		float skyFactor = 1.0f;
-		float ambient = 0.0f;
+		float blockFactor = 1F;
+		float skyFactor = 1F;
+		float ambient = 0F;
 
 		LightmapRenderState lightmap = lightmapRenderState();
-		if (lightmap != null && lightmap.blockFactor > 0.0f) {
+		if (lightmap != null && lightmap.blockFactor > 0F) {
 			blockFactor = lightmap.blockFactor;
-			skyFactor = Math.max(0.0f, lightmap.skyFactor);
+			skyFactor = Math.max(0F, lightmap.skyFactor);
 			var ambientColor = lightmap.ambientColor;
 			if (ambientColor != null) {
 				ambient = LUMA_RED * ambientColor.x() + LUMA_GREEN * ambientColor.y() + LUMA_BLUE * ambientColor.z();
 			}
 		}
 
-		float skyLevel = Math.min(1.0f, LightCoordsUtil.smoothSky(lightCoords) / PACKED_LIGHT_SCALE);
-		float blockPart = brightness(blockLevel) * blockFactor;
-		float total = blockPart + brightness(skyLevel) * skyFactor + ambient;
-		return total <= 1.0e-5f ? 0.0f : Math.min(1.0f, blockPart / total);
+		final float skyLevel = Math.min(1F, LightCoordsUtil.smoothSky(lightCoords) / PACKED_LIGHT_SCALE);
+		final float blockPart = brightness(blockLevel) * blockFactor;
+		final float total = blockPart + brightness(skyLevel) * skyFactor + ambient;
+		return total <= 1.0e-5f ? 0F : Math.min(1F, blockPart / total);
 	}
 
 	private static float brightness(float level) {
-		return level / (4.0f - 3.0f * level);
+		return level / (4F - 3F * level);
 	}
 
 	private static @Nullable LightmapRenderState lightmapRenderState() {
-		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft == null || minecraft.gameRenderer == null) {
-			return null;
-		}
+		final Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft == null || minecraft.gameRenderer == null) return null;
 		return minecraft.gameRenderer.gameRenderState().lightmapRenderState;
 	}
 
 	public static void pushTint(int tint) {
-		if (tintDepth == tintStack.length) {
-			tintStack = Arrays.copyOf(tintStack, tintDepth * 2);
-		}
+		if (tintDepth == tintStack.length) tintStack = Arrays.copyOf(tintStack, tintDepth * 2);
 		tintStack[tintDepth++] = tint;
 	}
 
 	public static void popTint() {
-		if (tintDepth > 0) {
-			tintDepth--;
-		}
+		if (tintDepth > 0) tintDepth--;
 	}
 
 	public static void resetScopes() {
@@ -341,10 +312,8 @@ public final class GlowtoneChromaFold {
 	}
 
 	public static int tintModelColor(int submittedColor, RenderType renderType) {
-		int tint = currentTint();
-		if (tint == NO_TINT || !liesUnderLightmap(renderType)) {
-			return submittedColor;
-		}
+		final int tint = currentTint();
+		if (tint == NO_TINT || !liesUnderLightmap(renderType)) return submittedColor;
 		return ARGB.multiply(submittedColor, tint);
 	}
 
@@ -361,22 +330,19 @@ public final class GlowtoneChromaFold {
 	}
 
 	public static int tintParticleColor(int color, int lightCoords, double x, double y, double z) {
-		if (lightCoords == LightCoordsUtil.FULL_BRIGHT) {
-			return color;
-		}
-		int tint = resolveParticle(x, y, z, lightCoords);
+		if (lightCoords == LightCoordsUtil.FULL_BRIGHT) return color;
+
+		final int tint = resolveParticle(x, y, z, lightCoords);
 		return tint == NO_TINT ? color : ARGB.multiply(color, tint);
 	}
 
 	private static boolean liesUnderLightmap(RenderType renderType) {
-		if (renderType.isOutline()) {
-			return false;
-		}
-		RenderPipeline pipeline = renderType.pipeline();
-		if (pipeline.getShaderDefines().flags().contains(EMISSIVE_DEFINE)) {
-			return false;
-		}
-		VertexFormat[] bindings = pipeline.getVertexFormatBindings();
+		if (renderType.isOutline()) return false;
+
+		final RenderPipeline pipeline = renderType.pipeline();
+		if (pipeline.getShaderDefines().flags().contains(EMISSIVE_DEFINE)) return false;
+
+		final VertexFormat[] bindings = pipeline.getVertexFormatBindings();
 		return bindings.length > 0 && bindings[0].contains(DefaultVertexFormat.UV2_SEMANTIC_NAME);
 	}
 }

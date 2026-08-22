@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.frozenblock.glowtone.render.GlowtoneChromaFold;
 import net.frozenblock.glowtone.render.GlowtoneEntityLight;
 import net.frozenblock.glowtone.render.GlowtoneChromaTinted;
@@ -29,32 +30,26 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LevelExtractor.class)
-public abstract class LevelExtractorMixin {
+public class LevelExtractorMixin {
+
 	@Inject(method = "extract", at = @At("HEAD"))
-	private void glowtone$resetTintScopes(
-			DeltaTracker deltaTracker,
-			Camera camera,
-			float partialTick,
-			CallbackInfo ci
-	) {
+	private void glowtone$resetTintScopes(DeltaTracker deltaTracker, Camera camera, float deltaPartialTick, CallbackInfo info) {
 		GlowtoneChromaFold.resetScopes();
 	}
 
-	@Inject(method = "extractEntity", at = @At("RETURN"))
-	private void glowtone$resolveEntityTint(
-			Entity entity,
-			float partialTick,
-			CallbackInfoReturnable<EntityRenderState> cir
+	@ModifyReturnValue(method = "extractEntity", at = @At("RETURN"))
+	private EntityRenderState glowtone$resolveEntityTint(
+		EntityRenderState original,
+		Entity entity, float partialTickTime
 	) {
-		EntityRenderState state = cir.getReturnValue();
-		state.lightCoords = GlowtoneEntityLight.smooth(
-				state.x, state.y + state.eyeHeight * 0.5F, state.z, state.lightCoords
+		original.lightCoords = GlowtoneEntityLight.smooth(
+			original.x, original.y + original.eyeHeight * 0.5F, original.z, original.lightCoords
 		);
-		((GlowtoneChromaTinted) state).glowtone$setChromaTint(
-				GlowtoneChromaFold.resolveEntity(state.x, state.y, state.z, state.eyeHeight, state.lightCoords)
+		original.glowtone$setChromaTint(
+			GlowtoneChromaFold.resolveEntity(original.x, original.y, original.z, original.eyeHeight, original.lightCoords)
 		);
+		return original;
 	}
 }

@@ -54,77 +54,75 @@ final class GlowtoneChannels {
 	}
 
 	static int attenuate(int packed, int opacity, int filter) {
-		int level = level(packed) - opacity;
+		final int level = level(packed) - opacity;
 		if (level <= 0) return 0;
 
-		int hue = hue(packed);
+		final int hue = hue(packed);
 		return pack(level, filter == WHITE_HUE ? hue : filterHue(hue, filter));
 	}
 
 	static int filterHue(int hue, int filter) {
-		int red = ((hue >> 8) & 0xF) * ((filter >> 8) & 0xF) / MAX_LEVEL;
-		int green = ((hue >> 4) & 0xF) * ((filter >> 4) & 0xF) / MAX_LEVEL;
-		int blue = (hue & 0xF) * (filter & 0xF) / MAX_LEVEL;
+		final int red = ((hue >> 8) & 0xF) * ((filter >> 8) & 0xF) / MAX_LEVEL;
+		final int green = ((hue >> 4) & 0xF) * ((filter >> 4) & 0xF) / MAX_LEVEL;
+		final int blue = (hue & 0xF) * (filter & 0xF) / MAX_LEVEL;
 
-		if ((red | green | blue) == 0) {
-			return normalise((filter >> 8) & 0xF, (filter >> 4) & 0xF, filter & 0xF);
-		}
+		if ((red | green | blue) == 0) return normalise((filter >> 8) & 0xF, (filter >> 4) & 0xF, filter & 0xF);
 		return normalise(red, green, blue);
 	}
 
 	static int emissionLevels(int emission, int rgb) {
-		int level = Math.min(Math.max(emission, 0), MAX_LEVEL);
+		final int level = Math.min(Math.max(emission, 0), MAX_LEVEL);
 		if (level == 0) return 0;
 		if (rgb < 0) return pack(level, WHITE_HUE);
 
 		return pack(level, normalise(
-				((rgb >> 16) & 0xFF) * MAX_LEVEL / 0xFF,
-				((rgb >> 8) & 0xFF) * MAX_LEVEL / 0xFF,
-				(rgb & 0xFF) * MAX_LEVEL / 0xFF
+			((rgb >> 16) & 0xFF) * MAX_LEVEL / 0xFF,
+			((rgb >> 8) & 0xFF) * MAX_LEVEL / 0xFF,
+			(rgb & 0xFF) * MAX_LEVEL / 0xFF
 		));
 	}
 
 	static int merge(int a, int b) {
-		int levelA = level(a);
-		int levelB = level(b);
+		final int levelA = level(a);
+		final int levelB = level(b);
 		if (levelB == 0) return a;
 		if (levelA == 0) return b;
 
-		int hueA = hue(a);
-		int hueB = hue(b);
-		int strongest = Math.max(levelA, levelB);
+		final int hueA = hue(a);
+		final int hueB = hue(b);
+		final int strongest = Math.max(levelA, levelB);
 		if (hueA == hueB) return pack(strongest, hueA);
 
 		return pack(strongest, hue(blendHues(a, b, levelA, levelB)));
 	}
 
 	static int blendHues(int a, int b, int weightA, int weightB) {
-		int total = weightA + weightB;
+		final int total = weightA + weightB;
 		if (total <= 0) return a;
 
-		int first = hue(a);
-		int second = hue(b);
+		final int first = hue(a);
+		final int second = hue(b);
 		return pack(level(a), normalise(
-				((((first >> 8) & 0xF) * weightA) + (((second >> 8) & 0xF) * weightB)) / total,
-				((((first >> 4) & 0xF) * weightA) + (((second >> 4) & 0xF) * weightB)) / total,
-				(((first & 0xF) * weightA) + ((second & 0xF) * weightB)) / total
+			((((first >> 8) & 0xF) * weightA) + (((second >> 8) & 0xF) * weightB)) / total,
+			((((first >> 4) & 0xF) * weightA) + (((second >> 4) & 0xF) * weightB)) / total,
+			(((first & 0xF) * weightA) + ((second & 0xF) * weightB)) / total
 		));
 	}
 
 	static int toNormalisedRgb(int packed) {
 		if (level(packed) == 0) return 0;
 
-		int hue = hue(packed);
+		final int hue = hue(packed);
 		return (expand((hue >> 8) & 0xF) << 16) | (expand((hue >> 4) & 0xF) << 8) | expand(hue & 0xF);
 	}
 
 	private static int normalise(int red, int green, int blue) {
-		int brightest = Math.max(red, Math.max(green, blue));
+		final int brightest = Math.max(red, Math.max(green, blue));
 		if (brightest <= 0) return WHITE_HUE;
 
 		return ((red * MAX_LEVEL / brightest) << 8)
-				| ((green * MAX_LEVEL / brightest) << 4)
-				| (blue * MAX_LEVEL / brightest);
+			| ((green * MAX_LEVEL / brightest) << 4)
+			| (blue * MAX_LEVEL / brightest);
 	}
 
 	private static int expand(int channel) {

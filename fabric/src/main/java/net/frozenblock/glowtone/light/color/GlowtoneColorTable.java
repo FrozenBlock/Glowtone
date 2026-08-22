@@ -56,19 +56,17 @@ final class GlowtoneColorTable {
 	}
 
 	private synchronized Reference2IntMap<Block> resolve() {
-		var existing = this.resolved;
+		final Reference2IntMap<Block> existing = this.resolved;
 		if (existing != null) return existing;
 
-		var table = new Reference2IntOpenHashMap<Block>();
+		final Reference2IntOpenHashMap<Block> table = new Reference2IntOpenHashMap<Block>();
 		table.defaultReturnValue(this.missingValue);
 
 		if (!this.overlayReplacesBuiltIns) this.builtIns.accept(table);
 
 		var currentOverlay = this.overlay;
 		if (currentOverlay != null) {
-			for (var entry : currentOverlay.reference2IntEntrySet()) {
-				table.put(entry.getKey(), entry.getIntValue());
-			}
+			for (var entry : currentOverlay.reference2IntEntrySet()) table.put(entry.getKey(), entry.getIntValue());
 		}
 
 		table.trim();
@@ -77,14 +75,10 @@ final class GlowtoneColorTable {
 	}
 
 	static void put(Reference2IntMap<Block> table, int packed, Block... blocks) {
-		for (var block : blocks) {
-			if (block != null) table.put(block, packed);
-		}
+		for (Block block : blocks) if (block != null) table.put(block, packed);
 	}
 
 	static void putAll(Reference2IntMap<Block> table, int packed, Iterable<Block> blocks) {
-		for (var block : blocks) {
-			if (block != null) table.put(block, packed);
-		}
+		for (Block block : blocks) if (block != null) table.put(block, packed);
 	}
 }

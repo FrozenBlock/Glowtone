@@ -45,8 +45,8 @@ public abstract class BufferBuilderMixin {
 		if (this.format != GlowtoneVertexFormats.EXTENDED_BLOCK || this.vertexPointer == -1L) return;
 
 		if (!GlowtoneChromaBlend.isEnabled()) {
-			writeArgb(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, GlowtoneChromaBake.NEUTRAL_ARGB);
-			writeArgb(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, GlowtoneChromaBake.NEUTRAL_SKY_ARGB);
+			glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, GlowtoneChromaBake.NEUTRAL_ARGB);
+			glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, GlowtoneChromaBake.NEUTRAL_SKY_ARGB);
 			return;
 		}
 
@@ -57,12 +57,12 @@ public abstract class BufferBuilderMixin {
 		final float y = MemoryUtil.memGetFloat(this.vertexPointer + GlowtoneVertexFormats.POSITION_OFFSET + 4L);
 		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GlowtoneVertexFormats.POSITION_OFFSET + 8L);
 
-		writeArgb(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, state.sample(x, y, z));
-		writeArgb(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, state.sampleSky(x, y, z));
+		glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, state.sample(x, y, z));
+		glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, state.sampleSky(x, y, z));
 	}
 
 	@Unique
-	private static void writeArgb(long at, int argb) {
+	private static void glowtone$writeARGB(long at, int argb) {
 		MemoryUtil.memPutByte(at, (byte) (argb >> 16));
 		MemoryUtil.memPutByte(at + 1L, (byte) (argb >> 8));
 		MemoryUtil.memPutByte(at + 2L, (byte) argb);

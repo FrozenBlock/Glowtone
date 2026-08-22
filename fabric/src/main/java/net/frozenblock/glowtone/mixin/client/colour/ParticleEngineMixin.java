@@ -35,7 +35,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 @Mixin(ParticleEngine.class)
 public abstract class ParticleEngineMixin {
-
 	@Shadow
 	@Final
 	private Map<ParticleRenderType, ParticleGroup<?>> particles;
@@ -44,10 +43,10 @@ public abstract class ParticleEngineMixin {
 	protected abstract ParticleGroup<?> createParticleGroup(ParticleRenderType type);
 
 	@Inject(method = "add", at = @At("HEAD"), cancellable = true)
-	private void glowtone$addPickupImmediately(Particle particle, CallbackInfo info) {
-		if (!(particle instanceof ItemPickupParticle)) return;
+	private void glowtone$addPickupImmediately(Particle p, CallbackInfo info) {
+		if (!(p instanceof ItemPickupParticle)) return;
 
-		this.particles.computeIfAbsent(particle.getGroup(), this::createParticleGroup).add(particle);
+		this.particles.computeIfAbsent(p.getGroup(), this::createParticleGroup).add(p);
 		info.cancel();
 	}
 }

@@ -39,7 +39,7 @@ public final class GlowtoneEmitterColors {
 	}
 
 	public static int rgbForOrWhite(BlockState state) {
-		int rgb = TABLE.get(state.getBlock());
+		final int rgb = TABLE.get(state.getBlock());
 		return rgb == NO_COLOUR ? WHITE : rgb;
 	}
 
@@ -63,8 +63,8 @@ public final class GlowtoneEmitterColors {
 		GlowtoneColorTable.putAll(table, 0xFFD9A8, Blocks.COPPER_BULB.asList());
 
 		GlowtoneColorTable.put(table, 0x3FC7D6,
-				Blocks.SOUL_TORCH, Blocks.SOUL_WALL_TORCH, Blocks.SOUL_LANTERN,
-				Blocks.SOUL_FIRE, Blocks.SOUL_CAMPFIRE
+			Blocks.SOUL_TORCH, Blocks.SOUL_WALL_TORCH, Blocks.SOUL_LANTERN,
+			Blocks.SOUL_FIRE, Blocks.SOUL_CAMPFIRE
 		);
 
 		GlowtoneColorTable.put(table, 0xFF3020, Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WALL_TORCH, Blocks.REDSTONE_BLOCK);
@@ -111,6 +111,5 @@ public final class GlowtoneEmitterColors {
 		GlowtoneColorTable.put(table, 0x58E0FF, Blocks.VAULT);
 
 		GlowtoneColorTable.put(table, 0xFF7A3A, Blocks.CREAKING_HEART);
-
 	}
 }

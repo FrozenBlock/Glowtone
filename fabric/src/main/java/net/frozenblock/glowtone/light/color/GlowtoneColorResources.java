@@ -44,8 +44,7 @@ public final class GlowtoneColorResources {
 
 	public static final Identifier EMITTERS_RESOURCE = GlowtoneConstants.id("coloured_lighting/emitters.json");
 
-	public static final Identifier TRANSMITTANCE_RESOURCE
-			= GlowtoneConstants.id("coloured_lighting/transmittance.json");
+	public static final Identifier TRANSMITTANCE_RESOURCE = GlowtoneConstants.id("coloured_lighting/transmittance.json");
 
 	private static final String REPLACE_KEY = "replace";
 	private static final String[] EMITTER_ENTRY_KEYS = {"colours", "colors"};
@@ -76,14 +75,14 @@ public final class GlowtoneColorResources {
 
 	private static Payload read(ResourceManager resourceManager) {
 		return new Payload(
-				read(
-						resourceManager, EMITTERS_RESOURCE, EMITTER_ENTRY_KEYS,
-						GlowtoneColorResources::parseRgb, GlowtoneEmitterColors.NO_COLOUR
-				),
-				read(
-						resourceManager, TRANSMITTANCE_RESOURCE, TRANSMITTANCE_ENTRY_KEYS,
-						GlowtoneColorResources::parseFilter, GlowtoneTransmittance.FULLY_TRANSMISSIVE
-				)
+			read(
+				resourceManager, EMITTERS_RESOURCE, EMITTER_ENTRY_KEYS,
+				GlowtoneColorResources::parseRgb, GlowtoneEmitterColors.NO_COLOUR
+			),
+			read(
+				resourceManager, TRANSMITTANCE_RESOURCE, TRANSMITTANCE_ENTRY_KEYS,
+				GlowtoneColorResources::parseFilter, GlowtoneTransmittance.FULLY_TRANSMISSIVE
+			)
 		);
 	}
 
@@ -92,30 +91,27 @@ public final class GlowtoneColorResources {
 		GlowtoneTransmittance.applyOverlay(payload.transmittance().values(), payload.transmittance().replace());
 
 		LOGGER.info("Coloured lighting data ready: {} emitter colours, {} transmittance filters.",
-				GlowtoneEmitterColors.definedCount(), GlowtoneTransmittance.definedCount()
+			GlowtoneEmitterColors.definedCount(), GlowtoneTransmittance.definedCount()
 		);
 	}
 
-	private static Overlay read(
-			ResourceManager resourceManager, Identifier path, String[] entryKeys, ValueParser parser, int noneValue
-	) {
-		var values = new Reference2IntOpenHashMap<Block>();
-		var unknownIds = new ArrayList<String>();
+	private static Overlay read(ResourceManager resourceManager, Identifier path, String[] entryKeys, ValueParser parser, int noneValue) {
+		final var values = new Reference2IntOpenHashMap<Block>();
+		final var unknownIds = new ArrayList<String>();
 		boolean replace = false;
 
 		for (var resource : resourceManager.getResourceStack(path)) {
-			String packId = resource.sourcePackId();
+			final String packId = resource.sourcePackId();
 
 			try (var reader = resource.openAsReader()) {
-				var root = JsonParser.parseReader(reader);
+				final var root = JsonParser.parseReader(reader);
 
 				if (!root.isJsonObject()) {
-					LOGGER.warn("Ignoring \"{}\" from pack \"{}\": expected a JSON object.", path, packId
-					);
+					LOGGER.warn("Ignoring \"{}\" from pack \"{}\": expected a JSON object.", path, packId);
 					continue;
 				}
 
-				var json = root.getAsJsonObject();
+				final var json = root.getAsJsonObject();
 
 				if (json.has(REPLACE_KEY) && json.get(REPLACE_KEY).getAsBoolean()) {
 					values.clear();
@@ -123,12 +119,10 @@ public final class GlowtoneColorResources {
 					replace = true;
 				}
 
-				var entries = findEntries(json, entryKeys);
+				final var entries = findEntries(json, entryKeys);
 
 				if (entries == null) {
-					LOGGER.warn("Ignoring \"{}\" from pack \"{}\": no \"{}\" object.",
-							path, packId, entryKeys[0]
-					);
+					LOGGER.warn("Ignoring \"{}\" from pack \"{}\": no \"{}\" object.", path, packId, entryKeys[0]);
 					continue;
 				}
 
@@ -144,12 +138,17 @@ public final class GlowtoneColorResources {
 	}
 
 	private static void readEntries(
-			JsonObject entries, Reference2IntMap<Block> values, List<String> unknownIds,
-			ValueParser parser, int noneValue, Identifier path, String packId
+		JsonObject entries,
+		Reference2IntMap<Block> values,
+		List<String> unknownIds,
+		ValueParser parser,
+		int noneValue,
+		Identifier path,
+		String packId
 	) {
 		for (var entry : entries.entrySet()) {
-			String rawId = entry.getKey();
-			var id = Identifier.tryParse(rawId);
+			final String rawId = entry.getKey();
+			final var id = Identifier.tryParse(rawId);
 
 			if (id == null || !BuiltInRegistries.BLOCK.containsKey(id)) {
 				unknownIds.add(rawId);
@@ -161,9 +160,7 @@ public final class GlowtoneColorResources {
 			try {
 				value = parseValue(entry.getValue(), parser, noneValue);
 			} catch (Exception e) {
-				LOGGER.warn("Ignoring entry \"{}\" of \"{}\" from pack \"{}\": {}",
-						rawId, path, packId, e.getMessage()
-				);
+				LOGGER.warn("Ignoring entry \"{}\" of \"{}\" from pack \"{}\": {}", rawId, path, packId, e.getMessage());
 				continue;
 			}
 
@@ -174,10 +171,10 @@ public final class GlowtoneColorResources {
 	private static int parseValue(JsonElement element, ValueParser parser, int noneValue) {
 		if (element.isJsonNull()) return noneValue;
 
-		var primitive = element.getAsJsonPrimitive();
+		final var primitive = element.getAsJsonPrimitive();
 		if (primitive.isNumber()) return primitive.getAsInt();
 
-		String raw = primitive.getAsString().trim();
+		final String raw = primitive.getAsString().trim();
 		if (raw.isEmpty() || raw.equalsIgnoreCase("none")) return noneValue;
 
 		return parser.parse(raw);
@@ -195,8 +192,7 @@ public final class GlowtoneColorResources {
 		var sample = String.join(", ", unknownIds.subList(0, Math.min(UNKNOWN_ID_SAMPLE, unknownIds.size())));
 		if (unknownIds.size() > UNKNOWN_ID_SAMPLE) sample += ", …";
 
-		LOGGER.info("Skipped {} unknown block id(s) in \"{}\": {}", unknownIds.size(), path, sample
-		);
+		LOGGER.info("Skipped {} unknown block id(s) in \"{}\": {}", unknownIds.size(), path, sample);
 	}
 
 	private static String hexDigits(String raw) {
@@ -206,14 +202,14 @@ public final class GlowtoneColorResources {
 	}
 
 	private static int parseRgb(String raw) {
-		String digits = hexDigits(raw);
+		final String digits = hexDigits(raw);
 
 		return switch (digits.length()) {
 			case 3 -> {
-				int packed = Integer.parseUnsignedInt(digits, 16);
+				final int packed = Integer.parseUnsignedInt(digits, 16);
 				yield (((packed >> 8) & 0xF) * 0x11) << 16
-						| (((packed >> 4) & 0xF) * 0x11) << 8
-						| ((packed & 0xF) * 0x11);
+					| (((packed >> 4) & 0xF) * 0x11) << 8
+					| ((packed & 0xF) * 0x11);
 			}
 			case 6 -> Integer.parseUnsignedInt(digits, 16);
 			default -> throw new IllegalArgumentException("expected \"#RGB\" or \"#RRGGBB\", got \"" + raw + "\"");
@@ -221,12 +217,12 @@ public final class GlowtoneColorResources {
 	}
 
 	private static int parseFilter(String raw) {
-		String digits = hexDigits(raw);
+		final String digits = hexDigits(raw);
 
 		return switch (digits.length()) {
 			case 3 -> Integer.parseUnsignedInt(digits, 16) & 0xFFF;
 			case 6 -> {
-				int packed = Integer.parseUnsignedInt(digits, 16);
+				final int packed = Integer.parseUnsignedInt(digits, 16);
 				yield ((packed >> 20) & 0xF) << 8 | ((packed >> 12) & 0xF) << 4 | ((packed >> 4) & 0xF);
 			}
 			default -> throw new IllegalArgumentException("expected \"#RGB\" or \"#RRGGBB\", got \"" + raw + "\"");
@@ -240,9 +236,7 @@ public final class GlowtoneColorResources {
 		}
 
 		@Override
-		public CompletableFuture<Void> reload(
-				SharedState sharedState, Executor prepareExecutor, PreparationBarrier synchronizer, Executor applyExecutor
-		) {
+		public CompletableFuture<Void> reload(SharedState sharedState, Executor prepareExecutor, PreparationBarrier synchronizer, Executor applyExecutor) {
 			return CompletableFuture.supplyAsync(() -> read(sharedState.resourceManager()), prepareExecutor)
 					.thenCompose(synchronizer::wait)
 					.thenAcceptAsync(GlowtoneColorResources::apply, applyExecutor);

@@ -24,6 +24,7 @@ import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -139,9 +140,7 @@ public final class GlowtoneChromaBake {
 			this.bound = true;
 
 			GlowtoneRegionFlood flood = this.flood;
-			if (flood == null) {
-				flood = this.flood = new GlowtoneRegionFlood();
-			}
+			if (flood == null) flood = this.flood = new GlowtoneRegionFlood();
 
 			flood.begin(region, sectionPos.x(), sectionPos.y(), sectionPos.z());
 			this.lit = flood.isLit();
@@ -201,9 +200,9 @@ public final class GlowtoneChromaBake {
 
 		public void beginFlatQuadLocal(float localX, float localY, float localZ) {
 			this.beginFlatQuad(
-					this.originX + Mth.floor(localX),
-					this.originY + Mth.floor(localY),
-					this.originZ + Mth.floor(localZ)
+				this.originX + Mth.floor(localX),
+				this.originY + Mth.floor(localY),
+				this.originZ + Mth.floor(localZ)
 			);
 		}
 
@@ -216,7 +215,7 @@ public final class GlowtoneChromaBake {
 
 			if (this.lit) {
 				this.flatChroma = GlowtoneChromaBlend.toArgb(
-						GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, flood.cellLevelsAt(worldX, worldY, worldZ))
+					GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, flood.cellLevelsAt(worldX, worldY, worldZ))
 				);
 				this.flatVerticesLeft = 4;
 			}
@@ -228,37 +227,35 @@ public final class GlowtoneChromaBake {
 		}
 
 		public int sampleSky(float x, float y, float z) {
-			if (this.usedSkyChroma != NO_PIN) {
-				return this.usedSkyChroma;
-			}
+			if (this.usedSkyChroma != NO_PIN) return this.usedSkyChroma;
 			if (!this.smoothLighting) return NEUTRAL_SKY_ARGB;
 
-			GlowtoneRegionFlood flood = this.flood;
+			final GlowtoneRegionFlood flood = this.flood;
 			if (!this.bound || flood == null || !flood.hasSkyTint()) return NEUTRAL_SKY_ARGB;
 
-			int localX = Math.round(x);
-			int localY = Math.round(y);
-			int localZ = Math.round(z);
-			int slot = cacheSlot(localX, localY, localZ);
+			final int localX = Math.round(x);
+			final int localY = Math.round(y);
+			final int localZ = Math.round(z);
+			final int slot = cacheSlot(localX, localY, localZ);
 
 			if (slot < 0) {
 				return this.blendSkyCorner(
-						this.originX + localX, this.originY + localY, this.originZ + localZ
+					this.originX + localX, this.originY + localY, this.originZ + localZ
 				);
 			}
 
-			int cached = this.skyCornerCache[slot];
+			final int cached = this.skyCornerCache[slot];
 			if (cached != 0) return cached;
 
-			int argb = this.blendSkyCorner(
-					this.originX + localX, this.originY + localY, this.originZ + localZ
+			final int argb = this.blendSkyCorner(
+				this.originX + localX, this.originY + localY, this.originZ + localZ
 			);
 			this.skyCornerCache[slot] = argb;
 			return argb;
 		}
 
 		private int blendSkyCorner(int cornerX, int cornerY, int cornerZ) {
-			GlowtoneRegionFlood flood = this.flood;
+			final GlowtoneRegionFlood flood = this.flood;
 			if (flood == null) return NEUTRAL_SKY_ARGB;
 
 			int red = 0;
@@ -276,15 +273,15 @@ public final class GlowtoneChromaBake {
 						int z = cornerZ + dz;
 						if (isOpaque(flood, x, y, z)) continue;
 
-						int hue = flood.skyHueAt(x, y, z);
+						final int hue = flood.skyHueAt(x, y, z);
 						red += (hue >> 16) & 0xFF;
 						green += (hue >> 8) & 0xFF;
 						blue += hue & 0xFF;
 						count++;
 
 						int departure = (255 - ((hue >> 16) & 0xFF))
-								+ (255 - ((hue >> 8) & 0xFF))
-								+ (255 - (hue & 0xFF));
+							+ (255 - ((hue >> 8) & 0xFF))
+							+ (255 - (hue & 0xFF));
 						if (departure > strongestDeparture) {
 							strongestDeparture = departure;
 							strongest = hue;
@@ -300,36 +297,26 @@ public final class GlowtoneChromaBake {
 
 		public int sample(float x, float y, float z) {
 			if (!this.smoothLighting && this.usedChroma == NO_PIN) return NEUTRAL_ARGB;
+			if (this.usedChroma != NO_PIN) return this.usedChroma;
+			if (!this.bound || !this.lit) return NEUTRAL_ARGB;
 
-			if (this.usedChroma != NO_PIN) {
-				return this.usedChroma;
-			}
+			final int localX = Math.round(x);
+			final int localY = Math.round(y);
+			final int localZ = Math.round(z);
 
-			if (!this.bound || !this.lit) {
-				return NEUTRAL_ARGB;
-			}
+			final int slot = cacheSlot(localX, localY, localZ);
+			if (slot < 0) return this.blendCorner(this.originX + localX, this.originY + localY, this.originZ + localZ);
 
-			int localX = Math.round(x);
-			int localY = Math.round(y);
-			int localZ = Math.round(z);
+			final int cached = this.cornerCache[slot];
+			if (cached != 0) return cached;
 
-			int slot = cacheSlot(localX, localY, localZ);
-			if (slot < 0) {
-				return this.blendCorner(this.originX + localX, this.originY + localY, this.originZ + localZ);
-			}
-
-			int cached = this.cornerCache[slot];
-			if (cached != 0) {
-				return cached;
-			}
-
-			int argb = this.blendCorner(this.originX + localX, this.originY + localY, this.originZ + localZ);
+			final int argb = this.blendCorner(this.originX + localX, this.originY + localY, this.originZ + localZ);
 			this.cornerCache[slot] = argb;
 			return argb;
 		}
 
 		private int blendCorner(int cornerX, int cornerY, int cornerZ) {
-			GlowtoneRegionFlood flood = this.flood;
+			final GlowtoneRegionFlood flood = this.flood;
 			if (flood == null) return NEUTRAL_ARGB;
 
 			long accumulator = GlowtoneChromaBlend.EMPTY;
@@ -338,7 +325,7 @@ public final class GlowtoneChromaBake {
 			for (int dx = -1; dx <= 0; dx++) {
 				for (int dy = -1; dy <= 0; dy++) {
 					for (int dz = -1; dz <= 0; dz++) {
-						int levels = flood.levelsAt(cornerX + dx, cornerY + dy, cornerZ + dz);
+						final int levels = flood.levelsAt(cornerX + dx, cornerY + dy, cornerZ + dz);
 						if (levels == 0) continue;
 
 						if (tintsLight(flood, cornerX + dx, cornerY + dy, cornerZ + dz)) continue;
@@ -352,9 +339,7 @@ public final class GlowtoneChromaBake {
 				}
 			}
 
-			if (!this.smoothLighting) {
-				accumulator = GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, brightest);
-			}
+			if (!this.smoothLighting) accumulator = GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, brightest);
 			return GlowtoneChromaBlend.toArgb(accumulator);
 		}
 
@@ -363,17 +348,15 @@ public final class GlowtoneChromaBake {
 		}
 
 		private static boolean tintsLight(GlowtoneRegionFlood flood, int worldX, int worldY, int worldZ) {
-			var state = flood.stateAt(worldX, worldY, worldZ);
+			final BlockState state = flood.stateAt(worldX, worldY, worldZ);
 			return GlowtoneTransmittance.filterFor(state) != GlowtoneTransmittance.FULLY_TRANSMISSIVE;
 		}
 
 		private static int cacheSlot(int localX, int localY, int localZ) {
-			int ix = localX - CORNER_MIN;
-			int iy = localY - CORNER_MIN;
-			int iz = localZ - CORNER_MIN;
-			if ((ix | iy | iz) < 0 || ix >= CORNER_SPAN || iy >= CORNER_SPAN || iz >= CORNER_SPAN) {
-				return -1;
-			}
+			final int ix = localX - CORNER_MIN;
+			final int iy = localY - CORNER_MIN;
+			final int iz = localZ - CORNER_MIN;
+			if ((ix | iy | iz) < 0 || ix >= CORNER_SPAN || iy >= CORNER_SPAN || iz >= CORNER_SPAN) return -1;
 			return (iz * CORNER_SPAN + iy) * CORNER_SPAN + ix;
 		}
 	}

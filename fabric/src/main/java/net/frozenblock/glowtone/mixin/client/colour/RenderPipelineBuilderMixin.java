@@ -35,12 +35,11 @@ public abstract class RenderPipelineBuilderMixin {
 	private Optional<Identifier> fragmentShader;
 
 	@Shadow
-	public abstract RenderPipeline.Builder withVertexBinding(int index, VertexFormat format);
+	public abstract RenderPipeline.Builder withVertexBinding(int bindingIndex, VertexFormat vertexFormat);
 
 	@Inject(method = "build", at = @At("HEAD"))
-	private void glowtone$useExtendedBlockFormat(CallbackInfoReturnable<RenderPipeline> cir) {
-		if (this.fragmentShader.isPresent() && "core/terrain".equals(this.fragmentShader.get().getPath())) {
-			this.withVertexBinding(0, GlowtoneVertexFormats.EXTENDED_BLOCK);
-		}
+	private void glowtone$useExtendedBlockFormat(CallbackInfoReturnable<RenderPipeline> info) {
+		if (this.fragmentShader.isEmpty() || !"core/terrain".equals(this.fragmentShader.get().getPath())) return;
+		this.withVertexBinding(0, GlowtoneVertexFormats.EXTENDED_BLOCK);
 	}
 }

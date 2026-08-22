@@ -20,6 +20,7 @@ package net.frozenblock.glowtone.render;
 import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 public final class GlowtoneVertexFormats {
 	public static final String CHROMA_ELEMENT = "GlowtoneChroma";
@@ -32,10 +33,9 @@ public final class GlowtoneVertexFormats {
 	public static final long SKY_CHROMA_OFFSET = EXTENDED_BLOCK.getElement(SKY_CHROMA_ELEMENT).offset();
 
 	private static VertexFormat buildExtendedBlock() {
-		var builder = VertexFormat.builder(DefaultVertexFormat.BLOCK.getStepRate());
-		for (var element : DefaultVertexFormat.BLOCK.getElements()) {
-			builder.addAttribute(element.name(), element.format());
-		}
+		final VertexFormat.Builder builder = VertexFormat.builder(DefaultVertexFormat.BLOCK.getStepRate());
+		for (VertexFormatElement element : DefaultVertexFormat.BLOCK.getElements()) builder.addAttribute(element.name(), element.format());
+
 		builder.addAttribute(CHROMA_ELEMENT, GpuFormat.RGBA8_UNORM);
 		builder.addAttribute(SKY_CHROMA_ELEMENT, GpuFormat.RGBA8_UNORM);
 		return builder.build();
