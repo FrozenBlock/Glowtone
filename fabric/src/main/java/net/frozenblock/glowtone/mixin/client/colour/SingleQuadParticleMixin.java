@@ -19,12 +19,16 @@ package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.render.GlowtoneChromaFold;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -61,9 +65,9 @@ public abstract class SingleQuadParticleMixin extends Particle {
 		int lightCoords,
 		Operation<Void> original
 	) {
-		// FIXME: i dont support lerped positions!
-		// FIXME: i also don't support self-emission! colored light tints me even when im glowing :(
-		color = GlowtoneChromaFold.tintParticleColor(color, lightCoords, this.x, this.y, this.z);
+		final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
+		// FIXME: i don't support self-emission! colored light tints me even when im glowing :(
+		color = GlowtoneChromaFold.tintParticleColor(color, lightCoords, x + cameraPos.x, y + cameraPos.y, z + cameraPos.z);
 		original.call(instance, layer, x, y, z, xRot, yRot, zRot, wRot, scale, u0, u1, v0, v1, color, lightCoords);
 	}
 }
