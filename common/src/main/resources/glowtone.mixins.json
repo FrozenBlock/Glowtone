@@ -41,6 +41,7 @@
     "client.colour.ParticleEngineMixin",
     "client.colour.RenderPipelineBuilderMixin",
     "client.colour.SectionCompilerMixin",
+    "client.colour.ShaderManagerMixin",
     "client.colour.SingleQuadParticleMixin",
     "client.colour.SubmitNodeCollectionMixin",
     "client.colour.ViewAreaInvoker",

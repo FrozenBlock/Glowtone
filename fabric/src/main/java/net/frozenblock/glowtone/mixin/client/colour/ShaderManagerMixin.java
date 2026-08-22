@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.bloom;
+package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -23,13 +23,14 @@ import com.mojang.blaze3d.shaders.ShaderType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
+import net.frozenblock.glowtone.light.color.GlowtoneColorShaders;
 import net.minecraft.client.renderer.ShaderManager;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Environment(EnvType.CLIENT)
-@Mixin(value = ShaderManager.class, priority = 995)
+@Mixin(value = ShaderManager.class, priority = 996)
 public class ShaderManagerMixin {
 
 	@ModifyExpressionValue(
@@ -39,11 +40,11 @@ public class ShaderManagerMixin {
 			target = "Ljava/lang/String;join(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;"
 		)
 	)
-	private static String glowtone$patchEmissiveShader(
+	private static String glowtone$patchColourChader(
 		String source,
 		@Local(argsOnly = true) Identifier location,
 		@Local(argsOnly = true) ShaderType type
 	) {
-		return GlowtoneEmissiveShaders.patch(type.idConverter().fileToId(location), type, source);
+		return GlowtoneColorShaders.patchTerrainShader(type.idConverter().fileToId(location), type, source);
 	}
 }
