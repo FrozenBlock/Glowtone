@@ -3,6 +3,7 @@ classTweaker v1 official
 accessible class net/minecraft/client/resources/model/cuboid/ItemModelGenerator$ItemLayerKey
 accessible method net/minecraft/client/resources/model/cuboid/ItemModelGenerator$ItemLayerKey <init> (Lnet/minecraft/client/resources/model/sprite/Material$Baked;Lnet/minecraft/client/renderer/block/dispatch/ModelState;I)V
 accessible class net/minecraft/client/particle/ItemPickupParticleGroup$State
+accessible method net/minecraft/client/particle/ItemPickupParticleGroup$State <init> (Ljava/util/List;)V
 
 accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion sections [Lnet/minecraft/client/renderer/chunk/SectionCopy;
 accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion minSectionX I
