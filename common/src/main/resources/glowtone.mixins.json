@@ -42,6 +42,7 @@
     "client.animation.BakedQuadMaterialInfoMixin",
     "client.animation.ChunkSectionLayerGroupMixin",
     "client.animation.ChunkSectionLayerMixin",
+    "client.animation.ChunkSectionsToRenderMixin",
     "client.shader.ShaderManagerMixin"
   ]
 }

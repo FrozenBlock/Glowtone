@@ -21,6 +21,7 @@ import com.mojang.blaze3d.shaders.ShaderType;
 import java.util.Set;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
@@ -107,7 +108,7 @@ public final class GlowtoneEmissiveShaders {
 	public static String patch(Identifier id, ShaderType type, String source) {
 		if (!source.contains(MAIN)) return source;
 
-		if (LIT_SHADERS.contains(id)) {
+		if (LIT_SHADERS.contains(id) || (id.getNamespace().equals(GlowtoneConstants.MOD_ID) && id.getPath().contains("core/terrain_"))) {
 			return type == ShaderType.VERTEX ? patchVertex(source) : patchFragment(source);
 		}
 		if (SELF_LIT_SHADERS.contains(id) && type == ShaderType.FRAGMENT) {

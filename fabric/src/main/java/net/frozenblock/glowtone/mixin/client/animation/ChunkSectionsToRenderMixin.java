@@ -1,5 +1,5 @@
 /*
- * Copyright 2025-2026 FrozenBlock
+ * Copyright 2026 FrozenBlock
  * This file is part of Glowtone.
  *
  * This program is free software; you can modify it under
@@ -19,35 +19,36 @@ package net.frozenblock.glowtone.mixin.client.animation;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.mojang.blaze3d.platform.Transparency;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.textures.GpuSampler;
+import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.animation.BlockAnimationType;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
+import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(BakedQuad.MaterialInfo.class)
-public class BakedQuadMaterialInfoMixin {
+@Mixin(ChunkSectionsToRender.class)
+public class ChunkSectionsToRenderMixin {
 
 	@Inject(
-		method = "of",
+		method = "renderGroup",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/resources/model/sprite/Material$Baked;sprite()Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;",
-			ordinal = 0
+			target = "Lcom/mojang/blaze3d/systems/RenderPass;drawMultipleIndexed(Ljava/util/Collection;Lcom/mojang/blaze3d/buffers/GpuBuffer;Lcom/mojang/blaze3d/IndexType;Ljava/util/Collection;Ljava/lang/Object;)V"
 		)
 	)
-	private static void glowtone$useFoliageLayer(
-		Material.Baked material, Transparency transparency, int tintIndex, boolean shade, int lightEmission, CallbackInfoReturnable<BakedQuad.MaterialInfo> info,
-		@Local(name = "layer") LocalRef<ChunkSectionLayer> layer
+	private void glowtone$useEmissivePipeline(
+		ChunkSectionLayerGroup group, GpuSampler sampler, CallbackInfo info,
+		@Local(name = "layer") ChunkSectionLayer layer,
+		@Local(name = "draws") LocalRef<List<RenderPass.Draw<GpuBufferSlice[]>>> draws
 	) {
-		if (material.sprite().contents().name().getPath().endsWith("leaves")) layer.set(BlockAnimationType.FOLIAGE.getLayerByVanilla(layer.get()));
-		if (material.sprite().contents().name().getPath().contains("fire")) layer.set(BlockAnimationType.FIRE.getLayerByVanilla(layer.get()));
+		if (layer != ChunkSectionLayer.TRANSLUCENT && layer.translucent()) draws.set(draws.get().reversed());
 	}
 }

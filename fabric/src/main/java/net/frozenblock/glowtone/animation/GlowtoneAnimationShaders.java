@@ -65,10 +65,11 @@ public final class GlowtoneAnimationShaders {
 			createAnimationShader(
 				source,
 				2D,
-				4000D,
+				2000D,
 				"""
-					xOffset = sin(animPos.x + (animPos.y / 2.0) + animTime) / 32.0;
-					yOffset = cos(animPos.z + (animPos.y / 2.0) + animTime) / 32.0;
+					xOffset = sin(animPos.x + (animPos.y / 2.0) + animTime) / 64.0;
+					yOffset = (sin(animPos.y + ((animPos.x + animPos.z) / 4.0) + animTime) / 128.0) + (cos(((animPos.x + animPos.z) / 2.0) + (animPos.y / 4.0) + animTime * 2.0) / 128.0);
+					zOffset = cos(animPos.z + (animPos.y / 2.0) + animTime) / 64.0;
 				"""
 			)
 		);
@@ -77,9 +78,10 @@ public final class GlowtoneAnimationShaders {
 			createAnimationShader(
 				source,
 				2D,
-				10000D,
+				20000D,
 				"""
-					yOffset = (sin(animPos.x + (animPos.y / 4.0) + animTime) / 64.0) + (cos(animPos.z + (animPos.y / 2.0) + animTime) / 64.0);
+					float additionalCosA = (cos(animPos.z + (animPos.y / 2.0) + animTime * 2.5) + 0.5);
+					yOffset = (sin(((animPos.x + animPos.z) / 2.0) + animTime) / 182.0) + ((sin(((animPos.x - animPos.z) / 4.0) + (animPos.y / 4.0) + animTime * 1.65) / 182.0) * additionalCosA);
 				"""
 			)
 		);
@@ -112,9 +114,7 @@ public final class GlowtoneAnimationShaders {
 		double animationProgressScale,
 		String animation
 	) {
-		final String yes = patchVertex(source, createAnimation(animationPosDividend, animationProgressScale, animation));
-		System.out.println(yes);
-		return yes;
+		return patchVertex(source, createAnimation(animationPosDividend, animationProgressScale, animation));
 	}
 
 	public static Identifier createTerrainAnimationShaderId(String name) {
