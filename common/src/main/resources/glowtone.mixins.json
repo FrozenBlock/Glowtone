@@ -24,7 +24,7 @@
     "client.bloom.SkyRendererMixin",
     "client.bloom.VertexConsumerMixin",
     "client.bloom.fabric.AltModelBlockRendererMixin",
-    "client.colour.AltModelBlockRendererFlatMixin",
+    "client.colour.fabric.AltModelBlockRendererFlatMixin",
     "client.colour.BlockEntityRenderDispatcherMixin",
     "client.colour.BlockEntityRenderStateMixin",
     "client.colour.BlockModelLighterMixin",

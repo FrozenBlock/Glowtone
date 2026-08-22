@@ -314,7 +314,7 @@ public final class GlowtoneRegionFlood {
 
 		for (int i = 0; i < sections.length; i++) {
 			final SectionCopy sectionCopy = sections[i];
-			if (sectionCopy.debug()) continue;
+			if (sectionCopy.debug) continue;
 
 			PalettedContainer<BlockState> container = sectionCopy.section;
 			if (container == null || !container.maybeHas(TINTS_DAYLIGHT)) continue;
