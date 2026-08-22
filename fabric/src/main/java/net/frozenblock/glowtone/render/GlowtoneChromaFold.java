@@ -37,7 +37,7 @@ import java.util.Arrays;
 public final class GlowtoneChromaFold {
 	public static final int NO_TINT = 0;
 
-	private static final float PACKED_LIGHT_SCALE = 240.0f;
+	private static final float PACKED_LIGHT_SCALE = LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL;
 	private static final String EMISSIVE_DEFINE = "EMISSIVE";
 	private static final float LUMA_RED = 0.2126f;
 	private static final float LUMA_GREEN = 0.7152f;
@@ -192,7 +192,7 @@ public final class GlowtoneChromaFold {
 
 	private static long sampleTrilinear(GlowtoneColorProbe engine, double x, double y, double z) {
 		final int step = GlowtoneRegionFlood.ENTITY_CELL_BLOCKS;
-		final double centreOffset = step / 2.0;
+		final double centreOffset = step / 2D;
 
 		final double gridX = (x - centreOffset) / step;
 		final double gridY = (y - centreOffset) / step;
@@ -255,7 +255,7 @@ public final class GlowtoneChromaFold {
 	}
 
 	private static int channelTowardWhite(int chroma, float weight) {
-		return Math.clamp(Math.round(255.0f + (chroma - 255.0f) * weight), 0, 255);
+		return Math.clamp(Math.round(255F + (chroma - 255F) * weight), 0, 255);
 	}
 
 	private static float blockLightShare(int lightCoords) {
