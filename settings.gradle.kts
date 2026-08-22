@@ -1,3 +1,4 @@
+import com.possible_triangle.gradle.settings.localRepository
 import com.possible_triangle.gradle.settings.ResolutionStrategy
 
 pluginManagement {
@@ -66,6 +67,14 @@ if (Constants.NEOFORGE) {
     include("gt-neoforge")
     project(":gt-neoforge").projectDir = file("neoforge")
 }
+
+localRepository("FrozenLib",
+    "net.frozenblock:frozenlib",
+    prefix = "flib",
+    multi = true,
+    candlelight = true,
+    enabled = true
+)
 
 localPluginRepository(
     "GradleHelper",

@@ -12,6 +12,7 @@ checkstyle {
 val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
 val licenseChecks: Boolean = githubActions
 
+val fabric_loader_version: String by project
 val min_fabric_loader_version: String by project
 
 val mod_id: String by project
@@ -21,6 +22,7 @@ val maven_group: String by project
 val archives_base_name: String by project
 
 val fabric_api_version: String by project
+val frozenlib_version: String by project
 
 val sodium_version: String by project
 val run_sodium: String by project
@@ -62,6 +64,12 @@ repositories {
 }
 
 dependencies {
+    implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
+
+    // FrozenLib
+    api("net.frozenblock:frozenlib-fabric:${frozenlib_version}")
+
     // Sodium
     if (shouldRunSodium)
         implementation("maven.modrinth:sodium:${sodium_version}")
@@ -78,6 +86,7 @@ tasks {
 
             "fabric_loader_version" to ">=$min_fabric_loader_version",
             "fabric_api_version" to ">=$fabric_api_version",
+            "frozenlib_version" to ">=${frozenlib_version.split('-').firstOrNull()}-"
         )
 
         properties.forEach { (a, b) -> inputs.property(a, b) }
@@ -155,6 +164,7 @@ upload {
     modrinth {
         dependencies {
             required("fabric-api")
+            required("frozenlib")
             optional("wilder-wild")
             optional("trailier-tales")
             optional("the-copperier-age")

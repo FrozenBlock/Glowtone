@@ -15,6 +15,15 @@ val minecraft_version: String by project
 val maven_group: String by project
 val archives_base_name: String by project
 
+val frozenlib_version: String by project
+
+val neoforge_version: String by project
+val neoforge_loader_version_range: String by project
+
+val sodium_version: String by project
+val run_sodium: String by project
+val shouldRunSodium = run_sodium == "true"
+
 val neoforgeSnapshotMaven = findProperty("neoforge_snapshot_maven") as String?
 
 base {
@@ -76,6 +85,22 @@ tasks {
         options.release = 25
         options.isFork = true
         options.isIncremental = true
+    }
+}
+
+dependencies {
+    api("net.frozenblock:frozenlib-neoforge:${frozenlib_version}")?.let {
+        accessTransformers(it)
+        interfaceInjectionData(it)
+    }
+
+    // Sodium
+    if (shouldRunSodium) {
+        implementation("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")
+        implementation("net.caffeinemc:sodium-neoforge:${sodium_version}")
+    } else {
+        compileOnly("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")
+        compileOnly("net.caffeinemc:sodium-neoforge:${sodium_version}")
     }
 }
 
