@@ -88,6 +88,25 @@ tasks {
     }
 }
 
+val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
+val loaderVariants = setOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements")
+configurations.all {
+    if (name in loaderVariants) {
+        attributes {
+            attribute(loaderAttribute, "neoforge")
+        }
+    }
+}
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach { variant ->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, "neoforge")
+            }
+        }
+    }
+}
+
 dependencies {
     api("net.frozenblock:frozenlib-neoforge:${frozenlib_version}")?.let {
         accessTransformers(it)
@@ -121,5 +140,15 @@ fun getModVersion(): String {
 upload {
     maven {
         name.set("glowtone-neoforge")
+    }
+
+    modrinth {
+        dependencies {
+            required("frozenlib")
+            optional("wilder-wild")
+            optional("trailier-tales")
+            optional("the-copperier-age")
+            optional("netherier-nether")
+        }
     }
 }

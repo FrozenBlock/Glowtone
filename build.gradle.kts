@@ -6,7 +6,7 @@ plugins {
     id("net.frozenblock.triangle.common") version("+") apply(false)
     id("net.frozenblock.triangle.fabric") version("+") apply(false)
     id("net.frozenblock.triangle.neoforge") version("+") apply(false)
-    id("net.mehvahdjukaar.candlelight") version("+") apply(false)
+    id("net.frozenblock.candlelight") version("+") apply(false)
 
     id("org.quiltmc.gradle.licenser") version("+") apply(false)
     checkstyle
@@ -83,13 +83,7 @@ val publishMod by tasks.registering {
 
 subprojects {
     apply(plugin = "net.frozenblock.triangle.core")
-    apply(plugin = "net.mehvahdjukaar.candlelight")
-
-    if (project.name != "gt-common") {
-        afterEvaluate {
-            tasks.findByName("compileJava")?.dependsOn(":gt-common:candleLightTransform")
-        }
-    }
+    apply(plugin = "net.frozenblock.candlelight")
 
     val mavenUrl = env["MAVEN_URL"]
     val mavenUsername = env["MAVEN_USERNAME"]
@@ -122,7 +116,7 @@ subprojects {
     }
 
     dependencies {
-        compileOnly("net.mehvahdjukaar:candlelight:+")
+        compileOnly("net.frozenblock:candlelight:+")
         compileOnly("net.frozenblock:frozenlib-common:${frozenlib_version}")
     }
 
@@ -130,14 +124,11 @@ subprojects {
         maven("https://maven.frozenblock.net/release") {
             name = "FrozenBlock"
         }
-        maven("https://maven.frozenblock.net/snapshot") {
+        maven("https://maven.frozenblock.net/snapshot") { // Candlelight & Triangle
             name = "FrozenBlock Snapshot"
         }
         maven("https://maven.minecraftforge.net/") {
             name = "Forge"
-        }
-        maven("https://registry.somethingcatchy.net/repository/maven-releases/") { // Candlelight & Triangle
-            name = "SomethingCatchy (MehVahdJukaar)"
         }
         maven("https://maven.quiltmc.org/repository/release") {
             name = "Quilt"

@@ -63,6 +63,25 @@ repositories {
     }
 }
 
+val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
+val loaderVariants = setOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements", "includeInternal", "modCompileClasspath")
+configurations.all {
+    if (name in loaderVariants) {
+        attributes {
+            attribute(loaderAttribute, "fabric")
+        }
+    }
+}
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach { variant ->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, "fabric")
+            }
+        }
+    }
+}
+
 dependencies {
     implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
     implementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
