@@ -64,7 +64,10 @@ public class FaceBakeryMixin {
 			}
 		}
 
-		if (GlowtoneConstants.GLOWTONE_SHADING) {
+		if (GlowtoneConstants.GLOWTONE_NO_SHADING) {
+			isModified = isModified || shade;
+			shade = false;
+		} else if (GlowtoneConstants.GLOWTONE_SHADING) {
 			final boolean wasShaded = shade;
 			shade = shade && lightEmission != 15;
 			isModified = isModified || wasShaded != shade;

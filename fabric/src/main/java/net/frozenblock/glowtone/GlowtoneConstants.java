@@ -28,6 +28,7 @@ public final class GlowtoneConstants {
 
 	public static boolean GLOWTONE_EMISSIVES = false;
 	public static boolean GLOWTONE_SHADING = false;
+	public static boolean GLOWTONE_NO_SHADING = false;
 
 	public static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath(GlowtoneConstants.MOD_ID, path);

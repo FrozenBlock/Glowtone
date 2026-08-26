@@ -18,39 +18,33 @@
 package net.frozenblock.glowtone.config;
 
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.LoadingOverlay;
 
 @Environment(EnvType.CLIENT)
-public enum EmissivesMode {
-	SHADED("shaded", false),
-	SHADELESS("shadeless", true);
+public final class GlowtoneReload {
+	private static volatile boolean pending;
 
-	public static final EmissivesMode DEFAULT = SHADELESS;
+	private GlowtoneReload() {}
 
-	private final String id;
-	private final boolean shadeless;
-
-	EmissivesMode(String id, boolean shadeless) {
-		this.id = id;
-		this.shadeless = shadeless;
+	public static void register() {
+		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
+			if (pending) request();
+		});
 	}
 
-	public String id() {
-		return this.id;
-	}
-
-	public boolean shadeless() {
-		return this.shadeless;
-	}
-
-	public String translationKey() {
-		return "options.glowtone.emissives." + this.id;
-	}
-
-	public static EmissivesMode byId(String id) {
-		for (EmissivesMode mode : values()) {
-			if (mode.id.equals(id)) return mode;
+	public static boolean request() {
+		final Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft == null || minecraft.getResourceManager() == null) return false;
+		if (minecraft.gui.overlay() instanceof LoadingOverlay) {
+			pending = true;
+			return false;
 		}
-		return DEFAULT;
+
+		pending = false;
+		minecraft.reloadResourcePacks();
+		return true;
 	}
 }

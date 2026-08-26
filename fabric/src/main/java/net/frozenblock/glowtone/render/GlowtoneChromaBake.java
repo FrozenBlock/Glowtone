@@ -21,6 +21,8 @@ import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.minecraft.client.Minecraft;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
@@ -44,15 +46,20 @@ public final class GlowtoneChromaBake {
 	}
 
 	public static void beginSection(SectionPos sectionPos, @Nullable RenderSectionRegion region) {
+		final SectionState state = STATE.get();
 		if (!GlowtoneConfig.colouredLighting().isEnabled()) {
-			STATE.get().begin(sectionPos, null);
+			state.begin(sectionPos, null);
 			return;
 		}
-		STATE.get().begin(sectionPos, region);
+		state.begin(sectionPos, region);
 	}
 
 	public static void endSection() {
 		STATE.get().end();
+	}
+
+	public static boolean buildingSection() {
+		return STATE.get().building();
 	}
 
 	public static void rotateFlatPins() {
@@ -111,6 +118,15 @@ public final class GlowtoneChromaBake {
 		private int latchedChroma = NO_PIN;
 		private int latchedSkyChroma = NO_PIN;
 		private int usedChroma = NO_PIN;
+		private final GlowtoneQuadEdges pendingEdges = new GlowtoneQuadEdges();
+		private final GlowtoneEdgeNeighbours edgeNeighbours = new GlowtoneEdgeNeighbours();
+		private float @org.jspecify.annotations.Nullable [] modelFaces;
+		private final GlowtoneLiquidRims liquidRims = new GlowtoneLiquidRims();
+		private @Nullable BlockAndTintGetter liquidLevel;
+		private final BlockPos.MutableBlockPos liquidPos = new BlockPos.MutableBlockPos();
+		private boolean liquidQuad;
+		private boolean building;
+		private int edgeVertex = 4;
 		private int usedSkyChroma = NO_PIN;
 		private boolean bound;
 		private boolean lit;
@@ -118,9 +134,16 @@ public final class GlowtoneChromaBake {
 		private int originY;
 		private int originZ;
 
+		boolean building() {
+			return this.building;
+		}
+
 		void begin(SectionPos sectionPos, @Nullable RenderSectionRegion region) {
+			this.building = true;
 			this.pendingColors = null;
 			this.pendingSkyColors = null;
+			this.liquidLevel = null;
+			this.liquidQuad = false;
 			this.bound = false;
 			this.lit = false;
 			this.flatVerticesLeft = 0;
@@ -152,6 +175,7 @@ public final class GlowtoneChromaBake {
 		}
 
 		void end() {
+			this.building = false;
 			GlowtoneRegionFlood flood = this.flood;
 			if (flood != null) {
 				if (this.bound) {
@@ -178,6 +202,66 @@ public final class GlowtoneChromaBake {
 
 		public boolean smoothLighting() {
 			return this.smoothLighting;
+		}
+
+		public GlowtoneEdgeNeighbours edgeNeighbours() {
+			return this.edgeNeighbours;
+		}
+
+		public float @org.jspecify.annotations.Nullable [] modelFaces() {
+			return this.modelFaces;
+		}
+
+		public void setModelFaces(float @org.jspecify.annotations.Nullable [] faces) {
+			this.modelFaces = faces;
+		}
+
+		public GlowtoneQuadEdges pendingEdges() {
+			return this.pendingEdges;
+		}
+
+		public void beginQuadEdges() {
+			this.edgeVertex = 0;
+			this.liquidQuad = false;
+		}
+
+		public void beginLiquid(BlockAndTintGetter level, BlockPos pos) {
+			this.liquidLevel = level;
+			this.liquidPos.set(pos);
+		}
+
+		public void endLiquid() {
+			this.liquidLevel = null;
+			this.liquidQuad = false;
+		}
+
+		public @Nullable BlockAndTintGetter liquidLevel() {
+			return this.liquidLevel;
+		}
+
+		public BlockPos liquidPos() {
+			return this.liquidPos;
+		}
+
+		public GlowtoneLiquidRims liquidRims() {
+			return this.liquidRims;
+		}
+
+		public void beginLiquidQuadEdges() {
+			this.edgeVertex = 4;
+			this.liquidQuad = true;
+		}
+
+		public void endLiquidQuad() {
+			this.liquidQuad = false;
+		}
+
+		public boolean liquidQuad() {
+			return this.liquidQuad;
+		}
+
+		public int nextEdgeVertex() {
+			return this.edgeVertex < 4 ? this.edgeVertex++ : -1;
 		}
 
 		public void rotateFlatPins() {

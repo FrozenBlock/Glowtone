@@ -16,6 +16,12 @@ in vec3 Position;
 in vec4 Color;
 in vec2 UV0;
 in ivec2 UV2;
+in vec4 GlowtoneEdge;
+in vec4 GlowtoneEdgeMask;
+in vec4 GlowtoneContact0;
+in vec4 GlowtoneContact1;
+in vec4 GlowtoneContact2;
+in vec4 GlowtoneContact3;
 in vec4 GlowtoneChroma;    // colour of the BLOCK light reaching this vertex, stored at 1/GLOWTONE_CHROMA_SCALE
 in vec4 GlowtoneSkyChroma; // colour DAYLIGHT has picked up on its way down, white where nothing tints it
 
@@ -25,6 +31,16 @@ out float sphericalVertexDistance;
 out float cylindricalVertexDistance;
 out vec4 vertexColor;
 out vec2 texCoord0;
+out float glowtone_Height; // height of this fragment ABOVE THE EYE, so a liquid can tell which side it is seen from
+out vec4 glowtone_EdgeDist;
+out vec4 glowtone_EdgeMask;
+// vanilla folds its ambient occlusion and face shading into Color, so this carries
+// them to the fragment stage unlit, which is the only place they can be read apart
+out vec4 glowtone_Shade;
+flat out vec4 glowtone_Contact0;
+flat out vec4 glowtone_Contact1;
+flat out vec4 glowtone_Contact2;
+flat out vec4 glowtone_Contact3;
 
 void main() {
     vec3 pos = Position + (ChunkPosition - CameraBlockPos) + CameraOffset;
@@ -53,4 +69,12 @@ void main() {
     );
 
     texCoord0 = UV0;
+    glowtone_Height = pos.y;
+    glowtone_EdgeDist = GlowtoneEdge;
+    glowtone_EdgeMask = GlowtoneEdgeMask;
+    glowtone_Shade = Color;
+    glowtone_Contact0 = GlowtoneContact0;
+    glowtone_Contact1 = GlowtoneContact1;
+    glowtone_Contact2 = GlowtoneContact2;
+    glowtone_Contact3 = GlowtoneContact3;
 }

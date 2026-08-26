@@ -20,16 +20,19 @@ package net.frozenblock.glowtone;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.frozenblock.glowtone.config.ColouredLightingOption;
-import net.frozenblock.glowtone.config.EmissivesOption;
+import net.frozenblock.glowtone.config.ShadingOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
+import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.frozenblock.glowtone.light.color.GlowtoneColorResources;
 import net.minecraft.server.packs.PackType;
 
 public final class GlowtoneClient implements ClientModInitializer {
-
 	@Override
 	public void onInitializeClient() {
-		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
+		GlowtoneDebugEntries.register();
+		GlowtoneReload.register();
+		ShadingOption.applyFlags(GlowtoneConfig.shading());
 		ColouredLightingOption.applyMode(GlowtoneConfig.colouredLighting());
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES)

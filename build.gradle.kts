@@ -6,7 +6,6 @@ plugins {
     id("net.frozenblock.triangle.common") version("+") apply(false)
     id("net.frozenblock.triangle.fabric") version("+") apply(false)
     id("net.frozenblock.triangle.neoforge") version("+") apply(false)
-    id("net.mehvahdjukaar.candlelight") version("+") apply(false)
 
     id("org.quiltmc.gradle.licenser") version("+") apply(false)
     checkstyle
@@ -81,13 +80,6 @@ val publishMod by tasks.registering {
 
 subprojects {
     apply(plugin = "net.frozenblock.triangle.core")
-    apply(plugin = "net.mehvahdjukaar.candlelight")
-
-    if (project.name != "gt-common") {
-        afterEvaluate {
-            tasks.findByName("compileJava")?.dependsOn(":gt-common:candleLightTransform")
-        }
-    }
 
     val mavenUrl = env["MAVEN_URL"]
     val mavenUsername = env["MAVEN_USERNAME"]
@@ -117,10 +109,6 @@ subprojects {
     configure<JavaPluginExtension> {
         sourceCompatibility = JavaVersion.VERSION_25
         targetCompatibility = JavaVersion.VERSION_25
-    }
-
-    dependencies {
-        compileOnly("net.mehvahdjukaar:candlelight:+")
     }
 
     repositories {

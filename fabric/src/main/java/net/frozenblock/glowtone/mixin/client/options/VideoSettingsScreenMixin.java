@@ -23,22 +23,56 @@ import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.BloomOption;
+import net.frozenblock.glowtone.config.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.ColouredLightingOption;
-import net.frozenblock.glowtone.config.EmissivesOption;
+import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.ShadingOption;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.client.gui.screens.options.VideoSettingsScreen;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(VideoSettingsScreen.class)
 public class VideoSettingsScreenMixin {
+	@Unique
+	private @Nullable Boolean glowtone$smoothLighting;
+
+	@Inject(method = "tick", at = @At("TAIL"))
+	private void glowtone$syncOcclusionLocks(CallbackInfo info) {
+		final OptionsList list = ((OptionsSubScreenAccessor) this).glowtone$list();
+		if (list == null) return;
+
+		glowtone$setActive(list, AmbientOcclusionOption.get(), AmbientOcclusionOption.available());
+		glowtone$setActive(list, OcclusionStrengthOption.get(), OcclusionStrengthOption.available());
+
+		final boolean smooth = AmbientOcclusionOption.smoothLightingEnabled();
+		if (this.glowtone$smoothLighting != null && this.glowtone$smoothLighting != smooth) {
+			AmbientOcclusionOption.rebuildFromScreen();
+		}
+		this.glowtone$smoothLighting = smooth;
+	}
+
+	@Unique
+	private static void glowtone$setActive(OptionsList list, OptionInstance<?> option, boolean active) {
+		final AbstractWidget widget = list.findOption(option);
+		if (widget != null && widget.active != active) widget.active = active;
+	}
 
 	@ModifyReturnValue(method = "qualityOptions", at = @At("RETURN"))
 	private static OptionInstance<?>[] glowtone$addOptions(OptionInstance<?>[] original, Options options) {
-		final List<OptionInstance<?>> afterSmoothLighting = List.of(ColouredLightingOption.get());
-		final List<OptionInstance<?>> afterTransparency = List.of(EmissivesOption.get(), BloomOption.get());
+		final List<OptionInstance<?>> afterSmoothLighting = List.of(
+			AmbientOcclusionOption.get(), OcclusionStrengthOption.get(), ColouredLightingOption.get());
+		final List<OptionInstance<?>> afterTransparency = List.of(
+			ShadingOption.get(), BloomOption.get(), EdgeHighlightOption.get());
 		final ArrayList<OptionInstance<?>> withGlowtone = new ArrayList<>(
 			original.length + afterSmoothLighting.size() + afterTransparency.size()
 		);

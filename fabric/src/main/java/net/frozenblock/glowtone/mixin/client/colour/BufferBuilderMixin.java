@@ -21,6 +21,8 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.frozenblock.glowtone.render.GlowtoneChromaBake;
 import net.frozenblock.glowtone.render.GlowtoneChromaBlend;
+import net.frozenblock.glowtone.render.GlowtoneContactRects;
+import net.frozenblock.glowtone.render.GlowtoneQuadEdges;
 import net.frozenblock.glowtone.render.GlowtoneVertexFormats;
 import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Final;
@@ -44,14 +46,14 @@ public abstract class BufferBuilderMixin {
 	private void glowtone$writeChroma(CallbackInfo info) {
 		if (this.format != GlowtoneVertexFormats.EXTENDED_BLOCK || this.vertexPointer == -1L) return;
 
+		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+		state.rotateFlatPins();
+
 		if (!GlowtoneChromaBlend.isEnabled()) {
 			writeArgb(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, GlowtoneChromaBake.NEUTRAL_ARGB);
 			writeArgb(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, GlowtoneChromaBake.NEUTRAL_SKY_ARGB);
 			return;
 		}
-
-		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
-		state.rotateFlatPins();
 
 		final float x = MemoryUtil.memGetFloat(this.vertexPointer + GlowtoneVertexFormats.POSITION_OFFSET);
 		final float y = MemoryUtil.memGetFloat(this.vertexPointer + GlowtoneVertexFormats.POSITION_OFFSET + 4L);
@@ -59,6 +61,45 @@ public abstract class BufferBuilderMixin {
 
 		writeArgb(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, state.sample(x, y, z));
 		writeArgb(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, state.sampleSky(x, y, z));
+	}
+
+	@Inject(
+		method = "addVertex(FFFIFFIIFFF)V",
+		at = @At("RETURN")
+	)
+	private void glowtone$writeEdges(
+		float x, float y, float z, int colour, float u, float v,
+		int overlay, int light, float normalX, float normalY, float normalZ,
+		CallbackInfo info
+	) {
+		if (this.format != GlowtoneVertexFormats.EXTENDED_BLOCK || this.vertexPointer == -1L) return;
+
+		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+		final GlowtoneQuadEdges edges = state.pendingEdges();
+		final boolean liquid = state.liquidQuad();
+		final int index = liquid ? edges.indexOf(x, y, z) : state.nextEdgeVertex();
+
+		writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_OFFSET,
+			index < 0 ? GlowtoneQuadEdges.NO_EDGES : edges.get(index));
+		writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_MASK_OFFSET,
+			index < 0 ? 0 : edges.mask(index));
+		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT0_OFFSET,
+			index < 0 ? GlowtoneContactRects.NONE[0] : edges.contact(0));
+		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT1_OFFSET,
+			index < 0 ? GlowtoneContactRects.NONE[1] : edges.contact(1));
+		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT2_OFFSET,
+			index < 0 ? GlowtoneContactRects.NONE[2] : edges.contact(2));
+		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT3_OFFSET,
+			index < 0 ? GlowtoneContactRects.NONE[3] : edges.contact(3));
+
+	}
+
+	@Unique
+	private static void writeRaw(long at, int packed) {
+		MemoryUtil.memPutByte(at, (byte) (packed >> 24));
+		MemoryUtil.memPutByte(at + 1L, (byte) (packed >> 16));
+		MemoryUtil.memPutByte(at + 2L, (byte) (packed >> 8));
+		MemoryUtil.memPutByte(at + 3L, (byte) packed);
 	}
 
 	@Unique

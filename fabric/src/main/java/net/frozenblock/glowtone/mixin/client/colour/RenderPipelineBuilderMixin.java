@@ -19,10 +19,12 @@ package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
 import net.frozenblock.glowtone.render.GlowtoneVertexFormats;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -31,16 +33,42 @@ import java.util.Optional;
 
 @Mixin(RenderPipeline.Builder.class)
 public abstract class RenderPipelineBuilderMixin {
+	@Unique
+	private static final Identifier OPAQUE_TERRAIN = Identifier.withDefaultNamespace("pipeline/solid_terrain");
+
+	@Unique
+	private static final Identifier CUTOUT_TERRAIN = Identifier.withDefaultNamespace("pipeline/cutout_terrain");
+
+	@Unique
+	private static final Identifier TRANSLUCENT_TERRAIN = Identifier.withDefaultNamespace("pipeline/translucent_terrain");
+
 	@Shadow
 	private Optional<Identifier> fragmentShader;
 
 	@Shadow
+	private Optional<Identifier> location;
+
+	@Shadow
 	public abstract RenderPipeline.Builder withVertexBinding(int index, VertexFormat format);
+
+	@Shadow
+	public abstract RenderPipeline.Builder withShaderDefine(String define);
 
 	@Inject(method = "build", at = @At("HEAD"))
 	private void glowtone$useExtendedBlockFormat(CallbackInfoReturnable<RenderPipeline> cir) {
 		if (this.fragmentShader.isPresent() && "core/terrain".equals(this.fragmentShader.get().getPath())) {
 			this.withVertexBinding(0, GlowtoneVertexFormats.EXTENDED_BLOCK);
+
+			if (this.location.isPresent()) {
+				final Identifier pipeline = this.location.get();
+				if (OPAQUE_TERRAIN.equals(pipeline) || CUTOUT_TERRAIN.equals(pipeline)) {
+					this.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
+					this.withShaderDefine(GlowtoneEmissiveShaders.OPAQUE_TERRAIN_DEFINE);
+				} else if (TRANSLUCENT_TERRAIN.equals(pipeline)) {
+					this.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
+					this.withShaderDefine(GlowtoneEmissiveShaders.TRANSLUCENT_TERRAIN_DEFINE);
+				}
+			}
 		}
 	}
 }

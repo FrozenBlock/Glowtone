@@ -47,7 +47,10 @@ public class LavaShadingMixin {
 		CardinalLighting original,
 		@Local(argsOnly = true) FluidState fluidState
 	) {
-		if (GlowtoneConstants.GLOWTONE_SHADING && fluidState.is(FluidTags.LAVA)) return GLOWTONE$NO_CARDINAL_LIGHTING;
+		if (GlowtoneConstants.GLOWTONE_NO_SHADING
+			|| (GlowtoneConstants.GLOWTONE_SHADING && fluidState.is(FluidTags.LAVA))) {
+			return GLOWTONE$NO_CARDINAL_LIGHTING;
+		}
 		return original;
 	}
 }

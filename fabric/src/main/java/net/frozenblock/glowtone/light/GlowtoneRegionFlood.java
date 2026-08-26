@@ -86,13 +86,13 @@ public final class GlowtoneRegionFlood {
 		}
 	}
 
-	private final short[] levels = new short[CELLS];
-	private final short[] skyHues = new short[CELLS];
-	private final byte[] skyLevels = new byte[CELLS];
-	private final short[] columnCover = new short[SPAN * SPAN];
-	private final byte[] skyReach = new byte[CELLS];
+	private short[] levels;
+	private short[] skyHues;
+	private byte[] skyLevels;
+	private short[] columnCover;
+	private byte[] skyReach;
 	private final it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue skyQueue = new it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue();
-	private final @Nullable BlockState[] states = new BlockState[CELLS];
+	private @Nullable BlockState[] states;
 
 	private final int[][] buckets = new int[GlowtoneChannels.MAX_LEVEL + 1][];
 	private final int[] bucketSizes = new int[GlowtoneChannels.MAX_LEVEL + 1];
@@ -131,9 +131,14 @@ public final class GlowtoneRegionFlood {
 		}
 
 		int emitterMask = emitterMask(sections);
-		int tintMask = tintMask(sections);
+		int tintMask = SKY_TINT_ENABLED ? tintMask(sections) : 0;
 		if (emitterMask == 0 && tintMask == 0) {
 			return false;
+		}
+
+		if (this.levels == null) {
+			this.levels = new short[CELLS];
+			this.states = new BlockState[CELLS];
 		}
 
 		this.region = region;
@@ -183,6 +188,13 @@ public final class GlowtoneRegionFlood {
 	}
 
 	private void floodSkyTint(SectionCopy[] sections, int tintMask) {
+		if (this.skyHues == null) {
+			this.skyHues = new short[CELLS];
+			this.skyLevels = new byte[CELLS];
+			this.skyReach = new byte[CELLS];
+			this.columnCover = new short[SPAN * SPAN];
+		}
+
 		Arrays.fill(this.skyHues, (short) 0);
 		Arrays.fill(this.skyReach, (byte) 0);
 		Arrays.fill(this.skyLevels, SKY_UNKNOWN);
@@ -387,6 +399,8 @@ public final class GlowtoneRegionFlood {
 	}
 
 	public short @Nullable [] downsampleCentre() {
+		if (this.levels == null) return null;
+
 		short[] payload = null;
 
 		for (int cellY = 0; cellY < ENTITY_SPAN; cellY++) {

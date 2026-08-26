@@ -22,45 +22,43 @@ import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public final class EmissivesOption {
-	private static final String CAPTION = "options.glowtone.emissives";
-	private static final Codec<EmissivesMode> CODEC = Codec.STRING.xmap(EmissivesMode::byId, EmissivesMode::id);
-	private static @Nullable OptionInstance<EmissivesMode> instance;
+public final class ShadingOption {
+	private static final String CAPTION = "options.glowtone.shading";
+	private static final Codec<ShadingMode> CODEC = Codec.STRING.xmap(ShadingMode::byId, ShadingMode::id);
+	private static @Nullable OptionInstance<ShadingMode> instance;
 
-	private EmissivesOption() {}
+	private ShadingOption() {}
 
-	public static synchronized OptionInstance<EmissivesMode> get() {
+	public static synchronized OptionInstance<ShadingMode> get() {
 		if (instance == null) {
 			instance = new OptionInstance<>(
 				CAPTION,
 				OptionInstance.cachedConstantTooltip(Component.translatable(CAPTION + ".tooltip")),
 				(caption, value) -> Component.translatable(value.translationKey()),
-				new OptionInstance.Enum<>(List.of(EmissivesMode.values()), CODEC),
-				GlowtoneConfig.emissives(),
-				EmissivesOption::apply
+				new OptionInstance.Enum<>(List.of(ShadingMode.values()), CODEC),
+				GlowtoneConfig.shading(),
+				ShadingOption::apply
 			);
 		}
 		return instance;
 	}
 
-	public static void applyFlags(EmissivesMode mode) {
+	public static void applyFlags(ShadingMode mode) {
 		GlowtoneConstants.GLOWTONE_EMISSIVES = true;
-		GlowtoneConstants.GLOWTONE_SHADING = mode.shadeless();
+		GlowtoneConstants.GLOWTONE_SHADING = mode.unshadeEmissive();
+		GlowtoneConstants.GLOWTONE_NO_SHADING = mode.unshadeAll();
 	}
 
-	private static void apply(EmissivesMode mode) {
-		if (GlowtoneConfig.emissives() == mode) return;
+	private static void apply(ShadingMode mode) {
+		if (GlowtoneConfig.shading() == mode) return;
 
-		GlowtoneConfig.setEmissives(mode);
+		GlowtoneConfig.setShading(mode);
 		applyFlags(mode);
-
-		final Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.getResourceManager() != null) minecraft.reloadResourcePacks();
+		GlowtoneReload.request();
 	}
 }
