@@ -1,7 +1,9 @@
-package net.frozenblock.glowtone.light.color;
+package net.frozenblock.glowtone.data.light.color;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
 import net.frozenblock.glowtone.light.color.data.BlockLight;
 import net.frozenblock.glowtone.light.color.data.BlockLightGenerators;
 import net.frozenblock.glowtone.light.color.data.LightProvider;
@@ -13,8 +15,8 @@ import net.minecraft.world.level.block.Blocks;
 @Environment(EnvType.CLIENT)
 public final class GlowtoneBlockLightProvider extends LightProvider {
 
-	public GlowtoneBlockLightProvider(PackOutput.PathProvider pathProvider) {
-		super(pathProvider);
+	public GlowtoneBlockLightProvider(PackOutput output) {
+		super(output, GlowtoneConstants.MOD_ID);
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public final class GlowtoneBlockLightProvider extends LightProvider {
 		blockLights.createTrivialBlock(BlockLight.light(0xFF4A38), Blocks.REDSTONE_ORE, Blocks.DEEPSLATE_REDSTONE_ORE);
 		blockLights.createTrivialBlock(BlockLight.light(0xFFB35C), Blocks.REDSTONE_LAMP);
 
-		blockLights.createTrivialBlock(BlockLight.light(0xFFD98A), Blocks.GLOW_LICHEN);
+		blockLights.createTrivialBlock(BlockLight.light(0xFFD98A), Blocks.GLOWSTONE);
 		blockLights.createTrivialBlock(BlockLight.light(0xFFAF5E), Blocks.SHROOMLIGHT);
 		blockLights.createTrivialBlock(BlockLight.light(0xCFE8FF), Blocks.SEA_LANTERN, Blocks.BEACON);
 		blockLights.createTrivialBlock(BlockLight.light(0xA8EFE4), Blocks.CONDUIT);
@@ -52,10 +54,9 @@ public final class GlowtoneBlockLightProvider extends LightProvider {
 
 		blockLights.createTrivialBlock(BlockLight.light(0xF2E8FF), Blocks.END_ROD);
 		blockLights.createTrivialBlock(BlockLight.light(0xC7B6FF), Blocks.END_PORTAL, Blocks.END_GATEWAY);
-		// TODO: only with eyes
+		// TODO: only with eyes?
 		blockLights.createTrivialBlock(BlockLight.light(0xBCE8C4), Blocks.END_PORTAL_FRAME);
 		blockLights.createTrivialBlock(BlockLight.light(0xC8A2FF), Blocks.ENCHANTING_TABLE);
-		blockLights.createTrivialBlock(BlockLight.light(0xB24BFF), Blocks.NETHER_PORTAL);
 		blockLights.createTrivialBlock(BlockLight.light(0x9B4DFF), Blocks.CRYING_OBSIDIAN);
 		blockLights.createTrivialBlock(BlockLight.light(0xB14DFF), Blocks.RESPAWN_ANCHOR, Blocks.DRAGON_EGG);
 		blockLights.createTrivialBlock(BlockLight.light(0xC9A0FF), Blocks.AMETHYST_CLUSTER, Blocks.LARGE_AMETHYST_BUD, Blocks.MEDIUM_AMETHYST_BUD, Blocks.SMALL_AMETHYST_BUD);
@@ -77,6 +78,9 @@ public final class GlowtoneBlockLightProvider extends LightProvider {
 
 		blockLights.createTrivialBlock(BlockLight.light(0xFF7A3A), Blocks.CREAKING_HEART);
 
+		// LIGHT AND TRANSMITTANCE
+		blockLights.createTrivialBlock(BlockLight.lightAndTransmittance(0xB24BFF, 0xC7F), Blocks.NETHER_PORTAL);
+
 		// TRANSMITTANCE
 		for (DyeColor dye : DyeColor.values()) {
 			final int transmittanceColor = filterForDye(dye);
@@ -93,7 +97,6 @@ public final class GlowtoneBlockLightProvider extends LightProvider {
 
 		blockLights.createTrivialBlock(BlockLight.transmittance(0xFC6), Blocks.HONEY_BLOCK);
 		blockLights.createTrivialBlock(BlockLight.transmittance(0xBFB), Blocks.SLIME_BLOCK);
-		blockLights.createTrivialBlock(BlockLight.transmittance(0xC7F), Blocks.NETHER_PORTAL);
 	}
 
 	private static int filterForDye(DyeColor dye) {

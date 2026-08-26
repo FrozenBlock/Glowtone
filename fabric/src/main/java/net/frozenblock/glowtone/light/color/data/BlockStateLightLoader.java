@@ -33,7 +33,6 @@ import java.util.function.Function;
 public final class BlockStateLightLoader implements PreparableReloadListener {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final FileToIdConverter BLOCKSTATE_LIGHT_LISTER = FileToIdConverter.json("glowtone_blockstate_lights");
-	private static final BlockAttachmentKey<BlockLight.Baked> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Block Light");
 
 	public static CompletableFuture<LoadedLights> loadBlockStates(ResourceManager manager, Executor executor) {
 		final Function<Identifier, StateDefinition<Block, BlockState>> definitionToBlockState = BlockStateDefinitions.definitionLocationToBlockStateMapper();
@@ -109,7 +108,7 @@ public final class BlockStateLightLoader implements PreparableReloadListener {
 		return blockStateModels
 			.thenCompose(preparationBarrier::wait)
 			.thenAcceptAsync(lights -> {
-				BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(ATTACHMENT_KEY));
+				BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockLight.ATTACHMENT_KEY));
 
 				final Map<Block, Map<BlockState, BlockLight>> fullMap = new IdentityHashMap<>();
 				lights.lights().forEach((blockState, light) -> {
@@ -130,7 +129,7 @@ public final class BlockStateLightLoader implements PreparableReloadListener {
 					}
 				});
 
-				bakedMap.forEach((block, blockLight) -> block.frozenLib$setAttached(ATTACHMENT_KEY, blockLight));
+				bakedMap.forEach((block, blockLight) -> block.frozenLib$setAttached(BlockLight.ATTACHMENT_KEY, blockLight));
 			});
 	}
 

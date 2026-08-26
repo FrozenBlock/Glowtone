@@ -21,7 +21,10 @@
   "entrypoints": {
 	  "client": [
       "net.frozenblock.glowtone.GlowtoneClient"
-	  ]
+	  ],
+    "fabric-datagen": [
+      "net.frozenblock.glowtone.data.GTDataGenerator"
+    ]
   },
   "mixins": [
     "glowtone.mixins.json"

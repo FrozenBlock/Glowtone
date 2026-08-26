@@ -22,20 +22,21 @@ public abstract class LightProvider implements DataProvider {
 	private final PackOutput.PathProvider pathProvider;
 	public final String modId;
 
-	public LightProvider(PackOutput.PathProvider pathProvider, String modId) {
-		this.pathProvider = pathProvider;
+	public LightProvider(PackOutput output, String modId) {
+		this.pathProvider = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "glowtone_blockstate_lights");
 		this.modId = modId;
 	}
 
 	@ApiStatus.Internal
-	public LightProvider(PackOutput.PathProvider pathProvider) {
-		this(pathProvider, Identifier.DEFAULT_NAMESPACE);
+	public LightProvider(PackOutput output) {
+		this(output, Identifier.DEFAULT_NAMESPACE);
 	}
 
 	public abstract void generateBlockLights(BlockLightGenerators blockLights);
 
 	@Override
 	public CompletableFuture<?> run(CachedOutput cache) {
+
 		final BlockStateGeneratorCollector blockStateGenerators = new BlockStateGeneratorCollector();
 		generateBlockLights(new BlockLightGenerators(blockStateGenerators));
 		return CompletableFuture.allOf(blockStateGenerators.save(cache, this.pathProvider));

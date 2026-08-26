@@ -17,24 +17,18 @@
 
 package net.frozenblock.glowtone.light.color;
 
-import it.unimi.dsi.fastutil.objects.Reference2IntMap;
-import net.frozenblock.lib.block.api.attachment.BlockAttachmentKey;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.frozenblock.glowtone.light.color.data.BlockLight;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.Nullable;
 
 public final class GlowtoneEmitterColors {
-	private static final BlockAttachmentKey<Integer> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Color Emission");
 	public static final int NO_COLOUR = -1;
-
 	public static final int WHITE = 0xFFFFFF;
 
 	public static int rgbFor(BlockState state) {
-		return state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, NO_COLOUR);
+		return BlockLight.forBlockState(state).light().orElse(NO_COLOUR);
 	}
 
 	public static int rgbForOrWhite(BlockState state) {
-		return state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, WHITE);
+		return BlockLight.forBlockState(state).light().orElse(WHITE);
 	}
+}
