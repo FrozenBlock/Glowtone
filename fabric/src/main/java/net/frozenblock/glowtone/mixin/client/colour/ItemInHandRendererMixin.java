@@ -17,6 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.render.GlowtoneChromaFold;
 import net.frozenblock.glowtone.render.GlowtoneEntityLight;
@@ -27,40 +29,42 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemInHandRenderer.class)
-public abstract class ItemInHandRendererMixin {
-	@ModifyVariable(method = "submitHandsWithItems", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-	private int glowtone$smoothHandLight(int lightCoords, float partialTick, PoseStack poseStack,
-			SubmitNodeCollector collector, LocalPlayer player) {
-		Vec3 probe = player.getLightProbePosition(partialTick);
-		return GlowtoneEntityLight.smooth(probe.x, probe.y, probe.z, lightCoords);
+public class ItemInHandRendererMixin {
+
+	@Inject(method = "submitHandsWithItems", at = @At("HEAD"))
+	private void glowtone$smoothHandLight(
+		float frameInterp, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer player, int lightCoords, CallbackInfo info,
+		@Local(argsOnly = true, ordinal = 0) LocalIntRef lightCoordsRef
+	) {
+		final Vec3 probe = player.getLightProbePosition(frameInterp);
+		lightCoordsRef.set(GlowtoneEntityLight.smooth(probe.x, probe.y, probe.z, lightCoords));
 	}
 
 	@Inject(method = "submitHandsWithItems", at = @At("HEAD"))
 	private void glowtone$pushHandTint(
-			float partialTick,
-			PoseStack poseStack,
-			SubmitNodeCollector collector,
-			LocalPlayer player,
-			int lightCoords,
-			CallbackInfo ci
+		float frameInterp,
+		PoseStack poseStack,
+		SubmitNodeCollector submitNodeCollector,
+		LocalPlayer player,
+		int lightCoords,
+		CallbackInfo info
 	) {
-		Vec3 probe = player.getLightProbePosition(partialTick);
-		int smoothed = GlowtoneEntityLight.smooth(probe.x, probe.y, probe.z, lightCoords);
+		final Vec3 probe = player.getLightProbePosition(frameInterp);
+		final int smoothed = GlowtoneEntityLight.smooth(probe.x, probe.y, probe.z, lightCoords);
 		GlowtoneChromaFold.pushTint(GlowtoneChromaFold.resolveHand(probe.x, probe.y, probe.z, smoothed));
 	}
 
 	@Inject(method = "submitHandsWithItems", at = @At("RETURN"))
 	private void glowtone$popHandTint(
-			float partialTick,
-			PoseStack poseStack,
-			SubmitNodeCollector collector,
-			LocalPlayer player,
-			int lightCoords,
-			CallbackInfo ci
+		float frameInterp,
+		PoseStack poseStack,
+		SubmitNodeCollector submitNodeCollector,
+		LocalPlayer player,
+		int lightCoords,
+		CallbackInfo info
 	) {
 		GlowtoneChromaFold.popTint();
 	}

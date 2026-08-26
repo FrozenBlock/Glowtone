@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ShaderManager.class)
+@Mixin(value = ShaderManager.class, priority = 995)
 public class ShaderManagerMixin {
 
 	@ModifyExpressionValue(

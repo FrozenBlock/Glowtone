@@ -32,13 +32,19 @@ import net.minecraft.client.renderer.block.BlockModelLighter;
 
 @Mixin(BlockModelLighter.class)
 public class BlockModelLighterMixin {
+
 	@Inject(method = "prepareQuadFlat", at = @At("TAIL"))
 	private void glowtone$pinFlatQuadColour(
-			BlockAndTintGetter level, BlockState state, BlockPos pos, int light, BakedQuad quad,
-			QuadInstance quadInstance, CallbackInfo ci
+		BlockAndTintGetter level,
+		BlockState state,
+		BlockPos pos,
+		int lightCoords,
+		BakedQuad quad,
+		QuadInstance outputInstance,
+		CallbackInfo info
 	) {
-		Direction direction = quad.direction();
-		BlockPos lit = direction == null ? pos : pos.relative(direction);
+		final Direction direction = quad.direction();
+		final BlockPos lit = direction == null ? pos : pos.relative(direction);
 		GlowtoneChromaBake.beginFlatQuad(lit.getX(), lit.getY(), lit.getZ());
 	}
 }

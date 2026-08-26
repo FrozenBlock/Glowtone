@@ -29,25 +29,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SectionCompiler.class)
-public abstract class SectionCompilerMixin {
+public class SectionCompilerMixin {
+
 	@Inject(method = "compile", at = @At("HEAD"))
 	private void glowtone$floodSection(
-			SectionPos sectionPos,
-			RenderSectionRegion region,
-			VertexSorting vertexSorting,
-			SectionBufferBuilderPack bufferPack,
-			CallbackInfoReturnable<SectionCompiler.Results> cir
+		SectionPos sectionPos,
+		RenderSectionRegion region,
+		VertexSorting vertexSorting,
+		SectionBufferBuilderPack builders,
+		CallbackInfoReturnable<SectionCompiler.Results> info
 	) {
 		GlowtoneChromaBake.beginSection(sectionPos, region);
 	}
 
 	@Inject(method = "compile", at = @At("RETURN"))
 	private void glowtone$releaseSection(
-			SectionPos sectionPos,
-			RenderSectionRegion region,
-			VertexSorting vertexSorting,
-			SectionBufferBuilderPack bufferPack,
-			CallbackInfoReturnable<SectionCompiler.Results> cir
+		SectionPos sectionPos,
+		RenderSectionRegion region,
+		VertexSorting vertexSorting,
+		SectionBufferBuilderPack builders,
+		CallbackInfoReturnable<SectionCompiler.Results> info
 	) {
 		GlowtoneChromaBake.endSection();
 	}

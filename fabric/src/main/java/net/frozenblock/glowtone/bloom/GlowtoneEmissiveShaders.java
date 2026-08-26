@@ -407,7 +407,10 @@ public final class GlowtoneEmissiveShaders {
 		source = flattenDiffuse(source);
 
 		if (LIT_SHADERS.contains(id)) {
-			if (type == ShaderType.VERTEX) return patchVertex(source);
+			if (type == ShaderType.VERTEX) {
+				final String vertex = patchVertex(source);
+				return id.equals(TERRAIN) ? patchTerrainVertex(vertex) : vertex;
+			}
 
 			final String patched = patchFragment(source);
 			return id.equals(TERRAIN) ? patchTerrainLines(patched) : patched;
@@ -416,6 +419,54 @@ public final class GlowtoneEmissiveShaders {
 			return patchSelfLitFragment(source);
 		}
 		return source;
+	}
+
+	private static final String TERRAIN_IN_ANCHOR = "in ivec2 UV2;";
+	private static final String TERRAIN_OUT_ANCHOR = "out vec2 texCoord0;";
+	private static final String TERRAIN_WRITE_ANCHOR = "texCoord0 = UV0;";
+
+	private static final String TERRAIN_ATTRIBUTES = """
+		in vec4 GlowtoneEdge;
+		in vec4 GlowtoneEdgeMask;
+		in vec4 GlowtoneContact0;
+		in vec4 GlowtoneContact1;
+		in vec4 GlowtoneContact2;
+		in vec4 GlowtoneContact3;
+		""";
+
+	private static final String TERRAIN_VARYINGS = """
+		out float glowtone_Height;
+		out vec4 glowtone_EdgeDist;
+		out vec4 glowtone_EdgeMask;
+		out vec4 glowtone_Shade;
+		flat out vec4 glowtone_Contact0;
+		flat out vec4 glowtone_Contact1;
+		flat out vec4 glowtone_Contact2;
+		flat out vec4 glowtone_Contact3;
+		""";
+
+	private static final String TERRAIN_WRITES = """
+			glowtone_Height = pos.y;
+			glowtone_EdgeDist = GlowtoneEdge;
+			glowtone_EdgeMask = GlowtoneEdgeMask;
+			glowtone_Shade = Color;
+			glowtone_Contact0 = GlowtoneContact0;
+			glowtone_Contact1 = GlowtoneContact1;
+			glowtone_Contact2 = GlowtoneContact2;
+			glowtone_Contact3 = GlowtoneContact3;
+			""";
+
+	private static String patchTerrainVertex(String source) {
+		if (!source.contains(TERRAIN_IN_ANCHOR)
+			|| !source.contains(TERRAIN_OUT_ANCHOR)
+			|| !source.contains(TERRAIN_WRITE_ANCHOR)) {
+			return source;
+		}
+
+		return source
+			.replace(TERRAIN_IN_ANCHOR, TERRAIN_IN_ANCHOR + System.lineSeparator() + TERRAIN_ATTRIBUTES)
+			.replace(TERRAIN_OUT_ANCHOR, TERRAIN_OUT_ANCHOR + System.lineSeparator() + TERRAIN_VARYINGS)
+			.replace(TERRAIN_WRITE_ANCHOR, TERRAIN_WRITE_ANCHOR + System.lineSeparator() + TERRAIN_WRITES);
 	}
 
 	private static String patchVertex(String source) {

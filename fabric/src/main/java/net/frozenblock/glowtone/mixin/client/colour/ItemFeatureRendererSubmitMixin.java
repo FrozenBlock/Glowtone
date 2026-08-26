@@ -33,15 +33,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(ItemFeatureRenderer.Submit.class)
-public abstract class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
+public class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
 	@Unique
 	private int glowtone$chromaTint;
 
+	@Unique
 	@Override
 	public int glowtone$chromaTint() {
 		return this.glowtone$chromaTint;
 	}
 
+	@Unique
 	@Override
 	public void glowtone$setChromaTint(int tint) {
 		this.glowtone$chromaTint = tint;
@@ -49,15 +51,15 @@ public abstract class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTi
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void glowtone$captureChromaTint(
-			PoseStack.Pose pose,
-			ItemDisplayContext displayContext,
-			int lightCoords,
-			int overlayCoords,
-			int outlineColor,
-			int[] tintLayers,
-			List<BakedQuad> quads,
-			ItemStackRenderState.FoilType foilType,
-			CallbackInfo ci
+		PoseStack.Pose pose,
+		ItemDisplayContext displayContext,
+		int lightCoords,
+		int overlayCoords,
+		int outlineColor,
+		int[] tintLayers,
+		List<BakedQuad> quads,
+		ItemStackRenderState.FoilType foilType,
+		CallbackInfo info
 	) {
 		this.glowtone$chromaTint = GlowtoneChromaFold.currentTint();
 	}

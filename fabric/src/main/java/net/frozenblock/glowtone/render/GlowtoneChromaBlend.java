@@ -24,11 +24,11 @@ public final class GlowtoneChromaBlend {
 
 	public static final int NEUTRAL_ARGB = 0xFFFFFFFF;
 	public static final int NEUTRAL_TERRAIN_ARGB = 0xFF808080;
-	public static final float CHROMA_SCALE = 2.0f;
+	public static final float CHROMA_SCALE = 2F;
 
-	private static final float SUBTLE_SATURATION = 0.85f;
-	private static final float SUBTLE_SKY_STRENGTH = 0.5f;
-	private static final float SUBTLE_EQUALISE = 0.4f;
+	private static final float SUBTLE_SATURATION = 0.85F;
+	private static final float SUBTLE_SKY_STRENGTH = 0.5F;
+	private static final float SUBTLE_EQUALISE = 0.4F;
 
 	private static volatile ColouredLightingMode mode = ColouredLightingMode.SUBTLE;
 
@@ -41,18 +41,18 @@ public final class GlowtoneChromaBlend {
 	}
 
 	public static int skyTintArgb(int rgb) {
-		ColouredLightingMode current = mode;
+		final ColouredLightingMode current = mode;
 		if (current == ColouredLightingMode.OFF) return NEUTRAL_ARGB;
 		if (current == ColouredLightingMode.INTENSE) return 0xFF000000 | rgb;
 
 		return 0xFF000000
-				| (towardWhite((rgb >> 16) & 0xFF) << 16)
-				| (towardWhite((rgb >> 8) & 0xFF) << 8)
-				| towardWhite(rgb & 0xFF);
+			| (towardWhite((rgb >> 16) & 0xFF) << 16)
+			| (towardWhite((rgb >> 8) & 0xFF) << 8)
+			| towardWhite(rgb & 0xFF);
 	}
 
 	private static int towardWhite(int channel) {
-		return Math.round(255.0f - (255 - channel) * SUBTLE_SKY_STRENGTH);
+		return Math.round(255F - (255 - channel) * SUBTLE_SKY_STRENGTH);
 	}
 
 	public static ColouredLightingMode mode() {
@@ -78,41 +78,31 @@ public final class GlowtoneChromaBlend {
 	public static final int WEIGHT_ONE = 256;
 
 	public static long addWeighted(long accumulator, int packedLevels, int weight) {
-		if (packedLevels == 0 || weight <= 0) {
-			return accumulator;
-		}
+		if (packedLevels == 0 || weight <= 0) return accumulator;
 
-		int level = packedLevels & 0xF;
-		if (level == 0) {
-			return accumulator;
-		}
+		final int level = packedLevels & 0xF;
+		if (level == 0) return accumulator;
 
-		int hue = (packedLevels >>> 4) & 0xFFF;
-		int scale = level * weight;
-		long red = (long) ((hue >> 8) & 0xF) * scale / WEIGHT_ONE;
-		long green = (long) ((hue >> 4) & 0xF) * scale / WEIGHT_ONE;
-		long blue = (long) (hue & 0xF) * scale / WEIGHT_ONE;
-		if ((red | green | blue) == 0L) {
-			return accumulator;
-		}
+		final int hue = (packedLevels >>> 4) & 0xFFF;
+		final int scale = level * weight;
+		final long red = (long) ((hue >> 8) & 0xF) * scale / WEIGHT_ONE;
+		final long green = (long) ((hue >> 4) & 0xF) * scale / WEIGHT_ONE;
+		final long blue = (long) (hue & 0xF) * scale / WEIGHT_ONE;
+		if ((red | green | blue) == 0L) return accumulator;
 
 		long sums = (accumulator & SUMS_MASK)
-				+ red
-				+ (green << SUM_BITS)
-				+ (blue << (SUM_BITS * 2));
-		long strongest = Math.max(accumulator >>> STRONGEST_SHIFT, level);
+			+ red
+			+ (green << SUM_BITS)
+			+ (blue << (SUM_BITS * 2));
+		final long strongest = Math.max(accumulator >>> STRONGEST_SHIFT, level);
 		return sums | (strongest << STRONGEST_SHIFT);
 	}
 
 	public static long add(long accumulator, int packedLevels) {
-		if (packedLevels == 0) {
-			return accumulator;
-		}
+		if (packedLevels == 0) return accumulator;
 
-		int level = packedLevels & 0xF;
-		if (level == 0) {
-			return accumulator;
-		}
+		final int level = packedLevels & 0xF;
+		if (level == 0) return accumulator;
 
 		int hue = (packedLevels >>> 4) & 0xFFF;
 		int red = ((hue >> 8) & 0xF) * level;
@@ -120,9 +110,9 @@ public final class GlowtoneChromaBlend {
 		int blue = (hue & 0xF) * level;
 
 		long sums = (accumulator & SUMS_MASK)
-				+ red
-				+ ((long) green << SUM_BITS)
-				+ ((long) blue << (SUM_BITS * 2));
+			+ red
+			+ ((long) green << SUM_BITS)
+			+ ((long) blue << (SUM_BITS * 2));
 		long strongest = Math.max(accumulator >>> STRONGEST_SHIFT, level);
 		return sums | (strongest << STRONGEST_SHIFT);
 	}
@@ -136,69 +126,66 @@ public final class GlowtoneChromaBlend {
 	}
 
 	public static int toEntityArgb(long accumulator) {
-		return encode(accumulator, 0.0f);
+		return encode(accumulator, 0F);
 	}
 
 	private static int encode(long accumulator, float headroom) {
-		int strongest = (int) (accumulator >>> STRONGEST_SHIFT);
-		if (strongest == 0) {
-			return headroom > 0.0f ? NEUTRAL_TERRAIN_ARGB : NEUTRAL_ARGB;
-		}
+		final int strongest = (int) (accumulator >>> STRONGEST_SHIFT);
+		if (strongest == 0) return headroom > 0F ? NEUTRAL_TERRAIN_ARGB : NEUTRAL_ARGB;
 
-		int redSum = (int) (accumulator & SUM_MASK);
-		int greenSum = (int) ((accumulator >>> SUM_BITS) & SUM_MASK);
-		int blueSum = (int) ((accumulator >>> (SUM_BITS * 2)) & SUM_MASK);
-		float brightestSum = Math.max(redSum, Math.max(greenSum, blueSum));
-		if (brightestSum <= 0.0f) {
-			return headroom > 0.0f ? NEUTRAL_TERRAIN_ARGB : NEUTRAL_ARGB;
-		}
+		final int redSum = (int) (accumulator & SUM_MASK);
+		final int greenSum = (int) ((accumulator >>> SUM_BITS) & SUM_MASK);
+		final int blueSum = (int) ((accumulator >>> (SUM_BITS * 2)) & SUM_MASK);
+		final float brightestSum = Math.max(redSum, Math.max(greenSum, blueSum));
+		if (brightestSum <= 0F) return headroom > 0F ? NEUTRAL_TERRAIN_ARGB : NEUTRAL_ARGB;
+
 		float red = redSum / brightestSum;
 		float green = greenSum / brightestSum;
 		float blue = blueSum / brightestSum;
 
-		float fade = Math.min(1.0f, strongest / (float) FULL_TINT_LEVEL);
-		boolean intense = mode == ColouredLightingMode.INTENSE;
+		final float fade = Math.min(1F, strongest / (float) FULL_TINT_LEVEL);
+		final boolean intense = mode == ColouredLightingMode.INTENSE;
 
 		if (intense) {
-			float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;
+			final float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;
 			if (luma > 0.001f) {
-				float limit = headroom > 0.0f ? headroom : 1.0f;
+				float limit = headroom > 0F ? headroom : 1F;
 				float scale = Math.min(TARGET_LUMA / luma, limit);
 				red *= scale;
 				green *= scale;
 				blue *= scale;
 			}
 		} else {
-			red = 1.0f + (red - 1.0f) * SUBTLE_SATURATION;
-			green = 1.0f + (green - 1.0f) * SUBTLE_SATURATION;
-			blue = 1.0f + (blue - 1.0f) * SUBTLE_SATURATION;
+			red = 1F + (red - 1F) * SUBTLE_SATURATION;
+			green = 1F + (green - 1F) * SUBTLE_SATURATION;
+			blue = 1F + (blue - 1F) * SUBTLE_SATURATION;
 
-			float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;
-			float target = luma + (TARGET_LUMA - luma) * SUBTLE_EQUALISE;
+			final float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;
+			final float target = luma + (TARGET_LUMA - luma) * SUBTLE_EQUALISE;
 			if (luma > target) {
 				float scale = target / luma;
 				red *= scale;
 				green *= scale;
 				blue *= scale;
 			} else if (luma > 0.001f) {
-				float mix = (target - luma) / (1.0f - luma);
-				red += (1.0f - red) * mix;
-				green += (1.0f - green) * mix;
-				blue += (1.0f - blue) * mix;
+				float mix = (target - luma) / (1F - luma);
+				red += (1F - red) * mix;
+				green += (1F - green) * mix;
+				blue += (1F - blue) * mix;
 			}
 		}
 
-		red = 1.0f + (red - 1.0f) * fade;
-		green = 1.0f + (green - 1.0f) * fade;
-		blue = 1.0f + (blue - 1.0f) * fade;
+		red = 1F + (red - 1F) * fade;
+		green = 1F + (green - 1F) * fade;
+		blue = 1F + (blue - 1F) * fade;
 
-		if (headroom > 0.0f) {
+		if (headroom > 0F) {
 			return 0xFF000000 | (channelToByte(red / headroom) << 16)
-					| (channelToByte(green / headroom) << 8) | channelToByte(blue / headroom);
+				| (channelToByte(green / headroom) << 8) | channelToByte(blue / headroom);
 		}
 
-		float brightest = Math.max(red, Math.max(green, blue));
-		if (brightest > 1.0f) {
+		final float brightest = Math.max(red, Math.max(green, blue));
+		if (brightest > 1F) {
 			red /= brightest;
 			green /= brightest;
 			blue /= brightest;
@@ -207,6 +194,6 @@ public final class GlowtoneChromaBlend {
 	}
 
 	private static int channelToByte(float value) {
-		return Math.clamp(Math.round(value * 255.0f), 0, 255);
+		return Math.clamp(Math.round(value * 255F), 0, 255);
 	}
 }

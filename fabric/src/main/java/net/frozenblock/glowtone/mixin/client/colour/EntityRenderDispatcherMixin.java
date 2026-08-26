@@ -19,7 +19,6 @@ package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -30,31 +29,32 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityRenderDispatcher.class)
-public abstract class EntityRenderDispatcherMixin {
+public class EntityRenderDispatcherMixin {
+
 	@Inject(method = "submit", at = @At("HEAD"))
 	private void glowtone$pushEntityTint(
-			EntityRenderState state,
-			CameraRenderState cameraRenderState,
-			double x,
-			double y,
-			double z,
-			PoseStack poseStack,
-			SubmitNodeCollector collector,
-			CallbackInfo ci
+		EntityRenderState renderState,
+		CameraRenderState camera,
+		double x,
+		double y,
+		double z,
+		PoseStack poseStack,
+		SubmitNodeCollector submitNodeCollector,
+		CallbackInfo info
 	) {
-		GlowtoneChromaFold.pushTint(((GlowtoneChromaTinted) state).glowtone$chromaTint());
+		GlowtoneChromaFold.pushTint(renderState.glowtone$chromaTint());
 	}
 
 	@Inject(method = "submit", at = @At("RETURN"))
 	private void glowtone$popEntityTint(
-			EntityRenderState state,
-			CameraRenderState cameraRenderState,
-			double x,
-			double y,
-			double z,
-			PoseStack poseStack,
-			SubmitNodeCollector collector,
-			CallbackInfo ci
+		EntityRenderState renderState,
+		CameraRenderState camera,
+		double x,
+		double y,
+		double z,
+		PoseStack poseStack,
+		SubmitNodeCollector submitNodeCollector,
+		CallbackInfo info
 	) {
 		GlowtoneChromaFold.popTint();
 	}

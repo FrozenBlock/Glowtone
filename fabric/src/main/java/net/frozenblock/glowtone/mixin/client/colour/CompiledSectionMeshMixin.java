@@ -38,18 +38,18 @@ public abstract class CompiledSectionMeshMixin implements GlowtoneSectionColors 
 	private short @Nullable [] glowtone$skyHues;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$attachColors(
-			TranslucencyPointOfView pointOfView, SectionCompiler.Results results, CallbackInfo ci
-	) {
+	private void glowtone$attachColors(TranslucencyPointOfView translucencyPointOfView, SectionCompiler.Results results, CallbackInfo info) {
 		this.glowtone$colors = GlowtoneChromaBake.takeSectionColors();
 		this.glowtone$skyHues = GlowtoneChromaBake.takeSectionSkyColors();
 	}
 
+	@Unique
 	@Override
 	public short @Nullable [] glowtone$sectionColors() {
 		return this.glowtone$colors;
 	}
 
+	@Unique
 	@Override
 	public short @Nullable [] glowtone$sectionSkyHues() {
 		return this.glowtone$skyHues;

@@ -49,26 +49,25 @@ public abstract class RenderPipelineBuilderMixin {
 	private Optional<Identifier> location;
 
 	@Shadow
-	public abstract RenderPipeline.Builder withVertexBinding(int index, VertexFormat format);
+	public abstract RenderPipeline.Builder withVertexBinding(int bindingIndex, VertexFormat vertexFormat);
 
 	@Shadow
 	public abstract RenderPipeline.Builder withShaderDefine(String define);
 
 	@Inject(method = "build", at = @At("HEAD"))
-	private void glowtone$useExtendedBlockFormat(CallbackInfoReturnable<RenderPipeline> cir) {
-		if (this.fragmentShader.isPresent() && "core/terrain".equals(this.fragmentShader.get().getPath())) {
-			this.withVertexBinding(0, GlowtoneVertexFormats.EXTENDED_BLOCK);
+	private void glowtone$useExtendedBlockFormat(CallbackInfoReturnable<RenderPipeline> info) {
+		if (this.fragmentShader.isEmpty() || !"core/terrain".equals(this.fragmentShader.get().getPath())) return;
 
-			if (this.location.isPresent()) {
-				final Identifier pipeline = this.location.get();
-				if (OPAQUE_TERRAIN.equals(pipeline) || CUTOUT_TERRAIN.equals(pipeline)) {
-					this.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
-					this.withShaderDefine(GlowtoneEmissiveShaders.OPAQUE_TERRAIN_DEFINE);
-				} else if (TRANSLUCENT_TERRAIN.equals(pipeline)) {
-					this.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
-					this.withShaderDefine(GlowtoneEmissiveShaders.TRANSLUCENT_TERRAIN_DEFINE);
-				}
-			}
+		this.withVertexBinding(0, GlowtoneVertexFormats.EXTENDED_BLOCK);
+		if (this.location.isEmpty()) return;
+
+		final Identifier pipeline = this.location.get();
+		if (OPAQUE_TERRAIN.equals(pipeline) || CUTOUT_TERRAIN.equals(pipeline)) {
+			this.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
+			this.withShaderDefine(GlowtoneEmissiveShaders.OPAQUE_TERRAIN_DEFINE);
+		} else if (TRANSLUCENT_TERRAIN.equals(pipeline)) {
+			this.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
+			this.withShaderDefine(GlowtoneEmissiveShaders.TRANSLUCENT_TERRAIN_DEFINE);
 		}
 	}
 }

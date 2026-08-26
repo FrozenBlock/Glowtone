@@ -29,15 +29,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockEntityRenderState.class)
-public abstract class BlockEntityRenderStateMixin implements GlowtoneChromaTinted {
+public class BlockEntityRenderStateMixin implements GlowtoneChromaTinted {
 	@Unique
 	private int glowtone$chromaTint = GlowtoneChromaFold.NO_TINT;
 
+	@Unique
 	@Override
 	public int glowtone$chromaTint() {
 		return this.glowtone$chromaTint;
 	}
 
+	@Unique
 	@Override
 	public void glowtone$setChromaTint(int tint) {
 		this.glowtone$chromaTint = tint;
@@ -45,13 +47,11 @@ public abstract class BlockEntityRenderStateMixin implements GlowtoneChromaTinte
 
 	@Inject(method = "extractBase", at = @At("TAIL"))
 	private static void glowtone$resolveChromaTint(
-			BlockEntity blockEntity,
-			BlockEntityRenderState state,
-			ModelFeatureRenderer.CrumblingOverlay breakProgress,
-			CallbackInfo ci
+		BlockEntity blockEntity,
+		BlockEntityRenderState state,
+		ModelFeatureRenderer.CrumblingOverlay breakProgress,
+		CallbackInfo info
 	) {
-		((GlowtoneChromaTinted) state).glowtone$setChromaTint(
-				GlowtoneChromaFold.resolveBlockEntity(state.blockPos, state.lightCoords)
-		);
+		state.glowtone$setChromaTint(GlowtoneChromaFold.resolveBlockEntity(state.blockPos, state.lightCoords));
 	}
 }

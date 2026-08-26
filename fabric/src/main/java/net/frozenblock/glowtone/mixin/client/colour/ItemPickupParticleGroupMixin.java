@@ -23,8 +23,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneChromaTinted;
 import net.frozenblock.glowtone.render.GlowtoneEntityLight;
+import net.minecraft.client.particle.ItemPickupParticleGroup;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Environment(EnvType.CLIENT)
-@Mixin(targets = "net.minecraft.client.particle.ItemPickupParticleGroup$State")
+@Mixin(ItemPickupParticleGroup.State.class)
 public class ItemPickupParticleGroupMixin {
 
 	@WrapOperation(
@@ -45,25 +45,25 @@ public class ItemPickupParticleGroupMixin {
 	)
 	private void glowtone$retintPickupItem(
 		EntityRenderDispatcher dispatcher,
-		EntityRenderState state,
+		EntityRenderState renderState,
 		CameraRenderState camera,
-		double offsetX,
-		double offsetY,
-		double offsetZ,
+		double xOffset,
+		double yOffset,
+		double zOffset,
 		PoseStack poseStack,
-		SubmitNodeCollector collector,
+		SubmitNodeCollector submitNodeCollector,
 		Operation<Void> original
 	) {
-		final double x = camera.pos.x() + offsetX;
-		final double y = camera.pos.y() + offsetY;
-		final double z = camera.pos.z() + offsetZ;
+		final double x = camera.pos.x() + xOffset;
+		final double y = camera.pos.y() + yOffset;
+		final double z = camera.pos.z() + zOffset;
 
-		final int liveLight = GlowtoneEntityLight.worldLightAt(x, y, z, state.lightCoords);
-		state.lightCoords = GlowtoneEntityLight.smooth(x, y, z, liveLight);
+		final int liveLight = GlowtoneEntityLight.worldLightAt(x, y, z, renderState.lightCoords);
+		renderState.lightCoords = GlowtoneEntityLight.smooth(x, y, z, liveLight);
 
-		final int tint = GlowtoneChromaFold.resolveEntity(x, y, z, state.eyeHeight, liveLight);
-		((GlowtoneChromaTinted) state).glowtone$setChromaTint(tint);
+		final int tint = GlowtoneChromaFold.resolveEntity(x, y, z, renderState.eyeHeight, liveLight);
+		renderState.glowtone$setChromaTint(tint);
 
-		original.call(dispatcher, state, camera, offsetX, offsetY, offsetZ, poseStack, collector);
+		original.call(dispatcher, renderState, camera, xOffset, yOffset, zOffset, poseStack, submitNodeCollector);
 	}
 }

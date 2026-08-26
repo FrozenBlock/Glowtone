@@ -18,7 +18,12 @@
 package net.frozenblock.glowtone.render;
 
 public interface GlowtoneChromaTinted {
-	int glowtone$chromaTint();
 
-	void glowtone$setChromaTint(int tint);
+	default int glowtone$chromaTint() {
+		throw new AssertionError();
+	}
+
+	default void glowtone$setChromaTint(int tint) {
+		throw new AssertionError();
+	}
 }

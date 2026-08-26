@@ -24,15 +24,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(EntityRenderState.class)
-public abstract class EntityRenderStateMixin implements GlowtoneChromaTinted {
+public class EntityRenderStateMixin implements GlowtoneChromaTinted {
 	@Unique
 	private int glowtone$chromaTint = GlowtoneChromaFold.NO_TINT;
 
+	@Unique
 	@Override
 	public int glowtone$chromaTint() {
 		return this.glowtone$chromaTint;
 	}
 
+	@Unique
 	@Override
 	public void glowtone$setChromaTint(int tint) {
 		this.glowtone$chromaTint = tint;

@@ -29,22 +29,22 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientLevel.class)
-public abstract class ClientLevelMixin {
+public class ClientLevelMixin {
+
 	@Inject(method = "setBlocksDirty", at = @At("HEAD"))
-	private void glowtone$onColourChanged(
-			BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci
-	) {
+	private void glowtone$onColourChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo info) {
 		if (GlowtoneEmitterColors.rgbFor(oldState) == GlowtoneEmitterColors.rgbFor(newState)
-				&& GlowtoneTransmittance.filterFor(oldState) == GlowtoneTransmittance.filterFor(newState)) {
+			&& GlowtoneTransmittance.filterFor(oldState) == GlowtoneTransmittance.filterFor(newState)
+		) {
 			return;
 		}
 
-		int sectionX = SectionPos.blockToSectionCoord(pos.getX());
-		int sectionY = SectionPos.blockToSectionCoord(pos.getY());
-		int sectionZ = SectionPos.blockToSectionCoord(pos.getZ());
-		((ClientLevel) (Object) this).setSectionRangeDirty(
-				sectionX - 1, sectionY - 1, sectionZ - 1,
-				sectionX + 1, sectionY + 1, sectionZ + 1
+		final int sectionX = SectionPos.blockToSectionCoord(pos.getX());
+		final int sectionY = SectionPos.blockToSectionCoord(pos.getY());
+		final int sectionZ = SectionPos.blockToSectionCoord(pos.getZ());
+		ClientLevel.class.cast(this).setSectionRangeDirty(
+			sectionX - 1, sectionY - 1, sectionZ - 1,
+			sectionX + 1, sectionY + 1, sectionZ + 1
 		);
 	}
 }
