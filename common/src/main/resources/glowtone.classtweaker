@@ -12,6 +12,8 @@ accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion minSect
 accessible field net/minecraft/client/renderer/chunk/SectionCopy section Lnet/minecraft/world/level/chunk/PalettedContainer;
 accessible field net/minecraft/client/renderer/chunk/SectionCopy debug Z
 
+accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch getEntries ()Ljava/util/Map;
+
 transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/render/GlowtoneChromaTinted
 transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/render/GlowtoneChromaTinted
 transitive-inject-interface net/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit net/frozenblock/glowtone/render/GlowtoneChromaTinted

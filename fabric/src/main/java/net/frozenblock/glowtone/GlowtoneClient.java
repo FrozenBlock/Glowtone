@@ -23,6 +23,8 @@ import net.frozenblock.glowtone.config.ColouredLightingOption;
 import net.frozenblock.glowtone.config.EmissivesOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.light.color.GlowtoneColorResources;
+import net.frozenblock.glowtone.light.color.data.BlockStateLightLoader;
+import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.server.packs.PackType;
 
 public final class GlowtoneClient implements ClientModInitializer {
@@ -32,7 +34,6 @@ public final class GlowtoneClient implements ClientModInitializer {
 		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
 		ColouredLightingOption.applyMode(GlowtoneConfig.colouredLighting());
 
-		ResourceLoader.get(PackType.CLIENT_RESOURCES)
-			.registerReloadListener(GlowtoneColorResources.RELOAD_ID, GlowtoneColorResources.reloadListener());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneColorResources.RELOAD_ID, new BlockStateLightLoader());
 	}
 }
