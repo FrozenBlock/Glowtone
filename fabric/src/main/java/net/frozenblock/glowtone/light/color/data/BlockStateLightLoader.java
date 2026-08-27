@@ -102,9 +102,9 @@ public final class BlockStateLightLoader implements PreparableReloadListener {
 	@Override
 	public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
 		final ResourceManager manager = currentReload.resourceManager();
-		final CompletableFuture<LoadedLights> blockStateModels = loadBlockStates(manager, taskExecutor);
+		final CompletableFuture<LoadedLights> blockStateLights = loadBlockStates(manager, taskExecutor);
 
-		return blockStateModels
+		return blockStateLights
 			.thenCompose(preparationBarrier::wait)
 			.thenAcceptAsync(lights -> {
 				BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockLight.ATTACHMENT_KEY));
@@ -121,7 +121,9 @@ public final class BlockStateLightLoader implements PreparableReloadListener {
 					final Map<BlockState, BlockLight> lightMap = fullMap.get(block);
 					if (lightMap == null) return;
 
-					if (block.getStateDefinition().getPossibleStates().containsAll(lightMap.keySet())) {
+					if (block.getStateDefinition().getPossibleStates().containsAll(lightMap.keySet())
+						&& lightMap.values().stream().distinct().count() <= 1
+					) {
 						bakedMap.put(block, new BlockLight.Simple(lightMap.get(block.defaultBlockState())));
 					} else {
 						bakedMap.put(block, new BlockLight.MultiVariant(lightMap));
