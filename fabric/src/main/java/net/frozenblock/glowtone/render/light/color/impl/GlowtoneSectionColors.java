@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.color.impl;
 
 import org.jspecify.annotations.Nullable;
 

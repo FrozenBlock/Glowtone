@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.SubmitNodeCollection;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -50,6 +50,6 @@ public class SubmitNodeCollectionMixin {
 		TextureAtlasSprite sprite,
 		PoseStack.Pose sheetedDecalPose
 	) {
-		return GlowtoneChromaFold.tintModelColor(tintedColor, renderType);
+		return ChromaFold.tintModelColor(tintedColor, renderType);
 	}
 }

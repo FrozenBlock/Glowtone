@@ -22,8 +22,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneEntityLight;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.entity.SmoothEntityLightingHelper;
 import net.minecraft.client.particle.ItemPickupParticleGroup;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -58,10 +58,10 @@ public class ItemPickupParticleGroupMixin {
 		final double y = camera.pos.y() + yOffset;
 		final double z = camera.pos.z() + zOffset;
 
-		final int liveLight = GlowtoneEntityLight.worldLightAt(x, y, z, renderState.lightCoords);
-		renderState.lightCoords = GlowtoneEntityLight.smooth(x, y, z, liveLight);
+		final int liveLight = SmoothEntityLightingHelper.worldLightAt(x, y, z, renderState.lightCoords);
+		renderState.lightCoords = SmoothEntityLightingHelper.smooth(x, y, z, liveLight);
 
-		final int tint = GlowtoneChromaFold.resolveEntity(x, y, z, renderState.eyeHeight, liveLight);
+		final int tint = ChromaFold.resolveEntity(x, y, z, renderState.eyeHeight, liveLight);
 		renderState.glowtone$setChromaTint(tint);
 
 		original.call(dispatcher, renderState, camera, xOffset, yOffset, zOffset, poseStack, submitNodeCollector);

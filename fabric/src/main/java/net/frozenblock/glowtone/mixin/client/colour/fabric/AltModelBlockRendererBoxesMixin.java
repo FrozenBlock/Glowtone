@@ -24,8 +24,8 @@ import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRende
 import net.frozenblock.glowtone.config.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
-import net.frozenblock.glowtone.render.GlowtoneEdgeNeighbours;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -53,7 +53,7 @@ public class AltModelBlockRendererBoxesMixin {
 		long seed,
 		CallbackInfo info
 	) {
-		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setModelFaces(null);
 
 		if (!EdgeHighlightOption.isEnabled()
@@ -61,7 +61,7 @@ public class AltModelBlockRendererBoxesMixin {
 			&& !GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION)) {
 			return;
 		}
-		if (GlowtoneEdgeNeighbours.isBlockLike(blockState.getOcclusionShape())) return;
+		if (EdgeNeighbours.isBlockLike(blockState.getOcclusionShape())) return;
 
 		state.setModelFaces(GlowtoneModelBoxes.forState(model, level, pos, blockState, seed));
 	}

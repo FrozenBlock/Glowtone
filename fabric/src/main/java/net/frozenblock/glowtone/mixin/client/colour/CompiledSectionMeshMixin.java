@@ -17,8 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
-import net.frozenblock.glowtone.render.GlowtoneSectionColors;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.render.light.color.impl.GlowtoneSectionColors;
 import net.minecraft.client.renderer.chunk.CompiledSectionMesh;
 import net.minecraft.client.renderer.chunk.SectionCompiler;
 import net.minecraft.client.renderer.chunk.TranslucencyPointOfView;
@@ -39,8 +39,8 @@ public abstract class CompiledSectionMeshMixin implements GlowtoneSectionColors 
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void glowtone$attachColors(TranslucencyPointOfView translucencyPointOfView, SectionCompiler.Results results, CallbackInfo info) {
-		this.glowtone$colors = GlowtoneChromaBake.takeSectionColors();
-		this.glowtone$skyHues = GlowtoneChromaBake.takeSectionSkyColors();
+		this.glowtone$colors = ChromaBaker.takeSectionColors();
+		this.glowtone$skyHues = ChromaBaker.takeSectionSkyColors();
 	}
 
 	@Unique

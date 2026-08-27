@@ -17,8 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.color.impl.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BlockEntityRenderState.class)
 public class BlockEntityRenderStateMixin implements GlowtoneChromaTinted {
 	@Unique
-	private int glowtone$chromaTint = GlowtoneChromaFold.NO_TINT;
+	private int glowtone$chromaTint = ChromaFold.NO_TINT;
 
 	@Unique
 	@Override
@@ -52,6 +52,6 @@ public class BlockEntityRenderStateMixin implements GlowtoneChromaTinted {
 		ModelFeatureRenderer.CrumblingOverlay breakProgress,
 		CallbackInfo info
 	) {
-		state.glowtone$setChromaTint(GlowtoneChromaFold.resolveBlockEntity(state.blockPos, state.lightCoords));
+		state.glowtone$setChromaTint(ChromaFold.resolveBlockEntity(state.blockPos, state.lightCoords));
 	}
 }

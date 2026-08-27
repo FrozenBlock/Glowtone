@@ -17,8 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.color.impl.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(EntityRenderState.class)
 public class EntityRenderStateMixin implements GlowtoneChromaTinted {
 	@Unique
-	private int glowtone$chromaTint = GlowtoneChromaFold.NO_TINT;
+	private int glowtone$chromaTint = ChromaFold.NO_TINT;
 
 	@Unique
 	@Override

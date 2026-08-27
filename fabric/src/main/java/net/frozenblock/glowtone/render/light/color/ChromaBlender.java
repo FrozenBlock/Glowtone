@@ -15,17 +15,15 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.color;
 
 import net.frozenblock.glowtone.config.ColouredLightingMode;
 
-public final class GlowtoneChromaBlend {
+public final class ChromaBlender {
 	public static final long EMPTY = 0L;
-
 	public static final int NEUTRAL_ARGB = 0xFFFFFFFF;
 	public static final int NEUTRAL_TERRAIN_ARGB = 0xFF808080;
 	public static final float CHROMA_SCALE = 2F;
-
 	private static final float SUBTLE_SATURATION = 0.85F;
 	private static final float SUBTLE_SKY_STRENGTH = 0.5F;
 	private static final float SUBTLE_EQUALISE = 0.4F;
@@ -62,7 +60,7 @@ public final class GlowtoneChromaBlend {
 	private static final int FULL_TINT_LEVEL = 12;
 	private static final float TARGET_LUMA = 0.8F;
 
-	private static final float LUMA_RED = 0.2126f;
+	private static final float LUMA_RED = 0.2126F;
 	private static final float LUMA_GREEN = 0.7152F;
 	private static final float LUMA_BLUE = 0.0722F;
 
@@ -144,7 +142,7 @@ public final class GlowtoneChromaBlend {
 
 		if (intense) {
 			final float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;
-			if (luma > 0.001f) {
+			if (luma > 0.001F) {
 				float limit = headroom > 0F ? headroom : 1F;
 				float scale = Math.min(TARGET_LUMA / luma, limit);
 				red *= scale;
@@ -163,7 +161,7 @@ public final class GlowtoneChromaBlend {
 				red *= scale;
 				green *= scale;
 				blue *= scale;
-			} else if (luma > 0.001f) {
+			} else if (luma > 0.001F) {
 				float mix = (target - luma) / (1F - luma);
 				red += (1F - red) * mix;
 				green += (1F - green) * mix;
@@ -195,5 +193,5 @@ public final class GlowtoneChromaBlend {
 		return Math.clamp(Math.round(value * 255F), 0, 255);
 	}
 
-	private GlowtoneChromaBlend() {}
+	private ChromaBlender() {}
 }

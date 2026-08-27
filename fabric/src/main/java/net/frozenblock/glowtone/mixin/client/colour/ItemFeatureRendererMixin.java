@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,12 +30,12 @@ public class ItemFeatureRendererMixin {
 
 	@Inject(method = "prepareMainSubmit", at = @At("HEAD"))
 	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
-		GlowtoneChromaFold.beginItemQuads(submit.glowtone$chromaTint(), submit.lightCoords());
+		ChromaFold.beginItemQuads(submit.glowtone$chromaTint(), submit.lightCoords());
 	}
 
 	@Inject(method = "prepareMainSubmit", at = @At("RETURN"))
 	private void glowtone$endItemQuads(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
-		GlowtoneChromaFold.endItemQuads();
+		ChromaFold.endItemQuads();
 	}
 
 	@ModifyArg(
@@ -48,6 +48,6 @@ public class ItemFeatureRendererMixin {
 	)
 	private int glowtone$tintItemQuad(int quadColor) {
 		// TODO: i swear this can be done via localref
-		return GlowtoneChromaFold.tintItemColor(quadColor);
+		return ChromaFold.tintItemColor(quadColor);
 	}
 }

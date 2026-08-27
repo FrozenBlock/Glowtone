@@ -15,18 +15,19 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.edge;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public final class GlowtoneFluidRims {
-	private static final float WIDTH = 1F / GlowtoneQuadEdges.UNITS_PER_BLOCK;
+public final class FluidEdges {
+	private static final float WIDTH = 1F / QuadEdges.UNITS_PER_BLOCK;
 	private static final float CLEARANCE = 0.001F;
 	private static final float WRAP_CLEARANCE = 1F / 512F;
 	private static final float MATCH = 1F / 10000F;
@@ -128,9 +129,9 @@ public final class GlowtoneFluidRims {
 	}
 
 	public void emit(
-		GlowtoneChromaBake.SectionState state,
+		ChromaBaker.SectionState state,
 		VertexConsumer consumer,
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		int originX, int originY, int originZ
 	) {
 		frame();
@@ -148,9 +149,9 @@ public final class GlowtoneFluidRims {
 
 	// FIXME: more descriptive method name or docs
 	private void pierced(
-		GlowtoneChromaBake.SectionState state,
+		ChromaBaker.SectionState state,
 		VertexConsumer consumer,
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		int originX, int originY, int originZ
 	) {
 		final AABB[] boxes = neighbours.boxesAt(0, 0, 0);
@@ -229,9 +230,9 @@ public final class GlowtoneFluidRims {
 
 	// FIXME: more descriptive method name or docs
 	private void strip(
-		GlowtoneChromaBake.SectionState state,
+		ChromaBaker.SectionState state,
 		VertexConsumer consumer,
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		int originX, int originY, int originZ,
 		int axis,
 		boolean positive,
@@ -316,7 +317,7 @@ public final class GlowtoneFluidRims {
 		state.endFluidQuad();
 	}
 
-	private boolean backing(GlowtoneEdgeNeighbours neighbours, int axis, boolean positive, float local, int along, int originAlong) {
+	private boolean backing(EdgeNeighbours neighbours, int axis, boolean positive, float local, int along, int originAlong) {
 		this.reach[0] = Float.MAX_VALUE;
 		this.reach[1] = -Float.MAX_VALUE;
 
