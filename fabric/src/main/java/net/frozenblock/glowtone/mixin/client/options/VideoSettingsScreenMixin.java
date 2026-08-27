@@ -44,7 +44,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(VideoSettingsScreen.class)
 public class VideoSettingsScreenMixin {
 	@Unique
-	private @Nullable Boolean glowtone$smoothLighting;
+	@Nullable
+	private Boolean glowtone$smoothLighting;
 
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void glowtone$syncOcclusionLocks(CallbackInfo info) {
@@ -69,13 +70,9 @@ public class VideoSettingsScreenMixin {
 
 	@ModifyReturnValue(method = "qualityOptions", at = @At("RETURN"))
 	private static OptionInstance<?>[] glowtone$addOptions(OptionInstance<?>[] original, Options options) {
-		final List<OptionInstance<?>> afterSmoothLighting = List.of(
-			AmbientOcclusionOption.get(), OcclusionStrengthOption.get(), ColouredLightingOption.get());
-		final List<OptionInstance<?>> afterTransparency = List.of(
-			ShadingOption.get(), BloomOption.get(), EdgeHighlightOption.get());
-		final ArrayList<OptionInstance<?>> withGlowtone = new ArrayList<>(
-			original.length + afterSmoothLighting.size() + afterTransparency.size()
-		);
+		final List<OptionInstance<?>> afterSmoothLighting = List.of(AmbientOcclusionOption.get(), OcclusionStrengthOption.get(), ColouredLightingOption.get());
+		final List<OptionInstance<?>> afterTransparency = List.of(ShadingOption.get(), BloomOption.get(), EdgeHighlightOption.get());
+		final ArrayList<OptionInstance<?>> withGlowtone = new ArrayList<>(original.length + afterSmoothLighting.size() + afterTransparency.size());
 		boolean placedColour = false;
 		boolean placedRest = false;
 

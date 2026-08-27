@@ -34,17 +34,12 @@ import net.minecraft.world.level.block.state.BlockState;
 @Environment(EnvType.CLIENT)
 public final class GlowtoneModelBoxes {
 	public static final float EPSILON = 1.0E-4F;
-
-	private static final Map<BlockState, float[]> CACHE = new ConcurrentHashMap<>();
-	private static final float[] NONE = new float[0];
 	private static final int STRIDE = 6;
 	private static final int MAX_FACES = 512;
+	private static final float[] NONE = new float[0];
+	private static final Map<BlockState, float[]> CACHE = new ConcurrentHashMap<>();
 
-	private GlowtoneModelBoxes() {}
-
-	public static float[] forState(
-		BlockStateModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, long seed
-	) {
+	public static float[] forState(BlockStateModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, long seed) {
 		final float[] cached = CACHE.get(state);
 		if (cached != null) return cached;
 
@@ -53,9 +48,7 @@ public final class GlowtoneModelBoxes {
 		return built;
 	}
 
-	private static float[] build(
-		BlockStateModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, long seed
-	) {
+	private static float[] build(BlockStateModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, long seed) {
 		final List<float[]> faces = new ArrayList<>();
 
 		try {
@@ -99,9 +92,8 @@ public final class GlowtoneModelBoxes {
 		return packed;
 	}
 
-	public static boolean continuesPast(
-		float[] packed, int normalAxis, float plane, int alongAxis, float along, int edgeAxis, float across
-	) {
+	// TODO: why cant we use Direction.Axis?
+	public static boolean continuesPast(float[] packed, int normalAxis, float plane, int alongAxis, float along, int edgeAxis, float across) {
 		if (packed.length == 0) return false;
 
 		for (int base = 0; base < packed.length; base += STRIDE) {
@@ -120,4 +112,6 @@ public final class GlowtoneModelBoxes {
 
 		return false;
 	}
+
+	private GlowtoneModelBoxes() {}
 }

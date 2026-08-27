@@ -29,7 +29,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneCasterShapes {
-	private GlowtoneCasterShapes() {}
 
 	public static VoxelShape of(BlockAndTintGetter level, BlockPos pos, BlockState state) {
 		if (state.isAir()) return Shapes.empty();
@@ -46,4 +45,6 @@ public final class GlowtoneCasterShapes {
 
 		return collision;
 	}
+
+	private GlowtoneCasterShapes() {}
 }

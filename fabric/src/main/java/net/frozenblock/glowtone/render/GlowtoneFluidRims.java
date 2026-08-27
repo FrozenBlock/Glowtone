@@ -22,16 +22,16 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public final class GlowtoneLiquidRims {
-	private static final float WIDTH = 1.0F / GlowtoneQuadEdges.UNITS_PER_BLOCK;
+public final class GlowtoneFluidRims {
+	private static final float WIDTH = 1F / GlowtoneQuadEdges.UNITS_PER_BLOCK;
 	private static final float CLEARANCE = 0.001F;
-	private static final float WRAP_CLEARANCE = 1.0F / 512.0F;
-	private static final float MATCH = 1.0F / 10000.0F;
-	private static final float FLOOR = 1.0F / 20.0F;
-
-	private static final float TOUCH = 1.0F / 4096.0F;
+	private static final float WRAP_CLEARANCE = 1F / 512F;
+	private static final float MATCH = 1F / 10000F;
+	private static final float FLOOR = 1F / 20F;
+	private static final float TOUCH = 1F / 4096F;
 
 	private final float[] corners = new float[12];
 	private final float[] held = new float[12];
@@ -48,6 +48,7 @@ public final class GlowtoneLiquidRims {
 	private final float[] rim = new float[12];
 	private int colour;
 	private int light;
+	// TODO: why cant we use Direction.Axis?
 	private int faceAxis;
 	private boolean facePositive;
 
@@ -56,7 +57,8 @@ public final class GlowtoneLiquidRims {
 		float x1, float y1, float z1, float u1, float v1,
 		float x2, float y2, float z2, float u2, float v2,
 		float x3, float y3, float z3, float u3, float v3,
-		int colour, int light
+		int colour,
+		int light
 	) {
 		this.corners[0] = x0;
 		this.corners[1] = y0;
@@ -82,6 +84,7 @@ public final class GlowtoneLiquidRims {
 		this.light = light;
 	}
 
+	// FIXME: more descriptive method name or docs
 	public boolean locate(int originX, int originY, int originZ) {
 		float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
 		float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
@@ -125,8 +128,10 @@ public final class GlowtoneLiquidRims {
 	}
 
 	public void emit(
-		GlowtoneChromaBake.SectionState state, VertexConsumer consumer,
-		GlowtoneEdgeNeighbours neighbours, int originX, int originY, int originZ
+		GlowtoneChromaBake.SectionState state,
+		VertexConsumer consumer,
+		GlowtoneEdgeNeighbours neighbours,
+		int originX, int originY, int originZ
 	) {
 		frame();
 
@@ -141,9 +146,12 @@ public final class GlowtoneLiquidRims {
 		}
 	}
 
+	// FIXME: more descriptive method name or docs
 	private void pierced(
-		GlowtoneChromaBake.SectionState state, VertexConsumer consumer,
-		GlowtoneEdgeNeighbours neighbours, int originX, int originY, int originZ
+		GlowtoneChromaBake.SectionState state,
+		VertexConsumer consumer,
+		GlowtoneEdgeNeighbours neighbours,
+		int originX, int originY, int originZ
 	) {
 		final AABB[] boxes = neighbours.boxesAt(0, 0, 0);
 		if (boxes == null || boxes.length == 0) return;
@@ -202,9 +210,8 @@ public final class GlowtoneLiquidRims {
 		return low * (1F - s) + high * s;
 	}
 
-	private void footprint(
-		int face, float plane, int axisU, float lowU, float highU, int axisV, float lowV, float highV
-	) {
+	// FIXME: more descriptive method name or docs
+	private void footprint(int face, float plane, int axisU, float lowU, float highU, int axisV, float lowV, float highV) {
 		for (int corner = 0; corner < 4; corner++) {
 			this.corners[corner * 3 + face] = plane;
 			this.corners[corner * 3 + axisU] = corner == 0 || corner == 3 ? lowU : highU;
@@ -220,10 +227,15 @@ public final class GlowtoneLiquidRims {
 		return (float) (axis == 0 ? box.maxX : axis == 1 ? box.maxY : box.maxZ);
 	}
 
+	// FIXME: more descriptive method name or docs
 	private void strip(
-		GlowtoneChromaBake.SectionState state, VertexConsumer consumer,
-		GlowtoneEdgeNeighbours neighbours, int originX, int originY, int originZ,
-		int axis, boolean positive, boolean around
+		GlowtoneChromaBake.SectionState state,
+		VertexConsumer consumer,
+		GlowtoneEdgeNeighbours neighbours,
+		int originX, int originY, int originZ,
+		int axis,
+		boolean positive,
+		boolean around
 	) {
 		final int face = this.faceAxis;
 		final int along = 3 - axis - face;
@@ -280,7 +292,7 @@ public final class GlowtoneLiquidRims {
 
 		if (normalOn(axis) > 0F == positive != around) swap(1, 3);
 
-		state.pendingEdges().setLiquidRim(
+		state.pendingEdges().setFluidRim(
 			neighbours, originX, originY, originZ, axis, positive, face, around,
 			this.rim[0], this.rim[1], this.rim[2],
 			this.rim[3], this.rim[4], this.rim[5],
@@ -289,25 +301,22 @@ public final class GlowtoneLiquidRims {
 		);
 		if (!state.pendingEdges().anyLit()) return;
 
-		state.beginLiquidQuadEdges();
+		state.beginFluidQuadEdges();
 		for (int corner = 0; corner < 4; corner++) {
 			vertex(consumer, corner, axis, positive);
 		}
-		state.endLiquidQuad();
+		state.endFluidQuad();
 
 		if (!around) return;
 
-		state.beginLiquidQuadEdges();
+		state.beginFluidQuadEdges();
 		for (int corner = 3; corner >= 0; corner--) {
 			vertex(consumer, corner, axis, !positive);
 		}
-		state.endLiquidQuad();
+		state.endFluidQuad();
 	}
 
-	private boolean backing(
-		GlowtoneEdgeNeighbours neighbours,
-		int axis, boolean positive, float local, int along, int originAlong
-	) {
+	private boolean backing(GlowtoneEdgeNeighbours neighbours, int axis, boolean positive, float local, int along, int originAlong) {
 		this.reach[0] = Float.MAX_VALUE;
 		this.reach[1] = -Float.MAX_VALUE;
 
@@ -320,10 +329,7 @@ public final class GlowtoneLiquidRims {
 		return this.reach[0] <= this.reach[1];
 	}
 
-	private void gather(
-		AABB @org.jspecify.annotations.Nullable [] boxes,
-		int axis, float side, float local, int along, int originAlong
-	) {
+	private void gather(AABB @Nullable [] boxes, int axis, float side, float local, int along, int originAlong) {
 		if (boxes == null) return;
 
 		for (final AABB box : boxes) {
@@ -407,6 +413,7 @@ public final class GlowtoneLiquidRims {
 			this.rim[a * 3 + part] = this.rim[b * 3 + part];
 			this.rim[b * 3 + part] = held;
 		}
+
 		for (int part = 0; part < 2; part++) {
 			final float uv = this.rimUvs[a * 2 + part];
 			this.rimUvs[a * 2 + part] = this.rimUvs[b * 2 + part];

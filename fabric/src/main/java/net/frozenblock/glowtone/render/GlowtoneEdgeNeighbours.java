@@ -35,6 +35,7 @@ public final class GlowtoneEdgeNeighbours {
 	private static final double SPAN_SLACK = 1.0D / 256.0D;
 	private static final float CONTAINS_SLACK = 1.0E-4F;
 	private static final int CACHE_LIMIT = 512;
+	private static final int CENTRE = 13;
 
 	private static final AABB[] NONE = {};
 	private static final AABB[] FULL = {new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)};
@@ -70,8 +71,6 @@ public final class GlowtoneEdgeNeighbours {
 		this.z = pos.getZ();
 		this.valid = true;
 	}
-
-	private static final int CENTRE = 13;
 
 	public boolean solidAt(int axisA, int cellA, float localA, int axisB, int cellB, float localB, int axisC, int cellC, float localC) {
 		if (!this.valid) return false;
@@ -142,12 +141,11 @@ public final class GlowtoneEdgeNeighbours {
 		if (shape == FULL_CUBE) return true;
 
 		final AABB bounds = shape.bounds();
-		return bounds.minX <= SPAN_SLACK && bounds.maxX >= 1.0D - SPAN_SLACK
-			&& bounds.minZ <= SPAN_SLACK && bounds.maxZ >= 1.0D - SPAN_SLACK;
+		return bounds.minX <= SPAN_SLACK && bounds.maxX >= 1D - SPAN_SLACK
+			&& bounds.minZ <= SPAN_SLACK && bounds.maxZ >= 1D - SPAN_SLACK;
 	}
 
 	public boolean selfEmissive() {
 		return this.valid && this.selfEmissive;
 	}
-
 }

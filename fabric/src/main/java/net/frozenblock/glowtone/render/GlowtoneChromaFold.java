@@ -48,10 +48,6 @@ public final class GlowtoneChromaFold {
 
 	private static int itemTint = NO_TINT;
 
-	private GlowtoneChromaFold() {
-		throw new UnsupportedOperationException("GlowtoneChromaFold is a static holder.");
-	}
-
 	public static int resolveEntity(double x, double feetY, double z, float eyeHeight, int lightCoords) {
 		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
 		final int blockX = Mth.floor(x);
@@ -345,4 +341,6 @@ public final class GlowtoneChromaFold {
 		final VertexFormat[] bindings = pipeline.getVertexFormatBindings();
 		return bindings.length > 0 && bindings[0].contains(DefaultVertexFormat.UV2_SEMANTIC_NAME);
 	}
+
+	private GlowtoneChromaFold() {}
 }

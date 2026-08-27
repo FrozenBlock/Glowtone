@@ -59,7 +59,5 @@ public final class GlowtoneVertexFormats {
 		return builder.build();
 	}
 
-	private GlowtoneVertexFormats() {
-		throw new UnsupportedOperationException("GlowtoneVertexFormats only contains static definitions.");
-	}
+	private GlowtoneVertexFormats() {}
 }

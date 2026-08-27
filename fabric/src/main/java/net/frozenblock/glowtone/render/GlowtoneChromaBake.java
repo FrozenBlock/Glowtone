@@ -35,16 +35,10 @@ public final class GlowtoneChromaBake {
 	public static final int NEUTRAL_ARGB = GlowtoneChromaBlend.NEUTRAL_TERRAIN_ARGB;
 	public static final int NEUTRAL_SKY_ARGB = 0xFFFFFFFF;
 	private static final int NO_PIN = 0;
-
 	private static final int OPAQUE_DAMPENING = 15;
 
-	private static volatile boolean smoothLightingEnabled = true;
-
 	private static final ThreadLocal<SectionState> STATE = ThreadLocal.withInitial(SectionState::new);
-
-	private GlowtoneChromaBake() {
-		throw new UnsupportedOperationException("GlowtoneChromaBake is a static holder.");
-	}
+	private static volatile boolean smoothLightingEnabled = true;
 
 	public static void beginSection(SectionPos sectionPos, @Nullable RenderSectionRegion region) {
 		final SectionState state = STATE.get();
@@ -121,11 +115,11 @@ public final class GlowtoneChromaBake {
 		private int usedChroma = NO_PIN;
 		private final GlowtoneQuadEdges pendingEdges = new GlowtoneQuadEdges();
 		private final GlowtoneEdgeNeighbours edgeNeighbours = new GlowtoneEdgeNeighbours();
-		private float @org.jspecify.annotations.Nullable [] modelFaces;
-		private final GlowtoneLiquidRims liquidRims = new GlowtoneLiquidRims();
-		private @Nullable BlockAndTintGetter liquidLevel;
-		private final BlockPos.MutableBlockPos liquidPos = new BlockPos.MutableBlockPos();
-		private boolean liquidQuad;
+		private float @Nullable [] modelFaces;
+		private final GlowtoneFluidRims fluidRims = new GlowtoneFluidRims();
+		private @Nullable BlockAndTintGetter fluidLevel;
+		private final BlockPos.MutableBlockPos fluidPos = new BlockPos.MutableBlockPos();
+		private boolean fluidQuad;
 		private boolean building;
 		private int edgeVertex = 4;
 		private int usedSkyChroma = NO_PIN;
@@ -143,8 +137,8 @@ public final class GlowtoneChromaBake {
 			this.building = true;
 			this.pendingColors = null;
 			this.pendingSkyColors = null;
-			this.liquidLevel = null;
-			this.liquidQuad = false;
+			this.fluidLevel = null;
+			this.fluidQuad = false;
 			this.bound = false;
 			this.lit = false;
 			this.flatVerticesLeft = 0;
@@ -175,7 +169,7 @@ public final class GlowtoneChromaBake {
 
 		void end() {
 			this.building = false;
-			GlowtoneRegionFlood flood = this.flood;
+			final GlowtoneRegionFlood flood = this.flood;
 			if (flood != null) {
 				if (this.bound) {
 					if (this.lit) this.pendingColors = flood.downsampleCentre();
@@ -188,13 +182,13 @@ public final class GlowtoneChromaBake {
 		}
 
 		short @Nullable [] takePendingColors() {
-			short[] colors = this.pendingColors;
+			final short[] colors = this.pendingColors;
 			this.pendingColors = null;
 			return colors;
 		}
 
 		short @Nullable [] takePendingSkyColors() {
-			short[] colors = this.pendingSkyColors;
+			final short[] colors = this.pendingSkyColors;
 			this.pendingSkyColors = null;
 			return colors;
 		}
@@ -207,11 +201,11 @@ public final class GlowtoneChromaBake {
 			return this.edgeNeighbours;
 		}
 
-		public float @org.jspecify.annotations.Nullable [] modelFaces() {
+		public float @Nullable [] modelFaces() {
 			return this.modelFaces;
 		}
 
-		public void setModelFaces(float @org.jspecify.annotations.Nullable [] faces) {
+		public void setModelFaces(float @Nullable [] faces) {
 			this.modelFaces = faces;
 		}
 
@@ -221,42 +215,43 @@ public final class GlowtoneChromaBake {
 
 		public void beginQuadEdges() {
 			this.edgeVertex = 0;
-			this.liquidQuad = false;
+			this.fluidQuad = false;
 		}
 
-		public void beginLiquid(BlockAndTintGetter level, BlockPos pos) {
-			this.liquidLevel = level;
-			this.liquidPos.set(pos);
+		public void beginFluid(BlockAndTintGetter level, BlockPos pos) {
+			this.fluidLevel = level;
+			this.fluidPos.set(pos);
 		}
 
-		public void endLiquid() {
-			this.liquidLevel = null;
-			this.liquidQuad = false;
+		public void endFluid() {
+			this.fluidLevel = null;
+			this.fluidQuad = false;
 		}
 
-		public @Nullable BlockAndTintGetter liquidLevel() {
-			return this.liquidLevel;
+		@Nullable
+		public BlockAndTintGetter fluidLevel() {
+			return this.fluidLevel;
 		}
 
-		public BlockPos liquidPos() {
-			return this.liquidPos;
+		public BlockPos fluidPos() {
+			return this.fluidPos;
 		}
 
-		public GlowtoneLiquidRims liquidRims() {
-			return this.liquidRims;
+		public GlowtoneFluidRims fluidRims() {
+			return this.fluidRims;
 		}
 
-		public void beginLiquidQuadEdges() {
+		public void beginFluidQuadEdges() {
 			this.edgeVertex = 4;
-			this.liquidQuad = true;
+			this.fluidQuad = true;
 		}
 
-		public void endLiquidQuad() {
-			this.liquidQuad = false;
+		public void endFluidQuad() {
+			this.fluidQuad = false;
 		}
 
-		public boolean liquidQuad() {
-			return this.liquidQuad;
+		public boolean fluidQuad() {
+			return this.fluidQuad;
 		}
 
 		public int nextEdgeVertex() {
@@ -356,9 +351,9 @@ public final class GlowtoneChromaBake {
 			for (int dx = -1; dx <= 0; dx++) {
 				for (int dy = -1; dy <= 0; dy++) {
 					for (int dz = -1; dz <= 0; dz++) {
-						int x = cornerX + dx;
-						int y = cornerY + dy;
-						int z = cornerZ + dz;
+						final int x = cornerX + dx;
+						final int y = cornerY + dy;
+						final int z = cornerZ + dz;
 						if (isOpaque(flood, x, y, z)) continue;
 
 						final int hue = flood.skyHueAt(x, y, z);
@@ -448,4 +443,6 @@ public final class GlowtoneChromaBake {
 			return (iz * CORNER_SPAN + iy) * CORNER_SPAN + ix;
 		}
 	}
+
+	private GlowtoneChromaBake() {}
 }

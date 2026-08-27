@@ -28,12 +28,13 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Environment(EnvType.CLIENT)
 @Mixin(BlockModelLighter.class)
 public class BlockModelLighterAmbientMixin {
+
 	@ModifyArg(
-		method = "prepareQuadAmbientOcclusion(Lnet/minecraft/client/renderer/block/BlockAndTintGetter;"
-			+ "Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;"
-			+ "Lnet/minecraft/client/resources/model/geometry/BakedQuad;"
-			+ "Lcom/mojang/blaze3d/vertex/QuadInstance;)V",
-		at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ARGB;gray(F)I"),
+		method = "prepareQuadAmbientOcclusion",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/util/ARGB;gray(F)I"
+		),
 		index = 0,
 		require = 0
 	)

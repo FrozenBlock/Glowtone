@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Environment(EnvType.CLIENT)
 @Mixin(OptionInstance.class)
 public class OptionInstanceMixin {
+
 	@ModifyReturnValue(
 		method = "createButton(Lnet/minecraft/client/Options;IIILnet/minecraft/client/OptionInstance$ValueUpdateListener;)Lnet/minecraft/client/gui/components/AbstractWidget;",
 		at = @At("RETURN")

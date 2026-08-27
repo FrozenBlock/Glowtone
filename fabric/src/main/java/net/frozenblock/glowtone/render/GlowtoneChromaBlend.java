@@ -60,20 +60,16 @@ public final class GlowtoneChromaBlend {
 	}
 
 	private static final int FULL_TINT_LEVEL = 12;
-	private static final float TARGET_LUMA = 0.8f;
+	private static final float TARGET_LUMA = 0.8F;
 
 	private static final float LUMA_RED = 0.2126f;
-	private static final float LUMA_GREEN = 0.7152f;
-	private static final float LUMA_BLUE = 0.0722f;
+	private static final float LUMA_GREEN = 0.7152F;
+	private static final float LUMA_BLUE = 0.0722F;
 
 	private static final int SUM_BITS = 16;
 	private static final long SUM_MASK = 0xFFFFL;
 	private static final int STRONGEST_SHIFT = 48;
 	private static final long SUMS_MASK = (1L << STRONGEST_SHIFT) - 1L;
-
-	private GlowtoneChromaBlend() {
-		throw new UnsupportedOperationException("GlowtoneChromaBlend is a static holder.");
-	}
 
 	public static final int WEIGHT_ONE = 256;
 
@@ -90,7 +86,7 @@ public final class GlowtoneChromaBlend {
 		final long blue = (long) (hue & 0xF) * scale / WEIGHT_ONE;
 		if ((red | green | blue) == 0L) return accumulator;
 
-		long sums = (accumulator & SUMS_MASK)
+		final long sums = (accumulator & SUMS_MASK)
 			+ red
 			+ (green << SUM_BITS)
 			+ (blue << (SUM_BITS * 2));
@@ -104,16 +100,16 @@ public final class GlowtoneChromaBlend {
 		final int level = packedLevels & 0xF;
 		if (level == 0) return accumulator;
 
-		int hue = (packedLevels >>> 4) & 0xFFF;
-		int red = ((hue >> 8) & 0xF) * level;
-		int green = ((hue >> 4) & 0xF) * level;
-		int blue = (hue & 0xF) * level;
+		final int hue = (packedLevels >>> 4) & 0xFFF;
+		final int red = ((hue >> 8) & 0xF) * level;
+		final int green = ((hue >> 4) & 0xF) * level;
+		final int blue = (hue & 0xF) * level;
 
-		long sums = (accumulator & SUMS_MASK)
+		final long sums = (accumulator & SUMS_MASK)
 			+ red
 			+ ((long) green << SUM_BITS)
 			+ ((long) blue << (SUM_BITS * 2));
-		long strongest = Math.max(accumulator >>> STRONGEST_SHIFT, level);
+		final long strongest = Math.max(accumulator >>> STRONGEST_SHIFT, level);
 		return sums | (strongest << STRONGEST_SHIFT);
 	}
 
@@ -180,8 +176,10 @@ public final class GlowtoneChromaBlend {
 		blue = 1F + (blue - 1F) * fade;
 
 		if (headroom > 0F) {
-			return 0xFF000000 | (channelToByte(red / headroom) << 16)
-				| (channelToByte(green / headroom) << 8) | channelToByte(blue / headroom);
+			return 0xFF000000
+				| (channelToByte(red / headroom) << 16)
+				| (channelToByte(green / headroom) << 8)
+				| channelToByte(blue / headroom);
 		}
 
 		final float brightest = Math.max(red, Math.max(green, blue));
@@ -196,4 +194,6 @@ public final class GlowtoneChromaBlend {
 	private static int channelToByte(float value) {
 		return Math.clamp(Math.round(value * 255F), 0, 255);
 	}
+
+	private GlowtoneChromaBlend() {}
 }

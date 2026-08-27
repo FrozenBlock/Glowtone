@@ -29,9 +29,7 @@ import org.jspecify.annotations.Nullable;
 
 public final class GlowtoneColorProbe {
 	private static final GlowtoneColorProbe INSTANCE = new GlowtoneColorProbe();
-
 	private static final int WHITE_RGB = 0xFFFFFF;
-
 	private static final int CACHE_SLOTS = 8;
 
 	private final long[] cachedSections = new long[CACHE_SLOTS];
@@ -39,8 +37,6 @@ public final class GlowtoneColorProbe {
 	private final short[] @Nullable [] cachedSkyHues = new short[CACHE_SLOTS][];
 	private final boolean[] cacheValid = new boolean[CACHE_SLOTS];
 	private int lastSlot;
-
-	private GlowtoneColorProbe() {}
 
 	public static GlowtoneColorProbe get() {
 		return INSTANCE;
@@ -91,7 +87,8 @@ public final class GlowtoneColorProbe {
 		return slot;
 	}
 
-	private static @Nullable GlowtoneSectionColors lookup(long sectionNode) {
+	@Nullable
+	private static GlowtoneSectionColors lookup(long sectionNode) {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null) return null;
 
@@ -107,4 +104,6 @@ public final class GlowtoneColorProbe {
 		final SectionMesh mesh = section.sectionMesh.get();
 		return mesh instanceof GlowtoneSectionColors colors ? colors : null;
 	}
+
+	private GlowtoneColorProbe() {}
 }

@@ -43,9 +43,9 @@ public final class GlowtoneContactRects {
 
 	public static final int OCCUPIED_FLAG = 1 << 29;
 
-	public static final int[] LIQUID = liquidPack();
+	public static final int[] FLUID = fluidPack();
 
-	private static int[] liquidPack() {
+	private static int[] fluidPack() {
 		final int[] pack = emptyPack();
 		pack[WORDS - 1] |= LIQUID_FLAG;
 		return pack;
@@ -77,9 +77,9 @@ public final class GlowtoneContactRects {
 
 	private static final int CAPACITY = 32;
 	private static final int TRIM = 16;
-	private static final float PROBE = 1.0F / 32.0F;
-	private static final float TOUCH_EPSILON = 1.0F / 4096.0F;
-	private static final float MERGE_EPSILON = 1.0F / 256.0F;
+	private static final float PROBE = 1F / 32F;
+	private static final float TOUCH_EPSILON = 1F / 4096F;
+	private static final float MERGE_EPSILON = 1F / 256F;
 
 	public static final float COVERAGE_SCALE = 2F;
 
@@ -105,7 +105,10 @@ public final class GlowtoneContactRects {
 
 	public int[] build(
 		GlowtoneEdgeNeighbours neighbours,
-		int normalAxis, boolean normalPositive, float plane,
+		// TODO: why cant we use Direction.Axis?
+		int normalAxis,
+		boolean normalPositive,
+		float plane,
 		int axisU, float minU, float maxU,
 		int axisV, float minV, float maxV,
 		boolean cacheable
@@ -245,10 +248,9 @@ public final class GlowtoneContactRects {
 			float bestGap = gapTo(slot, spanU, spanV);
 			for (int i = slot + 1; i < this.count; i++) {
 				final float candidate = gapTo(i, spanU, spanV);
-				if (candidate < bestGap) {
-					best = i;
-					bestGap = candidate;
-				}
+				if (candidate >= bestGap) continue;
+				best = i;
+				bestGap = candidate;
 			}
 			if (best != slot) swap(slot, best);
 		}
@@ -276,8 +278,7 @@ public final class GlowtoneContactRects {
 
 			for (int j = 0; j < GRID_NODES; j++) {
 				final float occlusion = occlusionAt(u, j / (GRID_NODES - 1F) * spanV);
-				final int level = Math.max(0, Math.min(31,
-					Math.round(occlusion / COVERAGE_SCALE * 31F)));
+				final int level = Math.clamp(Math.round(occlusion / COVERAGE_SCALE * 31F), 0, 31);
 				putBits(this.packed, (i * GRID_NODES + j) * GRID_BITS, GRID_BITS, level);
 			}
 		}
@@ -429,14 +430,14 @@ public final class GlowtoneContactRects {
 		return Math.max(0, Math.min(COORD_MAX - COORD_MIN, Math.round(texels) - COORD_MIN));
 	}
 
-	private static final Direction.Axis[] AXES = Direction.Axis.values();
+	private static final Direction.Axis[] AXI = Direction.Axis.values();
 
 	private static double min(AABB box, int axis) {
-		return box.min(AXES[axis]);
+		return box.min(AXI[axis]);
 	}
 
 	private static double max(AABB box, int axis) {
-		return box.max(AXES[axis]);
+		return box.max(AXI[axis]);
 	}
 
 	private static int cellOn(int axis, int axisA, int cellA, int axisB, int cellB, int axisC, int cellC) {

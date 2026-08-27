@@ -63,39 +63,34 @@ public class BufferBuilderMixin {
 		glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, state.sampleSky(x, y, z));
 	}
 
-	@Inject(
-		method = "addVertex(FFFIFFIIFFF)V",
-		at = @At("RETURN")
-	)
+	@Inject(method = "addVertex(FFFIFFIIFFF)V", at = @At("RETURN"))
 	private void glowtone$writeEdges(
-		float x, float y, float z, int colour, float u, float v,
-		int overlay, int light, float normalX, float normalY, float normalZ,
+		float x, float y, float z,
+		int color,
+		float u, float v,
+		int overlayCoords,
+		int lightCoords,
+		float nx, float ny, float nz,
 		CallbackInfo info
 	) {
 		if (this.format != GlowtoneVertexFormats.EXTENDED_BLOCK || this.vertexPointer == -1L) return;
 
 		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
 		final GlowtoneQuadEdges edges = state.pendingEdges();
-		final boolean liquid = state.liquidQuad();
-		final int index = liquid ? edges.indexOf(x, y, z) : state.nextEdgeVertex();
+		final boolean fluid = state.fluidQuad();
+		final int index = fluid ? edges.indexOf(x, y, z) : state.nextEdgeVertex();
 
-		writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_OFFSET,
-			index < 0 ? GlowtoneQuadEdges.NO_EDGES : edges.get(index));
-		writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_MASK_OFFSET,
-			index < 0 ? 0 : edges.mask(index));
-		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT0_OFFSET,
-			index < 0 ? GlowtoneContactRects.NONE[0] : edges.contact(0));
-		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT1_OFFSET,
-			index < 0 ? GlowtoneContactRects.NONE[1] : edges.contact(1));
-		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT2_OFFSET,
-			index < 0 ? GlowtoneContactRects.NONE[2] : edges.contact(2));
-		writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT3_OFFSET,
-			index < 0 ? GlowtoneContactRects.NONE[3] : edges.contact(3));
+		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_OFFSET, index < 0 ? GlowtoneQuadEdges.NO_EDGES : edges.get(index));
+		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_MASK_OFFSET, index < 0 ? 0 : edges.mask(index));
+		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT0_OFFSET, index < 0 ? GlowtoneContactRects.NONE[0] : edges.contact(0));
+		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT1_OFFSET, index < 0 ? GlowtoneContactRects.NONE[1] : edges.contact(1));
+		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT2_OFFSET, index < 0 ? GlowtoneContactRects.NONE[2] : edges.contact(2));
+		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT3_OFFSET, index < 0 ? GlowtoneContactRects.NONE[3] : edges.contact(3));
 
 	}
 
 	@Unique
-	private static void writeRaw(long at, int packed) {
+	private static void glowtone$writeRaw(long at, int packed) {
 		MemoryUtil.memPutByte(at, (byte) (packed >> 24));
 		MemoryUtil.memPutByte(at + 1L, (byte) (packed >> 16));
 		MemoryUtil.memPutByte(at + 2L, (byte) (packed >> 8));
