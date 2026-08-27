@@ -127,8 +127,8 @@ public final class GlowtoneBlockLightProvider extends LightProvider {
 		blockLights.blockStateOutput.accept(
 			MultiVariantGenerator.dispatch(block)
 				.with(BlockLightGenerators.initial(BlockStateProperties.OMINOUS)
-					.select(false, BlockLight.light(255, 153, 81))
-					.select(true, BlockLight.light(39, 204, 204))
+					.select(false, BlockLight.light(255, 193, 149))
+					.select(true, BlockLight.light(51, 255, 255))
 			)
 		);
 	}
