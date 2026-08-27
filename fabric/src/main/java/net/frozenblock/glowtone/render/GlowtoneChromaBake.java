@@ -298,10 +298,14 @@ public final class GlowtoneChromaBake {
 			if (!this.bound || flood == null) return;
 
 			if (this.lit) {
-				this.flatChroma = GlowtoneChromaBlend.toArgb(
-					GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, flood.cellLevelsAt(worldX, worldY, worldZ))
-				);
-				this.flatVerticesLeft = 4;
+				final int levels = flood.cellLevelsAt(worldX, worldY, worldZ);
+
+				if (levels != 0) {
+					this.flatChroma = GlowtoneChromaBlend.toArgb(
+						GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, levels)
+					);
+					this.flatVerticesLeft = 4;
+				}
 			}
 
 			if (flood.hasSkyTint()) {
