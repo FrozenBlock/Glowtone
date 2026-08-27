@@ -30,7 +30,7 @@ public record BlockLight(Optional<Integer> light, Optional<Integer> transmittanc
 	}
 
 	public static BlockLight light(int red, int green, int blue) {
-		return light(ARGB.color(red, green, blue));
+		return light(ARGB.color(0, red, green, blue));
 	}
 
 	public static BlockLight transmittance(int color) {
@@ -38,7 +38,7 @@ public record BlockLight(Optional<Integer> light, Optional<Integer> transmittanc
 	}
 
 	public static BlockLight transmittance(int red, int green, int blue) {
-		return transmittance(ARGB.color(red, green, blue));
+		return transmittance(ARGB.color(0, red, green, blue));
 	}
 
 	public static BlockLight lightAndTransmittance(int lightColor, int transmittanceColor) {
@@ -46,7 +46,7 @@ public record BlockLight(Optional<Integer> light, Optional<Integer> transmittanc
 	}
 
 	public static BlockLight lightAndTransmittance(int lightRed, int lightGreen, int lightBlue, int transmittanceRed, int transmittanceGreen, int transmittanceBlue) {
-		return lightAndTransmittance(ARGB.color(lightRed, lightGreen, lightBlue), ARGB.color(transmittanceRed, transmittanceGreen, transmittanceBlue));
+		return lightAndTransmittance(ARGB.color(0, lightRed, lightGreen, lightBlue), ARGB.color(0, transmittanceRed, transmittanceGreen, transmittanceBlue));
 	}
 
 	public static abstract class Baked {
