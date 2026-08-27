@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
-      "light_color": 5824767
+    "ominous=false": {
+      "light_color": -26287
+    },
+    "ominous=true": {
+      "light_color": -14168884
     }
   }
 }

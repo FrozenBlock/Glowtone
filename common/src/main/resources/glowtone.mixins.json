@@ -47,6 +47,7 @@
     "client.colour.SingleQuadParticleMixin",
     "client.colour.SubmitNodeCollectionMixin",
     "client.colour.ViewAreaInvoker",
+    "client.colour.data.PropertyDispatchAccessor",
     "client.colour.fabric.AltModelBlockRendererBoxesMixin",
     "client.colour.fabric.AltModelBlockRendererFlatMixin",
     "client.emissive.AtlasConfigMixin",

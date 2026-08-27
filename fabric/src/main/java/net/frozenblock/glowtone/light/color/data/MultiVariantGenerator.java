@@ -70,7 +70,7 @@ public final class MultiVariantGenerator implements BlockLightGenerator {
 
 		public MultiVariantGenerator with(PropertyDispatch<BlockLight> newStage) {
 			final Set<Property<?>> newSeenProperties = MultiVariantGenerator.validateAndExpandProperties(Set.of(), this.block, newStage);
-			List<MultiVariantGenerator.Entry> newEntries = ((PropertyDispatchAccessor<BlockLight>) newStage).glowtone$getEntries().entrySet()
+			final List<MultiVariantGenerator.Entry> newEntries = ((PropertyDispatchAccessor<BlockLight>) newStage).glowtone$getEntries().entrySet()
 				.stream()
 				.map(entry -> new MultiVariantGenerator.Entry(entry.getKey(), entry.getValue()))
 				.toList();

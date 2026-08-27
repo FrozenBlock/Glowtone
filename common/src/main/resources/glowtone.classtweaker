@@ -13,6 +13,11 @@ accessible field net/minecraft/client/renderer/chunk/SectionCopy section Lnet/mi
 accessible field net/minecraft/client/renderer/chunk/SectionCopy debug Z
 
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch getEntries ()Ljava/util/Map;
+accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C1 <init> (Lnet/minecraft/world/level/block/state/properties/Property;)V
+accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C2 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
+accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C3 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
+accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C4 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
+accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C5 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
 
 transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/render/GlowtoneChromaTinted
 transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/render/GlowtoneChromaTinted

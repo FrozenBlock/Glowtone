@@ -15,12 +15,8 @@ import java.util.Map;
 public interface PropertyDispatchAccessor<V> {
 
 	@Invoker("getDefinedProperties")
-	default List<Property<?>> glowtone$getDefinedProperties() {
-		throw new AssertionError();
-	}
+	List<Property<?>> glowtone$getDefinedProperties();
 
 	@Invoker("getEntries")
-	default Map<PropertyValueList, V> glowtone$getEntries() {
-		throw new AssertionError();
-	}
+	Map<PropertyValueList, V> glowtone$getEntries();
 }

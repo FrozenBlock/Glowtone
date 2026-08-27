@@ -7,10 +7,13 @@ import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
 import net.frozenblock.glowtone.light.color.data.BlockLight;
 import net.frozenblock.glowtone.light.color.data.BlockLightGenerators;
 import net.frozenblock.glowtone.light.color.data.LightProvider;
+import net.frozenblock.glowtone.light.color.data.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneBlockLightProvider extends LightProvider {
@@ -73,8 +76,8 @@ public final class GlowtoneBlockLightProvider extends LightProvider {
 		blockLights.createTrivialBlock(BlockLight.light(0xFFA040), Blocks.FURNACE, Blocks.SMOKER, Blocks.BLAST_FURNACE);
 		blockLights.createTrivialBlock(BlockLight.light(0xFFCF9A), Blocks.BREWING_STAND);
 
-		blockLights.createTrivialBlock(BlockLight.light(0xFFB25E), Blocks.TRIAL_SPAWNER);
-		blockLights.createTrivialBlock(BlockLight.light(0x58E0FF), Blocks.VAULT);
+		createTrialBlock(blockLights, Blocks.TRIAL_SPAWNER);
+		createTrialBlock(blockLights, Blocks.VAULT);
 
 		blockLights.createTrivialBlock(BlockLight.light(0xFF7A3A), Blocks.CREAKING_HEART);
 
@@ -118,5 +121,15 @@ public final class GlowtoneBlockLightProvider extends LightProvider {
 			case RED -> 0xF11;
 			case BLACK -> 0x111;
 		};
+	}
+
+	private static void createTrialBlock(BlockLightGenerators blockLights, Block block) {
+		blockLights.blockStateOutput.accept(
+			MultiVariantGenerator.dispatch(block)
+				.with(BlockLightGenerators.initial(BlockStateProperties.OMINOUS)
+					.select(false, BlockLight.light(255, 153, 81))
+					.select(true, BlockLight.light(39, 204, 204))
+			)
+		);
 	}
 }
