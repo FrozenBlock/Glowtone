@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 @Mixin(GraphicsPreset.class)
 public class GraphicsPresetMixin {
+
 	@Inject(method = "apply", at = @At("TAIL"))
 	private void glowtone$applyColouredLightingPreset(
 		Minecraft minecraft,

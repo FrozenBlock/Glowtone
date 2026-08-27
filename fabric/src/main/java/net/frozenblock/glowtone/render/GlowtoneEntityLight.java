@@ -33,8 +33,6 @@ public final class GlowtoneEntityLight {
 
 	private static final BlockPos.MutableBlockPos SCRATCH = new BlockPos.MutableBlockPos();
 
-	private GlowtoneEntityLight() {}
-
 	public static int worldLightAt(double x, double y, double z, int fallback) {
 		final Minecraft minecraft = Minecraft.getInstance();
 		final ClientLevel level = minecraft == null ? null : minecraft.level;
@@ -99,4 +97,6 @@ public final class GlowtoneEntityLight {
 		) | (lightCoords & GlowtoneBloom.EMISSIVE_MARKER);
 		return result;
 	}
+
+	private GlowtoneEntityLight() {}
 }

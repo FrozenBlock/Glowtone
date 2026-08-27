@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.render;
 
+import com.mojang.datafixers.util.Function5;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
@@ -24,19 +25,17 @@ import net.frozenblock.glowtone.config.OcclusionStrengthOption;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
+import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneQuadEdges {
 	public static final int UNITS_PER_BLOCK = 16;
 	public static final int INTERIOR = 255;
-
 	private static final float BOUNDARY_MARGIN = 1F / 2048F;
-	private static final float PROBE = 1.0F / 32.0F;
-	private static final float MATCH_EPSILON = 1.0F / 10000.0F;
-	private static final float FLAT_EPSILON = 1.0F / 4096.0F;
-
+	private static final float PROBE = 1F / 32F;
+	private static final float MATCH_EPSILON = 1F / 10000F;
+	private static final float FLAT_EPSILON = 1F / 4096F;
 	private static final int FULLY_LIT = 0xFFFF;
-
 	public static final int NO_EDGES = (INTERIOR << 24) | (INTERIOR << 16) | (INTERIOR << 8) | INTERIOR;
 
 	private final int[] vertices = {NO_EDGES, NO_EDGES, NO_EDGES, NO_EDGES};
@@ -47,10 +46,12 @@ public final class GlowtoneQuadEdges {
 	private int rimOriginX;
 	private int rimOriginY;
 	private int rimOriginZ;
+	// TODO: why cant we use Direction.Axis?
 	private int rimAxis;
 	private boolean rimPositive;
 	private boolean rimForceLit;
 	private int rimNarrowAxis;
+	// TODO: why cant we use Direction.Axis?
 	private int normalAxis;
 	private boolean normalPositive;
 
@@ -106,8 +107,11 @@ public final class GlowtoneQuadEdges {
 	}
 
 	public void set(
-		MutableQuadView quad, GlowtoneEdgeNeighbours neighbours,
-		boolean highlight, boolean shade, boolean bake
+		MutableQuadView quad,
+		GlowtoneEdgeNeighbours neighbours,
+		boolean highlight,
+		boolean shade,
+		boolean bake
 	) {
 		for (int vertex = 0; vertex < 4; vertex++) {
 			this.positions[vertex * 3] = quad.x(vertex);
@@ -118,10 +122,11 @@ public final class GlowtoneQuadEdges {
 		build(quad, quad.lightFace(), neighbours, highlight, shade, bake, false);
 	}
 
-	public void setLiquidRim(
+	public void setFluidRim(
 		GlowtoneEdgeNeighbours neighbours,
 		int originX, int originY, int originZ,
-		int axis, boolean positive, int narrow, boolean forceLit,
+		int axis, boolean positive, int narrow,
+		boolean forceLit,
 		float x0, float y0, float z0,
 		float x1, float y1, float z1,
 		float x2, float y2, float z2,
@@ -158,9 +163,13 @@ public final class GlowtoneQuadEdges {
 	}
 
 	private void build(
-		@Nullable MutableQuadView quad, @Nullable Direction face,
+		@Nullable MutableQuadView quad,
+		@Nullable Direction face,
 		GlowtoneEdgeNeighbours neighbours,
-		boolean highlight, boolean shade, boolean bake, boolean rim
+		boolean highlight,
+		boolean shade,
+		boolean bake,
+		boolean rim
 	) {
 		float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
 		float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
@@ -183,10 +192,15 @@ public final class GlowtoneQuadEdges {
 		final float spanZ = maxZ - minZ;
 
 		final int normal;
-		if (rim) normal = this.rimAxis;
-		else if (spanX <= spanY && spanX <= spanZ) normal = 0;
-		else if (spanY <= spanZ) normal = 1;
-		else normal = 2;
+		if (rim) {
+			normal = this.rimAxis;
+		} else if (spanX <= spanY && spanX <= spanZ) {
+			normal = 0;
+		} else if (spanY <= spanZ) {
+			normal = 1;
+		} else {
+			normal = 2;
+		}
 
 		final float flat = normal == 0 ? spanX : normal == 1 ? spanY : spanZ;
 		final int axisU = normal == 0 ? 1 : 0;
@@ -202,7 +216,8 @@ public final class GlowtoneQuadEdges {
 		final boolean positive;
 		final float plane;
 		if (rim) {
-			final int origin = normal == 0 ? this.rimOriginX
+			final int origin = normal == 0
+				? this.rimOriginX
 				: normal == 1 ? this.rimOriginY : this.rimOriginZ;
 			plane = mean(normal) - origin;
 			positive = this.rimPositive;
@@ -236,26 +251,28 @@ public final class GlowtoneQuadEdges {
 		final int litHighU;
 		final int litLowV;
 		final int litHighV;
+		final Function5<Integer, Boolean, Float, Float, Float, Integer> edgePair = (edgeAxis, edgePositive, edgeCoord, alongMin, alongMax) -> {
+			return edgePair(neighbours, normal, positive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMin, alongMax, rim);
+		};
 		if (rim) {
 			final boolean narrowIsU = axisU == this.rimNarrowAxis;
 			final float narrowMid = narrowIsU ? (lowU + highU) * 0.5F : (lowV + highV) * 0.5F;
-			final int lit = this.rimForceLit ? FULLY_LIT
-				: !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces,
-					this.rimNarrowAxis, true, narrowMid,
-					narrowIsU ? lowV : lowU, narrowIsU ? highV : highU, true);
+			final int lit = this.rimForceLit
+				? FULLY_LIT
+				: !highlight ? 0 : edgePair.apply(this.rimNarrowAxis, true, narrowMid, narrowIsU ? lowV : lowU, narrowIsU ? highV : highU);
 
 			litLowU = litHighU = narrowIsU ? lit : 0;
 			litLowV = litHighV = narrowIsU ? 0 : lit;
 		} else {
-			litLowU = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisU, false, lowU, lowV, highV, false);
-			litHighU = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisU, true, highU, lowV, highV, false);
-			litLowV = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisV, false, lowV, lowU, highU, false);
-			litHighV = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisV, true, highV, lowU, highU, false);
+			litLowU = !highlight ? 0 : edgePair.apply(axisU, false, lowU, lowV, highV);
+			litHighU = !highlight ? 0 : edgePair.apply(axisU, true, highU, lowV, highV);
+			litLowV = !highlight ? 0 : edgePair.apply(axisV, false, lowV, lowU, highU);
+			litHighV = !highlight ? 0 : edgePair.apply(axisV, true, highV, lowU, highU);
 		}
 
 		final int[] built = !shaded ? GlowtoneContactRects.NONE
 			: this.contactRects.build(neighbours, normal, positive, plane, axisU, lowU, highU, axisV, lowV, highV, !bake);
-		final int[] contactPack = rim ? GlowtoneContactRects.LIQUID
+		final int[] contactPack = rim ? GlowtoneContactRects.FLUID
 			: shade ? built : GlowtoneContactRects.NONE;
 		final float bakeDepth = bake && shaded ? OcclusionStrengthOption.strength() : 0F;
 
@@ -272,11 +289,11 @@ public final class GlowtoneQuadEdges {
 			final boolean nearLowV = localV <= midV;
 
 			if (quad != null && bakeDepth > 0F) {
-				darken(quad, vertex, this.contactRects.occlusionAt(
-					(u - minU) * UNITS_PER_BLOCK, (v - minV) * UNITS_PER_BLOCK) * bakeDepth);
+				darken(quad, vertex, this.contactRects.occlusionAt((u - minU) * UNITS_PER_BLOCK, (v - minV) * UNITS_PER_BLOCK) * bakeDepth);
 			}
 
-			this.vertices[vertex] = rim ? 0
+			this.vertices[vertex] = rim
+				? 0
 				: (units(u - minU) << 24)
 					| (units(maxU - u) << 16)
 					| (units(v - minV) << 8)
@@ -337,10 +354,11 @@ public final class GlowtoneQuadEdges {
 		float alongMax,
 		boolean rim
 	) {
-		final boolean atLow = edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces,
-			edgeAxis, edgePositive, edgeCoord, alongMin, alongMin, alongMax, rim);
-		final boolean atHigh = edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces,
-			edgeAxis, edgePositive, edgeCoord, alongMax, alongMin, alongMax, rim);
+		final Function<Float, Boolean> edgeState = along -> {
+			return edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, along, alongMin, alongMax, rim);
+		};
+		final boolean atLow = edgeState.apply(alongMin);
+		final boolean atHigh = edgeState.apply(alongMax);
 
 		if (atLow == atHigh) return atLow ? 0xFFFF : 0x0000;
 		if (alongMax - alongMin <= FLAT_EPSILON) return 0x0000;
@@ -350,8 +368,7 @@ public final class GlowtoneQuadEdges {
 		for (int step = 0; step < 10; step++) {
 			final float mid = (lo + hi) * 0.5F;
 			final float sample = alongMin + (alongMax - alongMin) * mid;
-			final boolean here = edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces,
-				edgeAxis, edgePositive, edgeCoord, sample, alongMin, alongMax, rim);
+			final boolean here = edgeState.apply(sample);
 			if (here == atLow) lo = mid; else hi = mid;
 		}
 
@@ -406,13 +423,10 @@ public final class GlowtoneQuadEdges {
 			? Mth.clamp(alongCoord, alongMin + PROBE, alongMax - PROBE)
 			: (alongMin + alongMax) * 0.5F;
 
-		if (rim) {
-			return solid(neighbours, normalAxis, plane + step, edgeAxis, edgeCoord, alongAxis, along);
-		}
+		if (rim) return solid(neighbours, normalAxis, plane + step, edgeAxis, edgeCoord, alongAxis, along);
 
 		final float[] faces = modelFaces;
-		if (faces != null && faces.length > 0
-			&& Mth.floor(across) == 0 && Mth.floor(plane - step) == 0) {
+		if (faces != null && faces.length > 0 && Mth.floor(across) == 0 && Mth.floor(plane - step) == 0) {
 			return !GlowtoneModelBoxes.continuesPast(faces, normalAxis, plane, alongAxis, along, edgeAxis, across);
 		}
 
@@ -450,7 +464,6 @@ public final class GlowtoneQuadEdges {
 	}
 
 	private float mean(int axis) {
-		return (this.positions[axis] + this.positions[3 + axis]
-			+ this.positions[6 + axis] + this.positions[9 + axis]) * 0.25F;
+		return (this.positions[axis] + this.positions[3 + axis] + this.positions[6 + axis] + this.positions[9 + axis]) * 0.25F;
 	}
 }

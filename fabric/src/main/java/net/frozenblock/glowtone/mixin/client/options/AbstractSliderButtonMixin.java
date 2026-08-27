@@ -21,6 +21,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,8 +31,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Environment(EnvType.CLIENT)
-@Mixin(targets = "net/minecraft/client/OptionInstance$OptionInstanceSliderButton")
+@Mixin(OptionInstance.OptionInstanceSliderButton.class)
 public class AbstractSliderButtonMixin {
+
 	@Inject(method = "onRelease", at = @At("TAIL"), require = 0)
 	private void glowtone$flushOnRelease(MouseButtonEvent event, CallbackInfo info) {
 		glowtone$flush();

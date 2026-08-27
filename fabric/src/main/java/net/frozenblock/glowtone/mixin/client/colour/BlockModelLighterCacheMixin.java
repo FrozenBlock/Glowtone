@@ -30,10 +30,10 @@ import org.spongepowered.asm.mixin.injection.At;
 @Environment(EnvType.CLIENT)
 @Mixin(BlockModelLighter.Cache.class)
 public class BlockModelLighterCacheMixin {
+
 	@ModifyReturnValue(method = "getShadeBrightness", at = @At("RETURN"))
 	private float glowtone$scaleVanillaOcclusion(float brightness) {
 		if (AmbientOcclusionOption.vanillaActive()) return OcclusionStrengthOption.brightness(brightness);
-
-		return GlowtoneChromaBake.buildingSection() ? 1.0F : brightness;
+		return GlowtoneChromaBake.buildingSection() ? 1F : brightness;
 	}
 }

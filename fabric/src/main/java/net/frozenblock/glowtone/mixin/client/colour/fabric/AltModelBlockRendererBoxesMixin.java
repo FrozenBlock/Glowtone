@@ -15,11 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.fabric;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
+import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl;
 import net.frozenblock.glowtone.config.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
@@ -38,13 +39,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
 @Environment(EnvType.CLIENT)
-@Mixin(targets = "net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl", remap = false)
+@Mixin(value = AltModelBlockRendererImpl.class, remap = false)
 public class AltModelBlockRendererBoxesMixin {
+
 	@Inject(method = "tesselateBlock", at = @At("HEAD"), require = 0)
 	private void glowtone$captureModelBoxes(
-		QuadEmitter output, float x, float y, float z,
-		BlockAndTintGetter level, BlockPos pos, BlockState blockState,
-		BlockStateModel model, long seed, CallbackInfo info
+		QuadEmitter output,
+		float x, float y, float z,
+		BlockAndTintGetter level,
+		BlockPos pos,
+		BlockState blockState,
+		BlockStateModel model,
+		long seed,
+		CallbackInfo info
 	) {
 		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
 		state.setModelFaces(null);

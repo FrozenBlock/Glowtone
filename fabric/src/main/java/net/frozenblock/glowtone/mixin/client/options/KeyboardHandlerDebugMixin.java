@@ -65,9 +65,7 @@ public class KeyboardHandlerDebugMixin {
 		cancellable = true,
 		require = 0
 	)
-	private void glowtone$debugChord(
-		long window, int action, KeyEvent event, CallbackInfo info
-	) {
+	private void glowtone$debugChord(long window, int action, KeyEvent event, CallbackInfo info) {
 		if (action != GLFW.GLFW_PRESS) return;
 
 		final Minecraft minecraft = Minecraft.getInstance();
