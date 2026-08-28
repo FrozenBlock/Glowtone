@@ -566,8 +566,7 @@ public final class GlowtoneRegionFlood {
 			if (!reaches(GlowtoneChannels.level(packed), rx, ry, rz)) continue;
 
 			final int cell = cellIndex(rx, ry, rz);
-			final int merged =
-				GlowtoneChannels.merge(this.levels[cell] & GlowtoneChannels.LEVEL_MASK, packed);
+			final int merged = GlowtoneChannels.merge(this.levels[cell] & GlowtoneChannels.LEVEL_MASK, packed);
 			this.levels[cell] = (short) (merged & GlowtoneChannels.LEVEL_MASK);
 			this.lit = true;
 			this.enqueue(rx, ry, rz, merged, true, 0);

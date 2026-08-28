@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -113,42 +114,47 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 	}
 
 	private void refresh() {
-		final Set<DynamicLightSource> currentLightSources = LambDynLights.get().dynamicLightSources;
-		if (currentLightSources == null || currentLightSources.isEmpty()) {
-			this.sources = NONE;
-			return;
-		}
+		try {
+			final Field dynamicLightSources = LambDynLights.class.getField("dynamicLightSources");
+			dynamicLightSources.setAccessible(true);
+			final Set<DynamicLightSource> currentLightSources = (Set<DynamicLightSource>) dynamicLightSources.get(LambDynLights.get());
 
-		final int size = currentLightSources.size();
-		if (this.handles.length < size) this.handles = new DynamicLightSource[Math.max(size, 8)];
-		final DynamicLightSource[] snapshot = currentLightSources.toArray(this.handles);
+			if (currentLightSources == null || currentLightSources.isEmpty()) {
+				this.sources = NONE;
+				return;
+			}
 
-		final int capacity = size * GlowtoneDynamicLights.STRIDE;
-		if (this.scratch.length < capacity) this.scratch = new int[Math.max(capacity, GlowtoneDynamicLights.STRIDE * 8)];
-		final int[] packed = this.scratch;
-		int count = 0;
+			final int size = currentLightSources.size();
+			if (this.handles.length < size) this.handles = new DynamicLightSource[Math.max(size, 8)];
+			final DynamicLightSource[] snapshot = currentLightSources.toArray(this.handles);
 
-		for (int index = 0; index < size; index++) {
-			final DynamicLightSource source = snapshot[index];
-			if (source == null) continue;
+			final int capacity = size * GlowtoneDynamicLights.STRIDE;
+			if (this.scratch.length < capacity) this.scratch = new int[Math.max(capacity, GlowtoneDynamicLights.STRIDE * 8)];
+			final int[] packed = this.scratch;
+			int count = 0;
 
-			if (!(source instanceof EntityDynamicLightSource entityLightSource)) continue;
+			for (int index = 0; index < size; index++) {
+				final DynamicLightSource source = snapshot[index];
+				if (source == null) continue;
 
-			final int luminance = entityLightSource.getLuminance();
-			if (luminance <= 0) continue;
+				if (!(source instanceof EntityDynamicLightSource entityLightSource)) continue;
 
-			final double x = entityLightSource.getDynamicLightX();
-			final double y = entityLightSource.getDynamicLightY();
-			final double z = entityLightSource.getDynamicLightZ();
+				final int luminance = entityLightSource.getLuminance();
+				if (luminance <= 0) continue;
 
-			packed[count] = (int) Math.floor(x);
-			packed[count + 1] = (int) Math.floor(y);
-			packed[count + 2] = (int) Math.floor(z);
-			packed[count + 3] = luminance;
-			packed[count + 4] = colorOf(source);
-			count += GlowtoneDynamicLights.STRIDE;
-		}
+				final double x = entityLightSource.getDynamicLightX();
+				final double y = entityLightSource.getDynamicLightY();
+				final double z = entityLightSource.getDynamicLightZ();
 
-		if (!matches(this.sources, packed, count)) this.sources = Arrays.copyOf(packed, count);
+				packed[count] = (int) Math.floor(x);
+				packed[count + 1] = (int) Math.floor(y);
+				packed[count + 2] = (int) Math.floor(z);
+				packed[count + 3] = luminance;
+				packed[count + 4] = colorOf(source);
+				count += GlowtoneDynamicLights.STRIDE;
+			}
+
+			if (!matches(this.sources, packed, count)) this.sources = Arrays.copyOf(packed, count);
+		} catch (Exception e) {}
 	}
 }

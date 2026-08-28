@@ -28,6 +28,3 @@ transitive-inject-interface net/minecraft/core/particles/DustColorTransitionOpti
 transitive-inject-interface net/minecraft/client/particle/DustColorTransitionParticle net/frozenblock/glowtone/particle/impl/GlowtoneParticle
 transitive-inject-interface net/minecraft/core/particles/DustParticleOptions net/frozenblock/glowtone/particle/impl/GlowtoneParticle
 transitive-inject-interface net/minecraft/client/particle/DustParticle net/frozenblock/glowtone/particle/impl/GlowtoneParticle
-
-# MOD COMPAT
-accessible field dev/lambdaurora/lambdynlights/LambDynLights dynamicLightSources Ljava/util/Set;

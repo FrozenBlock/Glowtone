@@ -18,9 +18,7 @@
 package net.frozenblock.glowtone;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
-import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneLambDynamicLightsCompat;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.frozenblock.glowtone.config.ColouredLightingOption;
 import net.frozenblock.glowtone.config.ShadingOption;
@@ -31,6 +29,7 @@ import net.frozenblock.glowtone.light.color.data.BlockStateLightLoader;
 import net.minecraft.server.packs.PackType;
 
 public final class GlowtoneClient implements ClientModInitializer {
+
 	@Override
 	public void onInitializeClient() {
 		GlowtoneDebugEntries.register();

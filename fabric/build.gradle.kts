@@ -29,8 +29,12 @@ val run_sodium: String by project
 val shouldRunSodium = run_sodium == "true"
 
 val lambdynamiclights_version: String by project
+val yumi_commons_version: String by project
+val yumi_mc_foundation_version: String by project
+val spruceui_version: String by project
+val pridelib_version: String by project
 val run_lambdynamiclights: String by project
-val shouldRunLambdynamiclights = run_lambdynamiclights == "true"
+val shouldRunLambDynamicLights = run_lambdynamiclights == "true"
 
 base {
     archivesName = archives_base_name
@@ -64,6 +68,10 @@ loom {
 repositories {
     flatDir {
         dirs("libs")
+    }
+    maven {
+        name = "Gegy"
+        url = uri("https://maven.gegy.dev/releases/")
     }
 }
 
@@ -100,10 +108,33 @@ dependencies {
         compileOnly("maven.modrinth:sodium:${sodium_version}")
 
     // LambDynamicLights
-    if (shouldRunSodium)
+    if (shouldRunLambDynamicLights) {
         implementation("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
-    else
+        implementation("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambdynamiclights_version}")
+
+        implementation("dev.yumi.commons:yumi-commons-core:${yumi_commons_version}")
+        implementation("dev.yumi.commons:yumi-commons-collections:${yumi_commons_version}")
+        implementation("dev.yumi.commons:yumi-commons-event:${yumi_commons_version}")
+
+        implementation("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+
+        implementation("dev.lambdaurora:spruceui:${spruceui_version}")
+
+        implementation("io.github.queerbric:pridelib:${pridelib_version}")
+    } else {
         compileOnly("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
+        compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambdynamiclights_version}")
+
+        compileOnly("dev.yumi.commons:yumi-commons-core:${yumi_commons_version}")
+        compileOnly("dev.yumi.commons:yumi-commons-collections:${yumi_commons_version}")
+        compileOnly("dev.yumi.commons:yumi-commons-event:${yumi_commons_version}")
+
+        compileOnly("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+
+        compileOnly("dev.lambdaurora:spruceui:${spruceui_version}")
+
+        compileOnly("io.github.queerbric:pridelib:${pridelib_version}")
+    }
 }
 
 tasks {
