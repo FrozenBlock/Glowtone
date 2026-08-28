@@ -22,8 +22,14 @@ public record BlockLightProperties(
 	public static final MapCodec<BlockLightProperties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.optionalFieldOf("light_color").forGetter(BlockLightProperties::lightColor),
 		Codec.INT.optionalFieldOf("light_filter_color").forGetter(BlockLightProperties::lightFilterColor)
-	).apply(instance, BlockLightProperties::new));
+	).apply(instance, BlockLightProperties::createWithFixedColors));
 	public static final Codec<BlockLightProperties> CODEC = MAP_CODEC.codec();
+
+	private static BlockLightProperties createWithFixedColors(Optional<Integer> lightColor, Optional<Integer> lightFilterColor) {
+		final Optional<Integer> fixedLightColor = lightColor.map(i -> ARGB.multiplyAlpha(i, 0F));
+		final Optional<Integer> fixedLightFilterColor = lightFilterColor.map(i -> ARGB.multiplyAlpha(i, 0F));
+		return new BlockLightProperties(fixedLightColor, fixedLightFilterColor);
+	}
 
 	public static BlockLightProperties forBlockState(BlockState state) {
 		return state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, EMPTY).get(state);
