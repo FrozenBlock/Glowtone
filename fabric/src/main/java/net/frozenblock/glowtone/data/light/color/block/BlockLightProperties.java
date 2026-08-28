@@ -16,7 +16,7 @@ public record BlockLightProperties(
 	Optional<Integer> lightColor,
 	Optional<Integer> lightFilterColor
 ) {
-	public static final String RESOURCE_PACK_DIRECTORY_BLOCKS = "glowtone_block_light_properties";
+	public static final String RESOURCE_PACK_DIRECTORY_BLOCKS = "glowtone/block_light_properties";
 	static final BlockAttachmentKey<Baked> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Block Light Properties");
 	public static final Simple EMPTY = new Simple(new BlockLightProperties(Optional.empty(), Optional.empty()));
 	public static final MapCodec<BlockLightProperties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
