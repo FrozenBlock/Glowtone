@@ -6,6 +6,7 @@ import dev.lambdaurora.lambdynlights.engine.source.EntityDynamicLightSource;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.light.color.GlowtoneEmitterColors;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.minecraft.core.BlockPos;
@@ -27,7 +28,13 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 
 	@Override
 	public void init() {
-		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> refresh());
+		ClientTickEvents.END_LEVEL_TICK.register(minecraft -> {
+			try {
+				tick();
+			} catch (NoSuchFieldException | IllegalAccessException e) { // Only throws if in an IDE, otherwise stays silent
+				throw new RuntimeException(e);
+			}
+		});
 	}
 
 	@Override
@@ -113,9 +120,9 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 		return color == GlowtoneEmitterColors.NO_COLOUR ? GlowtoneEmitterColors.WHITE : color;
 	}
 
-	private void refresh() {
+	private void tick() throws NoSuchFieldException, IllegalAccessException {
 		try {
-			final Field dynamicLightSources = LambDynLights.class.getField("dynamicLightSources");
+			final Field dynamicLightSources = LambDynLights.class.getDeclaredField("dynamicLightSources");
 			dynamicLightSources.setAccessible(true);
 			final Set<DynamicLightSource> currentLightSources = (Set<DynamicLightSource>) dynamicLightSources.get(LambDynLights.get());
 
@@ -155,6 +162,8 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 			}
 
 			if (!matches(this.sources, packed, count)) this.sources = Arrays.copyOf(packed, count);
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			if (FabricLoader.getInstance().isDevelopmentEnvironment()) throw e;
+		}
 	}
 }

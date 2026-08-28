@@ -8,7 +8,7 @@ import net.frozenblock.glowtone.light.compat.lambdynamiclights.impl.DynamicLight
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.impl.NoOpDynamicLightsCompat;
 
 @Environment(EnvType.CLIENT)
-public class GlowtoneDynamicLights {
+public final class GlowtoneDynamicLights {
 	public static final int STRIDE = 5;
 	private static final AbstractDynamicLightsCompat INSTANCE = FabricLoader.getInstance().isModLoaded("lambdynlights")
 		? new DynamicLightsCompat()
