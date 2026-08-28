@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.light.color;
 
-import net.frozenblock.glowtone.light.color.data.BlockLight;
+import net.frozenblock.glowtone.data.light.color.block.BlockLightProperties;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class GlowtoneEmitterColors {
@@ -25,10 +25,10 @@ public final class GlowtoneEmitterColors {
 	public static final int WHITE = 0xFFFFFF;
 
 	public static int rgbFor(BlockState state) {
-		return BlockLight.forBlockState(state).light().orElse(NO_COLOUR);
+		return BlockLightProperties.forBlockState(state).lightColor().orElse(NO_COLOUR);
 	}
 
 	public static int rgbForOrWhite(BlockState state) {
-		return BlockLight.forBlockState(state).light().orElse(WHITE);
+		return BlockLightProperties.forBlockState(state).lightColor().orElse(WHITE);
 	}
 }

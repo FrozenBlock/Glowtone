@@ -36,17 +36,17 @@ public final class GlowtoneColorShaders {
 
 		""";
 
-	// Split the lightmap: sky-only (block = 0) is the neutral base, and the block-light contribution is
+	// Split the lightmap: sky-only (block = 0) is the neutral base, and the block-lightColor contribution is
 	// whatever the full sample adds on top of it — only THAT is tinted. This keeps daylight neutral and keeps
-	// colour saturated even at full block light, where vanilla's ramp is nearly white.
+	// colour saturated even at full block lightColor, where vanilla's ramp is nearly white.
 	private static final String SPLIT_LIGHTMAP = """
 		    vec4 fullLight = sample_lightmap(Sampler2, UV2);
 		    vec4 skyOnlyLight = sample_lightmap(Sampler2, ivec2(0, UV2.y));
-		    vec3 blockLight = max(fullLight.rgb - skyOnlyLight.rgb, vec3(0.0));
+		    vec3 blockLightProperties = max(fullLight.rgb - skyOnlyLight.rgb, vec3(0.0));
 
 		""";
 
-	// GlowtoneChroma stores the light multiplier divided by GLOWTONE_CHROMA_SCALE, because a vertex attribute byte can
+	// GlowtoneChroma stores the lightColor multiplier divided by GLOWTONE_CHROMA_SCALE, because a vertex attribute byte can
 	// only hold 0..1. Multiplying it back gives the tint room to exceed one, which is what lets a deep hue —
 	// blue above all — reach full brightness by AMPLIFYING its own channel instead of being mixed with white.
 	// Neutral is therefore 0.5, not 1.0. Must match ChromaBlender.CHROMA_SCALE.
@@ -55,10 +55,10 @@ public final class GlowtoneColorShaders {
 
 		""";
 
-	// Sky light is tinted by whatever it passed through on the way down (a stained-glass roof), and block light
+	// Sky lightColor is tinted by whatever it passed through on the way down (a stained-glass roof), and block lightColor
 	// by the colour of the source. GlowtoneSkyChroma only ever ATTENUATES — it is plain white where nothing overhead
 	// colours the daylight — so open sky stays exactly as vanilla renders it.
-	private static final String SAMPLE_LIGHTMAP_REPLACEMENT = "vec4(skyOnlyLight.rgb * GlowtoneSkyChroma.rgb + blockLight * GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, fullLight.a)";
+	private static final String SAMPLE_LIGHTMAP_REPLACEMENT = "vec4(skyOnlyLight.rgb * GlowtoneSkyChroma.rgb + blockLightProperties * GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, fullLight.a)";
 
 	private GlowtoneColorShaders() {}
 
@@ -103,8 +103,8 @@ public final class GlowtoneColorShaders {
 
 		// Glowtone — override of vanilla 26.2 core/terrain.vsh.
 		// Coloured lighting is BAKED into the chunk mesh: each vertex carries an RGB chroma (GlowtoneChroma) produced by
-		// the coloured-light engine at mesh time. Here we recolour ONLY the block-light half of the lightmap: the
-		// sky-light contribution is sampled separately and left untouched, so daylight stays neutral while block light
+		// the coloured-lightColor engine at mesh time. Here we recolour ONLY the block-lightColor half of the lightmap: the
+		// sky-lightColor contribution is sampled separately and left untouched, so daylight stays neutral while block lightColor
 		// takes the emitter's colour. Costs nothing per frame and works at full render distance.
 
 		injectUniforms: {

@@ -63,7 +63,7 @@ public abstract class SingleQuadParticleMixin extends Particle {
 		Operation<Void> original
 	) {
 		final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
-		// FIXME: i don't support self-emission! colored light tints me even when im glowing :(
+		// FIXME: i don't support self-emission! colored lightColor tints me even when im glowing :(
 		color = ChromaFold.tintParticleColor(color, lightCoords, x + cameraPos.x, y + cameraPos.y, z + cameraPos.z);
 		original.call(instance, layer, x, y, z, xRot, yRot, zRot, wRot, scale, u0, u1, v0, v1, color, lightCoords);
 	}

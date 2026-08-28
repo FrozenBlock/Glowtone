@@ -81,7 +81,7 @@ public final class GlowtoneRegionFlood {
 					+ RenderSectionRegion.SIZE);
 		}
 		if (WINDOW_MIN - MAX_REACH != 0 || WINDOW_MAX + MAX_REACH != SPAN - 1) {
-			throw new AssertionError("Coloured-light reach does not match the region: window ["
+			throw new AssertionError("Coloured-lightColor reach does not match the region: window ["
 					+ WINDOW_MIN + ", " + WINDOW_MAX + "] expanded by " + MAX_REACH + " must be [0, " + (SPAN - 1) + "]");
 		}
 		if (SPAN != RenderSectionRegion.SIZE * 16 || SPAN > ENTRY_COORD_MASK + 1) {

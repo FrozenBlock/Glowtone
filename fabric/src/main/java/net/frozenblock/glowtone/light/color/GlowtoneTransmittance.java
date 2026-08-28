@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.light.color;
 
-import net.frozenblock.glowtone.light.color.data.BlockLight;
+import net.frozenblock.glowtone.data.light.color.block.BlockLightProperties;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class GlowtoneTransmittance {
@@ -25,7 +25,7 @@ public final class GlowtoneTransmittance {
 	public static final int MAX_CHANNEL = 0xF;
 
 	public static int filterFor(BlockState state) {
-		return BlockLight.forBlockState(state).transmittance().orElse(FULLY_TRANSMISSIVE);
+		return BlockLightProperties.forBlockState(state).lightFilterColor().orElse(FULLY_TRANSMISSIVE);
 	}
 
 	public static int red(int packed) {
