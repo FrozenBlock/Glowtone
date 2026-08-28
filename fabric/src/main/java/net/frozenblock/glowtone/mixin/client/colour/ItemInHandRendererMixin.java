@@ -20,8 +20,8 @@ package net.frozenblock.glowtone.mixin.client.colour;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneEntityLight;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.entity.SmoothEntityLightingHelper;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -40,7 +40,7 @@ public class ItemInHandRendererMixin {
 		@Local(argsOnly = true, ordinal = 0) LocalIntRef lightCoordsRef
 	) {
 		final Vec3 probe = player.getLightProbePosition(frameInterp);
-		lightCoordsRef.set(GlowtoneEntityLight.smooth(probe.x, probe.y, probe.z, lightCoords));
+		lightCoordsRef.set(SmoothEntityLightingHelper.smooth(probe.x, probe.y, probe.z, lightCoords));
 	}
 
 	@Inject(method = "submitHandsWithItems", at = @At("HEAD"))
@@ -53,8 +53,8 @@ public class ItemInHandRendererMixin {
 		CallbackInfo info
 	) {
 		final Vec3 probe = player.getLightProbePosition(frameInterp);
-		final int smoothed = GlowtoneEntityLight.smooth(probe.x, probe.y, probe.z, lightCoords);
-		GlowtoneChromaFold.pushTint(GlowtoneChromaFold.resolveHand(probe.x, probe.y, probe.z, smoothed));
+		final int smoothed = SmoothEntityLightingHelper.smooth(probe.x, probe.y, probe.z, lightCoords);
+		ChromaFold.pushTint(ChromaFold.resolveHand(probe.x, probe.y, probe.z, smoothed));
 	}
 
 	@Inject(method = "submitHandsWithItems", at = @At("RETURN"))
@@ -66,6 +66,6 @@ public class ItemInHandRendererMixin {
 		int lightCoords,
 		CallbackInfo info
 	) {
-		GlowtoneChromaFold.popTint();
+		ChromaFold.popTint();
 	}
 }

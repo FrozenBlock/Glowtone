@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.render.GlowtoneChromaBlend;
+import net.frozenblock.glowtone.render.light.color.ChromaBlender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
@@ -54,7 +54,7 @@ public final class ColouredLightingOption {
 	}
 
 	public static void applyMode(ColouredLightingMode mode) {
-		GlowtoneChromaBlend.setMode(mode);
+		ChromaBlender.setMode(mode);
 	}
 
 	private static void apply(ColouredLightingMode mode) {

@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.entity;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,20 +25,20 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.lighting.LightEngine;
 
 @Environment(EnvType.CLIENT)
-public final class GlowtoneEntityLight {
-	private static final int LEVEL_SCALE = 16;
-	private static final int MAX_SMOOTH = 240;
-
-	private static final BlockPos.MutableBlockPos SCRATCH = new BlockPos.MutableBlockPos();
+public final class SmoothEntityLightingHelper {
+	private static final int LIGHT_SEARCH_POINTS = 8;
+	private static final int LIGHT_LEVEL_SCALE = LightEngine.MAX_LEVEL + 1;
+	private static final BlockPos.MutableBlockPos SCRATCH_POS = new BlockPos.MutableBlockPos();
 
 	public static int worldLightAt(double x, double y, double z, int fallback) {
 		final Minecraft minecraft = Minecraft.getInstance();
 		final ClientLevel level = minecraft == null ? null : minecraft.level;
 		if (level == null) return fallback;
 
-		final BlockPos.MutableBlockPos pos = SCRATCH.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
+		final BlockPos.MutableBlockPos pos = SCRATCH_POS.set(Mth.floor(x), Mth.floor(y), Mth.floor(z));
 		if (!level.hasChunkAt(pos)) return fallback;
 		return LightCoordsUtil.getLightCoords(level, pos);
 	}
@@ -62,11 +62,11 @@ public final class GlowtoneEntityLight {
 		final float fracY = (float) (gridY - baseY);
 		final float fracZ = (float) (gridZ - baseZ);
 
-		float block = 0F;
-		float sky = 0F;
-		float total = 0F;
+		float blockLight = 0F;
+		float skyLight = 0F;
+		float lightWeight = 0F;
 
-		for (int corner = 0; corner < 8; corner++) {
+		for (int corner = 0; corner < LIGHT_SEARCH_POINTS; corner++) {
 			final int offsetX = corner & 1;
 			final int offsetY = (corner >> 1) & 1;
 			final int offsetZ = (corner >> 2) & 1;
@@ -76,27 +76,27 @@ public final class GlowtoneEntityLight {
 				* (offsetZ == 0 ? 1F - fracZ : fracZ);
 			if (weight <= 0F) continue;
 
-			SCRATCH.set(baseX + offsetX, baseY + offsetY, baseZ + offsetZ);
+			SCRATCH_POS.set(baseX + offsetX, baseY + offsetY, baseZ + offsetZ);
 
-			final int sampled = level.hasChunkAt(SCRATCH) && !level.getBlockState(SCRATCH).canOcclude()
-				? LightCoordsUtil.getLightCoords(level, SCRATCH)
+			final int sampled = level.hasChunkAt(SCRATCH_POS) && !level.getBlockState(SCRATCH_POS).canOcclude()
+				? LightCoordsUtil.getLightCoords(level, SCRATCH_POS)
 				: lightCoords;
 
-			block += LightCoordsUtil.block(sampled) * weight;
-			sky += LightCoordsUtil.sky(sampled) * weight;
-			total += weight;
+			blockLight += LightCoordsUtil.block(sampled) * weight;
+			skyLight += LightCoordsUtil.sky(sampled) * weight;
+			lightWeight += weight;
 		}
 
-		if (total <= 0F) return lightCoords;
+		if (lightWeight <= 0F) return lightCoords;
 
-		final int smoothBlock = Math.min(MAX_SMOOTH, Math.round(block / total * LEVEL_SCALE));
-		final int smoothSky = Math.min(MAX_SMOOTH, Math.round(sky / total * LEVEL_SCALE));
+		final int smoothBlockLight = Math.min(LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL, Math.round(blockLight / lightWeight * LIGHT_LEVEL_SCALE));
+		final int smoothSkyLight = Math.min(LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL, Math.round(skyLight / lightWeight * LIGHT_LEVEL_SCALE));
 		final int result = LightCoordsUtil.smoothPack(
-			Math.max(smoothBlock, LightCoordsUtil.block(lightCoords) == 15 ? MAX_SMOOTH : 0),
-			smoothSky
+			Math.max(smoothBlockLight, LightCoordsUtil.block(lightCoords) == LightEngine.MAX_LEVEL ? LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL : 0),
+			smoothSkyLight
 		) | (lightCoords & GlowtoneBloom.EMISSIVE_MARKER);
 		return result;
 	}
 
-	private GlowtoneEntityLight() {}
+	private SmoothEntityLightingHelper() {}
 }

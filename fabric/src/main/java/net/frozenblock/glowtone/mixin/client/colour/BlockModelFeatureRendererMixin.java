@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.color.impl.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
 import net.minecraft.client.renderer.feature.FeatureFrameContext;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,7 +47,7 @@ public class BlockModelFeatureRendererMixin {
 		CallbackInfo info,
 		@Local BlockModelFeatureRenderer.Submit submit
 	) {
-		GlowtoneChromaFold.beginBlockQuads(
+		ChromaFold.beginBlockQuads(
 			((GlowtoneChromaTinted) (Object) submit).glowtone$chromaTint(),
 			submit.lightCoords(),
 			submit.renderType()
@@ -60,7 +60,7 @@ public class BlockModelFeatureRendererMixin {
 		List<BlockModelFeatureRenderer.Submit> submits,
 		CallbackInfo info
 	) {
-		GlowtoneChromaFold.endBlockQuads();
+		ChromaFold.endBlockQuads();
 	}
 
 	@ModifyArg(
@@ -69,6 +69,6 @@ public class BlockModelFeatureRendererMixin {
 		index = 0
 	)
 	private static int glowtone$tintBlockQuad(int quadColor) {
-		return GlowtoneChromaFold.tintBlockQuadColor(quadColor);
+		return ChromaFold.tintBlockQuadColor(quadColor);
 	}
 }

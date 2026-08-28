@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.VertexSorting;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.client.renderer.chunk.SectionCompiler;
@@ -39,7 +39,7 @@ public class SectionCompilerMixin {
 		SectionBufferBuilderPack builders,
 		CallbackInfoReturnable<SectionCompiler.Results> info
 	) {
-		GlowtoneChromaBake.beginSection(sectionPos, region);
+		ChromaBaker.beginSection(sectionPos, region);
 	}
 
 	@Inject(method = "compile", at = @At("RETURN"))
@@ -50,6 +50,6 @@ public class SectionCompilerMixin {
 		SectionBufferBuilderPack builders,
 		CallbackInfoReturnable<SectionCompiler.Results> info
 	) {
-		GlowtoneChromaBake.endSection();
+		ChromaBaker.endSection();
 	}
 }

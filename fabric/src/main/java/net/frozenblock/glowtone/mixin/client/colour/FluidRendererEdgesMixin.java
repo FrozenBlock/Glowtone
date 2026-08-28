@@ -21,9 +21,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.EdgeHighlightOption;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
-import net.frozenblock.glowtone.render.GlowtoneEdgeNeighbours;
-import net.frozenblock.glowtone.render.GlowtoneFluidRims;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.render.light.edge.FluidEdges;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.core.BlockPos;
@@ -48,7 +48,7 @@ public class FluidRendererEdgesMixin {
 		CallbackInfo info
 	) {
 		if (!EdgeHighlightOption.isEnabled()) return;
-		GlowtoneChromaBake.state().beginFluid(level, pos);
+		ChromaBaker.state().beginFluid(level, pos);
 	}
 
 	@Inject(method = "tesselate", at = @At("RETURN"))
@@ -60,7 +60,7 @@ public class FluidRendererEdgesMixin {
 		FluidState fluidState,
 		CallbackInfo info
 	) {
-		GlowtoneChromaBake.state().endFluid();
+		ChromaBaker.state().endFluid();
 	}
 
 	@Inject(method = "addFace", at = @At("RETURN"))
@@ -77,7 +77,7 @@ public class FluidRendererEdgesMixin {
 	) {
 		if (!EdgeHighlightOption.isEnabled()) return;
 
-		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+		final ChromaBaker.SectionState state = ChromaBaker.state();
 		final BlockAndTintGetter level = state.fluidLevel();
 		if (level == null) return;
 
@@ -86,7 +86,7 @@ public class FluidRendererEdgesMixin {
 		final int originY = pos.getY() & 15;
 		final int originZ = pos.getZ() & 15;
 
-		final GlowtoneFluidRims rims = state.fluidRims();
+		final FluidEdges rims = state.fluidRims();
 		rims.quad(
 			x0, y0, z0, u0, v0,
 			x1, y1, z1, u1, v1,
@@ -96,7 +96,7 @@ public class FluidRendererEdgesMixin {
 		);
 		if (!rims.locate(originX, originY, originZ)) return;
 
-		final GlowtoneEdgeNeighbours neighbours = state.edgeNeighbours();
+		final EdgeNeighbours neighbours = state.edgeNeighbours();
 		neighbours.gather(level, pos);
 		rims.emit(state, builder, neighbours, originX, originY, originZ);
 	}

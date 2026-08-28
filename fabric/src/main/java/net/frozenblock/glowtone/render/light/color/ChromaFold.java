@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.color;
 
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 
@@ -34,97 +34,93 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
-public final class GlowtoneChromaFold {
+public final class ChromaFold {
 	public static final int NO_TINT = 0;
-
 	private static final float PACKED_LIGHT_SCALE = LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL;
-	private static final String EMISSIVE_DEFINE = "EMISSIVE";
-	private static final float LUMA_RED = 0.2126f;
-	private static final float LUMA_GREEN = 0.7152f;
-	private static final float LUMA_BLUE = 0.0722f;
+	private static final String EMISSIVE_DEFINITION = "EMISSIVE";
+	private static final float LUMA_RED = 0.2126F;
+	private static final float LUMA_GREEN = 0.7152F;
+	private static final float LUMA_BLUE = 0.0722F;
 
 	private static int[] tintStack = new int[16];
 	private static int tintDepth;
-
 	private static int itemTint = NO_TINT;
 
 	private static int blockTint = NO_TINT;
 
 	private static int movingBlockTint = NO_TINT;
 
-	public static int resolveEntity(double x, double feetY, double z, float eyeHeight, int lightCoords) {
-		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
+	public static int resolveEntity(double x, double y, double z, float eyeHeight, int lightCoords) {
+		final ColorProbe probe = ColorProbe.get();
 		final int blockX = Mth.floor(x);
 		final int blockZ = Mth.floor(z);
-		final int eyeY = Mth.floor(feetY + eyeHeight);
+		final int eyeY = Mth.floor(y + eyeHeight);
 
-		final int sky = skyTint(engine, blockX, eyeY, blockZ, lightCoords);
+		final int sky = skyTint(probe, blockX, eyeY, blockZ, lightCoords);
 
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return sky;
 
 		long samples = smoothLighting()
-			? sampleTrilinear(engine, x, feetY + eyeHeight, z)
-			: sampleNearest(engine, blockX, eyeY, blockZ);
-		if (GlowtoneChromaBlend.isEmpty(samples)) {
-			final int feetBlockY = Mth.floor(feetY);
-			if (feetBlockY != eyeY) samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(blockX, feetBlockY, blockZ));
+			? sampleTrilinear(probe, x, y + eyeHeight, z)
+			: sampleNearest(probe, blockX, eyeY, blockZ);
+		if (ChromaBlender.isEmpty(samples)) {
+			final int feetBlockY = Mth.floor(y);
+			if (feetBlockY != eyeY) samples = ChromaBlender.add(samples, probe.getPackedLevels(blockX, feetBlockY, blockZ));
 		}
 
-		final int chromaArgb = GlowtoneChromaBlend.toEntityArgb(samples);
+		final int chromaArgb = ChromaBlender.toEntityArgb(samples);
 		final int folded = fold(chromaArgb, weight);
 		final int resolved = combine(folded, sky);
 		return resolved;
 	}
 
 	public static int resolveBlockEntity(BlockPos pos, int lightCoords) {
-		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
+		final ColorProbe probe = ColorProbe.get();
 		final int blockX = pos.getX();
 		final int blockY = pos.getY();
 		final int blockZ = pos.getZ();
 
-		final int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final int sky = skyTint(probe, blockX, blockY, blockZ, lightCoords);
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return sky;
 
-		long samples = GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, engine.getPackedLevels(blockX, blockY, blockZ));
-		if (GlowtoneChromaBlend.isEmpty(samples)) samples = addNeighbours(engine, samples, blockX, blockY, blockZ);
-		return combine(fold(GlowtoneChromaBlend.toEntityArgb(samples), weight), sky);
+		long samples = ChromaBlender.add(ChromaBlender.EMPTY, probe.getPackedLevels(blockX, blockY, blockZ));
+		if (ChromaBlender.isEmpty(samples)) samples = addNeighbours(probe, samples, blockX, blockY, blockZ);
+		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), sky);
 	}
 
 	public static int resolveParticle(double x, double y, double z, int lightCoords) {
-		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
+		final ColorProbe probe = ColorProbe.get();
 		final int blockX = Mth.floor(x);
 		final int blockY = Mth.floor(y);
 		final int blockZ = Mth.floor(z);
 
-		final int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final int sky = skyTint(probe, blockX, blockY, blockZ, lightCoords);
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return sky;
 
-		final int levels = engine.getPackedLevels(blockX, blockY, blockZ);
-		return combine(
-			fold(GlowtoneChromaBlend.toEntityArgb(GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, levels)), weight), sky
-		);
+		final int levels = probe.getPackedLevels(blockX, blockY, blockZ);
+		return combine(fold(ChromaBlender.toEntityArgb(ChromaBlender.add(ChromaBlender.EMPTY, levels)), weight), sky);
 	}
 
-	public static int resolveHand(double probeX, double probeY, double probeZ, int lightCoords) {
-		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
-		final int blockX = Mth.floor(probeX);
-		final int blockY = Mth.floor(probeY);
-		final int blockZ = Mth.floor(probeZ);
+	public static int resolveHand(double x, double y, double z, int lightCoords) {
+		final ColorProbe probe = ColorProbe.get();
+		final int blockX = Mth.floor(x);
+		final int blockY = Mth.floor(y);
+		final int blockZ = Mth.floor(z);
 
-		final int sky = skyTint(engine, blockX, blockY, blockZ, lightCoords);
+		final int sky = skyTint(probe, blockX, blockY, blockZ, lightCoords);
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return sky;
 
 		final long samples = smoothLighting()
-			? sampleTrilinear(engine, probeX, probeY, probeZ)
-			: sampleNearest(engine, blockX, blockY, blockZ);
-		return combine(fold(GlowtoneChromaBlend.toEntityArgb(samples), weight), sky);
+			? sampleTrilinear(probe, x, y, z)
+			: sampleNearest(probe, blockX, blockY, blockZ);
+		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), sky);
 	}
 
-	private static int skyTint(GlowtoneColorProbe engine, int x, int y, int z, int lightCoords) {
+	private static int skyTint(ColorProbe probe, int x, int y, int z, int lightCoords) {
 		float weight = skyLightShare(lightCoords);
 		if (weight <= 0F) return NO_TINT;
 
@@ -132,7 +128,7 @@ public final class GlowtoneChromaFold {
 		int green = 0;
 		int blue = 0;
 		for (int i = 0; i < SKY_SAMPLES.length; i += 3) {
-			int rgb = engine.getSkyRgb(x + SKY_SAMPLES[i], y + SKY_SAMPLES[i + 1], z + SKY_SAMPLES[i + 2]);
+			int rgb = probe.getSkyRgb(x + SKY_SAMPLES[i], y + SKY_SAMPLES[i + 1], z + SKY_SAMPLES[i + 2]);
 			red += (rgb >> 16) & 0xFF;
 			green += (rgb >> 8) & 0xFF;
 			blue += rgb & 0xFF;
@@ -140,7 +136,7 @@ public final class GlowtoneChromaFold {
 
 		final int count = SKY_SAMPLES.length / 3;
 		final int averaged = ((red / count) << 16) | ((green / count) << 8) | (blue / count);
-		return fold(GlowtoneChromaBlend.skyTintArgb(averaged), weight);
+		return fold(ChromaBlender.skyTintArgb(averaged), weight);
 	}
 
 	private static float skyLightShare(int lightCoords) {
@@ -151,7 +147,7 @@ public final class GlowtoneChromaFold {
 		float skyFactor = 1F;
 		float ambient = 0F;
 
-		LightmapRenderState lightmap = lightmapRenderState();
+		final LightmapRenderState lightmap = lightmapRenderState();
 		if (lightmap != null && lightmap.blockFactor > 0F) {
 			blockFactor = lightmap.blockFactor;
 			skyFactor = Math.max(0F, lightmap.skyFactor);
@@ -183,14 +179,14 @@ public final class GlowtoneChromaFold {
 		return minecraft != null && minecraft.options.ambientOcclusion().get();
 	}
 
-	private static long sampleNearest(GlowtoneColorProbe engine, int blockX, int blockY, int blockZ) {
-		return GlowtoneChromaBlend.add(
-			GlowtoneChromaBlend.EMPTY,
-			engine.getPackedLevels(blockX, blockY, blockZ)
+	private static long sampleNearest(ColorProbe probe, int blockX, int blockY, int blockZ) {
+		return ChromaBlender.add(
+			ChromaBlender.EMPTY,
+			probe.getPackedLevels(blockX, blockY, blockZ)
 		);
 	}
 
-	private static long sampleTrilinear(GlowtoneColorProbe engine, double x, double y, double z) {
+	private static long sampleTrilinear(ColorProbe probe, double x, double y, double z) {
 		final int step = GlowtoneRegionFlood.ENTITY_CELL_BLOCKS;
 		final double centreOffset = step / 2D;
 
@@ -202,27 +198,27 @@ public final class GlowtoneChromaFold {
 		final int cellY = Mth.floor(gridY);
 		final int cellZ = Mth.floor(gridZ);
 
-		final int fracX = (int) ((gridX - cellX) * GlowtoneChromaBlend.WEIGHT_ONE);
-		final int fracY = (int) ((gridY - cellY) * GlowtoneChromaBlend.WEIGHT_ONE);
-		final int fracZ = (int) ((gridZ - cellZ) * GlowtoneChromaBlend.WEIGHT_ONE);
+		final int fracX = (int) ((gridX - cellX) * ChromaBlender.WEIGHT_ONE);
+		final int fracY = (int) ((gridY - cellY) * ChromaBlender.WEIGHT_ONE);
+		final int fracZ = (int) ((gridZ - cellZ) * ChromaBlender.WEIGHT_ONE);
 
-		long samples = GlowtoneChromaBlend.EMPTY;
+		long samples = ChromaBlender.EMPTY;
 		for (int corner = 0; corner < 8; corner++) {
 			final int offsetX = corner & 1;
 			final int offsetY = (corner >> 1) & 1;
 			final int offsetZ = (corner >> 2) & 1;
 
-			final int weightX = offsetX == 0 ? GlowtoneChromaBlend.WEIGHT_ONE - fracX : fracX;
-			final int weightY = offsetY == 0 ? GlowtoneChromaBlend.WEIGHT_ONE - fracY : fracY;
-			final int weightZ = offsetZ == 0 ? GlowtoneChromaBlend.WEIGHT_ONE - fracZ : fracZ;
+			final int weightX = offsetX == 0 ? ChromaBlender.WEIGHT_ONE - fracX : fracX;
+			final int weightY = offsetY == 0 ? ChromaBlender.WEIGHT_ONE - fracY : fracY;
+			final int weightZ = offsetZ == 0 ? ChromaBlender.WEIGHT_ONE - fracZ : fracZ;
 
-			final int weight = weightX * weightY / GlowtoneChromaBlend.WEIGHT_ONE
-				* weightZ / GlowtoneChromaBlend.WEIGHT_ONE;
+			final int weight = weightX * weightY / ChromaBlender.WEIGHT_ONE
+				* weightZ / ChromaBlender.WEIGHT_ONE;
 			if (weight <= 0) continue;
 
-			samples = GlowtoneChromaBlend.addWeighted(
+			samples = ChromaBlender.addWeighted(
 				samples,
-				engine.getPackedLevels(
+				probe.getPackedLevels(
 					(cellX + offsetX) * step,
 					(cellY + offsetY) * step,
 					(cellZ + offsetZ) * step
@@ -233,25 +229,25 @@ public final class GlowtoneChromaFold {
 		return samples;
 	}
 
-	private static long addNeighbours(GlowtoneColorProbe engine, long samples, int x, int y, int z) {
+	private static long addNeighbours(ColorProbe probe, long samples, int x, int y, int z) {
 		final int step = GlowtoneRegionFlood.ENTITY_CELL_BLOCKS;
-		samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(x - step, y, z));
-		samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(x + step, y, z));
-		samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(x, y, z - step));
-		samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(x, y, z + step));
-		samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(x, y + step, z));
-		samples = GlowtoneChromaBlend.add(samples, engine.getPackedLevels(x, y - step, z));
+		samples = ChromaBlender.add(samples, probe.getPackedLevels(x - step, y, z));
+		samples = ChromaBlender.add(samples, probe.getPackedLevels(x + step, y, z));
+		samples = ChromaBlender.add(samples, probe.getPackedLevels(x, y, z - step));
+		samples = ChromaBlender.add(samples, probe.getPackedLevels(x, y, z + step));
+		samples = ChromaBlender.add(samples, probe.getPackedLevels(x, y + step, z));
+		samples = ChromaBlender.add(samples, probe.getPackedLevels(x, y - step, z));
 		return samples;
 	}
 
 	private static int fold(int chromaArgb, float weight) {
-		if (chromaArgb == GlowtoneChromaBlend.NEUTRAL_ARGB) return NO_TINT;
+		if (chromaArgb == ChromaBlender.NEUTRAL_ARGB) return NO_TINT;
 
 		final int folded = 0xFF000000
 			| (channelTowardWhite((chromaArgb >> 16) & 0xFF, weight) << 16)
 			| (channelTowardWhite((chromaArgb >> 8) & 0xFF, weight) << 8)
 			| channelTowardWhite(chromaArgb & 0xFF, weight);
-		return folded == GlowtoneChromaBlend.NEUTRAL_ARGB ? NO_TINT : folded;
+		return folded == ChromaBlender.NEUTRAL_ARGB ? NO_TINT : folded;
 	}
 
 	private static int channelTowardWhite(int chroma, float weight) {
@@ -266,14 +262,12 @@ public final class GlowtoneChromaFold {
 		float skyFactor = 1F;
 		float ambient = 0F;
 
-		LightmapRenderState lightmap = lightmapRenderState();
+		final LightmapRenderState lightmap = lightmapRenderState();
 		if (lightmap != null && lightmap.blockFactor > 0F) {
 			blockFactor = lightmap.blockFactor;
 			skyFactor = Math.max(0F, lightmap.skyFactor);
-			var ambientColor = lightmap.ambientColor;
-			if (ambientColor != null) {
-				ambient = LUMA_RED * ambientColor.x() + LUMA_GREEN * ambientColor.y() + LUMA_BLUE * ambientColor.z();
-			}
+			final Vector3fc ambientColor = lightmap.ambientColor;
+			if (ambientColor != null) ambient = LUMA_RED * ambientColor.x() + LUMA_GREEN * ambientColor.y() + LUMA_BLUE * ambientColor.z();
 		}
 
 		final float skyLevel = Math.min(1F, LightCoordsUtil.smoothSky(lightCoords) / PACKED_LIGHT_SCALE);
@@ -286,7 +280,8 @@ public final class GlowtoneChromaFold {
 		return level / (4F - 3F * level);
 	}
 
-	private static @Nullable LightmapRenderState lightmapRenderState() {
+	@Nullable
+	private static LightmapRenderState lightmapRenderState() {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null || minecraft.gameRenderer == null) return null;
 		return minecraft.gameRenderer.gameRenderState().lightmapRenderState;
@@ -304,7 +299,7 @@ public final class GlowtoneChromaFold {
 	public static void resetScopes() {
 		tintDepth = 0;
 		itemTint = NO_TINT;
-		GlowtoneColorProbe.get().invalidate();
+		ColorProbe.get().invalidate();
 	}
 
 	public static int currentTint() {
@@ -369,11 +364,11 @@ public final class GlowtoneChromaFold {
 		if (renderType.isOutline()) return false;
 
 		final RenderPipeline pipeline = renderType.pipeline();
-		if (pipeline.getShaderDefines().flags().contains(EMISSIVE_DEFINE)) return false;
+		if (pipeline.getShaderDefines().flags().contains(EMISSIVE_DEFINITION)) return false;
 
 		final VertexFormat[] bindings = pipeline.getVertexFormatBindings();
 		return bindings.length > 0 && bindings[0].contains(DefaultVertexFormat.UV2_SEMANTIC_NAME);
 	}
 
-	private GlowtoneChromaFold() {}
+	private ChromaFold() {}
 }

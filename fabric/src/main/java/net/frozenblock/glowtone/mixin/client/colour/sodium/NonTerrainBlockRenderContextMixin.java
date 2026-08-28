@@ -21,7 +21,7 @@ import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRend
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,7 +36,7 @@ public class NonTerrainBlockRenderContextMixin {
 	@Inject(method = "processQuad", at = @At("HEAD"))
 	private void glowtone$tintMovingBlockQuad(MutableQuadViewImpl quad, CallbackInfo info) {
 		for (int vertex = 0; vertex < 4; vertex++) {
-			quad.setColor(vertex, GlowtoneChromaFold.tintMovingBlockQuadColor(quad.getColor(vertex)));
+			quad.setColor(vertex, ChromaFold.tintMovingBlockQuadColor(quad.getColor(vertex)));
 		}
 	}
 }

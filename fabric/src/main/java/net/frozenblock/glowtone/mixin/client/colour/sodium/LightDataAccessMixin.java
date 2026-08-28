@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,6 +35,6 @@ public class LightDataAccessMixin {
 		)
 	)
 	private float glowtone$scaleOcclusion(float brightness) {
-		return GlowtoneChromaBake.occlusionShade(brightness);
+		return ChromaBaker.occlusionShade(brightness);
 	}
 }

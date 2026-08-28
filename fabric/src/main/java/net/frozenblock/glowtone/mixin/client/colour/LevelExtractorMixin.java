@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneEntityLight;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.entity.SmoothEntityLightingHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -35,7 +35,7 @@ public class LevelExtractorMixin {
 
 	@Inject(method = "extract", at = @At("HEAD"))
 	private void glowtone$resetTintScopes(DeltaTracker deltaTracker, Camera camera, float deltaPartialTick, CallbackInfo info) {
-		GlowtoneChromaFold.resetScopes();
+		ChromaFold.resetScopes();
 	}
 
 	@ModifyReturnValue(method = "extractEntity", at = @At("RETURN"))
@@ -43,12 +43,8 @@ public class LevelExtractorMixin {
 		EntityRenderState original,
 		Entity entity, float partialTickTime
 	) {
-		original.lightCoords = GlowtoneEntityLight.smooth(
-			original.x, original.y + original.eyeHeight * 0.5F, original.z, original.lightCoords
-		);
-		original.glowtone$setChromaTint(
-			GlowtoneChromaFold.resolveEntity(original.x, original.y, original.z, original.eyeHeight, original.lightCoords)
-		);
+		original.lightCoords = SmoothEntityLightingHelper.smooth(original.x, original.y + original.eyeHeight * 0.5F, original.z, original.lightCoords);
+		original.glowtone$setChromaTint(ChromaFold.resolveEntity(original.x, original.y, original.z, original.eyeHeight, original.lightCoords));
 		return original;
 	}
 }

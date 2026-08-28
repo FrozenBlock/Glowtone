@@ -15,13 +15,15 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.edge;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.render.GlowtoneCasterShapes;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import net.minecraft.world.phys.AABB;
@@ -30,34 +32,31 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 @Environment(EnvType.CLIENT)
-public final class GlowtoneEdgeNeighbours {
-	private static final VoxelShape FULL_CUBE = Shapes.block();
-	private static final double SPAN_SLACK = 1.0D / 256.0D;
+public final class EdgeNeighbours {
+	private static final double SPAN_SLACK = 1D / 256D;
 	private static final float CONTAINS_SLACK = 1.0E-4F;
 	private static final int CACHE_LIMIT = 512;
 	private static final int CENTRE = 13;
-
 	private static final AABB[] NONE = {};
-	private static final AABB[] FULL = {new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)};
+	private static final AABB[] FULL = {Shapes.block().bounds()};
 
 	private final Map<VoxelShape, AABB[]> boxCache = new IdentityHashMap<>();
 	private final AABB[][] cells = new AABB[27][];
 	private int resolved;
-	private final BlockPos.MutableBlockPos scratch = new BlockPos.MutableBlockPos();
+	private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
 	private @Nullable BlockAndTintGetter source;
 	private boolean selfEmissive;
-	private boolean valid;
+	private boolean dirty = true;
 	private int x;
 	private int y;
 	private int z;
 
-	public void invalidate() {
-		this.valid = false;
+	public void markDirty() {
+		this.dirty = true;
 	}
 
 	public void gather(BlockAndTintGetter level, BlockPos pos) {
-		if (this.valid && this.source == level
-			&& this.x == pos.getX() && this.y == pos.getY() && this.z == pos.getZ()) return;
+		if (!this.dirty && this.source == level && this.x == pos.getX() && this.y == pos.getY() && this.z == pos.getZ()) return;
 
 		final BlockState here = level.getBlockState(pos);
 		this.selfEmissive = here.getLightEmission() > 0;
@@ -69,11 +68,11 @@ public final class GlowtoneEdgeNeighbours {
 		this.x = pos.getX();
 		this.y = pos.getY();
 		this.z = pos.getZ();
-		this.valid = true;
+		this.dirty = false;
 	}
 
 	public boolean solidAt(int axisA, int cellA, float localA, int axisB, int cellB, float localB, int axisC, int cellC, float localC) {
-		if (!this.valid) return false;
+		if (this.dirty) return false;
 
 		final AABB[] boxes = boxesAt(
 			cellOn(0, axisA, cellA, axisB, cellB, axisC, cellC),
@@ -81,18 +80,17 @@ public final class GlowtoneEdgeNeighbours {
 			cellOn(2, axisA, cellA, axisB, cellB, axisC, cellC)
 		);
 		if (boxes == null || boxes.length == 0) return false;
-		if (boxes == FULL) return true;
+		if (Arrays.equals(boxes, FULL)) return true;
 
 		final float x = axisA == 0 ? localA : axisB == 0 ? localB : localC;
 		final float y = axisA == 1 ? localA : axisB == 1 ? localB : localC;
 		final float z = axisA == 2 ? localA : axisB == 2 ? localB : localC;
 
 		for (final AABB box : boxes) {
-			if (x >= box.minX - CONTAINS_SLACK && x <= box.maxX + CONTAINS_SLACK
-				&& y >= box.minY - CONTAINS_SLACK && y <= box.maxY + CONTAINS_SLACK
-				&& z >= box.minZ - CONTAINS_SLACK && z <= box.maxZ + CONTAINS_SLACK) {
-				return true;
-			}
+			if (x < box.minX - CONTAINS_SLACK || x > box.maxX + CONTAINS_SLACK) continue;
+			if (y < box.minY - CONTAINS_SLACK || y > box.maxY + CONTAINS_SLACK) continue;
+			if (z < box.minZ - CONTAINS_SLACK || z > box.maxZ + CONTAINS_SLACK) continue;
+			return true;
 		}
 		return false;
 	}
@@ -103,7 +101,7 @@ public final class GlowtoneEdgeNeighbours {
 
 	private AABB[] boxesOf(VoxelShape shape) {
 		if (shape.isEmpty()) return NONE;
-		if (shape == FULL_CUBE) return FULL;
+		if (shape.equals(Shapes.block())) return FULL;
 
 		AABB[] cached = this.boxCache.get(shape);
 		if (cached == null) {
@@ -115,7 +113,7 @@ public final class GlowtoneEdgeNeighbours {
 	}
 
 	public AABB @Nullable [] boxesAt(int cellX, int cellY, int cellZ) {
-		if (!this.valid) return null;
+		if (this.dirty) return null;
 		if (cellX < -1 || cellX > 1 || cellY < -1 || cellY > 1 || cellZ < -1 || cellZ > 1) return null;
 
 		final int slot = (cellX + 1) + 3 * (cellY + 1) + 9 * (cellZ + 1);
@@ -125,20 +123,23 @@ public final class GlowtoneEdgeNeighbours {
 		final BlockAndTintGetter level = this.source;
 		if (level == null) return null;
 
-		this.scratch.set(this.x + cellX, this.y + cellY, this.z + cellZ);
-		this.cells[slot] = casterBoxes(level, this.scratch, level.getBlockState(this.scratch));
+		this.scratchPos.set(this.x + cellX, this.y + cellY, this.z + cellZ);
+		this.cells[slot] = casterBoxes(level, this.scratchPos, level.getBlockState(this.scratchPos));
 		this.resolved |= bit;
 
 		return this.cells[slot];
 	}
 
 	private static int cellOn(int axis, int axisA, int cellA, int axisB, int cellB, int axisC, int cellC) {
-		return axis == axisA ? cellA : axis == axisB ? cellB : axis == axisC ? cellC : 0;
+		return axis == axisA ? cellA
+			: axis == axisB ? cellB
+			: axis == axisC ? cellC
+			: 0;
 	}
 
 	public static boolean isBlockLike(VoxelShape shape) {
 		if (shape.isEmpty()) return false;
-		if (shape == FULL_CUBE) return true;
+		if (shape.equals(Shapes.block())) return true;
 
 		final AABB bounds = shape.bounds();
 		return bounds.minX <= SPAN_SLACK && bounds.maxX >= 1D - SPAN_SLACK
@@ -146,6 +147,6 @@ public final class GlowtoneEdgeNeighbours {
 	}
 
 	public boolean selfEmissive() {
-		return this.valid && this.selfEmissive;
+		return !this.dirty && this.selfEmissive;
 	}
 }

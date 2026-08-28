@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -64,7 +64,7 @@ public abstract class SingleQuadParticleMixin extends Particle {
 	) {
 		final Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
 		// FIXME: i don't support self-emission! colored light tints me even when im glowing :(
-		color = GlowtoneChromaFold.tintParticleColor(color, lightCoords, x + cameraPos.x, y + cameraPos.y, z + cameraPos.z);
+		color = ChromaFold.tintParticleColor(color, lightCoords, x + cameraPos.x, y + cameraPos.y, z + cameraPos.z);
 		original.call(instance, layer, x, y, z, xRot, yRot, zRot, wRot, scale, u0, u1, v0, v1, color, lightCoords);
 	}
 }

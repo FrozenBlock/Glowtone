@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
@@ -45,6 +45,6 @@ public class BlockModelLighterMixin {
 	) {
 		final Direction direction = quad.direction();
 		final BlockPos lit = direction == null ? pos : pos.relative(direction);
-		GlowtoneChromaBake.beginFlatQuad(lit.getX(), lit.getY(), lit.getZ());
+		ChromaBaker.beginFlatQuad(lit.getX(), lit.getY(), lit.getZ());
 	}
 }

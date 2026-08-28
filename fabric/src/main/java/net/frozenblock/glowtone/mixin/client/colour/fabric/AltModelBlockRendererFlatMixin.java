@@ -25,10 +25,10 @@ import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRende
 import net.frozenblock.glowtone.config.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
-import net.frozenblock.glowtone.render.GlowtoneChromaBlend;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneEdgeNeighbours;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.render.light.color.ChromaBlender;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -51,13 +51,13 @@ public class AltModelBlockRendererFlatMixin {
 	private boolean glowtone$pinFlatQuadColour(boolean original, MutableQuadView quad) {
 		if (!original) return original;
 
-		if (!GlowtoneChromaBake.buildingSection()) {
+		if (!ChromaBaker.buildingSection()) {
 			for (int vertex = 0; vertex < 4; vertex++) {
-				quad.color(vertex, GlowtoneChromaFold.tintMovingBlockQuadColor(quad.color(vertex)));
+				quad.color(vertex, ChromaFold.tintMovingBlockQuadColor(quad.color(vertex)));
 			}
 		}
 
-		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+		final ChromaBaker.SectionState state = ChromaBaker.state();
 		final boolean highlight = EdgeHighlightOption.isEnabled()
 			&& quad.ambientOcclusion().orElse(true);
 		final boolean glowtoneAo = AmbientOcclusionOption.glowtoneActive();
@@ -66,9 +66,9 @@ public class AltModelBlockRendererFlatMixin {
 		final boolean bake = glowtoneAo && AmbientOcclusionOption.BAKED_CONTACT_SHADING && !shade;
 
 		if (highlight || shade || bake) {
-			final GlowtoneEdgeNeighbours neighbours = state.edgeNeighbours();
+			final EdgeNeighbours neighbours = state.edgeNeighbours();
 			if (this.level == null || this.pos == null) {
-				neighbours.invalidate();
+				neighbours.markDirty();
 			} else {
 				neighbours.gather(this.level, this.pos);
 			}
@@ -76,8 +76,8 @@ public class AltModelBlockRendererFlatMixin {
 			state.beginQuadEdges();
 		}
 
-		if (!GlowtoneChromaBlend.isEnabled()) return original;
-		if (GlowtoneChromaBake.smoothLightingEnabled() && quad.ambientOcclusion().orElse(true)) return original;
+		if (!ChromaBlender.isEnabled()) return original;
+		if (ChromaBaker.smoothLightingEnabled() && quad.ambientOcclusion().orElse(true)) return original;
 
 		float x = 0F;
 		float y = 0F;

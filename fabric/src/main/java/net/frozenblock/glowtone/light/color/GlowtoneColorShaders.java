@@ -49,7 +49,7 @@ public final class GlowtoneColorShaders {
 	// GlowtoneChroma stores the light multiplier divided by GLOWTONE_CHROMA_SCALE, because a vertex attribute byte can
 	// only hold 0..1. Multiplying it back gives the tint room to exceed one, which is what lets a deep hue —
 	// blue above all — reach full brightness by AMPLIFYING its own channel instead of being mixed with white.
-	// Neutral is therefore 0.5, not 1.0. Must match GlowtoneChromaBlend.CHROMA_SCALE.
+	// Neutral is therefore 0.5, not 1.0. Must match ChromaBlender.CHROMA_SCALE.
 	private static final String DEFINE_GLOWTONE_CHROMA_SCALE = """
 			const float GLOWTONE_CHROMA_SCALE = 2.0;
 

@@ -22,7 +22,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.OcclusionStrengthOption;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.minecraft.client.renderer.block.BlockModelLighter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,6 +34,6 @@ public class BlockModelLighterCacheMixin {
 	@ModifyReturnValue(method = "getShadeBrightness", at = @At("RETURN"))
 	private float glowtone$scaleVanillaOcclusion(float brightness) {
 		if (AmbientOcclusionOption.vanillaActive()) return OcclusionStrengthOption.brightness(brightness);
-		return GlowtoneChromaBake.buildingSection() ? 1F : brightness;
+		return ChromaBaker.buildingSection() ? 1F : brightness;
 	}
 }

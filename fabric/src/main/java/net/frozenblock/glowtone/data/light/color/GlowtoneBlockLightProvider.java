@@ -8,7 +8,6 @@ import net.frozenblock.glowtone.light.color.data.BlockLight;
 import net.frozenblock.glowtone.light.color.data.BlockLightGenerators;
 import net.frozenblock.glowtone.light.color.data.LightProvider;
 import net.frozenblock.glowtone.light.color.data.MultiVariantGenerator;
-import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;

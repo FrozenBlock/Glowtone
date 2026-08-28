@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.render.GlowtoneChromaFold;
-import net.frozenblock.glowtone.render.GlowtoneEntityLight;
+import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.render.light.entity.SmoothEntityLightingHelper;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.LightCoordsUtil;
@@ -51,11 +51,11 @@ public class MovingBlockFeatureRendererMixin {
 	) {
 		final MovingBlockRenderState renderState = submit.movingBlockRenderState();
 		final BlockPos pos = renderState.blockPos;
-		final int lightCoords = GlowtoneEntityLight.worldLightAt(
+		final int lightCoords = SmoothEntityLightingHelper.worldLightAt(
 			pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, LightCoordsUtil.FULL_BRIGHT);
 
-		GlowtoneChromaFold.beginMovingBlockQuads(
-			GlowtoneChromaFold.resolveBlockEntity(pos, lightCoords));
+		ChromaFold.beginMovingBlockQuads(
+			ChromaFold.resolveBlockEntity(pos, lightCoords));
 	}
 
 	@Inject(method = "buildGroup", at = @At("RETURN"))
@@ -64,7 +64,7 @@ public class MovingBlockFeatureRendererMixin {
 		List<MovingBlockFeatureRenderer.Submit> submits,
 		CallbackInfo info
 	) {
-		GlowtoneChromaFold.endMovingBlockQuads();
+		ChromaFold.endMovingBlockQuads();
 	}
 
 }

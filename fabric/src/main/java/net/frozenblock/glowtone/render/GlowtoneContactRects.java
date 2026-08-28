@@ -20,6 +20,8 @@ package net.frozenblock.glowtone.render;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import java.util.Arrays;
+import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.render.light.edge.QuadEdges;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
@@ -96,9 +98,8 @@ public final class GlowtoneContactRects {
 	private final boolean[] cacheUsed = new boolean[CACHE_SLOTS];
 	private final int[] cacheWords = new int[CACHE_SLOTS * WORDS];
 
-
 	public int[] build(
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		// TODO: why cant we use Direction.Axis?
 		int normalAxis,
 		boolean normalPositive,
@@ -114,8 +115,8 @@ public final class GlowtoneContactRects {
 			+ Float.floatToRawIntBits(minV) * 17L + Float.floatToRawIntBits(maxV) * 19L;
 
 		final float step = normalPositive ? PROBE : -PROBE;
-		final float spanU = (maxU - minU) * GlowtoneQuadEdges.UNITS_PER_BLOCK;
-		final float spanV = (maxV - minV) * GlowtoneQuadEdges.UNITS_PER_BLOCK;
+		final float spanU = (maxU - minU) * QuadEdges.UNITS_PER_BLOCK;
+		final float spanV = (maxV - minV) * QuadEdges.UNITS_PER_BLOCK;
 		final float probe = plane + step;
 		final int normalCell = Mth.clamp(Mth.floor(probe), -1, 1);
 		final float probeLocal = probe - normalCell;
@@ -175,7 +176,7 @@ public final class GlowtoneContactRects {
 	}
 
 	private static float texels(float coord, float origin) {
-		return (coord - origin) * GlowtoneQuadEdges.UNITS_PER_BLOCK;
+		return (coord - origin) * QuadEdges.UNITS_PER_BLOCK;
 	}
 
 	private void add(float u0, float u1, float v0, float v1) {

@@ -15,13 +15,19 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.color;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
 import net.frozenblock.glowtone.config.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.OcclusionStrengthOption;
-import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.render.light.edge.FluidEdges;
+import net.frozenblock.glowtone.render.light.edge.QuadEdges;
+import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
 import net.minecraft.client.Minecraft;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
@@ -32,15 +38,17 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
-public final class GlowtoneChromaBake {
-	public static final int NEUTRAL_ARGB = GlowtoneChromaBlend.NEUTRAL_TERRAIN_ARGB;
+@Environment(EnvType.CLIENT)
+public final class ChromaBaker {
+	public static final int NEUTRAL_ARGB = ChromaBlender.NEUTRAL_TERRAIN_ARGB;
 	public static final int NEUTRAL_SKY_ARGB = 0xFFFFFFFF;
 	private static final int NO_PIN = 0;
-	private static final int OPAQUE_DAMPENING = 15;
+	private static final int OPAQUE_DAMPENING = LightEngine.MAX_LEVEL;
 
 	private static final ThreadLocal<SectionState> STATE = ThreadLocal.withInitial(SectionState::new);
 	private static volatile boolean smoothLightingEnabled = true;
@@ -139,10 +147,10 @@ public final class GlowtoneChromaBake {
 		private int latchedChroma = NO_PIN;
 		private int latchedSkyChroma = NO_PIN;
 		private int usedChroma = NO_PIN;
-		private final GlowtoneQuadEdges pendingEdges = new GlowtoneQuadEdges();
-		private final GlowtoneEdgeNeighbours edgeNeighbours = new GlowtoneEdgeNeighbours();
+		private final QuadEdges pendingEdges = new QuadEdges();
+		private final EdgeNeighbours edgeNeighbours = new EdgeNeighbours();
 		private float @Nullable [] modelFaces;
-		private final GlowtoneFluidRims fluidRims = new GlowtoneFluidRims();
+		private final FluidEdges fluidRims = new FluidEdges();
 		private @Nullable BlockAndTintGetter fluidLevel;
 		private final BlockPos.MutableBlockPos fluidPos = new BlockPos.MutableBlockPos();
 		private boolean fluidQuad;
@@ -290,7 +298,7 @@ public final class GlowtoneChromaBake {
 			return this.smoothLighting;
 		}
 
-		public GlowtoneEdgeNeighbours edgeNeighbours() {
+		public EdgeNeighbours edgeNeighbours() {
 			return this.edgeNeighbours;
 		}
 
@@ -302,7 +310,7 @@ public final class GlowtoneChromaBake {
 			this.modelFaces = faces;
 		}
 
-		public GlowtoneQuadEdges pendingEdges() {
+		public QuadEdges pendingEdges() {
 			return this.pendingEdges;
 		}
 
@@ -330,7 +338,7 @@ public final class GlowtoneChromaBake {
 			return this.fluidPos;
 		}
 
-		public GlowtoneFluidRims fluidRims() {
+		public FluidEdges fluidRims() {
 			return this.fluidRims;
 		}
 
@@ -389,15 +397,13 @@ public final class GlowtoneChromaBake {
 				final int levels = flood.cellLevelsAt(worldX, worldY, worldZ);
 
 				if (levels != 0) {
-					this.flatChroma = GlowtoneChromaBlend.toArgb(
-						GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, levels)
-					);
+					this.flatChroma = ChromaBlender.toArgb(ChromaBlender.add(ChromaBlender.EMPTY, levels));
 					this.flatVerticesLeft = 4;
 				}
 			}
 
 			if (flood.hasSkyTint()) {
-				this.flatSkyChroma = GlowtoneChromaBlend.skyTintArgb(flood.skyHueAt(worldX, worldY, worldZ));
+				this.flatSkyChroma = ChromaBlender.skyTintArgb(flood.skyHueAt(worldX, worldY, worldZ));
 				this.flatSkyVerticesLeft = 4;
 			}
 		}
@@ -414,18 +420,12 @@ public final class GlowtoneChromaBake {
 			final int localZ = Math.round(z);
 			final int slot = cacheSlot(localX, localY, localZ);
 
-			if (slot < 0) {
-				return this.blendSkyCorner(
-					this.originX + localX, this.originY + localY, this.originZ + localZ
-				);
-			}
+			if (slot < 0) return this.blendSkyCorner(this.originX + localX, this.originY + localY, this.originZ + localZ);
 
 			final int cached = this.skyCornerCache[slot];
 			if (cached != 0) return cached;
 
-			final int argb = this.blendSkyCorner(
-				this.originX + localX, this.originY + localY, this.originZ + localZ
-			);
+			final int argb = this.blendSkyCorner(this.originX + localX, this.originY + localY, this.originZ + localZ);
 			this.skyCornerCache[slot] = argb;
 			return argb;
 		}
@@ -467,8 +467,8 @@ public final class GlowtoneChromaBake {
 			}
 
 			if (count == 0) return NEUTRAL_SKY_ARGB;
-			if (!this.smoothLighting) return GlowtoneChromaBlend.skyTintArgb(strongest);
-			return GlowtoneChromaBlend.skyTintArgb(((red / count) << 16) | ((green / count) << 8) | (blue / count));
+			if (!this.smoothLighting) return ChromaBlender.skyTintArgb(strongest);
+			return ChromaBlender.skyTintArgb(((red / count) << 16) | ((green / count) << 8) | (blue / count));
 		}
 
 		public int sample(float x, float y, float z) {
@@ -495,7 +495,7 @@ public final class GlowtoneChromaBake {
 			final GlowtoneRegionFlood flood = this.flood;
 			if (flood == null) return NEUTRAL_ARGB;
 
-			long accumulator = GlowtoneChromaBlend.EMPTY;
+			long accumulator = ChromaBlender.EMPTY;
 			int brightest = 0;
 
 			for (int dx = -1; dx <= 0; dx++) {
@@ -507,7 +507,7 @@ public final class GlowtoneChromaBake {
 						if (discards(flood, cornerX + dx, cornerY + dy, cornerZ + dz)) continue;
 
 						if (this.smoothLighting) {
-							accumulator = GlowtoneChromaBlend.add(accumulator, levels);
+							accumulator = ChromaBlender.add(accumulator, levels);
 						} else if ((levels & 0xF) > (brightest & 0xF)) {
 							brightest = levels;
 						}
@@ -515,8 +515,8 @@ public final class GlowtoneChromaBake {
 				}
 			}
 
-			if (!this.smoothLighting) accumulator = GlowtoneChromaBlend.add(GlowtoneChromaBlend.EMPTY, brightest);
-			return GlowtoneChromaBlend.toArgb(accumulator);
+			if (!this.smoothLighting) accumulator = ChromaBlender.add(ChromaBlender.EMPTY, brightest);
+			return ChromaBlender.toArgb(accumulator);
 		}
 
 		private static boolean isOpaque(GlowtoneRegionFlood flood, int worldX, int worldY, int worldZ) {
@@ -538,5 +538,5 @@ public final class GlowtoneChromaBake {
 		}
 	}
 
-	private GlowtoneChromaBake() {}
+	private ChromaBaker() {}
 }

@@ -15,10 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.color;
 
+import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.mixin.client.colour.ViewAreaInvoker;
+import net.frozenblock.glowtone.render.light.color.impl.GlowtoneSectionColors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ViewArea;
@@ -26,9 +28,10 @@ import net.minecraft.client.renderer.chunk.SectionMesh;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.core.SectionPos;
 import org.jspecify.annotations.Nullable;
+import java.util.Arrays;
 
-public final class GlowtoneColorProbe {
-	private static final GlowtoneColorProbe INSTANCE = new GlowtoneColorProbe();
+public final class ColorProbe {
+	private static final ColorProbe INSTANCE = new ColorProbe();
 	private static final int WHITE_RGB = 0xFFFFFF;
 	private static final int CACHE_SLOTS = 8;
 
@@ -38,19 +41,19 @@ public final class GlowtoneColorProbe {
 	private final boolean[] cacheValid = new boolean[CACHE_SLOTS];
 	private int lastSlot;
 
-	public static GlowtoneColorProbe get() {
+	public static ColorProbe get() {
 		return INSTANCE;
 	}
 
 	public void invalidate() {
-		java.util.Arrays.fill(this.cacheValid, false);
-		java.util.Arrays.fill(this.cachedColors, null);
-		java.util.Arrays.fill(this.cachedSkyHues, null);
+		Arrays.fill(this.cacheValid, false);
+		Arrays.fill(this.cachedColors, null);
+		Arrays.fill(this.cachedSkyHues, null);
 	}
 
 	public int getPackedLevels(int worldX, int worldY, int worldZ) {
 		final int slot = this.cache(worldX, worldY, worldZ);
-		short[] colors = this.cachedColors[slot];
+		final short[] colors = this.cachedColors[slot];
 		if (colors == null) return 0;
 
 		return colors[GlowtoneRegionFlood.entityCellIndex(worldX, worldY, worldZ)] & 0xFFFF;
@@ -58,7 +61,7 @@ public final class GlowtoneColorProbe {
 
 	public int getSkyRgb(int worldX, int worldY, int worldZ) {
 		final int slot = this.cache(worldX, worldY, worldZ);
-		short[] hues = this.cachedSkyHues[slot];
+		final short[] hues = this.cachedSkyHues[slot];
 		if (hues == null) return WHITE_RGB;
 
 		return GlowtoneRegionFlood.skyHueToRgb(hues[GlowtoneRegionFlood.entityCellIndex(worldX, worldY, worldZ)] & 0xFFFF);
@@ -110,5 +113,5 @@ public final class GlowtoneColorProbe {
 		return mesh instanceof GlowtoneSectionColors colors ? colors : null;
 	}
 
-	private GlowtoneColorProbe() {}
+	private ColorProbe() {}
 }

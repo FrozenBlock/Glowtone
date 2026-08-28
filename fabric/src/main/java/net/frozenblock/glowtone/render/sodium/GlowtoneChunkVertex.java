@@ -21,10 +21,10 @@ import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
-import net.frozenblock.glowtone.render.GlowtoneChromaBlend;
-import net.frozenblock.glowtone.render.GlowtoneQuadEdges;
+import net.frozenblock.glowtone.render.light.color.ChromaBlender;
+import net.frozenblock.glowtone.render.light.edge.QuadEdges;
 import org.lwjgl.system.MemoryUtil;
 
 public final class GlowtoneChunkVertex implements ChunkVertexType {
@@ -56,8 +56,8 @@ public final class GlowtoneChunkVertex implements ChunkVertexType {
 		.addAttribute("a_GlowtoneFlags", GpuFormat.RGBA8_UNORM)
 		.build();
 
-	private static final int SKY_CHROMA_ABGR = toAbgr(GlowtoneChromaBlend.NEUTRAL_ARGB);
-	private static final int NO_EDGES_LE = Integer.reverseBytes(GlowtoneQuadEdges.NO_EDGES);
+	private static final int SKY_CHROMA_ABGR = toAbgr(ChromaBlender.NEUTRAL_ARGB);
+	private static final int NO_EDGES_LE = Integer.reverseBytes(QuadEdges.NO_EDGES);
 	private static final int[] NO_CONTACT_LE = noContact();
 
 	private static int[] noContact() {
@@ -84,11 +84,11 @@ public final class GlowtoneChunkVertex implements ChunkVertexType {
 		final ChunkVertexEncoder inner = this.delegate.getEncoder();
 
 		return (pointer, material, vertices, sectionIndex) -> {
-			final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+			final ChromaBaker.SectionState state = ChromaBaker.state();
 			final long scratch = state.scratch(SODIUM_STRIDE * QUAD);
 			inner.write(scratch, material, vertices, sectionIndex);
 
-			final GlowtoneQuadEdges edges = state.pendingEdges();
+			final QuadEdges edges = state.pendingEdges();
 			final boolean fluid = state.fluidQuad();
 			final int flags = state.emissiveQuad() ? 0x000000FF : 0;
 
@@ -113,7 +113,7 @@ public final class GlowtoneChunkVertex implements ChunkVertexType {
 		};
 	}
 
-	private static void writeEdges(long at, GlowtoneQuadEdges edges, int index) {
+	private static void writeEdges(long at, QuadEdges edges, int index) {
 		if (index < 0) {
 			MemoryUtil.memPutInt(at + EDGE_OFFSET, NO_EDGES_LE);
 			MemoryUtil.memPutInt(at + EDGE_MASK_OFFSET, 0);

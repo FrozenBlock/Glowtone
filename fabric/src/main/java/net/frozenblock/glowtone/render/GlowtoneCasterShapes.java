@@ -33,12 +33,11 @@ public final class GlowtoneCasterShapes {
 	public static VoxelShape of(BlockAndTintGetter level, BlockPos pos, BlockState state) {
 		if (state.isAir()) return Shapes.empty();
 
-		final VoxelShape occlusion = state.getOcclusionShape();
-		if (!occlusion.isEmpty()) return occlusion;
+		final VoxelShape occlusionShape = state.getOcclusionShape();
+		if (!occlusionShape.isEmpty()) return occlusionShape;
 
-		if (state.is(BlockTags.LEAVES) || state.is(BlockTags.DOORS) || state.is(BlockTags.TRAPDOORS)) {
-			return state.getShape(level, pos);
-		}
+		// TODO: block tag
+		if (state.is(BlockTags.LEAVES) || state.is(BlockTags.DOORS) || state.is(BlockTags.TRAPDOORS)) return state.getShape(level, pos);
 
 		final VoxelShape collision = state.getCollisionShape(level, pos);
 		if (collision.isEmpty() || Block.isShapeFullBlock(collision)) return Shapes.empty();

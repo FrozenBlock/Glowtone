@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.render.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
-import net.frozenblock.glowtone.render.GlowtoneEdgeNeighbours;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -34,12 +34,12 @@ public final class GlowtoneSodiumEdges {
 	public static void beginBlock(
 		BlockStateModel model, BlockState blockState, @Nullable BlockAndTintGetter level, BlockPos pos
 	) {
-		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setModelFaces(null);
 
 		if (!state.highlightEnabled() && !state.contactShading()) return;
 		if (level == null) return;
-		if (GlowtoneEdgeNeighbours.isBlockLike(blockState.getOcclusionShape())) return;
+		if (EdgeNeighbours.isBlockLike(blockState.getOcclusionShape())) return;
 
 		state.setModelFaces(
 			GlowtoneModelBoxes.forState(model, level, pos, blockState, blockState.getSeed(pos)));
@@ -48,16 +48,16 @@ public final class GlowtoneSodiumEdges {
 	public static void begin(
 		MutableQuadViewImpl quad, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos
 	) {
-		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
+		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setEmissiveQuad(((GlowtoneSodiumQuad) quad).glowtone$emissive());
 
 		final boolean shade = state.contactShading();
 		final boolean highlight = state.highlightEnabled() && quad.ambientOcclusion().toBoolean(true);
 		if (!highlight && !shade) return;
 
-		final GlowtoneEdgeNeighbours neighbours = state.edgeNeighbours();
+		final EdgeNeighbours neighbours = state.edgeNeighbours();
 		if (level == null || pos == null) {
-			neighbours.invalidate();
+			neighbours.markDirty();
 		} else {
 			neighbours.gather(level, pos);
 		}

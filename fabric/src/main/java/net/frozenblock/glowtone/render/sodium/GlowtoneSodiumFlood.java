@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.render.sodium;
 
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSection;
-import net.frozenblock.glowtone.render.GlowtoneChromaBake;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
@@ -54,10 +54,10 @@ public final class GlowtoneSodiumFlood {
 			grid[x + y * GRID + z * GRID * GRID] = section.getBlockData();
 		}
 
-		GlowtoneChromaBake.beginSodiumSection(origin, grid);
+		ChromaBaker.beginSodiumSection(origin, grid);
 	}
 
 	public static void end() {
-		GlowtoneChromaBake.endSection();
+		ChromaBaker.endSection();
 	}
 }

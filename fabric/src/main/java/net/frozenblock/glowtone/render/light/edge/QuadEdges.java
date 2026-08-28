@@ -15,20 +15,23 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.render.light.edge;
 
 import com.mojang.datafixers.util.Function5;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.frozenblock.glowtone.render.GlowtoneContactRects;
+import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
+import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
-public final class GlowtoneQuadEdges {
+public final class QuadEdges {
 	public static final int UNITS_PER_BLOCK = 16;
 	public static final int INTERIOR = 255;
 	private static final float BOUNDARY_MARGIN = 1F / 2048F;
@@ -108,7 +111,7 @@ public final class GlowtoneQuadEdges {
 
 	public void set(
 		MutableQuadView quad,
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		boolean highlight,
 		boolean shade,
 		boolean bake
@@ -125,7 +128,7 @@ public final class GlowtoneQuadEdges {
 	public void setQuad(
 		float[] positions,
 		@Nullable Direction face,
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		boolean highlight,
 		boolean shade
 	) {
@@ -134,7 +137,7 @@ public final class GlowtoneQuadEdges {
 	}
 
 	public void setFluidRim(
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		int originX, int originY, int originZ,
 		int axis, boolean positive, int narrow,
 		boolean forceLit,
@@ -176,7 +179,7 @@ public final class GlowtoneQuadEdges {
 	private void build(
 		@Nullable MutableQuadView quad,
 		@Nullable Direction face,
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		boolean highlight,
 		boolean shade,
 		boolean bake,
@@ -256,7 +259,7 @@ public final class GlowtoneQuadEdges {
 
 		final boolean shaded = (shade || bake) && !neighbours.selfEmissive();
 
-		final float[] modelFaces = rim ? null : GlowtoneChromaBake.state().modelFaces();
+		final float[] modelFaces = rim ? null : ChromaBaker.state().modelFaces();
 
 		final int litLowU;
 		final int litHighU;
@@ -353,7 +356,7 @@ public final class GlowtoneQuadEdges {
 	}
 
 	private static int edgePair(
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		int normalAxis,
 		boolean normalPositive,
 		float plane,
@@ -413,7 +416,7 @@ public final class GlowtoneQuadEdges {
 	}
 
 	private static boolean edgeState(
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		int normalAxis,
 		boolean normalPositive,
 		float plane,
@@ -446,7 +449,7 @@ public final class GlowtoneQuadEdges {
 	}
 
 	private static boolean solid(
-		GlowtoneEdgeNeighbours neighbours,
+		EdgeNeighbours neighbours,
 		int normalAxis,
 		float normalCoord,
 		int edgeAxis,
@@ -459,9 +462,15 @@ public final class GlowtoneQuadEdges {
 		final int alongCell = Mth.clamp(Mth.floor(alongCoord), -1, 1);
 
 		return neighbours.solidAt(
-			normalAxis, normalCell, normalCoord - normalCell,
-			edgeAxis, edgeCell, edgeCoord - edgeCell,
-			alongAxis, alongCell, alongCoord - alongCell
+			normalAxis,
+			normalCell,
+			normalCoord - normalCell,
+			edgeAxis,
+			edgeCell,
+			edgeCoord - edgeCell,
+			alongAxis,
+			alongCell,
+			alongCoord - alongCell
 		);
 	}
 
