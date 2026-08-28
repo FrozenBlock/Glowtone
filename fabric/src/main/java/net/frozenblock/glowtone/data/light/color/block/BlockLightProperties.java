@@ -26,9 +26,7 @@ public record BlockLightProperties(
 	public static final Codec<BlockLightProperties> CODEC = MAP_CODEC.codec();
 
 	private static BlockLightProperties createWithFixedColors(Optional<Integer> lightColor, Optional<Integer> lightFilterColor) {
-		final Optional<Integer> fixedLightColor = lightColor.map(i -> ARGB.multiplyAlpha(i, 0F));
-		final Optional<Integer> fixedLightFilterColor = lightFilterColor.map(i -> ARGB.multiplyAlpha(i, 0F));
-		return new BlockLightProperties(fixedLightColor, fixedLightFilterColor);
+		return new BlockLightProperties(lightColor.map(ARGB::transparent), lightFilterColor.map(ARGB::transparent));
 	}
 
 	public static BlockLightProperties forBlockState(BlockState state) {
