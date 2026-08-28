@@ -20,7 +20,6 @@ package net.frozenblock.glowtone.data;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.data.light.color.GTLightPropertiesProvider;
 import net.frozenblock.lib.feature_flag.api.FeatureFlagApi;
 
 public final class GTDataGenerator implements DataGeneratorEntrypoint {

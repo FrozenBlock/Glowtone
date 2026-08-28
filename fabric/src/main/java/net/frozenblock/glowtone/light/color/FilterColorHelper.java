@@ -17,18 +17,33 @@
 
 package net.frozenblock.glowtone.light.color;
 
-import net.frozenblock.glowtone.data.light.color.block.BlockLightProperties;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
 import net.minecraft.world.level.block.state.BlockState;
 
-public final class GlowtoneEmitterColors {
-	public static final int NO_COLOUR = -1;
-	public static final int WHITE = 0xFFFFFF;
+@Environment(EnvType.CLIENT)
+public final class FilterColorHelper {
+	public static final int FULLY_TRANSMISSIVE = 0xFFF;
+	public static final int MAX_CHANNEL = 0xF;
 
-	public static int rgbFor(BlockState state) {
-		return BlockLightProperties.forBlockState(state).lightColor().orElse(NO_COLOUR);
+	public static int filterFor(BlockState state) {
+		return BlockLightProperties.forBlockState(state).lightFilterColor().orElse(FULLY_TRANSMISSIVE);
 	}
 
-	public static int rgbForOrWhite(BlockState state) {
-		return BlockLightProperties.forBlockState(state).lightColor().orElse(WHITE);
+	public static int red(int packed) {
+		return (packed >> 8) & MAX_CHANNEL;
+	}
+
+	public static int green(int packed) {
+		return (packed >> 4) & MAX_CHANNEL;
+	}
+
+	public static int blue(int packed) {
+		return packed & MAX_CHANNEL;
+	}
+
+	public static boolean isNeutral(int packed) {
+		return packed == FULLY_TRANSMISSIVE;
 	}
 }

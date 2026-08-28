@@ -30,7 +30,7 @@ import net.frozenblock.glowtone.render.light.edge.QuadEdges;
 import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
 import net.minecraft.client.Minecraft;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
-import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
+import net.frozenblock.glowtone.light.color.FilterColorHelper;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
@@ -526,7 +526,7 @@ public final class ChromaBaker {
 		private static boolean discards(GlowtoneRegionFlood flood, int worldX, int worldY, int worldZ) {
 			final BlockState state = flood.stateAt(worldX, worldY, worldZ);
 			if (state.getLightEmission() > 0) return false;
-			return GlowtoneTransmittance.filterFor(state) != GlowtoneTransmittance.FULLY_TRANSMISSIVE;
+			return FilterColorHelper.filterFor(state) != FilterColorHelper.FULLY_TRANSMISSIVE;
 		}
 
 		private static int cacheSlot(int localX, int localY, int localZ) {

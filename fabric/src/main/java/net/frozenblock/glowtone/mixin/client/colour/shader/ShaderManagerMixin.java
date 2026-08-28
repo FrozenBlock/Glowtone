@@ -22,7 +22,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.shaders.ShaderType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.light.color.GlowtoneColorShaders;
+import net.frozenblock.glowtone.light.color.ColorShaderPatcher;
 import net.minecraft.client.renderer.ShaderManager;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,6 +44,6 @@ public class ShaderManagerMixin {
 		@Local(argsOnly = true) Identifier location,
 		@Local(argsOnly = true) ShaderType type
 	) {
-		return GlowtoneColorShaders.patchTerrainShader(type.idConverter().fileToId(location), type, source);
+		return ColorShaderPatcher.patchTerrainShader(type.idConverter().fileToId(location), type, source);
 	}
 }

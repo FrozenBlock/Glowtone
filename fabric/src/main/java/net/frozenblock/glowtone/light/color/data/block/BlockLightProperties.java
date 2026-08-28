@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.data.light.color.block;
+package net.frozenblock.glowtone.light.color.data.block;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

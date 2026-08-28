@@ -23,7 +23,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
-public final class GlowtoneColorShaders {
+public final class ColorShaderPatcher {
 	private static final Identifier TERRAIN_ID = Identifier.withDefaultNamespace("core/terrain");
 	private static final String MAIN = "void main()";
 	private static final String UNIFORM = "uniform ";
@@ -60,7 +60,7 @@ public final class GlowtoneColorShaders {
 	// colours the daylight — so open sky stays exactly as vanilla renders it.
 	private static final String SAMPLE_LIGHTMAP_REPLACEMENT = "vec4(skyOnlyLight.rgb * GlowtoneSkyChroma.rgb + blockLightProperties * GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, fullLight.a)";
 
-	private GlowtoneColorShaders() {}
+	private ColorShaderPatcher() {}
 
 	private static final String SODIUM_INIT = "_vert_init();";
 	private static final String SODIUM_OUT_COLOR = "out vec4 v_Color;";
@@ -83,8 +83,11 @@ public final class GlowtoneColorShaders {
 		        glowtone_fullLight.a);""";
 
 	private static String patchSodiumTerrain(String source) {
-		if (!source.contains(SODIUM_INIT) || !source.contains(SODIUM_SET_COLOR)
-			|| !source.contains(SODIUM_OUT_COLOR) || source.contains("a_GlowtoneChroma")) {
+		if (!source.contains(SODIUM_INIT)
+			|| !source.contains(SODIUM_SET_COLOR)
+			|| !source.contains(SODIUM_OUT_COLOR)
+			|| source.contains("a_GlowtoneChroma")
+		) {
 			return source;
 		}
 
@@ -114,13 +117,12 @@ public final class GlowtoneColorShaders {
 			terrainOnlySource = preUniform + postUniform;
 		}
 
-		patchLightmap:{
+		patchLightmap: {
 			String preColor = terrainOnlySource.substring(0, terrainOnlySource.indexOf(SET_VERTEX_COLOR));
 			preColor = preColor + SPLIT_LIGHTMAP + DEFINE_GLOWTONE_CHROMA_SCALE;
 
 			String postColor = terrainOnlySource.substring(terrainOnlySource.indexOf(SET_VERTEX_COLOR));
-			patchLightmapSampler:
-			{
+			patchLightmapSampler: {
 				String postColorOnly = postColor.substring(0, postColor.indexOf(";"));
 				postColorOnly = postColorOnly.replace(SAMPLE_LIGHTMAP, SAMPLE_LIGHTMAP_REPLACEMENT);
 				String postPostColor = postColor.substring(postColor.indexOf(";"));

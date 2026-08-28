@@ -22,8 +22,8 @@ import java.util.function.Predicate;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.light.color.GlowtoneEmitterColors;
-import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
+import net.frozenblock.glowtone.light.color.EmitterColorHelper;
+import net.frozenblock.glowtone.light.color.FilterColorHelper;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.client.renderer.chunk.SectionCopy;
@@ -42,7 +42,7 @@ public final class GlowtoneRegionFlood {
 	public static final int SPAN = 48;
 	public static final int WHITE_RGB = 0xFFFFFF;
 	private static final java.util.function.Predicate<BlockState> TINTS_DAYLIGHT = state ->
-		GlowtoneTransmittance.filterFor(state) != GlowtoneTransmittance.FULLY_TRANSMISSIVE
+		FilterColorHelper.filterFor(state) != FilterColorHelper.FULLY_TRANSMISSIVE
 			&& state.getFluidState().isEmpty();
 
 	public static final int ENTITY_SPAN = 8;
@@ -271,8 +271,8 @@ public final class GlowtoneRegionFlood {
 						final int rz = baseZ + z;
 
 						final BlockState state = this.stateAt(this.minBlockX + rx, this.minBlockY + ry, this.minBlockZ + rz);
-						final int filter = GlowtoneTransmittance.filterFor(state);
-						if (filter == GlowtoneTransmittance.FULLY_TRANSMISSIVE) continue;
+						final int filter = FilterColorHelper.filterFor(state);
+						if (filter == FilterColorHelper.FULLY_TRANSMISSIVE) continue;
 						if (!state.getFluidState().isEmpty()) continue;
 						if (this.skyLevelAt(rx, ry, rz) <= 0) continue;
 
@@ -345,8 +345,8 @@ public final class GlowtoneRegionFlood {
 				if (neighbourSky <= 0 || neighbourSky > sourceSky) continue;
 				if (direction != Direction.DOWN && !this.isUnderCover(nx, ny, nz)) continue;
 
-				final int filter = GlowtoneTransmittance.filterFor(state);
-				final int next = filter == GlowtoneTransmittance.FULLY_TRANSMISSIVE ? hue : GlowtoneChannels.filterHue(hue, filter);
+				final int filter = FilterColorHelper.filterFor(state);
+				final int next = filter == FilterColorHelper.FULLY_TRANSMISSIVE ? hue : GlowtoneChannels.filterHue(hue, filter);
 				this.writeSky(cellIndex(nx, ny, nz), next, budget - 1);
 			}
 		}
@@ -361,7 +361,7 @@ public final class GlowtoneRegionFlood {
 			for (int y = SPAN - 1; y >= 0; y--) {
 				final BlockState state = this.stateAt(this.minBlockX + rx, this.minBlockY + y, this.minBlockZ + rz);
 				if (state.getLightDampening() >= GlowtoneChannels.MAX_LEVEL
-					|| GlowtoneTransmittance.filterFor(state) != GlowtoneTransmittance.FULLY_TRANSMISSIVE
+					|| FilterColorHelper.filterFor(state) != FilterColorHelper.FULLY_TRANSMISSIVE
 				) {
 					top = y;
 					break;
@@ -611,7 +611,7 @@ public final class GlowtoneRegionFlood {
 					final int emission = state.getLightEmission();
 					if (emission <= 0) continue;
 
-					final int packed = GlowtoneChannels.emissionLevels(emission, GlowtoneEmitterColors.rgbFor(state));
+					final int packed = GlowtoneChannels.emissionLevels(emission, EmitterColorHelper.rgbFor(state));
 					if (packed == 0) continue;
 					if (!reaches(GlowtoneChannels.level(packed), rx, ry, rz)) continue;
 
@@ -678,7 +678,7 @@ public final class GlowtoneRegionFlood {
 			final int next = GlowtoneChannels.attenuate(
 				packed,
 				Math.max(1, toState.getLightDampening()),
-				GlowtoneTransmittance.filterFor(toState)
+				FilterColorHelper.filterFor(toState)
 			);
 			final boolean nextBrighter = GlowtoneChannels.anyGreater(next, stored);
 			if (!nextBrighter && !canBlend(next, stored, next)) continue;

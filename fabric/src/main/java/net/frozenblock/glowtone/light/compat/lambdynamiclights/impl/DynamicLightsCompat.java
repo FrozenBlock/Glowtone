@@ -7,7 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
-import net.frozenblock.glowtone.light.color.GlowtoneEmitterColors;
+import net.frozenblock.glowtone.light.color.EmitterColorHelper;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -95,29 +95,29 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 
 	@Override
 	public int colorOf(Object source) {
-		if (!(source instanceof Entity entity)) return GlowtoneEmitterColors.WHITE;
+		if (!(source instanceof Entity entity)) return EmitterColorHelper.WHITE;
 		if (entity instanceof ItemEntity item) return this.colorOfItemStack(item.getItem());
 
 		if (entity instanceof LivingEntity livingEntity) {
 			final int heldItemStackColor = this.colorOfItemStack(livingEntity.getMainHandItem());
-			if (heldItemStackColor != GlowtoneEmitterColors.WHITE) return heldItemStackColor;
+			if (heldItemStackColor != EmitterColorHelper.WHITE) return heldItemStackColor;
 
 			final int offhandItemStackColor = this.colorOfItemStack(livingEntity.getOffhandItem());
-			if (offhandItemStackColor != GlowtoneEmitterColors.WHITE) return offhandItemStackColor;
+			if (offhandItemStackColor != EmitterColorHelper.WHITE) return offhandItemStackColor;
 		}
 
-		return GlowtoneEmitterColors.WHITE;
+		return EmitterColorHelper.WHITE;
 	}
 
 	@Override
 	public int colorOfItemStack(ItemStack itemStack) {
-		if (itemStack == null || itemStack.isEmpty()) return GlowtoneEmitterColors.WHITE;
+		if (itemStack == null || itemStack.isEmpty()) return EmitterColorHelper.WHITE;
 
 		final Block block = Block.byItem(itemStack.getItem());
-		if (block == null) return GlowtoneEmitterColors.WHITE;
+		if (block == null) return EmitterColorHelper.WHITE;
 
-		final int color = GlowtoneEmitterColors.rgbFor(block.defaultBlockState());
-		return color == GlowtoneEmitterColors.NO_COLOUR ? GlowtoneEmitterColors.WHITE : color;
+		final int color = EmitterColorHelper.rgbFor(block.defaultBlockState());
+		return color == EmitterColorHelper.NO_COLOUR ? EmitterColorHelper.WHITE : color;
 	}
 
 	private void tick() throws NoSuchFieldException, IllegalAccessException {

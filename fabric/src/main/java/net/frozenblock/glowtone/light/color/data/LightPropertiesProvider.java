@@ -1,12 +1,12 @@
-package net.frozenblock.glowtone.data.light.color;
+package net.frozenblock.glowtone.light.color.data;
 
 import com.google.common.collect.Maps;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.data.light.color.block.BlockLightProperties;
-import net.frozenblock.glowtone.data.light.color.block.BlockLightPropertiesDispatcher;
-import net.frozenblock.glowtone.data.light.color.block.BlockLightPropertiesGenerator;
-import net.frozenblock.glowtone.data.light.color.block.BlockLightPropertiesGenerators;
+import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesDispatcher;
+import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerator;
+import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerators;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;

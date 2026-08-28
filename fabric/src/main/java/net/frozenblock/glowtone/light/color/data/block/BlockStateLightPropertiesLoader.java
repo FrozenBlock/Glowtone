@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.data.light.color.block;
+package net.frozenblock.glowtone.light.color.data.block;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)

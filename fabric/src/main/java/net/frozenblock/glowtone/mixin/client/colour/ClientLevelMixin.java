@@ -17,8 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.light.color.GlowtoneEmitterColors;
-import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
+import net.frozenblock.glowtone.light.color.EmitterColorHelper;
+import net.frozenblock.glowtone.light.color.FilterColorHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -33,8 +33,8 @@ public class ClientLevelMixin {
 
 	@Inject(method = "setBlocksDirty", at = @At("HEAD"))
 	private void glowtone$onColourChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo info) {
-		if (GlowtoneEmitterColors.rgbFor(oldState) == GlowtoneEmitterColors.rgbFor(newState)
-			&& GlowtoneTransmittance.filterFor(oldState) == GlowtoneTransmittance.filterFor(newState)
+		if (EmitterColorHelper.rgbFor(oldState) == EmitterColorHelper.rgbFor(newState)
+			&& FilterColorHelper.filterFor(oldState) == FilterColorHelper.filterFor(newState)
 		) {
 			return;
 		}

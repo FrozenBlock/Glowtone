@@ -1,17 +1,17 @@
-package net.frozenblock.glowtone.data.light.color;
+package net.frozenblock.glowtone.data;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.data.light.color.block.BlockLightPropertiesGenerators;
-import net.frozenblock.glowtone.data.light.color.block.MultiVariantGenerator;
-import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
+import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerators;
+import net.frozenblock.glowtone.light.color.data.block.MultiVariantGenerator;
+import net.frozenblock.glowtone.light.color.FilterColorHelper;
+import net.frozenblock.glowtone.light.color.data.LightPropertiesProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import static net.frozenblock.glowtone.data.light.color.block.BlockLightProperties.*;
 
 @Environment(EnvType.CLIENT)
 public final class GTLightPropertiesProvider extends LightPropertiesProvider {
@@ -88,7 +88,7 @@ public final class GTLightPropertiesProvider extends LightPropertiesProvider {
 			blockLights.createTrivialBlock(filterColor(transmittanceColor), Blocks.STAINED_GLASS.pick(dye), Blocks.STAINED_GLASS_PANE.pick(dye));
 		}
 
-		blockLights.createTrivialBlock(filterColor(GlowtoneTransmittance.FULLY_TRANSMISSIVE), Blocks.GLASS, Blocks.GLASS_PANE);
+		blockLights.createTrivialBlock(filterColor(FilterColorHelper.FULLY_TRANSMISSIVE), Blocks.GLASS, Blocks.GLASS_PANE);
 
 		blockLights.createTrivialBlock(filterColor(0x111), Blocks.TINTED_GLASS);
 
