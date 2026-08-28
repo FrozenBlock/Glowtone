@@ -26,12 +26,7 @@ final class GlowtoneChannels {
 	static final int MAX_LEVEL = LightEngine.MAX_LEVEL;
 	static final int LEVEL_MASK = 0xFFFF;
 	static final int WHITE_HUE = 0xFFF;
-
 	private static final int HUE_SHIFT = 4;
-
-	private GlowtoneChannels() {
-		throw new UnsupportedOperationException("GlowtoneChannels is a static holder.");
-	}
 
 	static int pack(int level, int hue) {
 		if (level <= 0) return 0;
@@ -133,4 +128,6 @@ final class GlowtoneChannels {
 	private static int expand(int channel) {
 		return channel * 0x11;
 	}
+
+	private GlowtoneChannels() {}
 }

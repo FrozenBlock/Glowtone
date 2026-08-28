@@ -21,7 +21,7 @@ import com.mojang.datafixers.util.Function5;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
-import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.frozenblock.glowtone.render.light.color.ChromaBaker;

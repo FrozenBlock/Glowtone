@@ -15,50 +15,50 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config;
+package net.frozenblock.glowtone.config.option.color;
 
-import com.mojang.serialization.Codec;
 import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.render.light.color.ChromaBlender;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public final class ShadingOption {
-	private static final String CAPTION = "options.glowtone.shading";
-	private static final Codec<ShadingMode> CODEC = Codec.STRING.xmap(ShadingMode::byId, ShadingMode::id);
-	private static @Nullable OptionInstance<ShadingMode> instance;
+public final class ColoredLightingOption {
+	private static final String CAPTION = "options.glowtone.colored_lighting";
+	private static @Nullable OptionInstance<ColoredLightingMode> instance;
 
-	private ShadingOption() {}
-
-	public static synchronized OptionInstance<ShadingMode> get() {
+	public static synchronized OptionInstance<ColoredLightingMode> get() {
 		if (instance == null) {
 			instance = new OptionInstance<>(
 				CAPTION,
 				OptionInstance.cachedConstantTooltip(Component.translatable(CAPTION + ".tooltip")),
 				(caption, value) -> Component.translatable(value.translationKey()),
-				new OptionInstance.Enum<>(List.of(ShadingMode.values()), CODEC),
-				GlowtoneConfig.shading(),
-				ShadingOption::apply
+				new OptionInstance.Enum<>(List.of(ColoredLightingMode.values()), ColoredLightingMode.CODEC),
+				GlowtoneConfig.coloredLighting(),
+				ColoredLightingOption::apply
 			);
 		}
 		return instance;
 	}
 
-	public static void applyFlags(ShadingMode mode) {
-		GlowtoneConstants.GLOWTONE_EMISSIVES = true;
-		GlowtoneConstants.GLOWTONE_SHADING = mode.unshadeEmissive();
-		GlowtoneConstants.GLOWTONE_NO_SHADING = mode.unshadeAll();
+	public static void applyMode(ColoredLightingMode mode) {
+		ChromaBlender.setMode(mode);
 	}
 
-	private static void apply(ShadingMode mode) {
-		if (GlowtoneConfig.shading() == mode) return;
+	private static void apply(ColoredLightingMode mode) {
+		if (GlowtoneConfig.coloredLighting() == mode) return;
 
-		GlowtoneConfig.setShading(mode);
-		applyFlags(mode);
-		GlowtoneReload.request();
+		GlowtoneConfig.setColoredLighting(mode);
+		applyMode(mode);
+
+		final Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft.level != null) minecraft.levelExtractor.allChanged();
 	}
+
+	private ColoredLightingOption() {}
 }

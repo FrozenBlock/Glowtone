@@ -15,28 +15,34 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config;
+package net.frozenblock.glowtone.config.option.color;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.StringRepresentable;
 
 @Environment(EnvType.CLIENT)
-public enum ColouredLightingMode {
+public enum ColoredLightingMode implements StringRepresentable {
 	OFF("off"),
 	SUBTLE("subtle"),
 	INTENSE("intense");
+	public static final StringRepresentable.EnumCodec<ColoredLightingMode> CODEC = StringRepresentable.fromEnum(ColoredLightingMode::values);
+	private final String name;
 
-	private final String translationKey;
-
-	ColouredLightingMode(String name) {
-		this.translationKey = "options.glowtone.coloured_lighting." + name;
+	ColoredLightingMode(String name) {
+		this.name = name;
 	}
 
 	public String translationKey() {
-		return this.translationKey;
+		return "options.glowtone.colored_lighting." + this.name;
 	}
 
-	public boolean isEnabled() {
+	public boolean enabled() {
 		return this != OFF;
+	}
+
+	@Override
+	public String getSerializedName() {
+		return this.name;
 	}
 }

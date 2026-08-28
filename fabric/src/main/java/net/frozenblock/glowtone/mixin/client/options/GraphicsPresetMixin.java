@@ -20,13 +20,13 @@ package net.frozenblock.glowtone.mixin.client.options;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.AmbientOcclusionMode;
-import net.frozenblock.glowtone.config.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.BloomOption;
-import net.frozenblock.glowtone.config.ColouredLightingMode;
-import net.frozenblock.glowtone.config.ColouredLightingOption;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
-import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.option.bloom.BloomOption;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.minecraft.client.GraphicsPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
@@ -49,14 +49,14 @@ public class GraphicsPresetMixin {
 	) {
 		if (screen == null) return;
 
-		final ColouredLightingMode mode = switch (GraphicsPreset.class.cast(this)) {
-			case FAST -> ColouredLightingMode.OFF;
-			case FANCY, FABULOUS -> ColouredLightingMode.SUBTLE;
+		final ColoredLightingMode mode = switch (GraphicsPreset.class.cast(this)) {
+			case FAST -> ColoredLightingMode.OFF;
+			case FANCY, FABULOUS -> ColoredLightingMode.SUBTLE;
 			case CUSTOM -> null;
 		};
 		if (mode == null) return;
 
-		final OptionInstance<ColouredLightingMode> option = ColouredLightingOption.get();
+		final OptionInstance<ColoredLightingMode> option = ColoredLightingOption.get();
 		if (option.get() == mode) return;
 
 		option.set(mode);

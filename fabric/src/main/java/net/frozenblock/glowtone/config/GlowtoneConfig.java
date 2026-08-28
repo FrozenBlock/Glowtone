@@ -28,6 +28,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.bloom.BloomOption;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingMode;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import org.slf4j.Logger;
@@ -42,7 +48,7 @@ public final class GlowtoneConfig {
 	private static final String SHADING_KEY = "shading";
 	private static final String LEGACY_EMISSIVES_KEY = "emissives";
 	private static final String EDGE_HIGHLIGHT_KEY = "edge_highlight";
-	private static final String COLOURED_LIGHTING_KEY = "coloured_lighting";
+	private static final String COLORED_LIGHTING_KEY = "colored_lighting";
 	private static final String AMBIENT_OCCLUSION_KEY = "ambient_occlusion";
 	private static final String OCCLUSION_SCALE_KEY = "occlusion_scale";
 	private static final String LEGACY_OCCLUSION_DEPTH_KEY = "occlusion_strength";
@@ -50,12 +56,10 @@ public final class GlowtoneConfig {
 	private static int edgeHighlight = DEFAULT_EDGE_HIGHLIGHT;
 	private static boolean bloomEnabled = true;
 	private static ShadingMode shading = ShadingMode.DEFAULT;
-	private static ColouredLightingMode colouredLighting = ColouredLightingMode.SUBTLE;
+	private static ColoredLightingMode coloredLighting = ColoredLightingMode.SUBTLE;
 	private static AmbientOcclusionMode ambientOcclusion = AmbientOcclusionMode.DEFAULT;
 	private static int occlusionStrength = DEFAULT_OCCLUSION_STRENGTH;
 	private static boolean loaded;
-
-	private GlowtoneConfig() {}
 
 	public static int bloom() {
 		if (!loaded) load();
@@ -66,14 +70,14 @@ public final class GlowtoneConfig {
 		return bloomEnabled;
 	}
 
-	private static ShadingMode readShading(JsonObject json) {
-		if (json.has(SHADING_KEY)) {
-			return ShadingMode.byId(GsonHelper.getAsString(json, SHADING_KEY, ShadingMode.DEFAULT.id()));
-		}
+	private static ShadingMode parseShadingMode(JsonObject json) {
+		if (json.has(SHADING_KEY)) return ShadingMode.CODEC.byName(GsonHelper.getAsString(json, SHADING_KEY, ShadingMode.DEFAULT.getSerializedName()));
+
 		if (json.has(LEGACY_EMISSIVES_KEY)) {
 			return "shaded".equals(GsonHelper.getAsString(json, LEGACY_EMISSIVES_KEY, ""))
 				? ShadingMode.ALL : ShadingMode.NON_EMISSIVE;
 		}
+
 		return ShadingMode.DEFAULT;
 	}
 
@@ -82,16 +86,16 @@ public final class GlowtoneConfig {
 		return shading;
 	}
 
-	public static ColouredLightingMode colouredLighting() {
+	public static ColoredLightingMode coloredLighting() {
 		if (!loaded) load();
-		return colouredLighting;
+		return coloredLighting;
 	}
 
-	public static void setColouredLighting(ColouredLightingMode mode) {
+	public static void setColoredLighting(ColoredLightingMode mode) {
 		if (!loaded) load();
-		if (colouredLighting == mode) return;
+		if (coloredLighting == mode) return;
 
-		colouredLighting = mode;
+		coloredLighting = mode;
 		save();
 	}
 
@@ -170,17 +174,17 @@ public final class GlowtoneConfig {
 			final JsonObject json = GsonHelper.parse(reader);
 			bloom = Mth.clamp(GsonHelper.getAsInt(json, BLOOM_KEY, DEFAULT_BLOOM), BloomOption.MIN, BloomOption.MAX);
 			edgeHighlight = Mth.clamp(GsonHelper.getAsInt(json, EDGE_HIGHLIGHT_KEY, DEFAULT_EDGE_HIGHLIGHT), EdgeHighlightOption.MIN, EdgeHighlightOption.MAX);
-			occlusionStrength = readOcclusionStrength(json);
-			ambientOcclusion = AmbientOcclusionMode.byId(GsonHelper.getAsString(json, AMBIENT_OCCLUSION_KEY, AmbientOcclusionMode.DEFAULT.id()));
+			occlusionStrength = parseOcclusionStrength(json);
+			ambientOcclusion = AmbientOcclusionMode.CODEC.byName(GsonHelper.getAsString(json, AMBIENT_OCCLUSION_KEY, AmbientOcclusionMode.DEFAULT.getSerializedName()));
 			bloomEnabled = bloom > 0;
-			shading = readShading(json);
-			colouredLighting = readColouredLighting(json);
+			shading = parseShadingMode(json);
+			coloredLighting = parseColoredLightingMode(json);
 		} catch (IOException | RuntimeException exception) {
 			LOGGER.error("Failed to read {}", path, exception);
 		}
 	}
 
-	private static int readOcclusionStrength(JsonObject json) {
+	private static int parseOcclusionStrength(JsonObject json) {
 		if (json.has(OCCLUSION_SCALE_KEY)) {
 			return clampOcclusion(GsonHelper.getAsInt(json, OCCLUSION_SCALE_KEY, DEFAULT_OCCLUSION_STRENGTH));
 		}
@@ -195,12 +199,12 @@ public final class GlowtoneConfig {
 		return Mth.clamp(value, OcclusionStrengthOption.MIN, OcclusionStrengthOption.MAX);
 	}
 
-	private static ColouredLightingMode readColouredLighting(JsonObject json) {
-		final String name = GsonHelper.getAsString(json, COLOURED_LIGHTING_KEY, ColouredLightingMode.SUBTLE.name());
+	private static ColoredLightingMode parseColoredLightingMode(JsonObject json) {
+		final String name = GsonHelper.getAsString(json, COLORED_LIGHTING_KEY, ColoredLightingMode.SUBTLE.name());
 		try {
-			return ColouredLightingMode.valueOf(name.toUpperCase(java.util.Locale.ROOT));
+			return ColoredLightingMode.valueOf(name.toUpperCase(java.util.Locale.ROOT));
 		} catch (IllegalArgumentException exception) {
-			return ColouredLightingMode.SUBTLE;
+			return ColoredLightingMode.SUBTLE;
 		}
 	}
 
@@ -212,15 +216,17 @@ public final class GlowtoneConfig {
 			try (Writer writer = Files.newBufferedWriter(path)) {
 				final JsonObject json = new JsonObject();
 				json.addProperty(BLOOM_KEY, bloom);
-			json.addProperty(EDGE_HIGHLIGHT_KEY, edgeHighlight);
-			json.addProperty(OCCLUSION_SCALE_KEY, occlusionStrength);
-			json.addProperty(AMBIENT_OCCLUSION_KEY, ambientOcclusion.id());
+				json.addProperty(EDGE_HIGHLIGHT_KEY, edgeHighlight);
+				json.addProperty(OCCLUSION_SCALE_KEY, occlusionStrength);
+				json.addProperty(AMBIENT_OCCLUSION_KEY, ambientOcclusion.getSerializedName());
 				json.addProperty(SHADING_KEY, shading.id());
-			json.addProperty(COLOURED_LIGHTING_KEY, colouredLighting.name().toLowerCase(java.util.Locale.ROOT));
+				json.addProperty(COLORED_LIGHTING_KEY, coloredLighting.name().toLowerCase(java.util.Locale.ROOT));
 				writer.write(json.toString());
 			}
 		} catch (IOException exception) {
 			LOGGER.error("Failed to write {}", path, exception);
 		}
 	}
+
+	private GlowtoneConfig() {}
 }

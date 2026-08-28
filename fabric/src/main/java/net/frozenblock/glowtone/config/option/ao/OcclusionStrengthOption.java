@@ -15,10 +15,11 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config;
+package net.frozenblock.glowtone.config.option.ao;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;

@@ -20,11 +20,11 @@ package net.frozenblock.glowtone.render.light.color;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
-import net.frozenblock.glowtone.config.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
-import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.light.edge.FluidEdges;
 import net.frozenblock.glowtone.render.light.edge.QuadEdges;
 import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
@@ -57,7 +57,7 @@ public final class ChromaBaker {
 
 	public static void beginSection(SectionPos sectionPos, @Nullable RenderSectionRegion region) {
 		final SectionState state = STATE.get();
-		if (!GlowtoneConfig.colouredLighting().isEnabled()) {
+		if (!GlowtoneConfig.coloredLighting().enabled()) {
 			state.begin(sectionPos, null);
 			return;
 		}
@@ -68,7 +68,7 @@ public final class ChromaBaker {
 		SectionPos origin, PalettedContainerRO<BlockState>[] grid
 	) {
 		final SectionState state = STATE.get();
-		if (!GlowtoneConfig.colouredLighting().isEnabled()) {
+		if (!GlowtoneConfig.coloredLighting().enabled()) {
 			state.begin(origin, null);
 			GlowtoneSectionColorStore.publish(origin.asLong(), null, null);
 			return;
@@ -189,7 +189,7 @@ public final class ChromaBaker {
 			this.smoothLighting = Minecraft.getInstance().options.ambientOcclusion().get();
 			if (smoothLightingEnabled != this.smoothLighting) smoothLightingEnabled = this.smoothLighting;
 
-			this.highlightEnabled = EdgeHighlightOption.isEnabled();
+			this.highlightEnabled = EdgeHighlightOption.enabled();
 			this.contactShading =
 				(AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING)
 					|| GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);

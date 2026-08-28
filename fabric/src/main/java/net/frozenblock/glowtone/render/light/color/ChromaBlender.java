@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.render.light.color;
 
-import net.frozenblock.glowtone.config.ColouredLightingMode;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
 
 public final class ChromaBlender {
 	public static final long EMPTY = 0L;
@@ -28,20 +28,20 @@ public final class ChromaBlender {
 	private static final float SUBTLE_SKY_STRENGTH = 0.5F;
 	private static final float SUBTLE_EQUALISE = 0.4F;
 
-	private static volatile ColouredLightingMode mode = ColouredLightingMode.SUBTLE;
+	private static volatile ColoredLightingMode mode = ColoredLightingMode.SUBTLE;
 
-	public static void setMode(ColouredLightingMode value) {
+	public static void setMode(ColoredLightingMode value) {
 		mode = value;
 	}
 
 	public static boolean isEnabled() {
-		return mode.isEnabled();
+		return mode.enabled();
 	}
 
 	public static int skyTintArgb(int rgb) {
-		final ColouredLightingMode current = mode;
-		if (current == ColouredLightingMode.OFF) return NEUTRAL_ARGB;
-		if (current == ColouredLightingMode.INTENSE) return 0xFF000000 | rgb;
+		final ColoredLightingMode current = mode;
+		if (current == ColoredLightingMode.OFF) return NEUTRAL_ARGB;
+		if (current == ColoredLightingMode.INTENSE) return 0xFF000000 | rgb;
 
 		return 0xFF000000
 			| (towardWhite((rgb >> 16) & 0xFF) << 16)
@@ -53,7 +53,7 @@ public final class ChromaBlender {
 		return Math.round(255F - (255 - channel) * SUBTLE_SKY_STRENGTH);
 	}
 
-	public static ColouredLightingMode mode() {
+	public static ColoredLightingMode mode() {
 		return mode;
 	}
 
@@ -138,7 +138,7 @@ public final class ChromaBlender {
 		float blue = blueSum / brightestSum;
 
 		final float fade = Math.min(1F, strongest / (float) FULL_TINT_LEVEL);
-		final boolean intense = mode == ColouredLightingMode.INTENSE;
+		final boolean intense = mode == ColoredLightingMode.INTENSE;
 
 		if (intense) {
 			final float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;

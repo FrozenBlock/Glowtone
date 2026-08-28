@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.ShadingOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.server.packs.resources.ResourceManager;

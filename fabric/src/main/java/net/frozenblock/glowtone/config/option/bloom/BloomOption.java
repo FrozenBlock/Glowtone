@@ -15,63 +15,51 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config;
+package net.frozenblock.glowtone.config.option.bloom;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public final class EdgeHighlightOption {
+public final class BloomOption {
 	public static final int MIN = 0;
 	public static final int MAX = 100;
-
-	public static final int DEFAULT = 25;
-
-	private static final float STRENGTH_AT_DEFAULT = 0.08F;
-	private static final String CAPTION = "options.glowtone.edge_highlight";
+	public static final int PRESET_DEFAULT = GlowtoneConfig.DEFAULT_BLOOM;
+	private static final String CAPTION = "options.glowtone.bloom";
 	private static @Nullable OptionInstance<Integer> instance;
-
-	private EdgeHighlightOption() {}
 
 	public static synchronized OptionInstance<Integer> get() {
 		if (instance == null) {
 			instance = new OptionInstance<>(
 				CAPTION,
 				OptionInstance.cachedConstantTooltip(Component.translatable(CAPTION + ".tooltip")),
-				Options::genericValueOrOffLabel,
+				(caption, value) -> value == MAX
+					? Options.genericValueLabel(caption, Component.translatable("options.glowtone.bloom.max"))
+					: Options.genericValueOrOffLabel(caption, value),
 				new OptionInstance.IntRange(MIN, MAX),
-				GlowtoneConfig.edgeHighlight(),
-				EdgeHighlightOption::apply
+				GlowtoneConfig.bloom(),
+				BloomOption::apply
 			);
 		}
 		return instance;
 	}
 
-	public static boolean isEnabled() {
-		return GlowtoneConfig.edgeHighlight() > MIN;
-	}
-
 	public static float strength() {
-		return GlowtoneConfig.edgeHighlight() / (float) DEFAULT * STRENGTH_AT_DEFAULT;
+		return get().get() / (float) MAX;
 	}
 
-	private static boolean pendingReload;
+	public static void set(int value) {
+		get().set(value);
+	}
 
 	private static void apply(int value) {
-		if (GlowtoneConfig.edgeHighlight() == value) return;
-
-		GlowtoneConfig.setEdgeHighlight(value);
-		pendingReload = true;
+		GlowtoneConfig.setBloom(value);
 	}
 
-	public static void flush() {
-		if (!pendingReload) return;
-		pendingReload = false;
-
-		GlowtoneReload.request();
-	}
+	private BloomOption() {}
 }

@@ -22,19 +22,23 @@ import net.caffeinemc.mods.sodium.api.config.option.OptionFlag;
 import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
 import net.caffeinemc.mods.sodium.api.config.structure.ConfigBuilder;
 import net.caffeinemc.mods.sodium.api.config.structure.OptionGroupBuilder;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.config.AmbientOcclusionMode;
-import net.frozenblock.glowtone.config.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.BloomOption;
-import net.frozenblock.glowtone.config.ColouredLightingMode;
-import net.frozenblock.glowtone.config.ColouredLightingOption;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.option.bloom.BloomOption;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
-import net.frozenblock.glowtone.config.OcclusionStrengthOption;
-import net.frozenblock.glowtone.config.ShadingMode;
-import net.frozenblock.glowtone.config.ShadingOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingMode;
+import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
+@Environment(EnvType.CLIENT)
 public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 	private static final String OFF = "options.off";
 
@@ -42,14 +46,14 @@ public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 	public void registerConfigLate(ConfigBuilder builder) {
 		final OptionGroupBuilder lighting = builder.createOptionGroup()
 			.setName(caption("coloured_lighting"))
-			.addOption(builder.createEnumOption(id("coloured_lighting"), ColouredLightingMode.class)
+			.addOption(builder.createEnumOption(id("coloured_lighting"), ColoredLightingMode.class)
 				.setName(caption("coloured_lighting"))
 				.setTooltip(tooltip("coloured_lighting"))
 				.setElementNameProvider(mode -> Component.translatable(mode.translationKey()))
-				.setDefaultValue(ColouredLightingMode.SUBTLE)
+				.setDefaultValue(ColoredLightingMode.SUBTLE)
 				.setBinding(
-					mode -> ColouredLightingOption.get().set(mode),
-					GlowtoneConfig::colouredLighting
+					mode -> ColoredLightingOption.get().set(mode),
+					GlowtoneConfig::coloredLighting
 				)
 				.setStorageHandler(GlowtoneSodiumConfig::saved)
 				.setImpact(OptionImpact.MEDIUM)
@@ -100,7 +104,8 @@ public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 				.setFlags(OptionFlag.REQUIRES_RENDERER_RELOAD));
 
 		final OptionGroupBuilder emissives = builder.createOptionGroup()
-			.setName(caption("bloom"))
+			.setName(caption("emissives"))
+
 			.addOption(builder.createIntegerOption(id("bloom"))
 				.setName(caption("bloom"))
 				.setTooltip(tooltip("bloom"))
@@ -136,8 +141,7 @@ public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 				.addOptionGroup(emissives));
 	}
 
-	private static void saved() {
-	}
+	private static void saved() {}
 
 	private static Component percent(int value) {
 		return value == 0
@@ -153,7 +157,7 @@ public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 		return Component.translatable("options.glowtone." + key + ".tooltip");
 	}
 
-	private static net.minecraft.resources.Identifier id(String path) {
+	private static Identifier id(String path) {
 		return GlowtoneConstants.id(path);
 	}
 }

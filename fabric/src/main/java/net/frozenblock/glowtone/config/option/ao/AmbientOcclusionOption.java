@@ -15,12 +15,14 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config;
+package net.frozenblock.glowtone.config.option.ao;
 
 import com.mojang.serialization.Codec;
 import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
@@ -29,13 +31,8 @@ import org.jspecify.annotations.Nullable;
 @Environment(EnvType.CLIENT)
 public final class AmbientOcclusionOption {
 	public static final String CAPTION = "options.glowtone.ambient_occlusion";
-
 	public static final boolean SHADER_CONTACT_SHADING = true;
-
 	public static final boolean BAKED_CONTACT_SHADING = false;
-
-	private static final Codec<AmbientOcclusionMode> CODEC =
-		Codec.STRING.xmap(AmbientOcclusionMode::byId, AmbientOcclusionMode::id);
 	private static @Nullable OptionInstance<AmbientOcclusionMode> instance;
 
 	private AmbientOcclusionOption() {}
@@ -46,7 +43,7 @@ public final class AmbientOcclusionOption {
 				CAPTION,
 				OptionInstance.cachedConstantTooltip(Component.translatable(CAPTION + ".tooltip")),
 				(caption, value) -> Component.translatable(value.translationKey()),
-				new OptionInstance.Enum<>(List.of(AmbientOcclusionMode.values()), CODEC),
+				new OptionInstance.Enum<>(List.of(AmbientOcclusionMode.values()), AmbientOcclusionMode.CODEC),
 				GlowtoneConfig.ambientOcclusion(),
 				AmbientOcclusionOption::apply
 			);

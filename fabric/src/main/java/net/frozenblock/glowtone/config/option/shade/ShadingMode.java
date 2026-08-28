@@ -15,27 +15,28 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config;
+package net.frozenblock.glowtone.config.option.shade;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.StringRepresentable;
 
 @Environment(EnvType.CLIENT)
-public enum ShadingMode {
+public enum ShadingMode implements StringRepresentable {
 	NONE("none"),
 	NON_EMISSIVE("non_emissive"),
 	ALL("all");
-
 	public static final ShadingMode DEFAULT = NON_EMISSIVE;
+	public static final EnumCodec<ShadingMode> CODEC = StringRepresentable.fromEnum(ShadingMode::values);
 
-	private final String id;
+	private final String name;
 
-	ShadingMode(String id) {
-		this.id = id;
+	ShadingMode(String name) {
+		this.name = name;
 	}
 
 	public String id() {
-		return this.id;
+		return this.name;
 	}
 
 	public boolean unshadeEmissive() {
@@ -47,13 +48,18 @@ public enum ShadingMode {
 	}
 
 	public String translationKey() {
-		return "options.glowtone.shading." + this.id;
+		return "options.glowtone.shading." + this.name;
 	}
 
 	public static ShadingMode byId(String id) {
 		for (ShadingMode mode : values()) {
-			if (mode.id.equals(id)) return mode;
+			if (mode.name.equals(id)) return mode;
 		}
 		return DEFAULT;
+	}
+
+	@Override
+	public String getSerializedName() {
+		return this.name;
 	}
 }

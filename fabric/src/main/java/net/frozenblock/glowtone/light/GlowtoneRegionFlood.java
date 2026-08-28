@@ -113,6 +113,8 @@ public final class GlowtoneRegionFlood {
 	private int minBlockZ;
 	private boolean lit;
 
+	public GlowtoneRegionFlood() {}
+
 	public static int entityCellIndex(int localX, int localY, int localZ) {
 		return (((localY & 15) >> 1) * ENTITY_SPAN + ((localZ & 15) >> 1)) * ENTITY_SPAN + ((localX & 15) >> 1);
 	}

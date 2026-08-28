@@ -15,27 +15,23 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config;
+package net.frozenblock.glowtone.config.option.ao;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.util.StringRepresentable;
 
 @Environment(EnvType.CLIENT)
-public enum AmbientOcclusionMode {
+public enum AmbientOcclusionMode implements StringRepresentable {
 	OFF("off"),
 	FAST("fast"),
 	FANCY("fancy");
-
 	public static final AmbientOcclusionMode DEFAULT = FANCY;
+	public static final EnumCodec<AmbientOcclusionMode> CODEC = StringRepresentable.fromEnum(AmbientOcclusionMode::values);
+	private final String name;
 
-	private final String id;
-
-	AmbientOcclusionMode(String id) {
-		this.id = id;
-	}
-
-	public String id() {
-		return this.id;
+	AmbientOcclusionMode(String name) {
+		this.name = name;
 	}
 
 	public boolean vanilla() {
@@ -47,13 +43,11 @@ public enum AmbientOcclusionMode {
 	}
 
 	public String translationKey() {
-		return "options.glowtone.ambient_occlusion." + this.id;
+		return "options.glowtone.ambient_occlusion." + this.name;
 	}
 
-	public static AmbientOcclusionMode byId(String id) {
-		for (AmbientOcclusionMode mode : values()) {
-			if (mode.id.equals(id)) return mode;
-		}
-		return DEFAULT;
+	@Override
+	public String getSerializedName() {
+		return this.name;
 	}
 }

@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.BloomOption;
-import net.frozenblock.glowtone.config.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.ColouredLightingOption;
-import net.frozenblock.glowtone.config.OcclusionStrengthOption;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
-import net.frozenblock.glowtone.config.ShadingOption;
+import net.frozenblock.glowtone.config.option.bloom.BloomOption;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -70,7 +70,7 @@ public class VideoSettingsScreenMixin {
 
 	@ModifyReturnValue(method = "qualityOptions", at = @At("RETURN"))
 	private static OptionInstance<?>[] glowtone$addOptions(OptionInstance<?>[] original, Options options) {
-		final List<OptionInstance<?>> afterSmoothLighting = List.of(AmbientOcclusionOption.get(), OcclusionStrengthOption.get(), ColouredLightingOption.get());
+		final List<OptionInstance<?>> afterSmoothLighting = List.of(AmbientOcclusionOption.get(), OcclusionStrengthOption.get(), ColoredLightingOption.get());
 		final List<OptionInstance<?>> afterTransparency = List.of(ShadingOption.get(), BloomOption.get(), EdgeHighlightOption.get());
 		final ArrayList<OptionInstance<?>> withGlowtone = new ArrayList<>(original.length + afterSmoothLighting.size() + afterTransparency.size());
 		boolean placedColour = false;

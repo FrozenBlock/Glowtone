@@ -12,6 +12,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import static net.frozenblock.glowtone.light.color.data.block.BlockLightProperties.*;
 
 @Environment(EnvType.CLIENT)
 public final class GTLightPropertiesProvider extends LightPropertiesProvider {

@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.colour;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
 import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.render.light.edge.FluidEdges;
@@ -47,7 +47,7 @@ public class FluidRendererEdgesMixin {
 		FluidState fluidState,
 		CallbackInfo info
 	) {
-		if (!EdgeHighlightOption.isEnabled()) return;
+		if (!EdgeHighlightOption.enabled()) return;
 		ChromaBaker.state().beginFluid(level, pos);
 	}
 
@@ -75,7 +75,7 @@ public class FluidRendererEdgesMixin {
 		boolean addBackFace,
 		CallbackInfo info
 	) {
-		if (!EdgeHighlightOption.isEnabled()) return;
+		if (!EdgeHighlightOption.enabled()) return;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		final BlockAndTintGetter level = state.fluidLevel();

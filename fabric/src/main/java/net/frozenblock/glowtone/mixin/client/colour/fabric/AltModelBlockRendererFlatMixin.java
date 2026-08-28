@@ -22,8 +22,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl;
-import net.frozenblock.glowtone.config.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.render.light.color.ChromaBaker;
 import net.frozenblock.glowtone.render.light.color.ChromaBlender;
@@ -58,7 +58,7 @@ public class AltModelBlockRendererFlatMixin {
 		}
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
-		final boolean highlight = EdgeHighlightOption.isEnabled()
+		final boolean highlight = EdgeHighlightOption.enabled()
 			&& quad.ambientOcclusion().orElse(true);
 		final boolean glowtoneAo = AmbientOcclusionOption.glowtoneActive();
 		final boolean shade = (glowtoneAo && AmbientOcclusionOption.SHADER_CONTACT_SHADING)

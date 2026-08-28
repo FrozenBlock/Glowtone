@@ -27,8 +27,6 @@ import net.minecraft.client.gui.screens.LoadingOverlay;
 public final class GlowtoneReload {
 	private static volatile boolean pending;
 
-	private GlowtoneReload() {}
-
 	public static void register() {
 		ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
 			if (pending) request();
@@ -47,4 +45,6 @@ public final class GlowtoneReload {
 		minecraft.reloadResourcePacks();
 		return true;
 	}
+
+	private GlowtoneReload() {}
 }

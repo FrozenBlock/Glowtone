@@ -22,10 +22,10 @@ import java.util.Set;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.config.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
-import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.minecraft.resources.Identifier;
 
@@ -87,11 +87,11 @@ public final class GlowtoneEmissiveShaders {
 	}
 
 	private static boolean edgeDebugColour() {
-		return GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.EDGE_HIGHLIGHTS);
+		return GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.EDGE_HIGHLIGHT);
 	}
 
 	public static boolean toggleEdgeDebugColour() {
-		return GlowtoneDebugEntries.toggle(GlowtoneDebugEntries.EDGE_HIGHLIGHTS);
+		return GlowtoneDebugEntries.toggle(GlowtoneDebugEntries.EDGE_HIGHLIGHT);
 	}
 
 	private static final String EDGE_DATA_HEADER = """

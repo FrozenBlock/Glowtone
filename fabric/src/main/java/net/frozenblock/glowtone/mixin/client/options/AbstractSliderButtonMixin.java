@@ -19,8 +19,8 @@ package net.frozenblock.glowtone.mixin.client.options;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.EdgeHighlightOption;
-import net.frozenblock.glowtone.config.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;

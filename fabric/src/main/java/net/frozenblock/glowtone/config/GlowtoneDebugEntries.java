@@ -20,6 +20,7 @@ package net.frozenblock.glowtone.config;
 import java.util.Map;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.mixin.client.options.DebugScreenEntriesInvoker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugEntryNoop;
@@ -31,25 +32,19 @@ import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public final class GlowtoneDebugEntries {
-	public static final Identifier EDGE_HIGHLIGHTS =
-		Identifier.fromNamespaceAndPath("glowtone", "glowtone_highlights");
-
-	public static final Identifier AMBIENT_OCCLUSION =
-		Identifier.fromNamespaceAndPath("glowtone", "glowtone_occlusion");
-
+	public static final Identifier EDGE_HIGHLIGHT = GlowtoneConstants.id("edge_highlight");
+	public static final Identifier AMBIENT_OCCLUSION = GlowtoneConstants.id("ambient_occlusion");
 	private static boolean registered;
 	private static boolean settingOurselves;
 	private static volatile boolean occlusionOn;
 	private static volatile boolean edgeOn;
-
-	private GlowtoneDebugEntries() {}
 
 	public static synchronized void register() {
 		if (registered) return;
 		registered = true;
 
 		try {
-			DebugScreenEntriesInvoker.glowtone$register(EDGE_HIGHLIGHTS, new DebugEntryNoop());
+			DebugScreenEntriesInvoker.glowtone$register(EDGE_HIGHLIGHT, new DebugEntryNoop());
 			DebugScreenEntriesInvoker.glowtone$register(AMBIENT_OCCLUSION, new DebugEntryNoop());
 			seedProfiles();
 		} catch (Throwable failure) {
@@ -61,14 +56,15 @@ public final class GlowtoneDebugEntries {
 		for (Map<Identifier, DebugScreenEntryStatus> profile : DebugScreenEntries.PROFILES.values()) {
 			try {
 				profile.putIfAbsent(AMBIENT_OCCLUSION, DebugScreenEntryStatus.NEVER);
-				profile.putIfAbsent(EDGE_HIGHLIGHTS, DebugScreenEntryStatus.NEVER);
+				profile.putIfAbsent(EDGE_HIGHLIGHT, DebugScreenEntryStatus.NEVER);
 			} catch (UnsupportedOperationException immutable) {
 				return;
 			}
 		}
 	}
 
-	private static @Nullable DebugScreenEntryList list() {
+	@Nullable
+	private static DebugScreenEntryList list() {
 		final Minecraft minecraft = Minecraft.getInstance();
 		return minecraft == null ? null : minecraft.debugEntries;
 	}
@@ -110,7 +106,7 @@ public final class GlowtoneDebugEntries {
 
 	public static void statusChanged(Identifier id) {
 		if (settingOurselves || !registered) return;
-		if (!AMBIENT_OCCLUSION.equals(id) && !EDGE_HIGHLIGHTS.equals(id)) return;
+		if (!AMBIENT_OCCLUSION.equals(id) && !EDGE_HIGHLIGHT.equals(id)) return;
 
 		final DebugScreenEntryList entries = list();
 		if (entries == null) return;
@@ -121,4 +117,6 @@ public final class GlowtoneDebugEntries {
 		set(id, now);
 		GlowtoneReload.request();
 	}
+
+	private GlowtoneDebugEntries() {}
 }

@@ -20,8 +20,8 @@ package net.frozenblock.glowtone;
 import net.fabricmc.api.ClientModInitializer;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
-import net.frozenblock.glowtone.config.ColouredLightingOption;
-import net.frozenblock.glowtone.config.ShadingOption;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.GlowtoneReload;
@@ -35,7 +35,7 @@ public final class GlowtoneClient implements ClientModInitializer {
 		GlowtoneDebugEntries.register();
 		GlowtoneReload.register();
 		ShadingOption.applyFlags(GlowtoneConfig.shading());
-		ColouredLightingOption.applyMode(GlowtoneConfig.colouredLighting());
+		ColoredLightingOption.applyMode(GlowtoneConfig.coloredLighting());
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("block_light"), new BlockStateLightPropertiesLoader());
 

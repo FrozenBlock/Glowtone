@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.config.BloomOption;
+import net.frozenblock.glowtone.config.option.bloom.BloomOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Vector4f;
