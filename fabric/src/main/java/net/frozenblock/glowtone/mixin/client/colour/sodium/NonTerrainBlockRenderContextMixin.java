@@ -21,7 +21,7 @@ import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRend
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;

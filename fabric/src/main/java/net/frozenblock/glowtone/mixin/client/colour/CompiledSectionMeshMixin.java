@@ -17,8 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
-import net.frozenblock.glowtone.render.light.color.impl.GlowtoneSectionColors;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.impl.GlowtoneSectionColors;
 import net.minecraft.client.renderer.chunk.CompiledSectionMesh;
 import net.minecraft.client.renderer.chunk.SectionCompiler;
 import net.minecraft.client.renderer.chunk.TranslucencyPointOfView;

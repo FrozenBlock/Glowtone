@@ -15,12 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render.light.edge;
+package net.frozenblock.glowtone.light.edge;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;

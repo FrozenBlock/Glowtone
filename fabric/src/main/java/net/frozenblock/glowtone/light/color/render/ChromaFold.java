@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render.light.color;
+package net.frozenblock.glowtone.light.color.render;
 
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 

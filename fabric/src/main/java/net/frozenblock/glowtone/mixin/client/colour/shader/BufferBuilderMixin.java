@@ -19,10 +19,10 @@ package net.frozenblock.glowtone.mixin.client.colour.shader;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
-import net.frozenblock.glowtone.render.light.color.ChromaBlender;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
-import net.frozenblock.glowtone.render.light.edge.QuadEdges;
+import net.frozenblock.glowtone.light.edge.QuadEdges;
 import net.frozenblock.glowtone.render.GlowtoneVertexFormats;
 import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Final;

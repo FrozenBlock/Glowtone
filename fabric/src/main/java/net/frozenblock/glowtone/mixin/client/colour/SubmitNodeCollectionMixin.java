@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.SubmitNodeCollection;
 import net.minecraft.client.renderer.rendertype.RenderType;

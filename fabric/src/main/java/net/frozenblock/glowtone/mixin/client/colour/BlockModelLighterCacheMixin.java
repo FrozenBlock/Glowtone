@@ -22,7 +22,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.client.renderer.block.BlockModelLighter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

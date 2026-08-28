@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.VertexSorting;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.client.renderer.chunk.SectionCompiler;

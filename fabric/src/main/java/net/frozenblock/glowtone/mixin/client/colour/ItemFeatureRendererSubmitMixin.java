@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
-import net.frozenblock.glowtone.render.light.color.impl.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.resources.model.geometry.BakedQuad;

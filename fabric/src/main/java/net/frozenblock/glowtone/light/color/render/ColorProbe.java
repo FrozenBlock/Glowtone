@@ -15,12 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render.light.color;
+package net.frozenblock.glowtone.light.color.render;
 
 import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.mixin.client.colour.ViewAreaInvoker;
-import net.frozenblock.glowtone.render.light.color.impl.GlowtoneSectionColors;
+import net.frozenblock.glowtone.light.color.render.impl.GlowtoneSectionColors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ViewArea;

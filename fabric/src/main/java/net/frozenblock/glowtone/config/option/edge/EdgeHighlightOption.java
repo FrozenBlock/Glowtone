@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.config.option.highlight;
+package net.frozenblock.glowtone.config.option.edge;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

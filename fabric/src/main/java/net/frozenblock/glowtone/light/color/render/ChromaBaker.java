@@ -15,19 +15,19 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render.light.color;
+package net.frozenblock.glowtone.light.color.render;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
-import net.frozenblock.glowtone.render.light.edge.FluidEdges;
-import net.frozenblock.glowtone.render.light.edge.QuadEdges;
-import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.light.edge.FluidEdges;
+import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.minecraft.client.Minecraft;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.FilterColorHelper;
@@ -150,7 +150,7 @@ public final class ChromaBaker {
 		private final QuadEdges pendingEdges = new QuadEdges();
 		private final EdgeNeighbours edgeNeighbours = new EdgeNeighbours();
 		private float @Nullable [] modelFaces;
-		private final FluidEdges fluidRims = new FluidEdges();
+		private final FluidEdges fluidEdges = new FluidEdges();
 		private @Nullable BlockAndTintGetter fluidLevel;
 		private final BlockPos.MutableBlockPos fluidPos = new BlockPos.MutableBlockPos();
 		private boolean fluidQuad;
@@ -338,8 +338,8 @@ public final class ChromaBaker {
 			return this.fluidPos;
 		}
 
-		public FluidEdges fluidRims() {
-			return this.fluidRims;
+		public FluidEdges fluidEdges() {
+			return this.fluidEdges;
 		}
 
 		public void beginFluidQuadEdges() {

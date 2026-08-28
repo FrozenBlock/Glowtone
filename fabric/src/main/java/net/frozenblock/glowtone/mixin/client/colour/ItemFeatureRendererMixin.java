@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

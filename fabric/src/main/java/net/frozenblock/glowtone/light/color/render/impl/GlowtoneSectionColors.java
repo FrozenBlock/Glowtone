@@ -15,15 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render.light.color.impl;
+package net.frozenblock.glowtone.light.color.render.impl;
 
-public interface GlowtoneChromaTinted {
+import org.jspecify.annotations.Nullable;
 
-	default int glowtone$chromaTint() {
-		throw new AssertionError();
-	}
+public interface GlowtoneSectionColors {
+	short @Nullable [] glowtone$sectionColors();
 
-	default void glowtone$setChromaTint(int tint) {
-		throw new AssertionError();
-	}
+	short @Nullable [] glowtone$sectionSkyHues();
 }

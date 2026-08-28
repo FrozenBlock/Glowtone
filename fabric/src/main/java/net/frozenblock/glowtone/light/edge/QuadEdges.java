@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render.light.edge;
+package net.frozenblock.glowtone.light.edge;
 
 import com.mojang.datafixers.util.Function5;
 import net.fabricmc.api.EnvType;
@@ -24,7 +24,7 @@ import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;

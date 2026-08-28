@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

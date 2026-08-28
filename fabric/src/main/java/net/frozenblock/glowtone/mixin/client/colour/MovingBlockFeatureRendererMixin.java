@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
-import net.frozenblock.glowtone.render.light.entity.SmoothEntityLightingHelper;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.entity.SmoothEntityLightingHelper;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.LightCoordsUtil;

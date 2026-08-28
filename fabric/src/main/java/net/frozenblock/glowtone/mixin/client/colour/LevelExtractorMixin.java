@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
-import net.frozenblock.glowtone.render.light.entity.SmoothEntityLightingHelper;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.entity.SmoothEntityLightingHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;

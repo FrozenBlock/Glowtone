@@ -21,7 +21,7 @@ import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
-import net.frozenblock.glowtone.render.light.color.ChromaBlender;
+import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;

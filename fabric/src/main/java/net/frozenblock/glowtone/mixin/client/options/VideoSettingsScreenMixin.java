@@ -26,7 +26,7 @@ import net.frozenblock.glowtone.config.option.bloom.BloomOption;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
-import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;

@@ -27,9 +27,9 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.DefaultFl
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
-import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
-import net.frozenblock.glowtone.render.light.edge.FluidEdges;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -101,7 +101,7 @@ public class DefaultFluidRendererMixin {
 		final int originY = fluidPos.getY() & 15;
 		final int originZ = fluidPos.getZ() & 15;
 
-		final FluidEdges rims = state.fluidRims();
+		final FluidEdges rims = state.fluidEdges();
 		rims.quad(
 			originX + quad.getX(0), originY + quad.getY(0), originZ + quad.getZ(0), quad.getTexU(0), quad.getTexV(0),
 			originX + quad.getX(1), originY + quad.getY(1), originZ + quad.getZ(1), quad.getTexU(1), quad.getTexV(1),

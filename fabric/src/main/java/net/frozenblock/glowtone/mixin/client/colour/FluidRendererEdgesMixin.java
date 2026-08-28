@@ -20,10 +20,10 @@ package net.frozenblock.glowtone.mixin.client.colour;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.option.highlight.EdgeHighlightOption;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
-import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
-import net.frozenblock.glowtone.render.light.edge.FluidEdges;
+import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.core.BlockPos;
@@ -86,18 +86,19 @@ public class FluidRendererEdgesMixin {
 		final int originY = pos.getY() & 15;
 		final int originZ = pos.getZ() & 15;
 
-		final FluidEdges rims = state.fluidRims();
-		rims.quad(
+		final FluidEdges edges = state.fluidEdges();
+		edges.quad(
 			x0, y0, z0, u0, v0,
 			x1, y1, z1, u1, v1,
 			x2, y2, z2, u2, v2,
 			x3, y3, z3, u3, v3,
-			color, lightCoords
+			color,
+			lightCoords
 		);
-		if (!rims.locate(originX, originY, originZ)) return;
+		if (!edges.locate(originX, originY, originZ)) return;
 
 		final EdgeNeighbours neighbours = state.edgeNeighbours();
 		neighbours.gather(level, pos);
-		rims.emit(state, builder, neighbours, originX, originY, originZ);
+		edges.emit(state, builder, neighbours, originX, originY, originZ);
 	}
 }

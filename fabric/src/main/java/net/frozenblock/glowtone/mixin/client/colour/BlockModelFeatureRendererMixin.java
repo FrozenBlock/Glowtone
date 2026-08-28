@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.render.light.color.ChromaFold;
-import net.frozenblock.glowtone.render.light.color.impl.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
 import net.minecraft.client.renderer.feature.FeatureFrameContext;
 import org.spongepowered.asm.mixin.Mixin;

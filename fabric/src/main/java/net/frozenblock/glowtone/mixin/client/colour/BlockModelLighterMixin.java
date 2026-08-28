@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;

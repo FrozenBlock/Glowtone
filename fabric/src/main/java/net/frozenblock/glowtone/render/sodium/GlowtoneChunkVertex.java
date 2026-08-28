@@ -21,10 +21,10 @@ import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
-import net.frozenblock.glowtone.render.light.color.ChromaBlender;
-import net.frozenblock.glowtone.render.light.edge.QuadEdges;
+import net.frozenblock.glowtone.light.color.render.ChromaBlender;
+import net.frozenblock.glowtone.light.edge.QuadEdges;
 import org.lwjgl.system.MemoryUtil;
 
 public final class GlowtoneChunkVertex implements ChunkVertexType {

@@ -18,8 +18,8 @@
 package net.frozenblock.glowtone.render.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
-import net.frozenblock.glowtone.render.light.color.ChromaBaker;
-import net.frozenblock.glowtone.render.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
