@@ -26,5 +26,6 @@
   "options.glowtone.shading.none": "None",
   "options.glowtone.shading.non_emissive": "Non-emissive",
   "options.glowtone.shading.all": "All",
-  "options.glowtone.shading.tooltip": "Which surfaces are dimmed by the directional lighting.\nNone: nothing is dimmed, including entities.\nNon-emissive: glowing surfaces are lit evenly, everything else is dimmed.\nAll: most glowing surfaces are dimmed like any other."
+  "options.glowtone.shading.tooltip": "Which surfaces are dimmed by the directional lighting.\nNone: nothing is dimmed, including entities.\nNon-emissive: glowing surfaces are lit evenly, everything else is dimmed.\nAll: most glowing surfaces are dimmed like any other.",
+  "options.glowtone.page": "Glowtone"
 }

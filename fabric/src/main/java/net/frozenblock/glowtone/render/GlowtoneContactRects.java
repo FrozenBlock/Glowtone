@@ -83,10 +83,9 @@ public final class GlowtoneContactRects {
 
 	public static final float COVERAGE_SCALE = 2F;
 
-	private static final int PIECES = 512;
-
 	private final float[] rects = new float[CAPACITY * 4];
 	private final int[] packed = new int[WORDS];
+	private final AABB[][] cells = new AABB[9][];
 	private int count;
 
 	private static final int CACHE_BITS = 12;
@@ -97,11 +96,6 @@ public final class GlowtoneContactRects {
 	private final boolean[] cacheUsed = new boolean[CACHE_SLOTS];
 	private final int[] cacheWords = new int[CACHE_SLOTS * WORDS];
 
-	private final float[] pieces = new float[PIECES * 4];
-	private final float[] edgesU = new float[CAPACITY * 2];
-	private final float[] edgesV = new float[CAPACITY * 2];
-	private int pieceCount;
-	private boolean decomposed;
 
 	public int[] build(
 		GlowtoneEdgeNeighbours neighbours,
@@ -114,7 +108,6 @@ public final class GlowtoneContactRects {
 		boolean cacheable
 	) {
 		this.count = 0;
-		this.decomposed = false;
 		long signature = (((long) normalAxis * 31 + (normalPositive ? 1 : 0)) * 31
 			+ Float.floatToRawIntBits(plane)) * 31
 			+ Float.floatToRawIntBits(minU) * 7L + Float.floatToRawIntBits(maxU) * 13L
@@ -127,6 +120,7 @@ public final class GlowtoneContactRects {
 		final int normalCell = Mth.clamp(Mth.floor(probe), -1, 1);
 		final float probeLocal = probe - normalCell;
 
+		int cell = 0;
 		for (int cellU = -1; cellU <= 1; cellU++) {
 			for (int cellV = -1; cellV <= 1; cellV++) {
 				final AABB[] boxes = neighbours.boxesAt(
@@ -134,7 +128,21 @@ public final class GlowtoneContactRects {
 					cellOn(1, normalAxis, normalCell, axisU, cellU, axisV, cellV),
 					cellOn(2, normalAxis, normalCell, axisU, cellU, axisV, cellV)
 				);
+				this.cells[cell++] = boxes;
 				signature = signature * 1099511628211L + System.identityHashCode(boxes);
+			}
+		}
+
+		final int slot = (int) (signature ^ (signature >>> 32)) & CACHE_MASK;
+		if (cacheable && this.cacheUsed[slot] && this.cacheKeys[slot] == signature) {
+			System.arraycopy(this.cacheWords, slot * WORDS, this.packed, 0, WORDS);
+			return this.packed;
+		}
+
+		cell = 0;
+		for (int cellU = -1; cellU <= 1; cellU++) {
+			for (int cellV = -1; cellV <= 1; cellV++) {
+				final AABB[] boxes = this.cells[cell++];
 				if (boxes == null || boxes.length == 0) continue;
 
 				for (final AABB box : boxes) {
@@ -149,14 +157,6 @@ public final class GlowtoneContactRects {
 					);
 				}
 			}
-		}
-
-		final int slot = (int) (signature ^ (signature >>> 32)) & CACHE_MASK;
-		if (cacheable && this.cacheUsed[slot] && this.cacheKeys[slot] == signature) {
-			System.arraycopy(this.cacheWords, slot * WORDS, this.packed, 0, WORDS);
-			this.count = 0;
-			this.decomposed = false;
-			return this.packed;
 		}
 
 		if (this.count > TRIM) keepNearest(spanU, spanV);
@@ -278,7 +278,7 @@ public final class GlowtoneContactRects {
 
 			for (int j = 0; j < GRID_NODES; j++) {
 				final float occlusion = occlusionAt(u, j / (GRID_NODES - 1F) * spanV);
-				final int level = Math.clamp(Math.round(occlusion / COVERAGE_SCALE * 31F), 0, 31);
+				final int level = Math.clamp(Math.round(occlusion * 31F), 0, 31);
 				putBits(this.packed, (i * GRID_NODES + j) * GRID_BITS, GRID_BITS, level);
 			}
 		}
@@ -297,107 +297,20 @@ public final class GlowtoneContactRects {
 	}
 
 	public float occlusionAt(float u, float v) {
-		ensureDecomposed();
-
-		float covered = 0F;
-		for (int i = 0; i < this.pieceCount; i++) {
-			final int p = i * 4;
-			covered += kernelSpan(this.pieces[p] - u, this.pieces[p + 1] - u)
-				* kernelSpan(this.pieces[p + 2] - v, this.pieces[p + 3] - v);
+		float nearest = 0F;
+		for (int i = 0; i < this.count; i++) {
+			final int at = i * 4;
+			final float du = Math.max(Math.max(this.rects[at] - u, u - this.rects[at + 1]), 0F);
+			final float dv = Math.max(Math.max(this.rects[at + 2] - v, v - this.rects[at + 3]), 0F);
+			nearest = Math.max(nearest, 2F * (1F - kernelBelow((float) Math.sqrt(du * du + dv * dv))));
 		}
-		return covered * COVERAGE_SCALE;
+		return nearest;
 	}
 
 	private static float kernelBelow(float t) {
 		final float reach = Math.min(Math.abs(t) / RADIUS_UNITS, 1F);
 		final float half = 0.5F * reach * (2F - reach);
 		return t < 0F ? 0.5F - half : 0.5F + half;
-	}
-
-	private static float kernelSpan(float low, float high) {
-		return Math.max(0F, kernelBelow(high) - kernelBelow(low));
-	}
-
-	private void ensureDecomposed() {
-		if (this.decomposed) return;
-		this.decomposed = true;
-		decompose();
-	}
-
-	private void decompose() {
-		this.pieceCount = 0;
-		if (this.count == 0) return;
-
-		int uCount = 0;
-		int vCount = 0;
-		for (int i = 0; i < this.count; i++) {
-			final int r = i * 4;
-			uCount = insert(this.edgesU, uCount, this.rects[r]);
-			uCount = insert(this.edgesU, uCount, this.rects[r + 1]);
-			vCount = insert(this.edgesV, vCount, this.rects[r + 2]);
-			vCount = insert(this.edgesV, vCount, this.rects[r + 3]);
-		}
-
-		for (int row = 0; row + 1 < vCount; row++) {
-			final float lowV = this.edgesV[row];
-			final float highV = this.edgesV[row + 1];
-			final float midV = (lowV + highV) * 0.5F;
-
-			int column = 0;
-			while (column + 1 < uCount) {
-				if (!coveredAt((this.edgesU[column] + this.edgesU[column + 1]) * 0.5F, midV)) {
-					column++;
-					continue;
-				}
-
-				final float lowU = this.edgesU[column];
-				while (column + 1 < uCount
-					&& coveredAt((this.edgesU[column] + this.edgesU[column + 1]) * 0.5F, midV)) {
-					column++;
-				}
-				addPiece(lowU, this.edgesU[column], lowV, highV);
-			}
-		}
-	}
-
-	private void addPiece(float lowU, float highU, float lowV, float highV) {
-		for (int i = 0; i < this.pieceCount; i++) {
-			final int p = i * 4;
-			if (near(this.pieces[p], lowU) && near(this.pieces[p + 1], highU)
-				&& near(this.pieces[p + 3], lowV)) {
-				this.pieces[p + 3] = highV;
-				return;
-			}
-		}
-		if (this.pieceCount >= PIECES) return;
-
-		final int at = this.pieceCount++ * 4;
-		this.pieces[at] = lowU;
-		this.pieces[at + 1] = highU;
-		this.pieces[at + 2] = lowV;
-		this.pieces[at + 3] = highV;
-	}
-
-	private boolean coveredAt(float u, float v) {
-		for (int i = 0; i < this.count; i++) {
-			final int r = i * 4;
-			if (this.rects[r] <= u && u <= this.rects[r + 1]
-				&& this.rects[r + 2] <= v && v <= this.rects[r + 3]) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static int insert(float[] into, int count, float value) {
-		int at = 0;
-		while (at < count && into[at] < value) at++;
-		if (at < count && near(into[at], value)) return count;
-		if (count >= into.length) return count;
-
-		System.arraycopy(into, at, into, at + 1, count - at);
-		into[at] = value;
-		return count + 1;
 	}
 
 	private int[] pack() {

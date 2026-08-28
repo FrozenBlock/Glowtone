@@ -27,6 +27,7 @@ import net.frozenblock.glowtone.config.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.render.GlowtoneChromaBake;
 import net.frozenblock.glowtone.render.GlowtoneChromaBlend;
+import net.frozenblock.glowtone.render.GlowtoneChromaFold;
 import net.frozenblock.glowtone.render.GlowtoneEdgeNeighbours;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -49,6 +50,12 @@ public class AltModelBlockRendererFlatMixin {
 	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0)
 	private boolean glowtone$pinFlatQuadColour(boolean original, MutableQuadView quad) {
 		if (!original) return original;
+
+		if (!GlowtoneChromaBake.buildingSection()) {
+			for (int vertex = 0; vertex < 4; vertex++) {
+				quad.color(vertex, GlowtoneChromaFold.tintMovingBlockQuadColor(quad.color(vertex)));
+			}
+		}
 
 		final GlowtoneChromaBake.SectionState state = GlowtoneChromaBake.state();
 		final boolean highlight = EdgeHighlightOption.isEnabled()

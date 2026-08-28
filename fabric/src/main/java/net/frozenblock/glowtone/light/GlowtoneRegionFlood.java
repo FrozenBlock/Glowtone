@@ -28,7 +28,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.jspecify.annotations.Nullable;
@@ -99,6 +99,8 @@ public final class GlowtoneRegionFlood {
 
 	private @Nullable RenderSectionRegion region;
 	private SectionCopy @Nullable [] sections;
+	private final PalettedContainerRO<BlockState>[] containers = newContainerGrid();
+	private boolean containersBound;
 	private boolean skyTinted;
 	private boolean debugRegion;
 	private int minBlockX;
@@ -108,6 +110,51 @@ public final class GlowtoneRegionFlood {
 
 	public static int entityCellIndex(int localX, int localY, int localZ) {
 		return (((localY & 15) >> 1) * ENTITY_SPAN + ((localZ & 15) >> 1)) * ENTITY_SPAN + ((localX & 15) >> 1);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static PalettedContainerRO<BlockState>[] newContainerGrid() {
+		return new PalettedContainerRO[SECTION_GRID * SECTION_GRID * SECTION_GRID];
+	}
+
+	public boolean begin(
+		PalettedContainerRO<BlockState>[] grid, int minSectionX, int minSectionY, int minSectionZ
+	) {
+		this.release();
+
+		if (grid.length != SECTION_GRID * SECTION_GRID * SECTION_GRID) return false;
+
+		System.arraycopy(grid, 0, this.containers, 0, grid.length);
+
+		final int emitterMask = emitterMask(this.containers);
+		final boolean dynamic = GlowtoneDynamicLights.anyWithin(
+			minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN);
+		if (emitterMask == 0 && !dynamic) return false;
+
+		if (this.levels == null) {
+			this.levels = new short[CELLS];
+			this.states = new BlockState[CELLS];
+		}
+
+		this.region = null;
+		this.sections = null;
+		this.debugRegion = false;
+		this.containersBound = true;
+		this.minBlockX = minSectionX << 4;
+		this.minBlockY = minSectionY << 4;
+		this.minBlockZ = minSectionZ << 4;
+		this.lit = false;
+		this.skyTinted = false;
+
+		java.util.Arrays.fill(this.levels, (short) 0);
+		java.util.Arrays.fill(this.states, null);
+		java.util.Arrays.fill(this.bucketSizes, 0);
+
+		this.seed(this.containers, emitterMask);
+		this.seedDynamicLights();
+		this.propagate();
+
+		return this.lit;
 	}
 
 	public boolean begin(RenderSectionRegion region, int centreSectionX, int centreSectionY, int centreSectionZ) {
@@ -128,9 +175,17 @@ public final class GlowtoneRegionFlood {
 			return false;
 		}
 
-		final int emitterMask = emitterMask(sections);
-		final int tintMask = SKY_TINT_ENABLED ? tintMask(sections) : 0;
-		if (emitterMask == 0 && tintMask == 0) return false;
+		for (int slot = 0; slot < sections.length; slot++) {
+			this.containers[slot] = sections[slot].debug ? null : sections[slot].section;
+		}
+
+		final int emitterMask = emitterMask(this.containers);
+		final int tintMask = SKY_TINT_ENABLED ? tintMask(this.containers) : 0;
+		if (emitterMask == 0 && tintMask == 0
+			&& !GlowtoneDynamicLights.anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN)
+		) {
+			return false;
+		}
 
 		if (this.levels == null) {
 			this.levels = new short[CELLS];
@@ -139,6 +194,7 @@ public final class GlowtoneRegionFlood {
 
 		this.region = region;
 		this.sections = sections;
+		this.containersBound = true;
 		this.debugRegion = sections[index27(1, 1, 1)].debug;
 		this.minBlockX = minSectionX << 4;
 		this.minBlockY = minSectionY << 4;
@@ -146,14 +202,17 @@ public final class GlowtoneRegionFlood {
 		this.lit = false;
 		this.skyTinted = SKY_TINT_ENABLED && tintMask != 0;
 
-		if (this.skyTinted) this.floodSkyTint(sections, tintMask);
+		if (this.skyTinted) this.floodSkyTint(this.containers, tintMask);
 
-		if (emitterMask != 0) {
+		final boolean anyDynamic = GlowtoneDynamicLights.anyWithin(
+			this.minBlockX, this.minBlockY, this.minBlockZ, SPAN);
+		if (emitterMask != 0 || anyDynamic) {
 			Arrays.fill(this.levels, (short) 0);
 			Arrays.fill(this.states, null);
 			Arrays.fill(this.bucketSizes, 0);
 
-			this.seed(sections, emitterMask);
+			this.seed(this.containers, emitterMask);
+			if (anyDynamic) this.seedDynamicLights();
 			this.propagate();
 		}
 		return this.lit || this.skyTinted;
@@ -181,7 +240,7 @@ public final class GlowtoneRegionFlood {
 		return GlowtoneChannels.toNormalisedRgb(GlowtoneChannels.pack(GlowtoneChannels.MAX_LEVEL, hue));
 	}
 
-	private void floodSkyTint(SectionCopy[] sections, int tintMask) {
+	private void floodSkyTint(PalettedContainerRO<BlockState>[] sections, int tintMask) {
 		if (this.skyHues == null) {
 			this.skyHues = new short[CELLS];
 			this.skyLevels = new byte[CELLS];
@@ -321,14 +380,11 @@ public final class GlowtoneRegionFlood {
 		if (budget > 0) this.skyQueue.enqueue(cell | (budget << 22));
 	}
 
-	private static int tintMask(SectionCopy[] sections) {
+	private static int tintMask(PalettedContainerRO<BlockState>[] sections) {
 		int mask = 0;
 
 		for (int i = 0; i < sections.length; i++) {
-			final SectionCopy sectionCopy = sections[i];
-			if (sectionCopy.debug) continue;
-
-			final PalettedContainer<BlockState> container = sectionCopy.section;
+			final PalettedContainerRO<BlockState> container = sections[i];
 			if (container == null || !container.maybeHas(TINTS_DAYLIGHT)) continue;
 
 			mask |= 1 << i;
@@ -339,6 +395,8 @@ public final class GlowtoneRegionFlood {
 
 	public void release() {
 		this.region = null;
+		this.containersBound = false;
+		java.util.Arrays.fill(this.containers, null);
 		this.sections = null;
 		this.debugRegion = false;
 		this.lit = false;
@@ -346,7 +404,7 @@ public final class GlowtoneRegionFlood {
 	}
 
 	public int cellLevelsAt(int worldX, int worldY, int worldZ) {
-		if (!this.lit || this.sections == null) return 0;
+		if (!this.lit || !this.containersBound) return 0;
 
 		final int baseX = worldX & ~(ENTITY_CELL_BLOCKS - 1);
 		final int baseY = worldY & ~(ENTITY_CELL_BLOCKS - 1);
@@ -372,9 +430,7 @@ public final class GlowtoneRegionFlood {
 	}
 
 	public int levelsAt(int worldX, int worldY, int worldZ) {
-		if (!this.lit) return 0;
-
-		if (this.sections == null) return 0;
+		if (!this.lit || !this.containersBound) return 0;
 
 		int rx = worldX - this.minBlockX;
 		int ry = worldY - this.minBlockY;
@@ -385,7 +441,7 @@ public final class GlowtoneRegionFlood {
 	}
 
 	public BlockState stateAt(int worldX, int worldY, int worldZ) {
-		if (this.sections == null) return AIR;
+		if (!this.containersBound) return AIR;
 
 		final int rx = worldX - this.minBlockX;
 		final int ry = worldY - this.minBlockY;
@@ -481,14 +537,11 @@ public final class GlowtoneRegionFlood {
 		return hue == 0 ? WHITE_RGB : GlowtoneChannels.toNormalisedRgb(GlowtoneChannels.pack(GlowtoneChannels.MAX_LEVEL, hue));
 	}
 
-	private static int emitterMask(SectionCopy[] sections) {
+	private static int emitterMask(PalettedContainerRO<BlockState>[] sections) {
 		int mask = 0;
 
 		for (int i = 0; i < sections.length; i++) {
-			final SectionCopy sectionCopy = sections[i];
-			if (sectionCopy.debug) continue;
-
-			final PalettedContainer<BlockState> container = sectionCopy.section;
+			final PalettedContainerRO<BlockState> container = sections[i];
 			if (container == null || !container.maybeHas(EMITS_LIGHT)) continue;
 
 			mask |= 1 << i;
@@ -497,14 +550,36 @@ public final class GlowtoneRegionFlood {
 		return mask;
 	}
 
-	private void seed(SectionCopy[] sections, int emitterMask) {
+	private void seedDynamicLights() {
+		final int[] dynamic = GlowtoneDynamicLights.snapshot();
+
+		for (int index = 0; index < dynamic.length; index += GlowtoneDynamicLights.STRIDE) {
+			final int rx = dynamic[index] - this.minBlockX;
+			final int ry = dynamic[index + 1] - this.minBlockY;
+			final int rz = dynamic[index + 2] - this.minBlockZ;
+			if (isOutside(rx, ry, rz)) continue;
+
+			final int packed = GlowtoneChannels.emissionLevels(dynamic[index + 3], dynamic[index + 4]);
+			if (packed == 0) continue;
+			if (!reaches(GlowtoneChannels.level(packed), rx, ry, rz)) continue;
+
+			final int cell = cellIndex(rx, ry, rz);
+			final int merged =
+				GlowtoneChannels.merge(this.levels[cell] & GlowtoneChannels.LEVEL_MASK, packed);
+			this.levels[cell] = (short) (merged & GlowtoneChannels.LEVEL_MASK);
+			this.lit = true;
+			this.enqueue(rx, ry, rz, merged, true, 0);
+		}
+	}
+
+	private void seed(PalettedContainerRO<BlockState>[] sections, int emitterMask) {
 		for (int sectionZ = 0; sectionZ < SECTION_GRID; sectionZ++) {
 			for (int sectionY = 0; sectionY < SECTION_GRID; sectionY++) {
 				for (int sectionX = 0; sectionX < SECTION_GRID; sectionX++) {
 					int slot = index27(sectionX, sectionY, sectionZ);
 					if ((emitterMask & (1 << slot)) == 0) continue;
 
-					final PalettedContainer<BlockState> container = sections[slot].section;
+					final PalettedContainerRO<BlockState> container = sections[slot];
 					if (container == null) continue;
 
 					this.seedSection(container, sectionX << 4, sectionY << 4, sectionZ << 4);
@@ -513,7 +588,7 @@ public final class GlowtoneRegionFlood {
 		}
 	}
 
-	private void seedSection(PalettedContainer<BlockState> container, int baseX, int baseY, int baseZ) {
+	private void seedSection(PalettedContainerRO<BlockState> container, int baseX, int baseY, int baseZ) {
 		for (int localY = 0; localY < 16; localY++) {
 			final int ry = baseY + localY;
 			final int distanceY = axisDistance(ry);
@@ -692,10 +767,9 @@ public final class GlowtoneRegionFlood {
 				: region.getBlockState(this.scratchPos.set(this.minBlockX + x, this.minBlockY + y, this.minBlockZ + z));
 		}
 
-		final SectionCopy[] sections = this.sections;
-		if (sections == null) return AIR;
+		if (!this.containersBound) return AIR;
 
-		final PalettedContainer<BlockState> container = sections[index27(x >> 4, y >> 4, z >> 4)].section;
+		final PalettedContainerRO<BlockState> container = this.containers[index27(x >> 4, y >> 4, z >> 4)];
 		return container == null ? AIR : container.get(x & 15, y & 15, z & 15);
 	}
 

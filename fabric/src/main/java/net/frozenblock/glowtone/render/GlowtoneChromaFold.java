@@ -48,6 +48,10 @@ public final class GlowtoneChromaFold {
 
 	private static int itemTint = NO_TINT;
 
+	private static int blockTint = NO_TINT;
+
+	private static int movingBlockTint = NO_TINT;
+
 	public static int resolveEntity(double x, double feetY, double z, float eyeHeight, int lightCoords) {
 		final GlowtoneColorProbe engine = GlowtoneColorProbe.get();
 		final int blockX = Mth.floor(x);
@@ -319,6 +323,35 @@ public final class GlowtoneChromaFold {
 
 	public static void endItemQuads() {
 		itemTint = NO_TINT;
+	}
+
+	public static void beginBlockQuads(int tint, int lightCoords, RenderType renderType) {
+		blockTint = lightCoords == LightCoordsUtil.FULL_BRIGHT || !liesUnderLightmap(renderType)
+			? NO_TINT : tint;
+	}
+
+	public static void beginBlockQuads(int tint) {
+		blockTint = tint;
+	}
+
+	public static void endBlockQuads() {
+		blockTint = NO_TINT;
+	}
+
+	public static void beginMovingBlockQuads(int tint) {
+		movingBlockTint = tint;
+	}
+
+	public static void endMovingBlockQuads() {
+		movingBlockTint = NO_TINT;
+	}
+
+	public static int tintMovingBlockQuadColor(int quadColor) {
+		return movingBlockTint == NO_TINT ? quadColor : ARGB.multiply(quadColor, movingBlockTint);
+	}
+
+	public static int tintBlockQuadColor(int quadColor) {
+		return blockTint == NO_TINT ? quadColor : ARGB.multiply(quadColor, blockTint);
 	}
 
 	public static int tintItemColor(int quadColor) {

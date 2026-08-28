@@ -271,6 +271,7 @@ public final class GlowtoneFluidRims {
 		final float innerHigh = inwards(outerHigh, origin);
 		if (Math.abs(outerLow - innerLow) <= MATCH && Math.abs(outerHigh - innerHigh) <= MATCH) return;
 
+		boolean lit = around;
 		if (!around && this.faceAxis == 1 && this.facePositive) {
 			final int originAlong = along == 0 ? originX : along == 1 ? originY : originZ;
 			if (!backing(neighbours, axis, positive, outerLow - origin, along, originAlong)) return;
@@ -278,6 +279,8 @@ public final class GlowtoneFluidRims {
 			alongLow = Math.max(alongLow, this.reach[0]);
 			alongHigh = Math.min(alongHigh, this.reach[1]);
 			if (alongHigh - alongLow <= MATCH) return;
+
+			lit = true;
 		}
 
 		put(0, axis, plane, face, innerLow, along, alongLow);
@@ -293,7 +296,7 @@ public final class GlowtoneFluidRims {
 		if (normalOn(axis) > 0F == positive != around) swap(1, 3);
 
 		state.pendingEdges().setFluidRim(
-			neighbours, originX, originY, originZ, axis, positive, face, around,
+			neighbours, originX, originY, originZ, axis, positive, face, lit,
 			this.rim[0], this.rim[1], this.rim[2],
 			this.rim[3], this.rim[4], this.rim[5],
 			this.rim[6], this.rim[7], this.rim[8],

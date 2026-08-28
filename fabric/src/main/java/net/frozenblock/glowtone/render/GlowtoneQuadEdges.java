@@ -122,6 +122,17 @@ public final class GlowtoneQuadEdges {
 		build(quad, quad.lightFace(), neighbours, highlight, shade, bake, false);
 	}
 
+	public void setQuad(
+		float[] positions,
+		@Nullable Direction face,
+		GlowtoneEdgeNeighbours neighbours,
+		boolean highlight,
+		boolean shade
+	) {
+		System.arraycopy(positions, 0, this.positions, 0, 12);
+		build(null, face, neighbours, highlight, shade, false, false);
+	}
+
 	public void setFluidRim(
 		GlowtoneEdgeNeighbours neighbours,
 		int originX, int originY, int originZ,

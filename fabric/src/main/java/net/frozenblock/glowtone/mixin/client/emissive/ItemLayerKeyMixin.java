@@ -30,7 +30,9 @@ import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.client.resources.model.sprite.Material;
+import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -60,13 +62,18 @@ public class ItemLayerKeyMixin {
 		final Material.Baked emissiveMaterial = modelBakery.materials().get(new Material(emissiveLocation), () -> "generated item");
 		if (emissiveMaterial == null || emissiveMaterial.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return;
 
+		final int lightEmission = emissiveMaterial.sprite().contents()
+			.getAdditionalMetadata(EmissiveMetadataSection.TYPE)
+			.map(EmissiveMetadataSection::lightEmission)
+			.orElse(LightEngine.MAX_LEVEL);
+
 		final BakedQuad.MaterialInfo emissiveMaterialInfo = interner.materialInfo(
 			BakedQuad.MaterialInfo.of(
 				emissiveMaterial,
 				emissiveMaterial.sprite().transparency(),
 				materialInfo.tintIndex(),
-				materialInfo.shade(),
-				materialInfo.lightEmission()
+				materialInfo.shade() && lightEmission != LightEngine.MAX_LEVEL,
+				lightEmission
 			)
 		);
 		original.call(builder, interner, modelState, emissiveMaterialInfo);

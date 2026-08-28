@@ -62,8 +62,41 @@ public final class GlowtoneColorShaders {
 
 	private GlowtoneColorShaders() {}
 
+	private static final String SODIUM_INIT = "_vert_init();";
+	private static final String SODIUM_OUT_COLOR = "out vec4 v_Color;";
+	private static final String SODIUM_SET_COLOR = "v_Color = _vert_color * texture(u_LightTex, _vert_tex_light_coord);";
+
+	private static final String SODIUM_IN_CHROMA = """
+		in vec4 a_GlowtoneChroma;
+		in vec4 a_GlowtoneSkyChroma;
+
+		""";
+
+	private static final String SODIUM_SPLIT = """
+		    vec4 glowtone_fullLight = texture(u_LightTex, _vert_tex_light_coord);
+		    vec4 glowtone_skyOnlyLight = texture(u_LightTex, vec2(0.0, _vert_tex_light_coord.y));
+		    vec3 glowtone_blockLight = max(glowtone_fullLight.rgb - glowtone_skyOnlyLight.rgb, vec3(0.0));
+		    const float GLOWTONE_CHROMA_SCALE = 2.0;
+		    v_Color = _vert_color * vec4(
+		        glowtone_skyOnlyLight.rgb * a_GlowtoneSkyChroma.rgb
+		            + glowtone_blockLight * a_GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE,
+		        glowtone_fullLight.a);""";
+
+	private static String patchSodiumTerrain(String source) {
+		if (!source.contains(SODIUM_INIT) || !source.contains(SODIUM_SET_COLOR)
+			|| !source.contains(SODIUM_OUT_COLOR) || source.contains("a_GlowtoneChroma")) {
+			return source;
+		}
+
+		return source
+			.replace(SODIUM_OUT_COLOR, SODIUM_IN_CHROMA + SODIUM_OUT_COLOR)
+			.replace(SODIUM_SET_COLOR, SODIUM_SPLIT);
+	}
+
 	public static String patchTerrainShader(Identifier id, ShaderType type, String source) {
-		if (type != ShaderType.VERTEX || !source.contains(MAIN) || !id.equals(TERRAIN_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR)) return source;
+		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
+		if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
+		if (!id.equals(TERRAIN_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR)) return source;
 
 		final String preTerrainSource = source.substring(0, source.lastIndexOf("#version"));
 		String terrainOnlySource = source.substring(source.lastIndexOf("#version"));

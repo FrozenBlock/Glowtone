@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.frozenblock.glowtone.light.GlowtoneDynamicLights;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.frozenblock.glowtone.config.ColouredLightingOption;
 import net.frozenblock.glowtone.config.ShadingOption;
@@ -32,6 +33,7 @@ public final class GlowtoneClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		GlowtoneDebugEntries.register();
 		GlowtoneReload.register();
+		GlowtoneDynamicLights.register();
 		ShadingOption.applyFlags(GlowtoneConfig.shading());
 		ColouredLightingOption.applyMode(GlowtoneConfig.colouredLighting());
 

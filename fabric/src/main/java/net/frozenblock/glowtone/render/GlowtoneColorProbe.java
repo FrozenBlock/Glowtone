@@ -80,8 +80,13 @@ public final class GlowtoneColorProbe {
 		final int slot = Math.floorMod(Long.hashCode(sectionNode), CACHE_SLOTS);
 		final GlowtoneSectionColors mesh = lookup(sectionNode);
 		this.cachedSections[slot] = sectionNode;
-		this.cachedColors[slot] = mesh == null ? null : mesh.glowtone$sectionColors();
-		this.cachedSkyHues[slot] = mesh == null ? null : mesh.glowtone$sectionSkyHues();
+		if (mesh != null) {
+			this.cachedColors[slot] = mesh.glowtone$sectionColors();
+			this.cachedSkyHues[slot] = mesh.glowtone$sectionSkyHues();
+		} else {
+			this.cachedColors[slot] = GlowtoneSectionColorStore.colors(sectionNode);
+			this.cachedSkyHues[slot] = GlowtoneSectionColorStore.skyHues(sectionNode);
+		}
 		this.cacheValid[slot] = true;
 		this.lastSlot = slot;
 		return slot;

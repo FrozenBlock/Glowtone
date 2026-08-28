@@ -29,7 +29,11 @@ public final class GlowtoneBloom {
 
 	public static boolean isEmissiveQuad(BakedQuad quad) {
 		final BakedQuad.MaterialInfo materialInfo = quad.materialInfo();
-		return materialInfo.lightEmission() >= LightEngine.MAX_LEVEL;
+		return isEmissiveLevel(materialInfo.lightEmission());
+	}
+
+	public static boolean isEmissiveLevel(int lightEmission) {
+		return lightEmission >= LightEngine.MAX_LEVEL;
 	}
 
 	public static int unmark(int lightCoords) {

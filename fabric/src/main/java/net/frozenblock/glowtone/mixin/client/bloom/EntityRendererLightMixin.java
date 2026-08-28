@@ -25,6 +25,7 @@ import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.bloom.GlowtoneBloom;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
+import net.frozenblock.glowtone.light.GlowtoneDynamicLights;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -48,7 +49,11 @@ public class EntityRendererLightMixin {
 		)
 	)
 	private int glowtone$noteSelfLit(int blockLight, @Local(argsOnly = true) Entity entity, @Local BlockPos pos) {
-		glowtone$selfLit = blockLight > entity.level().getBrightness(LightLayer.BLOCK, pos);
+		final int dynamic = Math.max(
+			GlowtoneDynamicLights.luminanceOf(entity), GlowtoneDynamicLights.levelAt(pos));
+		final int ambient = Math.max(entity.level().getBrightness(LightLayer.BLOCK, pos), dynamic);
+
+		glowtone$selfLit = entity.isOnFire() || blockLight > ambient;
 		return blockLight;
 	}
 

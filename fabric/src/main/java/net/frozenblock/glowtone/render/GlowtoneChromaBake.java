@@ -17,6 +17,10 @@
 
 package net.frozenblock.glowtone.render;
 
+import net.frozenblock.glowtone.config.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
+import net.frozenblock.glowtone.config.OcclusionStrengthOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.minecraft.client.Minecraft;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
@@ -27,6 +31,7 @@ import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.PalettedContainerRO;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -39,6 +44,8 @@ public final class GlowtoneChromaBake {
 
 	private static final ThreadLocal<SectionState> STATE = ThreadLocal.withInitial(SectionState::new);
 	private static volatile boolean smoothLightingEnabled = true;
+	private static volatile boolean vanillaOcclusion;
+	private static volatile float occlusionScale = 1F;
 
 	public static void beginSection(SectionPos sectionPos, @Nullable RenderSectionRegion region) {
 		final SectionState state = STATE.get();
@@ -47,6 +54,18 @@ public final class GlowtoneChromaBake {
 			return;
 		}
 		state.begin(sectionPos, region);
+	}
+
+	public static void beginSodiumSection(
+		SectionPos origin, PalettedContainerRO<BlockState>[] grid
+	) {
+		final SectionState state = STATE.get();
+		if (!GlowtoneConfig.colouredLighting().isEnabled()) {
+			state.begin(origin, null);
+			GlowtoneSectionColorStore.publish(origin.asLong(), null, null);
+			return;
+		}
+		state.beginSodium(origin, grid);
 	}
 
 	public static void endSection() {
@@ -71,6 +90,13 @@ public final class GlowtoneChromaBake {
 
 	public static boolean smoothLightingEnabled() {
 		return smoothLightingEnabled;
+	}
+
+	public static float occlusionShade(float brightness) {
+		if (!vanillaOcclusion) return 1F;
+
+		final float scale = occlusionScale;
+		return scale == 1F ? brightness : 1F - (1F - brightness) * scale;
 	}
 
 	public static SectionState state() {
@@ -125,6 +151,11 @@ public final class GlowtoneChromaBake {
 		private int usedSkyChroma = NO_PIN;
 		private boolean bound;
 		private boolean lit;
+		private boolean highlightEnabled;
+		private boolean contactShading;
+		private boolean emissiveQuad;
+		private long scratch;
+		private final float[] quadPositions = new float[12];
 		private int originX;
 		private int originY;
 		private int originZ;
@@ -133,7 +164,7 @@ public final class GlowtoneChromaBake {
 			return this.building;
 		}
 
-		void begin(SectionPos sectionPos, @Nullable RenderSectionRegion region) {
+		private void reset() {
 			this.building = true;
 			this.pendingColors = null;
 			this.pendingSkyColors = null;
@@ -148,9 +179,44 @@ public final class GlowtoneChromaBake {
 			this.usedChroma = NO_PIN;
 			this.usedSkyChroma = NO_PIN;
 			this.smoothLighting = Minecraft.getInstance().options.ambientOcclusion().get();
-			smoothLightingEnabled = this.smoothLighting;
+			if (smoothLightingEnabled != this.smoothLighting) smoothLightingEnabled = this.smoothLighting;
+
+			this.highlightEnabled = EdgeHighlightOption.isEnabled();
+			this.contactShading =
+				(AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING)
+					|| GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
+			this.emissiveQuad = false;
+
+			final boolean vanilla = AmbientOcclusionOption.vanillaActive();
+			final float scale = OcclusionStrengthOption.scale();
+			if (vanillaOcclusion != vanilla) vanillaOcclusion = vanilla;
+			if (occlusionScale != scale) occlusionScale = scale;
+		}
+
+		void begin(SectionPos sectionPos, @Nullable RenderSectionRegion region) {
+			this.reset();
 			if (region == null) return;
 
+			final GlowtoneRegionFlood flood = this.bind(sectionPos);
+			flood.begin(region, sectionPos.x(), sectionPos.y(), sectionPos.z());
+			this.latch(flood);
+		}
+
+		void beginSodium(SectionPos sectionPos, PalettedContainerRO<BlockState>[] grid) {
+			this.reset();
+
+			final GlowtoneRegionFlood flood = this.bind(sectionPos);
+			flood.begin(grid, sectionPos.x() - 1, sectionPos.y() - 1, sectionPos.z() - 1);
+			this.latch(flood);
+
+			GlowtoneSectionColorStore.publish(
+				sectionPos.asLong(),
+				this.lit ? flood.downsampleCentre() : null,
+				flood.downsampleCentreSky()
+			);
+		}
+
+		private GlowtoneRegionFlood bind(SectionPos sectionPos) {
 			this.originX = sectionPos.minBlockX();
 			this.originY = sectionPos.minBlockY();
 			this.originZ = sectionPos.minBlockZ();
@@ -158,12 +224,14 @@ public final class GlowtoneChromaBake {
 
 			GlowtoneRegionFlood flood = this.flood;
 			if (flood == null) flood = this.flood = new GlowtoneRegionFlood();
+			return flood;
+		}
 
-			flood.begin(region, sectionPos.x(), sectionPos.y(), sectionPos.z());
+		private void latch(GlowtoneRegionFlood flood) {
 			this.lit = flood.isLit();
 			if (this.smoothLighting) {
 				if (this.lit) Arrays.fill(this.cornerCache, 0);
-				if (this.flood.hasSkyTint()) Arrays.fill(this.skyCornerCache, 0);
+				if (flood.hasSkyTint()) Arrays.fill(this.skyCornerCache, 0);
 			}
 		}
 
@@ -191,6 +259,31 @@ public final class GlowtoneChromaBake {
 			final short[] colors = this.pendingSkyColors;
 			this.pendingSkyColors = null;
 			return colors;
+		}
+
+		public boolean highlightEnabled() {
+			return this.highlightEnabled;
+		}
+
+		public boolean contactShading() {
+			return this.contactShading;
+		}
+
+		public boolean emissiveQuad() {
+			return this.emissiveQuad;
+		}
+
+		public void setEmissiveQuad(boolean emissive) {
+			this.emissiveQuad = emissive;
+		}
+
+		public float[] quadPositions() {
+			return this.quadPositions;
+		}
+
+		public long scratch(int bytes) {
+			if (this.scratch == 0L) this.scratch = org.lwjgl.system.MemoryUtil.nmemAlloc(bytes);
+			return this.scratch;
 		}
 
 		public boolean smoothLighting() {
@@ -411,7 +504,7 @@ public final class GlowtoneChromaBake {
 						final int levels = flood.levelsAt(cornerX + dx, cornerY + dy, cornerZ + dz);
 						if (levels == 0) continue;
 
-						if (tintsLight(flood, cornerX + dx, cornerY + dy, cornerZ + dz)) continue;
+						if (discards(flood, cornerX + dx, cornerY + dy, cornerZ + dz)) continue;
 
 						if (this.smoothLighting) {
 							accumulator = GlowtoneChromaBlend.add(accumulator, levels);
@@ -430,8 +523,9 @@ public final class GlowtoneChromaBake {
 			return flood.stateAt(worldX, worldY, worldZ).getLightDampening() >= OPAQUE_DAMPENING;
 		}
 
-		private static boolean tintsLight(GlowtoneRegionFlood flood, int worldX, int worldY, int worldZ) {
+		private static boolean discards(GlowtoneRegionFlood flood, int worldX, int worldY, int worldZ) {
 			final BlockState state = flood.stateAt(worldX, worldY, worldZ);
+			if (state.getLightEmission() > 0) return false;
 			return GlowtoneTransmittance.filterFor(state) != GlowtoneTransmittance.FULLY_TRANSMISSIVE;
 		}
 
