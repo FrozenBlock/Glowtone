@@ -19,8 +19,12 @@ package net.frozenblock.glowtone.light;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
+import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.GlowtoneEmitterColors;
 import net.frozenblock.glowtone.light.color.GlowtoneTransmittance;
+import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.client.renderer.chunk.SectionCopy;
 import net.minecraft.core.BlockPos;
@@ -33,6 +37,7 @@ import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.jspecify.annotations.Nullable;
 
+@Environment(EnvType.CLIENT)
 public final class GlowtoneRegionFlood {
 	public static final int SPAN = 48;
 	public static final int WHITE_RGB = 0xFFFFFF;
@@ -89,7 +94,7 @@ public final class GlowtoneRegionFlood {
 	private byte[] skyLevels;
 	private short[] columnCover;
 	private byte[] skyReach;
-	private final it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue skyQueue = new it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue();
+	private final IntArrayFIFOQueue skyQueue = new IntArrayFIFOQueue();
 	private @Nullable BlockState[] states;
 
 	private final int[][] buckets = new int[GlowtoneChannels.MAX_LEVEL + 1][];
@@ -117,9 +122,7 @@ public final class GlowtoneRegionFlood {
 		return new PalettedContainerRO[SECTION_GRID * SECTION_GRID * SECTION_GRID];
 	}
 
-	public boolean begin(
-		PalettedContainerRO<BlockState>[] grid, int minSectionX, int minSectionY, int minSectionZ
-	) {
+	public boolean begin(PalettedContainerRO<BlockState>[] grid, int minSectionX, int minSectionY, int minSectionZ) {
 		this.release();
 
 		if (grid.length != SECTION_GRID * SECTION_GRID * SECTION_GRID) return false;
@@ -127,8 +130,7 @@ public final class GlowtoneRegionFlood {
 		System.arraycopy(grid, 0, this.containers, 0, grid.length);
 
 		final int emitterMask = emitterMask(this.containers);
-		final boolean dynamic = GlowtoneDynamicLights.anyWithin(
-			minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN);
+		final boolean dynamic = GlowtoneDynamicLights.get().anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN);
 		if (emitterMask == 0 && !dynamic) return false;
 
 		if (this.levels == null) {
@@ -181,8 +183,9 @@ public final class GlowtoneRegionFlood {
 
 		final int emitterMask = emitterMask(this.containers);
 		final int tintMask = SKY_TINT_ENABLED ? tintMask(this.containers) : 0;
-		if (emitterMask == 0 && tintMask == 0
-			&& !GlowtoneDynamicLights.anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN)
+		if (emitterMask == 0
+			&& tintMask == 0
+			&& !GlowtoneDynamicLights.get().anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN)
 		) {
 			return false;
 		}
@@ -204,8 +207,7 @@ public final class GlowtoneRegionFlood {
 
 		if (this.skyTinted) this.floodSkyTint(this.containers, tintMask);
 
-		final boolean anyDynamic = GlowtoneDynamicLights.anyWithin(
-			this.minBlockX, this.minBlockY, this.minBlockZ, SPAN);
+		final boolean anyDynamic = GlowtoneDynamicLights.get().anyWithin(this.minBlockX, this.minBlockY, this.minBlockZ, SPAN);
 		if (emitterMask != 0 || anyDynamic) {
 			Arrays.fill(this.levels, (short) 0);
 			Arrays.fill(this.states, null);
@@ -551,7 +553,7 @@ public final class GlowtoneRegionFlood {
 	}
 
 	private void seedDynamicLights() {
-		final int[] dynamic = GlowtoneDynamicLights.snapshot();
+		final int[] dynamic = GlowtoneDynamicLights.get().snapshot();
 
 		for (int index = 0; index < dynamic.length; index += GlowtoneDynamicLights.STRIDE) {
 			final int rx = dynamic[index] - this.minBlockX;

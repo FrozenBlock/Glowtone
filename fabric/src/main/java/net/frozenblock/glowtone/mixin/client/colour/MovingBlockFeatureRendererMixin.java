@@ -51,11 +51,9 @@ public class MovingBlockFeatureRendererMixin {
 	) {
 		final MovingBlockRenderState renderState = submit.movingBlockRenderState();
 		final BlockPos pos = renderState.blockPos;
-		final int lightCoords = SmoothEntityLightingHelper.worldLightAt(
-			pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, LightCoordsUtil.FULL_BRIGHT);
+		final int lightCoords = SmoothEntityLightingHelper.worldLightAt(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, LightCoordsUtil.FULL_BRIGHT);
 
-		ChromaFold.beginMovingBlockQuads(
-			ChromaFold.resolveBlockEntity(pos, lightCoords));
+		ChromaFold.beginMovingBlockQuads(ChromaFold.resolveBlockEntity(pos, lightCoords));
 	}
 
 	@Inject(method = "buildGroup", at = @At("RETURN"))
@@ -66,5 +64,4 @@ public class MovingBlockFeatureRendererMixin {
 	) {
 		ChromaFold.endMovingBlockQuads();
 	}
-
 }

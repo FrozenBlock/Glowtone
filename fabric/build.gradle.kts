@@ -28,6 +28,10 @@ val sodium_version: String by project
 val run_sodium: String by project
 val shouldRunSodium = run_sodium == "true"
 
+val lambdynamiclights_version: String by project
+val run_lambdynamiclights: String by project
+val shouldRunLambdynamiclights = run_lambdynamiclights == "true"
+
 base {
     archivesName = archives_base_name
 }
@@ -94,6 +98,12 @@ dependencies {
         implementation("maven.modrinth:sodium:${sodium_version}")
     else
         compileOnly("maven.modrinth:sodium:${sodium_version}")
+
+    // LambDynamicLights
+    if (shouldRunSodium)
+        implementation("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
+    else
+        compileOnly("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
 }
 
 tasks {
@@ -188,6 +198,7 @@ upload {
             optional("trailier-tales")
             optional("the-copperier-age")
             optional("netherier-nether")
+            optional("lambdynamiclights")
         }
     }
 }
