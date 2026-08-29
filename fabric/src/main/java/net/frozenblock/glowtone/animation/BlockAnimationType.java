@@ -6,21 +6,33 @@ import net.minecraft.util.StringRepresentable;
 
 @ClientOnly
 public enum BlockAnimationType implements StringRepresentable {
-	FOLIAGE(1, "foliage"),
-	FIRE(2, "fire"),
-	LAVA(3, "lava"),
-	WATER(4, "water");
+	FOLIAGE("foliage", 1, 2D, 2000D),
+	FIRE("fire", 2, 2D, 20000D),
+	LAVA("lava", 3, 2D, 2000D),
+	WATER("water", 4, 4D, 1000D);
 	public static final Codec<BlockAnimationType> CODEC = StringRepresentable.fromEnum(BlockAnimationType::values);
-	private final int id;
 	private final String name;
+	private final int animationId;
+	private final double positionScale;
+	private final double animationTimeScale;
 
-	BlockAnimationType(int id, String name) {
-		this.id = id;
+	BlockAnimationType(String name, int animationId, double positionDividend, double animationTimeScale) {
 		this.name = name;
+		this.animationId = animationId;
+		this.positionScale = 1D / positionDividend;
+		this.animationTimeScale = animationTimeScale;
 	}
 
-	public int id() {
-		return this.id;
+	public int animationId() {
+		return this.animationId;
+	}
+
+	public double positionScale() {
+		return this.positionScale;
+	}
+
+	public double animationTimeScale() {
+		return this.animationTimeScale;
 	}
 
 	@Override

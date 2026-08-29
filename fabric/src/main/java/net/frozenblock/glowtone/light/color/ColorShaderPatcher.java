@@ -32,7 +32,6 @@ public final class ColorShaderPatcher {
 	private static final String IN_GLOWTONE_CHROMA = """
 		in vec4 GlowtoneChroma;    // colour of the BLOCK light reaching this vertex, stored at 1/GLOWTONE_CHROMA_SCALE
 		in vec4 GlowtoneSkyChroma; // colour DAYLIGHT has picked up on its way down, white where nothing tints it
-
 		""";
 
 	// Split the lightmap: sky-only (block = 0) is the neutral base, and the block-lightColor contribution is

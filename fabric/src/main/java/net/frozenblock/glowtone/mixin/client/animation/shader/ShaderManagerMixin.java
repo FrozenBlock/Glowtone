@@ -47,8 +47,8 @@ public class ShaderManagerMixin {
 
 		final String patchedWithAnimation = AnimationShaderPatcher.patchTerrainShader(condensedId, type, source);
 		if (patchedWithAnimation != null) {
-			return patchedWithAnimation;
 			//System.out.println(patchedWithAnimation);
+			return patchedWithAnimation;
 		}
 
 		return source;
