@@ -14,6 +14,7 @@
     "client.animation.ChunkSectionLayerGroupMixin",
     "client.animation.ChunkSectionLayerMixin",
     "client.animation.ChunkSectionsToRenderMixin",
+    "client.animation.fluid.FluidModelUnbakedMixin",
     "client.animation.shader.ShaderManagerMixin",
     "client.bloom.ChunkSectionsToRenderMixin",
     "client.bloom.EntityRendererLightMixin",
