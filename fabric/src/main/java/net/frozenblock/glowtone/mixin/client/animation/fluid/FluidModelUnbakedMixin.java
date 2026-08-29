@@ -46,6 +46,7 @@ public class FluidModelUnbakedMixin {
 	) {
 		// TODO: metadata-based selection
 		if (stillMaterial.sprite().contents().name().getPath().contains("lava")) return BlockAnimationType.LAVA.getLayerByVanilla(original);
+		if (stillMaterial.sprite().contents().name().getPath().contains("water")) return BlockAnimationType.WATER.getLayerByVanilla(original);
 		return original;
 	}
 }

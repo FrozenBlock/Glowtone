@@ -16,7 +16,8 @@ import net.minecraft.util.StringRepresentable;
 public enum BlockAnimationType implements StringRepresentable {
 	FOLIAGE("foliage"),
 	FIRE("fire"),
-	LAVA("lava");
+	LAVA("lava"),
+	WATER("water"),;
 	public static final Codec<BlockAnimationType> CODEC = StringRepresentable.fromEnum(BlockAnimationType::values);
 	private final String name;
 	private final Supplier<RenderPipeline.Snippet> snippet = Suppliers.memoize(() -> RenderPipeline.builder(RenderPipelines.TERRAIN_SNIPPET)
