@@ -17,6 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -30,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.renderer.block.BlockModelLighter;
 
+@Environment(EnvType.CLIENT)
 @Mixin(BlockModelLighter.class)
 public class BlockModelLighterMixin {
 

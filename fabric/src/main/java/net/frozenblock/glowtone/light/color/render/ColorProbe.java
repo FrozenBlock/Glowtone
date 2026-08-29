@@ -17,10 +17,13 @@
 
 package net.frozenblock.glowtone.light.color.render;
 
-import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
+import java.util.Arrays;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
-import net.frozenblock.glowtone.mixin.client.colour.ViewAreaInvoker;
 import net.frozenblock.glowtone.light.color.render.impl.GlowtoneSectionColors;
+import net.frozenblock.glowtone.mixin.client.colour.ViewAreaInvoker;
+import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ViewArea;
@@ -28,8 +31,8 @@ import net.minecraft.client.renderer.chunk.SectionMesh;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.core.SectionPos;
 import org.jspecify.annotations.Nullable;
-import java.util.Arrays;
 
+@Environment(EnvType.CLIENT)
 public final class ColorProbe {
 	private static final ColorProbe INSTANCE = new ColorProbe();
 	private static final int WHITE_RGB = 0xFFFFFF;

@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -28,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Environment(EnvType.CLIENT)
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
 
@@ -46,16 +49,7 @@ public class EntityRenderDispatcherMixin {
 	}
 
 	@Inject(method = "submit", at = @At("RETURN"))
-	private void glowtone$popEntityTint(
-		EntityRenderState renderState,
-		CameraRenderState camera,
-		double x,
-		double y,
-		double z,
-		PoseStack poseStack,
-		SubmitNodeCollector submitNodeCollector,
-		CallbackInfo info
-	) {
+	private void glowtone$popEntityTint(CallbackInfo info) {
 		ChromaFold.popTint();
 	}
 }

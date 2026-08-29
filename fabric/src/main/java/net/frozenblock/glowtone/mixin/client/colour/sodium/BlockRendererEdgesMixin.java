@@ -32,20 +32,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Mixin(value = BlockRenderer.class, remap = false)
+@Mixin(BlockRenderer.class)
 public class BlockRendererEdgesMixin {
+
 	@Inject(method = "renderModel", at = @At("HEAD"))
-	private void glowtone$captureModelBoxes(
-		BlockStateModel model, BlockState blockState, BlockPos pos, BlockPos origin, CallbackInfo info
-	) {
+	private void glowtone$captureModelBoxes(BlockStateModel model, BlockState state, BlockPos pos, BlockPos origin, CallbackInfo info) {
 		GlowtoneSodiumEdges.beginBlock(
-			model, blockState, ((GlowtoneSodiumContext) this).glowtone$level(), pos);
+			model, state, ((GlowtoneSodiumContext) this).glowtone$level(), pos);
 	}
 
 	@Inject(method = "bufferQuad", at = @At("HEAD"))
-	private void glowtone$buildEdges(
-		MutableQuadViewImpl quad, float[] brightness, Material material, CallbackInfo info
-	) {
+	private void glowtone$buildEdges(MutableQuadViewImpl quad, float[] brightnesses, Material material, CallbackInfo info) {
 		final GlowtoneSodiumContext context = (GlowtoneSodiumContext) this;
 		GlowtoneSodiumEdges.begin(quad, context.glowtone$level(), context.glowtone$pos());
 	}

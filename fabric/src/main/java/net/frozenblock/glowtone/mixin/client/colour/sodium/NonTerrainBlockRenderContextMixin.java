@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
 @Environment(EnvType.CLIENT)
-@Mixin(value = NonTerrainBlockRenderContext.class, remap = false)
+@Mixin(NonTerrainBlockRenderContext.class)
 public class NonTerrainBlockRenderContextMixin {
 
 	@Inject(method = "processQuad", at = @At("HEAD"))

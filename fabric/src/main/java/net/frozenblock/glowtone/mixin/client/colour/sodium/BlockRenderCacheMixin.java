@@ -19,6 +19,8 @@ package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderCache;
 import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumFlood;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -27,8 +29,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.Inject;
 
 @Pseudo
-@Mixin(value = BlockRenderCache.class, remap = false)
+@Environment(EnvType.CLIENT)
+@Mixin(BlockRenderCache.class)
 public class BlockRenderCacheMixin {
+
 	@Inject(method = "init", at = @At("TAIL"))
 	private void glowtone$bindFlood(ChunkRenderContext context, CallbackInfo info) {
 		GlowtoneSodiumFlood.begin(context);

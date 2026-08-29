@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
 @Environment(EnvType.CLIENT)
-@Mixin(value = AltModelBlockRendererImpl.class, remap = false)
+@Mixin(AltModelBlockRendererImpl.class)
 public class AltModelBlockRendererMixin {
 
 	@Inject(method = "transform", at = @At("RETURN"), require = 0)

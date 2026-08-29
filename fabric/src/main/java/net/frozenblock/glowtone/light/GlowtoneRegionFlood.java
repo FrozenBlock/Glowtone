@@ -400,7 +400,7 @@ public final class GlowtoneRegionFlood {
 	public void release() {
 		this.region = null;
 		this.containersBound = false;
-		java.util.Arrays.fill(this.containers, null);
+		Arrays.fill(this.containers, null);
 		this.sections = null;
 		this.debugRegion = false;
 		this.lit = false;

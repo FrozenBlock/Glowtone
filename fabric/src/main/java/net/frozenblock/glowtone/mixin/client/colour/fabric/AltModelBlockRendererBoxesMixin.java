@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
 @Environment(EnvType.CLIENT)
-@Mixin(value = AltModelBlockRendererImpl.class, remap = false)
+@Mixin(AltModelBlockRendererImpl.class)
 public class AltModelBlockRendererBoxesMixin {
 
 	@Inject(method = "tesselateBlock", at = @At("HEAD"), require = 0)

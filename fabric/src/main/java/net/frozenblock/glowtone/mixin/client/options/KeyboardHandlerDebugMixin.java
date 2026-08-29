@@ -55,8 +55,8 @@ public class KeyboardHandlerDebugMixin {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null) return;
 
-		minecraft.showDebugChat(Component.translatable("glowtone.debug.occlusion.help"));
-		minecraft.showDebugChat(Component.translatable("glowtone.debug.edge_colour.help"));
+		minecraft.showDebugChat(Component.translatable("glowtone.debug.ambient_occlusion.help"));
+		minecraft.showDebugChat(Component.translatable("glowtone.debug.edge_highlight.help"));
 	}
 
 	@Inject(
@@ -77,10 +77,10 @@ public class KeyboardHandlerDebugMixin {
 		final String view;
 		final boolean on;
 		if (event.key() == GLOWTONE_OCCLUSION_KEY) {
-			view = "glowtone.debug.occlusion.";
+			view = "glowtone.debug.ambient_occlusion.";
 			on = GlowtoneEmissiveShaders.toggleAoDebug();
 		} else if (event.key() == GLOWTONE_EDGES_KEY) {
-			view = "glowtone.debug.edge_colour.";
+			view = "glowtone.debug.edge_highlight.";
 			on = GlowtoneEmissiveShaders.toggleEdgeDebugColour();
 		} else {
 			return;

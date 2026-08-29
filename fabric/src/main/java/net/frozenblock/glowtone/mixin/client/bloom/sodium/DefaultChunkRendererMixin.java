@@ -24,6 +24,8 @@ import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
 import org.joml.Vector4fc;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +37,8 @@ import java.util.OptionalDouble;
 import java.util.function.Supplier;
 
 @Pseudo
-@Mixin(value = DefaultChunkRenderer.class, remap = false)
+@Environment(EnvType.CLIENT)
+@Mixin(DefaultChunkRenderer.class)
 public class DefaultChunkRendererMixin {
 
 	@WrapOperation(
@@ -68,9 +71,7 @@ public class DefaultChunkRendererMixin {
 			target = "Lcom/mojang/blaze3d/systems/RenderPass;setPipeline(Lcom/mojang/blaze3d/pipeline/RenderPipeline;)V"
 		)
 	)
-	private void glowtone$useEmissivePipeline(
-		RenderPass instance, RenderPipeline pipeline, Operation<Void> original
-	) {
+	private void glowtone$useEmissivePipeline(RenderPass instance, RenderPipeline pipeline, Operation<Void> original) {
 		original.call(instance, GlowtoneBloomRenderer.pipelineFor(pipeline));
 	}
 }

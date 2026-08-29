@@ -19,6 +19,8 @@ package net.frozenblock.glowtone.mixin.client.colour.shader;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
@@ -33,6 +35,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+// TODO: self emission to offset tint with
+@Environment(EnvType.CLIENT)
 @Mixin(BufferBuilder.class)
 public class BufferBuilderMixin {
 	@Shadow

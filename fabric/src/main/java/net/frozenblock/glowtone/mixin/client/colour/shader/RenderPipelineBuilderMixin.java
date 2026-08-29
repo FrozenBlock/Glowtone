@@ -19,6 +19,8 @@ package net.frozenblock.glowtone.mixin.client.colour.shader;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
 import net.frozenblock.glowtone.render.GlowtoneVertexFormats;
 import net.minecraft.resources.Identifier;
@@ -31,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
+@Environment(EnvType.CLIENT)
 @Mixin(RenderPipeline.Builder.class)
 public abstract class RenderPipelineBuilderMixin {
 	@Unique
@@ -52,7 +55,7 @@ public abstract class RenderPipelineBuilderMixin {
 	public abstract RenderPipeline.Builder withVertexBinding(int bindingIndex, VertexFormat vertexFormat);
 
 	@Shadow
-	public abstract RenderPipeline.Builder withShaderDefine(String define);
+	public abstract RenderPipeline.Builder withShaderDefine(String key);
 
 	@Inject(method = "build", at = @At("HEAD"))
 	private void glowtone$useExtendedBlockFormat(CallbackInfoReturnable<RenderPipeline> info) {

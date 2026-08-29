@@ -18,18 +18,22 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
-import net.minecraft.client.renderer.feature.FeatureFrameContext;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-
+@Environment(EnvType.CLIENT)
 @Mixin(BlockModelFeatureRenderer.class)
 public class BlockModelFeatureRendererMixin {
 
@@ -42,10 +46,8 @@ public class BlockModelFeatureRendererMixin {
 		)
 	)
 	private void glowtone$beginBlockQuads(
-		FeatureFrameContext context,
-		List<BlockModelFeatureRenderer.Submit> submits,
 		CallbackInfo info,
-		@Local BlockModelFeatureRenderer.Submit submit
+		@Local(name = "submit") BlockModelFeatureRenderer.Submit submit
 	) {
 		ChromaFold.beginBlockQuads(
 			((GlowtoneChromaTinted) (Object) submit).glowtone$chromaTint(),
@@ -55,20 +57,15 @@ public class BlockModelFeatureRendererMixin {
 	}
 
 	@Inject(method = "buildGroup", at = @At("RETURN"))
-	private void glowtone$endBlockQuads(
-		FeatureFrameContext context,
-		List<BlockModelFeatureRenderer.Submit> submits,
-		CallbackInfo info
-	) {
+	private void glowtone$endBlockQuads(CallbackInfo info) {
 		ChromaFold.endBlockQuads();
 	}
 
-	@ModifyArg(
-		method = "putQuad",
-		at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/QuadInstance;setColor(I)V"),
-		index = 0
-	)
-	private static int glowtone$tintBlockQuad(int quadColor) {
-		return ChromaFold.tintBlockQuadColor(quadColor);
+	@Inject(method = "putQuad", at = @At("HEAD"))
+	private static void glowtone$tintBlockQuad(
+		PoseStack.Pose pose, BakedQuad quad, QuadInstance instance, int baseTintColor, int[] tintLayers, VertexConsumer buffer, CallbackInfo info,
+		@Local(argsOnly = true) LocalIntRef baseTintColorRef
+	) {
+		baseTintColorRef.set(ChromaFold.tintBlockQuadColor(baseTintColorRef.get(), quad.materialInfo().lightEmission()));
 	}
 }

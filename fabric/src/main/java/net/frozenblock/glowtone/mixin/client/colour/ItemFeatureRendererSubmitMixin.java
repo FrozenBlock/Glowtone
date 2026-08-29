@@ -17,21 +17,18 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.world.item.ItemDisplayContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-
+@Environment(EnvType.CLIENT)
 @Mixin(ItemFeatureRenderer.Submit.class)
 public class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
 	@Unique
@@ -50,17 +47,7 @@ public class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$captureChromaTint(
-		PoseStack.Pose pose,
-		ItemDisplayContext displayContext,
-		int lightCoords,
-		int overlayCoords,
-		int outlineColor,
-		int[] tintLayers,
-		List<BakedQuad> quads,
-		ItemStackRenderState.FoilType foilType,
-		CallbackInfo info
-	) {
+	private void glowtone$captureChromaTint(CallbackInfo info) {
 		this.glowtone$chromaTint = ChromaFold.currentTint();
 	}
 }

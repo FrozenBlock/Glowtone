@@ -19,12 +19,13 @@ package net.frozenblock.glowtone.mixin.client.options;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -44,7 +45,7 @@ public class AbstractSliderButtonMixin {
 		glowtone$flush();
 	}
 
-	@org.spongepowered.asm.mixin.Unique
+	@Unique
 	private static void glowtone$flush() {
 		EdgeHighlightOption.flush();
 		OcclusionStrengthOption.flush();

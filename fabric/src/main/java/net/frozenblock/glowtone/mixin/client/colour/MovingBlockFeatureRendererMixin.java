@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.entity.SmoothEntityLightingHelper;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
@@ -32,6 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
+@Environment(EnvType.CLIENT)
 @Mixin(MovingBlockFeatureRenderer.class)
 public class MovingBlockFeatureRendererMixin {
 
@@ -47,7 +50,7 @@ public class MovingBlockFeatureRendererMixin {
 		FeatureFrameContext context,
 		List<MovingBlockFeatureRenderer.Submit> submits,
 		CallbackInfo info,
-		@Local MovingBlockFeatureRenderer.Submit submit
+		@Local(name = "submit") MovingBlockFeatureRenderer.Submit submit
 	) {
 		final MovingBlockRenderState renderState = submit.movingBlockRenderState();
 		final BlockPos pos = renderState.blockPos;
@@ -57,11 +60,7 @@ public class MovingBlockFeatureRendererMixin {
 	}
 
 	@Inject(method = "buildGroup", at = @At("RETURN"))
-	private void glowtone$endMovingBlockQuads(
-		FeatureFrameContext context,
-		List<MovingBlockFeatureRenderer.Submit> submits,
-		CallbackInfo info
-	) {
+	private void glowtone$endMovingBlockQuads(CallbackInfo info) {
 		ChromaFold.endMovingBlockQuads();
 	}
 }

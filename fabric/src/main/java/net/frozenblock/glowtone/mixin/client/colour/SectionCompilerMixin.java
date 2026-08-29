@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour;
 
 import com.mojang.blaze3d.vertex.VertexSorting;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
@@ -28,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@Environment(EnvType.CLIENT)
 @Mixin(SectionCompiler.class)
 public class SectionCompilerMixin {
 
@@ -43,13 +46,7 @@ public class SectionCompilerMixin {
 	}
 
 	@Inject(method = "compile", at = @At("RETURN"))
-	private void glowtone$releaseSection(
-		SectionPos sectionPos,
-		RenderSectionRegion region,
-		VertexSorting vertexSorting,
-		SectionBufferBuilderPack builders,
-		CallbackInfoReturnable<SectionCompiler.Results> info
-	) {
+	private void glowtone$releaseSection(CallbackInfoReturnable<SectionCompiler.Results> info) {
 		ChromaBaker.endSection();
 	}
 }

@@ -17,7 +17,10 @@
 
 package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
+import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkMeshFormats;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.sodium.GlowtoneChunkVertex;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,14 +32,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Mixin(targets = "net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkMeshFormats", remap = false)
+@Environment(EnvType.CLIENT)
+@Mixin(ChunkMeshFormats.class)
 public class ChunkMeshFormatsMixin {
 	@Mutable
 	@Final
 	@Shadow
 	private static ChunkVertexType COMPACT;
 
-	@Inject(method = "<clinit>", at = @At("TAIL"), remap = false)
+	@Inject(method = "<clinit>", at = @At("TAIL"))
 	private static void glowtone$widenTerrainFormat(CallbackInfo info) {
 		COMPACT = new GlowtoneChunkVertex(COMPACT);
 	}

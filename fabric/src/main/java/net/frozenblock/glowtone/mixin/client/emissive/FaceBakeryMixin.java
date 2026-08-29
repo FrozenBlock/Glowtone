@@ -27,6 +27,7 @@ import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.resources.model.cuboid.FaceBakery;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -59,7 +60,7 @@ public class FaceBakeryMixin {
 				lightEmission = emissiveMetadata.lightEmission();
 				isModified = true;
 			} else if (contents.name().getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)) {
-				lightEmission = 15;
+				lightEmission = LightEngine.MAX_LEVEL;
 				isModified = true;
 			}
 		}
@@ -69,7 +70,7 @@ public class FaceBakeryMixin {
 			shade = false;
 		} else if (GlowtoneConstants.GLOWTONE_SHADING) {
 			final boolean wasShaded = shade;
-			shade = shade && lightEmission != 15;
+			shade = shade && lightEmission != LightEngine.MAX_LEVEL;
 			isModified = isModified || wasShaded != shade;
 		}
 

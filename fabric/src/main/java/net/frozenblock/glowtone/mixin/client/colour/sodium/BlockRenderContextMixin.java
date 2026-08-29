@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.AbstractBlockRenderContext;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumContext;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -26,10 +28,13 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Pseudo
-@Mixin(value = AbstractBlockRenderContext.class, remap = false)
+@Environment(EnvType.CLIENT)
+@Mixin(AbstractBlockRenderContext.class)
 public class BlockRenderContextMixin implements GlowtoneSodiumContext {
-	@Shadow protected BlockAndTintGetter level;
-	@Shadow protected BlockPos pos;
+	@Shadow
+	protected BlockAndTintGetter level;
+	@Shadow
+	protected BlockPos pos;
 
 	@Override
 	public BlockAndTintGetter glowtone$level() {

@@ -17,15 +17,15 @@
 
 package net.frozenblock.glowtone.render.sodium;
 
-import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
-import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import org.lwjgl.system.MemoryUtil;
+import com.mojang.blaze3d.GpuFormat;
 
 public final class GlowtoneChunkVertex implements ChunkVertexType {
 	public static final int SODIUM_STRIDE = 20;
@@ -97,8 +97,7 @@ public final class GlowtoneChunkVertex implements ChunkVertexType {
 				final ChunkVertexEncoder.Vertex source = vertices[vertex];
 
 				MemoryUtil.memCopy(scratch + (long) vertex * SODIUM_STRIDE, out, SODIUM_STRIDE);
-				MemoryUtil.memPutInt(
-					out + CHROMA_OFFSET, toAbgr(state.sample(source.x, source.y, source.z)));
+				MemoryUtil.memPutInt(out + CHROMA_OFFSET, toAbgr(state.sample(source.x, source.y, source.z)));
 				MemoryUtil.memPutInt(out + SKY_CHROMA_OFFSET, SKY_CHROMA_ABGR);
 				MemoryUtil.memPutInt(out + FLAGS_OFFSET, flags);
 

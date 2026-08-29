@@ -28,9 +28,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Environment(EnvType.CLIENT)
 @Pseudo
-@Mixin(value = BakedModelEncoder.class, remap = false)
+@Environment(EnvType.CLIENT)
+@Mixin(BakedModelEncoder.class)
 public class BakedModelEncoderMixin {
 
 	@ModifyExpressionValue(
@@ -41,7 +41,8 @@ public class BakedModelEncoderMixin {
 		)
 	)
 	private static int glowtone$markEmissiveQuad(
-		int lightCoords, @Local(argsOnly = true) BakedQuadView quad
+		int lightCoords,
+		@Local(argsOnly = true) BakedQuadView quad
 	) {
 		return GlowtoneBloom.isEmissiveLevel(quad.getLightEmission())
 			? GlowtoneBloom.mark(lightCoords)

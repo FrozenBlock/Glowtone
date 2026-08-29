@@ -17,11 +17,13 @@
 
 package net.frozenblock.glowtone.light.color.render;
 
-import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
-
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import java.util.Arrays;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.LightmapRenderState;
@@ -29,11 +31,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-
+@Environment(EnvType.CLIENT)
 public final class ChromaFold {
 	public static final int NO_TINT = 0;
 	private static final float PACKED_LIGHT_SCALE = LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL;
@@ -345,8 +347,13 @@ public final class ChromaFold {
 		return movingBlockTint == NO_TINT ? quadColor : ARGB.multiply(quadColor, movingBlockTint);
 	}
 
-	public static int tintBlockQuadColor(int quadColor) {
-		return blockTint == NO_TINT ? quadColor : ARGB.multiply(quadColor, blockTint);
+	public static int tintBlockQuadColor(int quadColor, int selfEmission) {
+		if (selfEmission >= LightEngine.MAX_LEVEL || blockTint == NO_TINT) return quadColor;
+		if (selfEmission > 0) {
+			final float selfEmissionStrength = (float) LightEngine.MAX_LEVEL / selfEmission;
+			return ARGB.multiply(quadColor, ARGB.addRgb(blockTint, ARGB.scaleRGB(ARGB.white(0F), selfEmissionStrength)));
+		}
+		return ARGB.multiply(quadColor, blockTint);
 	}
 
 	public static int tintItemColor(int quadColor) {

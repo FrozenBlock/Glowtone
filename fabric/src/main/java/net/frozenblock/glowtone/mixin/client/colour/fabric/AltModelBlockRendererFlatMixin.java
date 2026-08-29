@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Pseudo
 @Environment(EnvType.CLIENT)
-@Mixin(value = AltModelBlockRendererImpl.class, remap = false)
+@Mixin(AltModelBlockRendererImpl.class)
 public class AltModelBlockRendererFlatMixin {
 	@Shadow
 	private BlockAndTintGetter level;
@@ -58,11 +58,9 @@ public class AltModelBlockRendererFlatMixin {
 		}
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
-		final boolean highlight = EdgeHighlightOption.enabled()
-			&& quad.ambientOcclusion().orElse(true);
+		final boolean highlight = EdgeHighlightOption.enabled() && quad.ambientOcclusion().orElse(true);
 		final boolean glowtoneAo = AmbientOcclusionOption.glowtoneActive();
-		final boolean shade = (glowtoneAo && AmbientOcclusionOption.SHADER_CONTACT_SHADING)
-			|| GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
+		final boolean shade = (glowtoneAo && AmbientOcclusionOption.SHADER_CONTACT_SHADING) || GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
 		final boolean bake = glowtoneAo && AmbientOcclusionOption.BAKED_CONTACT_SHADING && !shade;
 
 		if (highlight || shade || bake) {

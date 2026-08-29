@@ -17,20 +17,18 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-
+@Environment(EnvType.CLIENT)
 @Mixin(BlockModelFeatureRenderer.Submit.class)
 public class BlockModelFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
 	@Unique
@@ -49,17 +47,7 @@ public class BlockModelFeatureRendererSubmitMixin implements GlowtoneChromaTinte
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$captureChromaTint(
-		PoseStack.Pose pose,
-		RenderType renderType,
-		List<BlockStateModelPart> modelParts,
-		int[] tintLayers,
-		int lightCoords,
-		int overlayCoords,
-		int tintColor,
-		PoseStack.Pose sheetedDecalPose,
-		CallbackInfo info
-	) {
+	private void glowtone$captureChromaTint(CallbackInfo info) {
 		this.glowtone$chromaTint = ChromaFold.currentTint();
 	}
 }

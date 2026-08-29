@@ -27,6 +27,8 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.DefaultFl
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.FluidEdges;
@@ -41,12 +43,14 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Mixin(value = DefaultFluidRenderer.class, remap = false)
+@Environment(EnvType.CLIENT)
+@Mixin(DefaultFluidRenderer.class)
 public class DefaultFluidRendererMixin {
 
 	@Shadow
@@ -63,30 +67,41 @@ public class DefaultFluidRendererMixin {
 
 	@Inject(method = "render", at = @At("HEAD"))
 	private void glowtone$beginFluid(
-		LevelSlice level, BlockState blockState, FluidState fluidState, BlockPos pos, BlockPos origin,
-		TranslucentGeometryCollector collector, ChunkModelBuilder builder, Material material,
-		ColorProvider<FluidState> colorProvider, FluidModel model, CallbackInfo info
+		LevelSlice level,
+		BlockState blockState,
+		FluidState fluidState,
+		BlockPos blockPos,
+		BlockPos offset,
+		TranslucentGeometryCollector collector,
+		ChunkModelBuilder meshBuilder,
+		Material material,
+		ColorProvider<FluidState> colorProvider,
+		FluidModel sprites,
+		CallbackInfo info
 	) {
-		ChromaBaker.state().setEmissiveQuad(
-			GlowtoneConstants.GLOWTONE_EMISSIVES && fluidState.is(FluidTags.LAVA));
+		ChromaBaker.state().setEmissiveQuad(GlowtoneConstants.GLOWTONE_EMISSIVES && fluidState.is(FluidTags.LAVA));
+
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		if (!state.highlightEnabled()) return;
-		state.beginFluid(level, pos);
+
+		state.beginFluid(level, blockPos);
 	}
 
 	@Inject(method = "render", at = @At("RETURN"))
-	private void glowtone$endFluid(
-		LevelSlice level, BlockState blockState, FluidState fluidState, BlockPos pos, BlockPos origin,
-		TranslucentGeometryCollector collector, ChunkModelBuilder builder, Material material,
-		ColorProvider<FluidState> colorProvider, FluidModel model, CallbackInfo info
-	) {
+	private void glowtone$endFluid(CallbackInfo info) {
 		ChromaBaker.state().endFluid();
 	}
 
 	@Inject(method = "writeQuad", at = @At("RETURN"))
-	private void glowtone$fluidRims(
-		ChunkModelBuilder builder, TranslucentGeometryCollector collector, Material material,
-		BlockPos pos, ModelQuadView quad, ModelQuadFacing facing, boolean flip, CallbackInfo info
+	private void glowtone$fluidEdges(
+		ChunkModelBuilder builder,
+		TranslucentGeometryCollector collector,
+		Material material,
+		BlockPos offset,
+		ModelQuadView quad,
+		ModelQuadFacing facing,
+		boolean flip,
+		CallbackInfo info
 	) {
 		if (flip) return;
 
@@ -101,20 +116,20 @@ public class DefaultFluidRendererMixin {
 		final int originY = fluidPos.getY() & 15;
 		final int originZ = fluidPos.getZ() & 15;
 
-		final FluidEdges rims = state.fluidEdges();
-		rims.quad(
+		final FluidEdges edges = state.fluidEdges();
+		edges.quad(
 			originX + quad.getX(0), originY + quad.getY(0), originZ + quad.getZ(0), quad.getTexU(0), quad.getTexV(0),
 			originX + quad.getX(1), originY + quad.getY(1), originZ + quad.getZ(1), quad.getTexU(1), quad.getTexV(1),
 			originX + quad.getX(2), originY + quad.getY(2), originZ + quad.getZ(2), quad.getTexU(2), quad.getTexV(2),
 			originX + quad.getX(3), originY + quad.getY(3), originZ + quad.getZ(3), quad.getTexU(3), quad.getTexV(3),
-			swapRedBlue(ColorARGB.mulRGB(this.quadColors[0], this.brightness[0])),
+			glowtone$swapRedAndBlue(ColorARGB.mulRGB(this.quadColors[0], this.brightness[0])),
 			this.quadLightData.lm[0]
 		);
-		if (!rims.locate(originX, originY, originZ)) return;
+		if (!edges.locate(originX, originY, originZ)) return;
 
 		final EdgeNeighbours neighbours = state.edgeNeighbours();
 		neighbours.gather(level, fluidPos);
-		rims.emit(
+		edges.emit(
 			state,
 			builder.asFallbackVertexConsumer(material, collector),
 			neighbours,
@@ -122,7 +137,8 @@ public class DefaultFluidRendererMixin {
 		);
 	}
 
-	private static int swapRedBlue(int packed) {
+	@Unique
+	private static int glowtone$swapRedAndBlue(int packed) {
 		return (packed & 0xFF00FF00) | ((packed >> 16) & 0xFF) | ((packed & 0xFF) << 16);
 	}
 }

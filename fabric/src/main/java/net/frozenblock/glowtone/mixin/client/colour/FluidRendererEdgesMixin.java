@@ -52,14 +52,7 @@ public class FluidRendererEdgesMixin {
 	}
 
 	@Inject(method = "tesselate", at = @At("RETURN"))
-	private void glowtone$endFluid(
-		BlockAndTintGetter level,
-		BlockPos pos,
-		FluidRenderer.Output output,
-		BlockState blockState,
-		FluidState fluidState,
-		CallbackInfo info
-	) {
+	private void glowtone$endFluid(CallbackInfo info) {
 		ChromaBaker.state().endFluid();
 	}
 

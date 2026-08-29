@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -26,8 +28,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Mixin(value = RenderSectionManager.class, remap = false)
+@Environment(EnvType.CLIENT)
+@Mixin(RenderSectionManager.class)
 public class RenderSectionManagerMixin {
+
 	@Inject(method = "onSectionRemoved", at = @At("HEAD"))
 	private void glowtone$dropSectionColors(int x, int y, int z, CallbackInfo info) {
 		GlowtoneSectionColorStore.remove(x, y, z);

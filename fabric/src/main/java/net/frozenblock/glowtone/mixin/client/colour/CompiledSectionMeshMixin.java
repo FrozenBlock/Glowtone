@@ -17,11 +17,11 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.color.render.impl.GlowtoneSectionColors;
 import net.minecraft.client.renderer.chunk.CompiledSectionMesh;
-import net.minecraft.client.renderer.chunk.SectionCompiler;
-import net.minecraft.client.renderer.chunk.TranslucencyPointOfView;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Environment(EnvType.CLIENT)
 @Mixin(CompiledSectionMesh.class)
 public abstract class CompiledSectionMeshMixin implements GlowtoneSectionColors {
 	@Unique
@@ -38,7 +39,7 @@ public abstract class CompiledSectionMeshMixin implements GlowtoneSectionColors 
 	private short @Nullable [] glowtone$skyHues;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$attachColors(TranslucencyPointOfView translucencyPointOfView, SectionCompiler.Results results, CallbackInfo info) {
+	private void glowtone$attachColors(CallbackInfo info) {
 		this.glowtone$colors = ChromaBaker.takeSectionColors();
 		this.glowtone$skyHues = ChromaBaker.takeSectionSkyColors();
 	}
