@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour.shader;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,7 +26,7 @@ import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
-import net.frozenblock.glowtone.render.GlowtoneVertexFormats;
+import net.frozenblock.glowtone.render.vertex.GTDefaultVertexFormat;
 import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,23 +49,23 @@ public class BufferBuilderMixin {
 
 	@Inject(method = "endLastVertex", at = @At("HEAD"))
 	private void glowtone$writeChroma(CallbackInfo info) {
-		if (this.format != GlowtoneVertexFormats.EXTENDED_BLOCK || this.vertexPointer == -1L) return;
+		if (this.format != DefaultVertexFormat.BLOCK || this.vertexPointer == -1L) return;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.rotateFlatPins();
 
 		if (!ChromaBlender.isEnabled()) {
-			glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, ChromaBaker.NEUTRAL_ARGB);
-			glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, ChromaBaker.NEUTRAL_SKY_ARGB);
+			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET, ChromaBaker.NEUTRAL_ARGB);
+			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET, ChromaBaker.NEUTRAL_SKY_ARGB);
 			return;
 		}
 
-		final float x = MemoryUtil.memGetFloat(this.vertexPointer + GlowtoneVertexFormats.POSITION_OFFSET);
-		final float y = MemoryUtil.memGetFloat(this.vertexPointer + GlowtoneVertexFormats.POSITION_OFFSET + 4L);
-		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GlowtoneVertexFormats.POSITION_OFFSET + 8L);
+		final float x = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET);
+		final float y = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET + 4L);
+		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET + 8L);
 
-		glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.CHROMA_OFFSET, state.sample(x, y, z));
-		glowtone$writeARGB(this.vertexPointer + GlowtoneVertexFormats.SKY_CHROMA_OFFSET, state.sampleSky(x, y, z));
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET, state.sample(x, y, z));
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET, state.sampleSky(x, y, z));
 	}
 
 	@Inject(method = "addVertex(FFFIFFIIFFF)V", at = @At("RETURN"))
@@ -77,19 +78,19 @@ public class BufferBuilderMixin {
 		float nx, float ny, float nz,
 		CallbackInfo info
 	) {
-		if (this.format != GlowtoneVertexFormats.EXTENDED_BLOCK || this.vertexPointer == -1L) return;
+		if (this.format != DefaultVertexFormat.BLOCK || this.vertexPointer == -1L) return;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		final QuadEdges edges = state.pendingEdges();
 		final boolean fluid = state.fluidQuad();
 		final int index = fluid ? edges.indexOf(x, y, z) : state.nextEdgeVertex();
 
-		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_OFFSET, index < 0 ? QuadEdges.NO_EDGES : edges.get(index));
-		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.EDGE_MASK_OFFSET, index < 0 ? 0 : edges.mask(index));
-		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT0_OFFSET, index < 0 ? GlowtoneContactRects.NONE[0] : edges.contact(0));
-		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT1_OFFSET, index < 0 ? GlowtoneContactRects.NONE[1] : edges.contact(1));
-		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT2_OFFSET, index < 0 ? GlowtoneContactRects.NONE[2] : edges.contact(2));
-		glowtone$writeRaw(this.vertexPointer + GlowtoneVertexFormats.CONTACT3_OFFSET, index < 0 ? GlowtoneContactRects.NONE[3] : edges.contact(3));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.EDGE_OFFSET, index < 0 ? QuadEdges.NO_EDGES : edges.get(index));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.EDGE_MASK_OFFSET, index < 0 ? 0 : edges.mask(index));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT0_OFFSET, index < 0 ? GlowtoneContactRects.NONE[0] : edges.contact(0));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT1_OFFSET, index < 0 ? GlowtoneContactRects.NONE[1] : edges.contact(1));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT2_OFFSET, index < 0 ? GlowtoneContactRects.NONE[2] : edges.contact(2));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT3_OFFSET, index < 0 ? GlowtoneContactRects.NONE[3] : edges.contact(3));
 
 	}
 

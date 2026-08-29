@@ -17,31 +17,31 @@
 
 package net.frozenblock.glowtone.light.color.render;
 
+import java.util.Arrays;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
-import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
-import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
-import net.frozenblock.glowtone.light.edge.FluidEdges;
-import net.frozenblock.glowtone.light.edge.QuadEdges;
-import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
-import net.minecraft.client.Minecraft;
+import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.FilterColorHelper;
+import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.light.edge.FluidEdges;
+import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.core.BlockPos;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.lighting.LightEngine;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Arrays;
+import org.lwjgl.system.MemoryUtil;
 
 @Environment(EnvType.CLIENT)
 public final class ChromaBaker {
@@ -290,7 +290,7 @@ public final class ChromaBaker {
 		}
 
 		public long scratch(int bytes) {
-			if (this.scratch == 0L) this.scratch = org.lwjgl.system.MemoryUtil.nmemAlloc(bytes);
+			if (this.scratch == 0L) this.scratch = MemoryUtil.nmemAlloc(bytes);
 			return this.scratch;
 		}
 

@@ -1,5 +1,11 @@
 package net.frozenblock.glowtone.light.color.data.block;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.mixin.client.colour.data.PropertyDispatchAccessor;
@@ -7,12 +13,6 @@ import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.blockstates.PropertyValueList;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @Environment(EnvType.CLIENT)
 public final class MultiVariantGenerator implements BlockLightPropertiesGenerator {
