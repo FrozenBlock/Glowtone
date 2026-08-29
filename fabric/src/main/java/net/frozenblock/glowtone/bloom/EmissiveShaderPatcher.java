@@ -29,7 +29,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 
 @ClientOnly
-public final class GlowtoneEmissiveShaders {
+public final class EmissiveShaderPatcher {
 	private static final Set<Identifier> LIT_SHADERS = Set.of(
 		Identifier.withDefaultNamespace("core/terrain"),
 		Identifier.withDefaultNamespace("core/block"),
@@ -48,21 +48,15 @@ public final class GlowtoneEmissiveShaders {
 	);
 
 	public static final String OPAQUE_TERRAIN_DEFINE = "GLOWTONE_OPAQUE_TERRAIN";
-
 	public static final String SHADED_TERRAIN_DEFINE = "GLOWTONE_SHADED_TERRAIN";
-
 	public static final String TRANSLUCENT_TERRAIN_DEFINE = "GLOWTONE_TRANSLUCENT_TERRAIN";
 
 	private static final float LIQUID_STRENGTH_SCALE = 5F;
-
 	private static final float LIQUID_FACING_FADE = 0.5F;
 
 	private static final float EDGE_WIDTH_UNITS = 1F;
-
 	private static final float EDGE_ANCHOR = 0.95F;
-
 	private static final float EDGE_FLATTEN = 0.85F;
-
 	private static final float EDGE_WHITEN = 0.70F;
 
 	private static final float LIQUID_WHITEN = 0.8F;
@@ -296,9 +290,13 @@ public final class GlowtoneEmissiveShaders {
 			float glowtone_distanceStart, float glowtone_distanceEnd, vec4 glowtone_fog
 		) {
 			glowtone_FogAmount = total_fog_value(
-				glowtone_spherical, glowtone_cylindrical,
-				glowtone_environmentalStart, glowtone_environmentalEnd,
-				glowtone_distanceStart, glowtone_distanceEnd) * glowtone_fog.a;
+				glowtone_spherical,
+				glowtone_cylindrical,
+				glowtone_environmentalStart,
+				glowtone_environmentalEnd,
+				glowtone_distanceStart,
+				glowtone_distanceEnd
+			) * glowtone_fog.a;
 			glowtone_FogTint = glowtone_fog.rgb;
 			return glowtone_colour;
 		}
@@ -330,12 +328,12 @@ public final class GlowtoneEmissiveShaders {
 	private static final String VERTEX_FOOTER = """
 
 		void main() {
-		#ifdef EMISSIVE
-			glowtone_Emissive = 1.0;
-		#else
-			glowtone_Emissive = 0.0;
-		#endif
-			glowtone_main();
+			#ifdef EMISSIVE
+				glowtone_Emissive = 1.0;
+			#else
+				glowtone_Emissive = 0.0;
+			#endif
+				glowtone_main();
 		}
 		""";
 
@@ -366,7 +364,16 @@ public final class GlowtoneEmissiveShaders {
 		}
 		""";
 
-	private GlowtoneEmissiveShaders() {}
+	public static final String GLOWTONE_EMISSIVE_PATCHED_NOTATION = """
+
+		// GLOWTONE EMISSIVE PATCHED
+	""";
+
+	public static boolean containesEmissivePatchedNotation(String source) {
+		return source.contains(GLOWTONE_EMISSIVE_PATCHED_NOTATION);
+	}
+
+	private EmissiveShaderPatcher() {}
 
 	private static final Identifier SODIUM_TERRAIN_FRAGMENT =
 		Identifier.fromNamespaceAndPath("sodium", "blocks/block_layer_opaque");
@@ -375,8 +382,7 @@ public final class GlowtoneEmissiveShaders {
 		return LIT_SHADERS.contains(id) || SODIUM_TERRAIN_FRAGMENT.equals(id);
 	}
 
-	private static final String DIFFUSE_ACCUM = "float lightAccum = min(1.0, (lightValue.x + lightValue.y)"
-		+ " * MINECRAFT_LIGHT_POWER + MINECRAFT_AMBIENT_LIGHT);";
+	private static final String DIFFUSE_ACCUM = "float lightAccum = min(1.0, (lightValue.x + lightValue.y) * MINECRAFT_LIGHT_POWER + MINECRAFT_AMBIENT_LIGHT);";
 	private static final String DIFFUSE_FLAT = "float lightAccum = 1.0;";
 
 	private static String flattenDiffuse(String source) {
@@ -388,29 +394,28 @@ public final class GlowtoneEmissiveShaders {
 	public static String patch(Identifier id, ShaderType type, String source) {
 		if (!source.contains(MAIN)) return source;
 
-		if (source.contains(SODIUM_VERTEX_MARKER) || source.contains(SODIUM_FOG_CALL)) return patchSodium(type, source);
+		if (source.contains(SODIUM_VERTEX_MARKER) || source.contains(SODIUM_FOG_CALL)) return patchSodium(type, source) + GLOWTONE_EMISSIVE_PATCHED_NOTATION;
 
 		source = flattenDiffuse(source);
 
 		if (LIT_SHADERS.contains(id)) {
 			if (type == ShaderType.VERTEX) {
 				final String vertex = patchVertex(source);
-				return id.equals(TERRAIN) ? patchTerrainVertex(vertex) : vertex;
+				return (id.equals(TERRAIN) ? patchTerrainVertex(vertex) : vertex) + GLOWTONE_EMISSIVE_PATCHED_NOTATION;
 			}
 
 			final String patched = patchFragment(source);
-			return id.equals(TERRAIN) ? patchTerrainLines(patched) : patched;
+			return (id.equals(TERRAIN) ? patchTerrainLines(patched) : patched) + GLOWTONE_EMISSIVE_PATCHED_NOTATION;
 		}
 
-		if (SELF_LIT_SHADERS.contains(id) && type == ShaderType.FRAGMENT) return patchSelfLitFragment(source);
+		if (SELF_LIT_SHADERS.contains(id) && type == ShaderType.FRAGMENT) return patchSelfLitFragment(source) + GLOWTONE_EMISSIVE_PATCHED_NOTATION;
 
 		return source;
 	}
 
 	private static final String SODIUM_VERTEX_MARKER = "_vert_init();";
 	private static final String SODIUM_COLOR_OUT = "out vec4 v_Color;";
-	private static final String SODIUM_VERTEX_TAIL =
-		"v_TexCoord = (_vert_tex_diffuse_coord_bias * u_TexCoordShrink) + _vert_tex_diffuse_coord;";
+	private static final String SODIUM_VERTEX_TAIL = "v_TexCoord = (_vert_tex_diffuse_coord_bias * u_TexCoordShrink) + _vert_tex_diffuse_coord;";
 	private static final String SODIUM_FRAG_OUT = "out vec4 fragColor;";
 	private static final String SODIUM_FOG_CALL = "fragColor = _linearFog(color,";
 	private static final String SODIUM_TARGET = "color";
@@ -422,8 +427,7 @@ public final class GlowtoneEmissiveShaders {
 
 		""";
 
-	private static final String SODIUM_EMISSIVE_WRITE_VERTEX =
-		System.lineSeparator() + "    glowtone_Emissive = a_GlowtoneFlags.r;";
+	private static final String SODIUM_EMISSIVE_WRITE_VERTEX = System.lineSeparator() + "    glowtone_Emissive = a_GlowtoneFlags.r;";
 
 	private static final String SODIUM_EMISSIVE_FRAGMENT = """
 		flat in float glowtone_Emissive;
@@ -476,7 +480,8 @@ public final class GlowtoneEmissiveShaders {
 			glowtone_Contact0 = a_GlowtoneContact0;
 			glowtone_Contact1 = a_GlowtoneContact1;
 			glowtone_Contact2 = a_GlowtoneContact2;
-			glowtone_Contact3 = a_GlowtoneContact3;""";
+			glowtone_Contact3 = a_GlowtoneContact3;
+		""";
 
 	private static String patchSodium(ShaderType type, String source) {
 		final float shade = AmbientOcclusionOption.glowtoneActive()
@@ -599,31 +604,32 @@ public final class GlowtoneEmissiveShaders {
 	private static String sodiumOcclusionBody(float strength, boolean view) {
 		final String depth = Float.toString(view ? occlusionDepth() : strength);
 		final String shaded = "dot(glowtone_Shade.rgb, vec3(0.2126, 0.7152, 0.0722))";
-		if (!view) {
-			return "    " + SODIUM_TARGET + ".rgb *= max(1.0 - glowtone_ambientOcclusion() * "
-				+ depth + ", 0.0);";
-		}
-		return "    " + SODIUM_TARGET + ".rgb = vec3(" + shaded
-			+ (AmbientOcclusionOption.vanillaActive() ? ""
-				: " * max(1.0 - glowtone_ambientOcclusion() * " + depth + ", 0.0)")
-			+ ");";
+		if (!view) return "	%s.rgb *= max(1.0 - glowtone_ambientOcclusion() * %s, 0.0);".formatted(SODIUM_TARGET, depth);
+
+		return """
+				%s.rgb = vec3(
+					%s %s
+				);
+			""".formatted(
+				SODIUM_TARGET,
+				shaded,
+				AmbientOcclusionOption.vanillaActive() ? "" : " * max(1.0 - glowtone_ambientOcclusion() * " + depth + ", 0.0)"
+			);
 	}
 
 	private static String sodiumHighlightBody(float edgeStrength) {
-		final String newline = System.lineSeparator();
-		final String isLiquid = "(glowtone_contactBits(glowtone_Contact3) & "
-			+ hex(GlowtoneContactRects.LIQUID_FLAG) + ") != 0u";
+		final String isLiquid = "(glowtone_contactBits(glowtone_Contact3) & " + hex(GlowtoneContactRects.LIQUID_FLAG) + ") != 0u";
 		final String liquid = edgeDebugColour()
 			? SODIUM_TARGET + ".rgb = glowtone_edgeHighlight(" + SODIUM_TARGET + ".rgb, 1.0);"
-			: SODIUM_TARGET + " = glowtone_liquidHighlight(" + SODIUM_TARGET + ", "
-				+ Float.toString(edgeStrength * LIQUID_STRENGTH_SCALE) + ");";
+			: SODIUM_TARGET + " = glowtone_liquidHighlight(" + SODIUM_TARGET + ", " + edgeStrength * LIQUID_STRENGTH_SCALE + ");";
 
-		return "    if (" + isLiquid + ") {" + newline
-			+ "        " + liquid + newline
-			+ "    } else {" + newline
-			+ "        " + SODIUM_TARGET + ".rgb = glowtone_edgeHighlight(" + SODIUM_TARGET + ".rgb, "
-			+ Float.toString(edgeStrength) + ");" + newline
-			+ "    }";
+		return """
+				if (%s) {
+					%s
+				} else {
+					%s.rgb = glowtone_edgeHighlight(%s.rgb, %s);
+				}
+			""".formatted(isLiquid, liquid, SODIUM_TARGET, SODIUM_TARGET, edgeStrength);
 	}
 
 	private static final String TERRAIN_IN_ANCHOR = "in ivec2 UV2;";
@@ -659,7 +665,7 @@ public final class GlowtoneEmissiveShaders {
 			glowtone_Contact1 = GlowtoneContact1;
 			glowtone_Contact2 = GlowtoneContact2;
 			glowtone_Contact3 = GlowtoneContact3;
-			""";
+		""";
 
 	private static String patchTerrainVertex(String source) {
 		if (!source.contains(TERRAIN_IN_ANCHOR)
@@ -722,12 +728,8 @@ public final class GlowtoneEmissiveShaders {
 	}
 
 	private static float occlusionDepth() {
-		if (AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING) {
-			return OcclusionStrengthOption.strength();
-		}
-		if (AmbientOcclusionOption.vanillaActive()) {
-			return OcclusionStrengthOption.VANILLA_DEPTH * OcclusionStrengthOption.COVERAGE_REFERENCE;
-		}
+		if (AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING) return OcclusionStrengthOption.strength();
+		if (AmbientOcclusionOption.vanillaActive()) return OcclusionStrengthOption.VANILLA_DEPTH * OcclusionStrengthOption.COVERAGE_REFERENCE;
 		return 0F;
 	}
 
@@ -736,15 +738,15 @@ public final class GlowtoneEmissiveShaders {
 		final boolean view = aoDebug();
 		final String depth = Float.toString(view ? occlusionDepth() : strength);
 		final String shaded = "dot(glowtone_Shade.rgb, vec3(0.2126, 0.7152, 0.0722))";
+
 		final String occlusion = view
-			? "	fragColor.rgb = vec3(" + shaded
-				+ (AmbientOcclusionOption.vanillaActive() ? ""
-					: " * max(1.0 - glowtone_ambientOcclusion() * " + depth + ", 0.0)")
-				+ ");"
+			? " fragColor.rgb = vec3(%s%s);".formatted(
+				shaded, AmbientOcclusionOption.vanillaActive()
+				? ""
+				: " * max(1.0 - glowtone_ambientOcclusion() * " + depth + ", 0.0)"
+			)
 			: "	fragColor.rgb *= max(1.0 - glowtone_ambientOcclusion() * " + depth + ", 0.0);";
-		final String body = occlusion
-			+ System.lineSeparator()
-			+ "	fragColor.rgb += vec3(glowtone_keepVaryings());";
+		final String body = occlusion + System.lineSeparator() + "	fragColor.rgb += vec3(glowtone_keepVaryings());";
 
 		return source
 			.replace(GLOWTONE_MAIN,
@@ -772,18 +774,16 @@ public final class GlowtoneEmissiveShaders {
 			Float.toString(LIQUID_OPACITY)
 		);
 		final String newline = System.lineSeparator();
-		final String isLiquid = "(glowtone_contactBits(glowtone_Contact3) & "
-			+ hex(GlowtoneContactRects.LIQUID_FLAG) + ") != 0u";
+		final String isLiquid = "(glowtone_contactBits(glowtone_Contact3) & " + hex(GlowtoneContactRects.LIQUID_FLAG) + ") != 0u";
 		final String foam = edgeDebugColour()
 			? "fragColor.rgb = glowtone_edgeHighlight(fragColor.rgb, 1.0);"
-			: "fragColor = glowtone_liquidHighlight(fragColor, "
-				+ Float.toString(liquidStrength) + ");";
+			: "fragColor = glowtone_liquidHighlight(fragColor, " + liquidStrength + ");";
 
 		final String opaque = "	if (" + isLiquid + ") {" + newline
 			+ "		" + foam + newline
 			+ "	} else {" + newline
 			+ "		fragColor.rgb = glowtone_edgeHighlight(fragColor.rgb, "
-			+ Float.toString(edgeStrength) + ");" + newline
+			+ edgeStrength + ");" + newline
 			+ "	}";
 
 		final String liquid = "	if (" + isLiquid + ") {" + newline

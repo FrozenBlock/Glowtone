@@ -66,7 +66,7 @@ public final class GlowtoneEmissivePipeline extends RenderPipeline {
 		if (original.length != 1) return base;
 
 		final ColorTargetState primary = original[0] != null ? original[0] : ColorTargetState.DEFAULT;
-		final boolean writesEmissive = GlowtoneEmissiveShaders.isLitShader(base.getFragmentShader())
+		final boolean writesEmissive = EmissiveShaderPatcher.isLitShader(base.getFragmentShader())
 			|| SELF_LIT_PIPELINES.contains(base.getLocation());
 		final ColorTargetState emissive = writesEmissive
 			? primary

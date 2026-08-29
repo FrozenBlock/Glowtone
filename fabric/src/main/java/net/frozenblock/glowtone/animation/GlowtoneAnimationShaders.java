@@ -20,17 +20,19 @@ package net.frozenblock.glowtone.animation;
 import com.mojang.blaze3d.shaders.ShaderType;
 import java.util.HashMap;
 import java.util.Map;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+// TODO: sodium
+@ClientOnly
 public final class GlowtoneAnimationShaders {
 	private static final Identifier TERRAIN_SHADER = Identifier.withDefaultNamespace("core/terrain");
 
 	private static final String MAIN = "void main()";
+	private static final String GLOWTONE_MAIN = "void glowtone_main()";
 	private static final String POSITION = "Position";
 	private static final String GAME_TIME = "GameTime";
 	private static final String NEW_POSITION = "(%s + glowtone_animation(%s, %s))".formatted(POSITION, POSITION, GAME_TIME);
@@ -53,16 +55,16 @@ public final class GlowtoneAnimationShaders {
 
 		""";
 
-	private GlowtoneAnimationShaders() {}
-
 	@Nullable
 	public static Map<Identifier, String> createNewTerrainShaders(Identifier id, ShaderType type, String source) {
-		if (type != ShaderType.VERTEX || !source.contains(MAIN) || !source.contains(POSITION) || !id.equals(TERRAIN_SHADER)) return null;
+		final String main = EmissiveShaderPatcher.containesEmissivePatchedNotation(source) ? GLOWTONE_MAIN : MAIN;
+		if (type != ShaderType.VERTEX || !source.contains(main) || !source.contains(POSITION) || !id.equals(TERRAIN_SHADER)) return null;
 
 		final Map<Identifier, String> map = new HashMap<>();
 		map.put(
 			createTerrainAnimationShaderId("foliage"),
 			createAnimationShader(
+				main,
 				source,
 				2D,
 				2000D,
@@ -76,6 +78,7 @@ public final class GlowtoneAnimationShaders {
 		map.put(
 			createTerrainAnimationShaderId("fire"),
 			createAnimationShader(
+				main,
 				source,
 				2D,
 				20000D,
@@ -98,26 +101,29 @@ public final class GlowtoneAnimationShaders {
 		return start + animation + GLOWTONE_ANIMATION_END;
 	}
 
-	private static String patchVertex(String source, String animation) {
-		String preMain = source.substring(0, source.indexOf(MAIN));
+	private static String patchVertex(String main, String source, String animation) {
+		String preMain = source.substring(0, source.indexOf(main));
 		preMain = preMain + animation;
 
-		String postMain = source.substring(source.indexOf(MAIN));
+		String postMain = source.substring(source.indexOf(main));
 		postMain = postMain.replaceFirst(POSITION, GlowtoneAnimationShaders.NEW_POSITION);
 
 		return preMain + postMain;
 	}
 
 	private static String createAnimationShader(
+		String main,
 		String source,
 		double animationPosDividend,
 		double animationProgressScale,
 		String animation
 	) {
-		return patchVertex(source, createAnimation(animationPosDividend, animationProgressScale, animation));
+		return patchVertex(main, source, createAnimation(animationPosDividend, animationProgressScale, animation));
 	}
 
 	public static Identifier createTerrainAnimationShaderId(String name) {
 		return GlowtoneConstants.id("core/terrain_" + name + "_animation");
 	}
+
+	private GlowtoneAnimationShaders() {}
 }

@@ -5,12 +5,14 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.serialization.Codec;
+import java.util.function.Supplier;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.util.StringRepresentable;
-import java.util.function.Supplier;
 
+@ClientOnly
 public enum BlockAnimationType implements StringRepresentable {
 	FOLIAGE("foliage"),
 	FIRE("fire");

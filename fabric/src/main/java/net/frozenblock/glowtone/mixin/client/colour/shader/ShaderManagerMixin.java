@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @ClientOnly
-@Mixin(value = ShaderManager.class, priority = 996)
+@Mixin(value = ShaderManager.class, priority = 996) // Before Animation & Bloom
 public class ShaderManagerMixin {
 
 	@ModifyExpressionValue(
@@ -38,7 +38,7 @@ public class ShaderManagerMixin {
 			target = "Ljava/lang/String;join(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;"
 		)
 	)
-	private static String glowtone$patchColourChader(
+	private static String glowtone$patchColorShaders(
 		String source,
 		@Local(argsOnly = true) Identifier location,
 		@Local(argsOnly = true) ShaderType type

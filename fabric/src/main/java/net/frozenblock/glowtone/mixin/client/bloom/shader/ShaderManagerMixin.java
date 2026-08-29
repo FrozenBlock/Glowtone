@@ -15,22 +15,20 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.animation.shader;
+package net.frozenblock.glowtone.mixin.client.bloom.shader;
 
-import com.google.common.collect.ImmutableMap;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.shaders.ShaderType;
-import net.frozenblock.glowtone.animation.GlowtoneAnimationShaders;
+import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.ShaderManager;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import java.util.Map;
 
 @ClientOnly
-@Mixin(value = ShaderManager.class, priority = 994) // After Bloom
+@Mixin(value = ShaderManager.class, priority = 995) // Before Animation
 public class ShaderManagerMixin {
 
 	@ModifyExpressionValue(
@@ -40,25 +38,11 @@ public class ShaderManagerMixin {
 			target = "Ljava/lang/String;join(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;"
 		)
 	)
-	private static String glowtone$patchShaders(
+	private static String glowtone$patchEmissiveShaders(
 		String source,
 		@Local(argsOnly = true) Identifier location,
-		@Local(argsOnly = true) ShaderType type,
-		@Local(argsOnly = true) ImmutableMap.Builder<ShaderManager.ShaderSourceKey, String> output
+		@Local(argsOnly = true) ShaderType type
 	) {
-		final Identifier condensedId = type.idConverter().fileToId(location);
-
-		final Map<Identifier, String> animationShaders = GlowtoneAnimationShaders.createNewTerrainShaders(condensedId, type, source);
-		if (animationShaders != null) {
-			animationShaders.forEach((animationId, animationSource) -> {
-				output.put(
-					new ShaderManager.ShaderSourceKey(animationId, type),
-					animationSource
-				);
-				//System.out.println(animationSource);
-			});
-		}
-
-		return source;
+		return EmissiveShaderPatcher.patch(type.idConverter().fileToId(location), type, source);
 	}
 }
