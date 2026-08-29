@@ -22,7 +22,6 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.platform.Transparency;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.animation.BlockAnimationType;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -47,7 +46,8 @@ public class BakedQuadMaterialInfoMixin {
 		Material.Baked material, Transparency transparency, int tintIndex, boolean shade, int lightEmission, CallbackInfoReturnable<BakedQuad.MaterialInfo> info,
 		@Local(name = "layer") LocalRef<ChunkSectionLayer> layer
 	) {
-		if (material.sprite().contents().name().getPath().endsWith("leaves")) layer.set(BlockAnimationType.FOLIAGE.getLayerByVanilla(layer.get()));
-		if (material.sprite().contents().name().getPath().contains("fire")) layer.set(BlockAnimationType.FIRE.getLayerByVanilla(layer.get()));
+		// TODO: implement animation name, somehow
+		//if (material.sprite().contents().name().getPath().endsWith("leaves")) layer.set(BlockAnimationType.FOLIAGE.getLayerByVanilla(layer.get()));
+		//if (material.sprite().contents().name().getPath().contains("fire")) layer.set(BlockAnimationType.FIRE.getLayerByVanilla(layer.get()));
 	}
 }

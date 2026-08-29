@@ -19,10 +19,10 @@ package net.frozenblock.glowtone.render.vertex;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.GpuFormat;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import com.mojang.blaze3d.GpuFormat;
 
-// TODO: self emission to offset tint with
+// TODO: self emission to offset tint with & implement animation id on sodium
 @ClientOnly
 public final class GTDefaultVertexFormat {
 	public static final String CHROMA_SEMANTIC_NAME = "GlowtoneChroma";
@@ -33,6 +33,7 @@ public final class GTDefaultVertexFormat {
 	public static final String CONTACT1_SEMANTIC_NAME = "GlowtoneContact1";
 	public static final String CONTACT2_SEMANTIC_NAME = "GlowtoneContact2";
 	public static final String CONTACT3_SEMANTIC_NAME = "GlowtoneContact3";
+	public static final String ANIMATION_ID_SEMANTIC_NAME = "GlowtoneAnimationId";
 
 	public static long POSITION_OFFSET;
 	public static long CHROMA_OFFSET;
@@ -43,6 +44,7 @@ public final class GTDefaultVertexFormat {
 	public static long CONTACT1_OFFSET;
 	public static long CONTACT2_OFFSET;
 	public static long CONTACT3_OFFSET;
+	public static long ANIMATION_ID_OFFSET;
 
 	public static VertexFormat.Builder appendTerrainAttributes(VertexFormat.Builder builder) {
 		builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
@@ -53,6 +55,7 @@ public final class GTDefaultVertexFormat {
 		builder.addAttribute(CONTACT1_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		builder.addAttribute(CONTACT2_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		builder.addAttribute(CONTACT3_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+		builder.addAttribute(ANIMATION_ID_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		return builder;
 	}
 
@@ -66,6 +69,7 @@ public final class GTDefaultVertexFormat {
 		CONTACT1_OFFSET = format.getElement(CONTACT1_SEMANTIC_NAME).offset();
 		CONTACT2_OFFSET = format.getElement(CONTACT2_SEMANTIC_NAME).offset();
 		CONTACT3_OFFSET = format.getElement(CONTACT3_SEMANTIC_NAME).offset();
+		ANIMATION_ID_OFFSET = format.getElement(ANIMATION_ID_SEMANTIC_NAME).offset();
 	}
 
 	private GTDefaultVertexFormat() {}

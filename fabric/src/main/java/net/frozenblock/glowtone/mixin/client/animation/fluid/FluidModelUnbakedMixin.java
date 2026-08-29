@@ -21,7 +21,6 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.animation.BlockAnimationType;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -44,9 +43,10 @@ public class FluidModelUnbakedMixin {
 		@Local(name = "stillMaterial") Material.Baked stillMaterial,
 		@Local(name = "flowingMaterial") Material.Baked flowingMaterial
 	) {
+		// TODO: implement animation name, somehow
 		// TODO: metadata-based selection
-		if (stillMaterial.sprite().contents().name().getPath().contains("lava")) return BlockAnimationType.LAVA.getLayerByVanilla(original);
-		if (stillMaterial.sprite().contents().name().getPath().contains("water")) return BlockAnimationType.WATER.getLayerByVanilla(original);
+		//if (stillMaterial.sprite().contents().name().getPath().contains("lava")) return BlockAnimationType.LAVA.getLayerByVanilla(original);
+		//if (stillMaterial.sprite().contents().name().getPath().contains("water")) return BlockAnimationType.WATER.getLayerByVanilla(original);
 		return original;
 	}
 }
