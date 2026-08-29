@@ -3,15 +3,14 @@ package net.frozenblock.glowtone.light.color.data.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.lib.block.api.attachment.BlockAttachmentKey;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.state.BlockState;
 import java.util.Map;
 import java.util.Optional;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public record BlockLightProperties(
 	Optional<Integer> lightColor,
 	Optional<Integer> lightFilterColor

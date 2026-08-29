@@ -22,9 +22,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.DefaultFluidRenderer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(DefaultFluidRenderer.class)
 public class LavaShadingSodiumMixin {
 

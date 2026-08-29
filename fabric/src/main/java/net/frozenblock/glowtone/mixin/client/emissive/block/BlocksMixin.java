@@ -19,9 +19,8 @@ package net.frozenblock.glowtone.mixin.client.emissive.block;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 import java.util.function.Predicate;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(Blocks.class)
 public class BlocksMixin {
 

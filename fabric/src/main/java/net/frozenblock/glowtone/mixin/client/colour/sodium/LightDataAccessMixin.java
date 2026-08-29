@@ -19,15 +19,14 @@ package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Pseudo
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(LightDataAccess.class)
 public class LightDataAccessMixin {
 

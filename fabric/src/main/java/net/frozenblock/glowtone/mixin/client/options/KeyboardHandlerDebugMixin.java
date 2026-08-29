@@ -18,9 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.options;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.KeyEvent;
@@ -33,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(KeyboardHandler.class)
 public class KeyboardHandlerDebugMixin {
 	@Unique

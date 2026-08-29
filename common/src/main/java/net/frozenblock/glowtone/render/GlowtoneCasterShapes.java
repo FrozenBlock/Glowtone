@@ -17,8 +17,7 @@
 
 package net.frozenblock.glowtone.render;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -27,7 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneCasterShapes {
 
 	public static VoxelShape of(BlockAndTintGetter level, BlockPos pos, BlockState state) {

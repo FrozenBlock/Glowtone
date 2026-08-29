@@ -1,16 +1,15 @@
 package net.frozenblock.glowtone.light.compat.lambdynamiclights;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.impl.AbstractDynamicLightsCompat;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.impl.DynamicLightsCompat;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.impl.NoOpDynamicLightsCompat;
+import net.frozenblock.lib.platform.ModLoader;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneDynamicLights {
 	public static final int STRIDE = 5;
-	private static final AbstractDynamicLightsCompat INSTANCE = FabricLoader.getInstance().isModLoaded("lambdynlights")
+	private static final AbstractDynamicLightsCompat INSTANCE = ModLoader.isModLoaded("lambdynlights")
 		? new DynamicLightsCompat()
 		: new NoOpDynamicLightsCompat();
 

@@ -131,6 +131,7 @@ subprojects {
             name = "CaffeineMC"
         }
         maven("https://maven.shedaniel.me/")
+        maven("https://maven.gegy.dev")
         maven("https://maven.minecraftforge.net/") {
             name = "Forge"
         }

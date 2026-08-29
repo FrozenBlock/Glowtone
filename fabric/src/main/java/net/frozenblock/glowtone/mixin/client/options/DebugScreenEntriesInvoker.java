@@ -17,15 +17,14 @@
 
 package net.frozenblock.glowtone.mixin.client.options;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(DebugScreenEntries.class)
 public interface DebugScreenEntriesInvoker {
 	@Invoker("register")

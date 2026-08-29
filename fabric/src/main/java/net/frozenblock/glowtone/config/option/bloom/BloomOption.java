@@ -17,15 +17,14 @@
 
 package net.frozenblock.glowtone.config.option.bloom;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class BloomOption {
 	public static final int MIN = 0;
 	public static final int MAX = 100;

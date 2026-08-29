@@ -17,15 +17,14 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockModelLighter;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(BlockModelLighter.class)
 public class BlockModelLighterAmbientMixin {
 

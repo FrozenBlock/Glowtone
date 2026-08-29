@@ -18,12 +18,11 @@
 package net.frozenblock.glowtone.render.sodium.vertex;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import com.mojang.blaze3d.GpuFormat;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 // TODO: self emission to offset tint with
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GTSodiumVertexFormat {
 	public static final String CHROMA_SEMANTIC_NAME = "a_GlowtoneChroma";
 	public static final String SKY_CHROMA_SEMANTIC_NAME = "a_GlowtoneSkyChroma";

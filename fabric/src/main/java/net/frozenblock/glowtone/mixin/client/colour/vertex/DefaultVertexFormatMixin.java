@@ -4,15 +4,14 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.vertex.GTDefaultVertexFormat;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(DefaultVertexFormat.class)
 public class DefaultVertexFormatMixin {
 

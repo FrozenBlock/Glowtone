@@ -18,11 +18,10 @@
 package net.frozenblock.glowtone.mixin.client.emissive.redstone_dust_particle;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.particle.impl.GlowtoneLitParticle;
 import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.lighting.LightEngine;
@@ -30,7 +29,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(Particle.class)
 public class ParticleMixin implements GlowtoneLitParticle {
 

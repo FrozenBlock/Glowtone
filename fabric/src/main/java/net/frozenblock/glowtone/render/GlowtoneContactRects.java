@@ -17,16 +17,15 @@
 
 package net.frozenblock.glowtone.render;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import java.util.Arrays;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneContactRects {
 	public static final int MAX_RECTS = 4;
 	public static final int COORD_BITS = 6;

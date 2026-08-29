@@ -1,11 +1,10 @@
 package net.frozenblock.glowtone.light.compat.lambdynamiclights.impl;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class NoOpDynamicLightsCompat implements AbstractDynamicLightsCompat {
 	private static final int[] NONE = new int[0];
 

@@ -24,9 +24,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
@@ -34,11 +31,13 @@ import net.frozenblock.glowtone.config.option.bloom.BloomOption;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.option.shade.ShadingMode;
+import net.frozenblock.lib.platform.ModLoader;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import org.slf4j.Logger;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneConfig {
 	public static final int DEFAULT_BLOOM = 25;
 	public static final int DEFAULT_EDGE_HIGHLIGHT = 0;
@@ -162,7 +161,7 @@ public final class GlowtoneConfig {
 	}
 
 	private static Path path() {
-		return FabricLoader.getInstance().getConfigDir().resolve(GlowtoneConstants.MOD_ID + ".json");
+		return ModLoader.getConfigDir().resolve(GlowtoneConstants.MOD_ID + ".json");
 	}
 
 	private static void load() {

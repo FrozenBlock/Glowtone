@@ -18,11 +18,10 @@
 package net.frozenblock.glowtone.light.color;
 
 import com.mojang.blaze3d.shaders.ShaderType;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class ColorShaderPatcher {
 	private static final Identifier TERRAIN_ID = Identifier.withDefaultNamespace("core/terrain");
 	private static final String MAIN = "void main()";

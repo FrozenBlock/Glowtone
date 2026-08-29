@@ -21,9 +21,8 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.Arrays;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.LightmapRenderState;
@@ -35,7 +34,7 @@ import net.minecraft.world.level.lighting.LightEngine;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class ChromaFold {
 	public static final int NO_TINT = 0;
 	private static final float PACKED_LIGHT_SCALE = LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL;

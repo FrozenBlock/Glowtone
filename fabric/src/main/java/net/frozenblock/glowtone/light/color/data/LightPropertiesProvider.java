@@ -1,12 +1,11 @@
 package net.frozenblock.glowtone.light.color.data;
 
 import com.google.common.collect.Maps;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
 import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesDispatcher;
 import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerator;
 import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerators;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -20,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public abstract class LightPropertiesProvider implements DataProvider {
 	private final PackOutput.PathProvider pathProvider;
 	public final String modId;

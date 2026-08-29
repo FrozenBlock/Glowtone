@@ -18,8 +18,6 @@
 package net.frozenblock.glowtone.light.color.render;
 
 import java.util.Arrays;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
@@ -31,6 +29,7 @@ import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
 import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
@@ -43,7 +42,7 @@ import net.minecraft.world.level.lighting.LightEngine;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class ChromaBaker {
 	public static final int NEUTRAL_ARGB = ChromaBlender.NEUTRAL_TERRAIN_ARGB;
 	public static final int NEUTRAL_SKY_ARGB = 0xFFFFFFFF;

@@ -18,16 +18,15 @@
 package net.frozenblock.glowtone.config.option.shade;
 
 import java.util.List;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneReload;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class ShadingOption {
 	private static final String CAPTION = "options.glowtone.shading";
 	private static @Nullable OptionInstance<ShadingMode> instance;

@@ -18,8 +18,6 @@
 package net.frozenblock.glowtone.mixin.client.options;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
@@ -27,6 +25,7 @@ import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.GraphicsPreset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
@@ -37,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(GraphicsPreset.class)
 public class GraphicsPresetMixin {
 

@@ -17,10 +17,9 @@
 
 package net.frozenblock.glowtone.mixin.client.emissive.redstone_dust_particle;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.particle.impl.GlowtoneParticle;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.DustColorTransitionParticle;
 import net.minecraft.client.particle.SpriteSet;
@@ -31,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(DustColorTransitionParticle.class)
 public class DustColorTransitionParticleMixin implements GlowtoneParticle {
 

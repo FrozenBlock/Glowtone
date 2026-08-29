@@ -17,11 +17,10 @@
 
 package net.frozenblock.glowtone.config.option.ao;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.StringRepresentable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public enum AmbientOcclusionMode implements StringRepresentable {
 	OFF("off"),
 	FAST("fast"),

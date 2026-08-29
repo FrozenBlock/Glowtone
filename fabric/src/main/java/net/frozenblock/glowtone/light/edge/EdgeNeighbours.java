@@ -17,9 +17,8 @@
 
 package net.frozenblock.glowtone.light.edge;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.render.GlowtoneCasterShapes;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,7 +30,7 @@ import org.jspecify.annotations.Nullable;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class EdgeNeighbours {
 	private static final double SPAN_SLACK = 1D / 256D;
 	private static final float CONTAINS_SLACK = 1.0E-4F;

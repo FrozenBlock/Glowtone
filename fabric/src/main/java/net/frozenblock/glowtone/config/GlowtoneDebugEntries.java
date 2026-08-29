@@ -18,10 +18,9 @@
 package net.frozenblock.glowtone.config;
 
 import java.util.Map;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.mixin.client.options.DebugScreenEntriesInvoker;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugEntryNoop;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
@@ -30,7 +29,7 @@ import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneDebugEntries {
 	public static final Identifier EDGE_HIGHLIGHT = GlowtoneConstants.id("edge_highlight");
 	public static final Identifier AMBIENT_OCCLUSION = GlowtoneConstants.id("ambient_occlusion");

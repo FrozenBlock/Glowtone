@@ -17,11 +17,10 @@
 
 package net.frozenblock.glowtone.config.option.color;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.StringRepresentable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public enum ColoredLightingMode implements StringRepresentable {
 	OFF("off"),
 	SUBTLE("subtle"),

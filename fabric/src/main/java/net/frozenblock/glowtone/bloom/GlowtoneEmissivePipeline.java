@@ -21,12 +21,11 @@ import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import java.util.Map;
 import java.util.Set;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 import java.util.concurrent.ConcurrentHashMap;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneEmissivePipeline extends RenderPipeline {
 	private static final Set<Identifier> SELF_LIT_PIPELINES = Set.of(
 		Identifier.withDefaultNamespace("pipeline/fire_screen_effect"),

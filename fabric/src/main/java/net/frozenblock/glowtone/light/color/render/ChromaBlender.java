@@ -17,11 +17,10 @@
 
 package net.frozenblock.glowtone.light.color.render;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class ChromaBlender {
 	public static final long EMPTY = 0L;
 	public static final int NEUTRAL_ARGB = 0xFFFFFFFF;

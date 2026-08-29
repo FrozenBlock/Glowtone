@@ -20,15 +20,14 @@ package net.frozenblock.glowtone.mixin.client.colour.shader;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(RenderPipelines.class)
 public abstract class RenderPipelinesMixin {
 	// The way I've set up these injects may seem counterintuitive.

@@ -19,12 +19,11 @@ package net.frozenblock.glowtone.render.vertex;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import com.mojang.blaze3d.GpuFormat;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 // TODO: self emission to offset tint with
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GTDefaultVertexFormat {
 	public static final String CHROMA_SEMANTIC_NAME = "GlowtoneChroma";
 	public static final String SKY_CHROMA_SEMANTIC_NAME = "GlowtoneSkyChroma";

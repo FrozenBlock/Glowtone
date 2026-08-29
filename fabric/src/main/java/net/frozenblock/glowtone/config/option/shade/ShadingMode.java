@@ -17,11 +17,10 @@
 
 package net.frozenblock.glowtone.config.option.shade;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.StringRepresentable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public enum ShadingMode implements StringRepresentable {
 	NONE("none"),
 	NON_EMISSIVE("non_emissive"),

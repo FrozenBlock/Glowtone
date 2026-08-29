@@ -26,15 +26,14 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.QuadParticleFeatureRenderer;
 import org.joml.Vector4fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(QuadParticleFeatureRenderer.class)
 public class QuadParticleFeatureRendererMixin {
 

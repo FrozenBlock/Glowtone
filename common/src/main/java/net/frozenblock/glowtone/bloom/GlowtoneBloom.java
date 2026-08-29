@@ -17,12 +17,11 @@
 
 package net.frozenblock.glowtone.bloom;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.level.lighting.LightEngine;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneBloom {
 	public static final int EMISSIVE_MARKER = 0x1000;
 	public static final int LIGHT_COORDS_CHANNEL_MASK = 0xFF;

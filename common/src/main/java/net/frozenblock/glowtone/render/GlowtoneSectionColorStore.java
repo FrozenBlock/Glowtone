@@ -17,15 +17,14 @@
 
 package net.frozenblock.glowtone.render;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.SectionPos;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneSectionColorStore {
 	private static final Map<Long, short[]> COLORS = new ConcurrentHashMap<>();
 	private static final Map<Long, short[]> SKY_HUES = new ConcurrentHashMap<>();

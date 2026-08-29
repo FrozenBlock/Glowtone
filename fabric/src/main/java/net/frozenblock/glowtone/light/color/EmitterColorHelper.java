@@ -17,12 +17,11 @@
 
 package net.frozenblock.glowtone.light.color;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class EmitterColorHelper {
 	public static final int NO_COLOUR = -1;
 	public static final int WHITE = 0xFFFFFF;

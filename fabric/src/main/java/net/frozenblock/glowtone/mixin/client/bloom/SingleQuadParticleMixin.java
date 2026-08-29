@@ -18,17 +18,16 @@
 package net.frozenblock.glowtone.mixin.client.bloom;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.bloom.GlowtoneBloom;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.util.LightCoordsUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(SingleQuadParticle.class)
 public class SingleQuadParticleMixin {
 

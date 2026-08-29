@@ -17,11 +17,10 @@
 
 package net.frozenblock.glowtone.light;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.lighting.LightEngine;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 final class GlowtoneChannels {
 	static final int MAX_LEVEL = LightEngine.MAX_LEVEL;
 	static final int LEVEL_MASK = 0xFFFF;

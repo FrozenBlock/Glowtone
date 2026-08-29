@@ -20,11 +20,10 @@ package net.frozenblock.glowtone.light;
 import java.util.Arrays;
 import java.util.function.Predicate;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.EmitterColorHelper;
 import net.frozenblock.glowtone.light.color.FilterColorHelper;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.client.renderer.chunk.SectionCopy;
 import net.minecraft.core.BlockPos;
@@ -37,7 +36,7 @@ import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.jspecify.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneRegionFlood {
 	public static final int SPAN = 48;
 	public static final int WHITE_RGB = 0xFFFFFF;

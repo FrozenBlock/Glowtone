@@ -17,9 +17,8 @@
 
 package net.frozenblock.glowtone.light.entity;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -27,7 +26,7 @@ import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.lighting.LightEngine;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class SmoothEntityLightingHelper {
 	private static final int LIGHT_SEARCH_POINTS = 8;
 	private static final int LIGHT_LEVEL_SCALE = LightEngine.MAX_LEVEL + 1;

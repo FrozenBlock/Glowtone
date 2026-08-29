@@ -17,12 +17,11 @@
 
 package net.frozenblock.glowtone.light.color;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class FilterColorHelper {
 	public static final int FULLY_TRANSMISSIVE = 0xFFF;
 	public static final int MAX_CHANNEL = 0xF;

@@ -17,13 +17,12 @@
 
 package net.frozenblock.glowtone.config;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.api.Environment;
+import net.frozenblock.lib.event.api.events.client.ClientTickEvents;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneReload {
 	private static volatile boolean pending;
 

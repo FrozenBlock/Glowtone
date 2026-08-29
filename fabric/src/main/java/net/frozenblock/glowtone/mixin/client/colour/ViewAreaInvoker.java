@@ -17,15 +17,14 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.ViewArea;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(ViewArea.class)
 public interface ViewAreaInvoker {
 	@Invoker("getRenderSection")

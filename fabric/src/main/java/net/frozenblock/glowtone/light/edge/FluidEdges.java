@@ -18,14 +18,13 @@
 package net.frozenblock.glowtone.light.edge;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class FluidEdges {
 	private static final float WIDTH = 1F / QuadEdges.UNITS_PER_BLOCK;
 	private static final float CLEARANCE = 0.001F;

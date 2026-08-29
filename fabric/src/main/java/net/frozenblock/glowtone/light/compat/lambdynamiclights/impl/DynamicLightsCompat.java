@@ -3,12 +3,11 @@ package net.frozenblock.glowtone.light.compat.lambdynamiclights.impl;
 import dev.lambdaurora.lambdynlights.LambDynLights;
 import dev.lambdaurora.lambdynlights.engine.source.DynamicLightSource;
 import dev.lambdaurora.lambdynlights.engine.source.EntityDynamicLightSource;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.light.color.EmitterColorHelper;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
+import net.frozenblock.lib.event.api.events.client.ClientTickEvents;
+import net.frozenblock.lib.platform.ModLoader;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +18,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 	private static final int[] NONE = new int[0];
 	private volatile int[] sources = NONE;
@@ -163,7 +162,7 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 
 			if (!matches(this.sources, packed, count)) this.sources = Arrays.copyOf(packed, count);
 		} catch (Exception e) {
-			if (FabricLoader.getInstance().isDevelopmentEnvironment()) throw e;
+			if (ModLoader.isDevelopmentEnvironment()) throw e;
 		}
 	}
 }

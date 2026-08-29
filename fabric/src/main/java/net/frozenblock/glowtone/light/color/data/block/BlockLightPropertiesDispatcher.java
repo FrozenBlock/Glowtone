@@ -3,8 +3,7 @@ package net.frozenblock.glowtone.light.color.data.block;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.dispatch.VariantSelector;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.block.Block;
@@ -19,7 +18,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public record BlockLightPropertiesDispatcher(Optional<SimpleLightSelectors> simpleLights) {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	public static final Codec<BlockLightPropertiesDispatcher> CODEC = RecordCodecBuilder.create(instance -> instance.group(

@@ -19,13 +19,12 @@ package net.frozenblock.glowtone.resources.metadata;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.util.ExtraCodecs;
 import java.util.Optional;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public record EmissiveMetadataSection(int lightEmission, Optional<Boolean> shade) {
 	public static final Codec<EmissiveMetadataSection> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		ExtraCodecs.intRange(0, 15).optionalFieldOf("light_emission", 15).forGetter(EmissiveMetadataSection::lightEmission),

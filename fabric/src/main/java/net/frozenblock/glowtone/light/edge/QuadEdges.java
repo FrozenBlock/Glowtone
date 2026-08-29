@@ -18,19 +18,18 @@
 package net.frozenblock.glowtone.light.edge;
 
 import com.mojang.datafixers.util.Function5;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 import java.util.function.Function;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class QuadEdges {
 	public static final int UNITS_PER_BLOCK = 16;
 	public static final int INTERIOR = 255;

@@ -1,13 +1,12 @@
 package net.frozenblock.glowtone.light.color.data.block;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.Property;
 import java.util.function.Consumer;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public class BlockLightPropertiesGenerators {
 	public final Consumer<BlockLightPropertiesGenerator> blockStateOutput;
 
