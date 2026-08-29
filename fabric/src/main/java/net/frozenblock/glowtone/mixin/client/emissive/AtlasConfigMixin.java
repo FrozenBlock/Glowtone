@@ -19,9 +19,8 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 
 import java.util.ArrayList;
 import java.util.Set;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import org.spongepowered.asm.mixin.Final;
@@ -32,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(AtlasManager.AtlasConfig.class)
 public class AtlasConfigMixin {
 

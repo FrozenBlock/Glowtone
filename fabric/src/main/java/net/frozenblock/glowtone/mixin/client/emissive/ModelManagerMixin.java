@@ -18,16 +18,15 @@
 package net.frozenblock.glowtone.mixin.client.emissive;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.config.EmissivesOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(ModelManager.class)
 public class ModelManagerMixin {
 
@@ -39,7 +38,7 @@ public class ModelManagerMixin {
 		)
 	)
 	public ResourceManager glowtone$toggleShading(ResourceManager resourceManager) {
-		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
+		ShadingOption.applyFlags(GlowtoneConfig.shading());
 		return resourceManager;
 	}
 }

@@ -38,18 +38,17 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.config.BloomOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.config.option.bloom.BloomOption;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 public final class GlowtoneBloomRenderer {
 	private static final Vector4f CLEAR_COLOR = new Vector4f(0F, 0F, 0F, 0F);
 	private static final int UNIFORM_SIZE = new Std140SizeCalculator().putVec2().putFloat().putFloat().get();

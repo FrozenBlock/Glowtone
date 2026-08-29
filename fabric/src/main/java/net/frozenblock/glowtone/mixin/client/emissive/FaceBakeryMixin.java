@@ -20,19 +20,19 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import java.util.Optional;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.resources.model.cuboid.FaceBakery;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Environment(EnvType.CLIENT)
+@ClientOnly
 @Mixin(FaceBakery.class)
 public class FaceBakeryMixin {
 
@@ -59,14 +59,17 @@ public class FaceBakeryMixin {
 				lightEmission = emissiveMetadata.lightEmission();
 				isModified = true;
 			} else if (contents.name().getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)) {
-				lightEmission = 15;
+				lightEmission = LightEngine.MAX_LEVEL;
 				isModified = true;
 			}
 		}
 
-		if (GlowtoneConstants.GLOWTONE_SHADING) {
+		if (GlowtoneConstants.GLOWTONE_NO_SHADING) {
+			isModified = isModified || shade;
+			shade = false;
+		} else if (GlowtoneConstants.GLOWTONE_SHADING) {
 			final boolean wasShaded = shade;
-			shade = shade && lightEmission != 15;
+			shade = shade && lightEmission != LightEngine.MAX_LEVEL;
 			isModified = isModified || wasShaded != shade;
 		}
 

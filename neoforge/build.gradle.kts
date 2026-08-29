@@ -15,6 +15,15 @@ val minecraft_version: String by project
 val maven_group: String by project
 val archives_base_name: String by project
 
+val frozenlib_version: String by project
+
+val neoforge_version: String by project
+val neoforge_loader_version_range: String by project
+
+val sodium_version: String by project
+val run_sodium: String by project
+val shouldRunSodium = run_sodium == "true"
+
 val neoforgeSnapshotMaven = findProperty("neoforge_snapshot_maven") as String?
 
 base {
@@ -79,6 +88,41 @@ tasks {
     }
 }
 
+val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
+val loaderVariants = setOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements")
+configurations.all {
+    if (name in loaderVariants) {
+        attributes {
+            attribute(loaderAttribute, "neoforge")
+        }
+    }
+}
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach { variant ->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, "neoforge")
+            }
+        }
+    }
+}
+
+dependencies {
+    api("net.frozenblock:frozenlib-neoforge:${frozenlib_version}")?.let {
+        accessTransformers(it)
+        interfaceInjectionData(it)
+    }
+
+    // Sodium
+    if (shouldRunSodium) {
+        implementation("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")
+        implementation("net.caffeinemc:sodium-neoforge:${sodium_version}")
+    } else {
+        compileOnly("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")
+        compileOnly("net.caffeinemc:sodium-neoforge:${sodium_version}")
+    }
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
@@ -96,5 +140,15 @@ fun getModVersion(): String {
 upload {
     maven {
         name.set("glowtone-neoforge")
+    }
+
+    modrinth {
+        dependencies {
+            required("frozenlib")
+            optional("wilder-wild")
+            optional("trailier-tales")
+            optional("the-copperier-age")
+            optional("netherier-nether")
+        }
     }
 }

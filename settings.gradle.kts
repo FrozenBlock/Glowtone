@@ -1,3 +1,4 @@
+import com.possible_triangle.gradle.settings.localRepository
 import com.possible_triangle.gradle.settings.ResolutionStrategy
 
 pluginManagement {
@@ -15,10 +16,7 @@ pluginManagement {
         maven("https://jitpack.io") {
             name = "Jitpack"
         }
-        maven("https://registry.somethingcatchy.net/repository/maven-releases/") { // Candlelight & Triangle
-            name = "SomethingCatchy (MehVahdJukaar)"
-        }
-        maven("https://maven.frozenblock.net/snapshot") {
+        maven("https://maven.frozenblock.net/snapshot") { // Candlelight & Triangle
             name = "FrozenBlock Snapshot"
         }
         maven("https://maven.minecraftforge.net/") {
@@ -66,6 +64,13 @@ if (Constants.NEOFORGE) {
     include("gt-neoforge")
     project(":gt-neoforge").projectDir = file("neoforge")
 }
+
+localRepository("FrozenLib",
+    "net.frozenblock:frozenlib",
+    prefix = "flib",
+    multi = true,
+    enabled = true
+)
 
 localPluginRepository(
     "GradleHelper",

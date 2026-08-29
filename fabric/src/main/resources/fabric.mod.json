@@ -19,9 +19,15 @@
   "icon": "assets/glowtone/icon.png",
   "environment": "*",
   "entrypoints": {
-	  "client": [
+    "client": [
       "net.frozenblock.glowtone.GlowtoneClient"
-	  ]
+    ],
+    "fabric-datagen": [
+      "net.frozenblock.glowtone.data.GTDataGenerator"
+    ],
+    "sodium:config_api_user": [
+      "net.frozenblock.glowtone.config.sodium.GlowtoneSodiumConfig"
+    ]
   },
   "mixins": [
     "glowtone.mixins.json"

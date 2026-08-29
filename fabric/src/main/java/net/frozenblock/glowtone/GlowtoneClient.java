@@ -17,15 +17,29 @@
 
 package net.frozenblock.glowtone;
 
-import net.frozenblock.glowtone.config.EmissivesOption;
-import net.frozenblock.glowtone.config.GlowtoneConfig;
-
 import net.fabricmc.api.ClientModInitializer;
+import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingOption;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
+import net.frozenblock.glowtone.config.GlowtoneReload;
+import net.frozenblock.glowtone.light.color.data.block.BlockStateLightPropertiesLoader;
+import net.minecraft.server.packs.PackType;
 
 public final class GlowtoneClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		EmissivesOption.applyFlags(GlowtoneConfig.emissives());
+		GlowtoneDebugEntries.register();
+		GlowtoneReload.register();
+		ShadingOption.applyFlags(GlowtoneConfig.shading());
+		ColoredLightingOption.applyMode(GlowtoneConfig.coloredLighting());
+
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("block_light"), new BlockStateLightPropertiesLoader());
+
+		// MOD COMPAT
+		GlowtoneDynamicLights.init();
 	}
 }

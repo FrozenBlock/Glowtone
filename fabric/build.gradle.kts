@@ -12,6 +12,7 @@ checkstyle {
 val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
 val licenseChecks: Boolean = githubActions
 
+val fabric_loader_version: String by project
 val min_fabric_loader_version: String by project
 
 val mod_id: String by project
@@ -21,10 +22,19 @@ val maven_group: String by project
 val archives_base_name: String by project
 
 val fabric_api_version: String by project
+val frozenlib_version: String by project
 
 val sodium_version: String by project
 val run_sodium: String by project
 val shouldRunSodium = run_sodium == "true"
+
+val lambdynamiclights_version: String by project
+val yumi_commons_version: String by project
+val yumi_mc_foundation_version: String by project
+val spruceui_version: String by project
+val pridelib_version: String by project
+val run_lambdynamiclights: String by project
+val shouldRunLambDynamicLights = run_lambdynamiclights == "true"
 
 base {
     archivesName = archives_base_name
@@ -59,14 +69,72 @@ repositories {
     flatDir {
         dirs("libs")
     }
+    maven {
+        name = "Gegy"
+        url = uri("https://maven.gegy.dev/releases/")
+    }
+}
+
+val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
+val loaderVariants = setOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements", "includeInternal", "modCompileClasspath")
+configurations.all {
+    if (name in loaderVariants) {
+        attributes {
+            attribute(loaderAttribute, "fabric")
+        }
+    }
+}
+sourceSets.configureEach {
+    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach { variant ->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, "fabric")
+            }
+        }
+    }
 }
 
 dependencies {
+    implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
+
+    // FrozenLib
+    api("net.frozenblock:frozenlib-fabric:${frozenlib_version}")
+
     // Sodium
     if (shouldRunSodium)
-        implementation("maven.modrinth:sodium:${sodium_version}")
+        implementation("net.caffeinemc:sodium-fabric:${sodium_version}")
     else
-        compileOnly("maven.modrinth:sodium:${sodium_version}")
+        compileOnly("net.caffeinemc:sodium-fabric:${sodium_version}")
+
+    // LambDynamicLights
+    if (shouldRunLambDynamicLights) {
+        implementation("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
+        implementation("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambdynamiclights_version}")
+
+        implementation("dev.yumi.commons:yumi-commons-core:${yumi_commons_version}")
+        implementation("dev.yumi.commons:yumi-commons-collections:${yumi_commons_version}")
+        implementation("dev.yumi.commons:yumi-commons-event:${yumi_commons_version}")
+
+        implementation("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+
+        implementation("dev.lambdaurora:spruceui:${spruceui_version}")
+
+        implementation("io.github.queerbric:pridelib:${pridelib_version}")
+    } else {
+        compileOnly("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
+        compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambdynamiclights_version}")
+
+        compileOnly("dev.yumi.commons:yumi-commons-core:${yumi_commons_version}")
+        compileOnly("dev.yumi.commons:yumi-commons-collections:${yumi_commons_version}")
+        compileOnly("dev.yumi.commons:yumi-commons-event:${yumi_commons_version}")
+
+        compileOnly("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+
+        compileOnly("dev.lambdaurora:spruceui:${spruceui_version}")
+
+        compileOnly("io.github.queerbric:pridelib:${pridelib_version}")
+    }
 }
 
 tasks {
@@ -78,6 +146,7 @@ tasks {
 
             "fabric_loader_version" to ">=$min_fabric_loader_version",
             "fabric_api_version" to ">=$fabric_api_version",
+            "frozenlib_version" to ">=${frozenlib_version.split('-').firstOrNull()}-"
         )
 
         properties.forEach { (a, b) -> inputs.property(a, b) }
@@ -155,10 +224,12 @@ upload {
     modrinth {
         dependencies {
             required("fabric-api")
+            required("frozenlib")
             optional("wilder-wild")
             optional("trailier-tales")
             optional("the-copperier-age")
             optional("netherier-nether")
+            optional("lambdynamiclights")
         }
     }
 }
