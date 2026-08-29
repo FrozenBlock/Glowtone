@@ -125,30 +125,23 @@ public final class GlowtoneAnimationShaders {
 			createAnimationShader(
 				main,
 				source,
-				2D,
-				2500D,
+				4D,
+				1000D,
 				"""
-					float wigglerASin = sin((((animPos.x + animPos.z) / 2.0) + animPos.y / 2.0) + animTime * 0.9);
-					float wigglerA = (wigglerASin * 8.0) - 7.0;
+					float wigglerA = sin((animPos.x / 2.0 + animPos.z / 2.0 + animPos.y / 2.0) + animTime * 0.5);
+					wigglerA = ((wigglerA * 8.0) / 8.0) + 0.1;
 					if (wigglerA > 1.0) {
 						wigglerA = 1.0;
 					} else if (wigglerA < 0.0) {
 						wigglerA = 0.0;
 					}
 
-					float wigglerBSin = sin((((animPos.x + animPos.z) / 1.5) + animPos.y / 2.0) + animTime * 0.8);
-					float wigglerB = (wigglerBSin * 8.0) - 7.0;
-					if (wigglerB > 1.0) {
-						wigglerB = 1.0;
-					} else if (wigglerB < 0.0) {
-						wigglerB = 0.0;
-					}
+					float wiggler = wigglerA * wigglerA;
+					wiggler = wiggler * wiggler;
 
-					float wiggler = wigglerA * wigglerB;
-
-					xOffset = sin(animPos.x + (animPos.y / 2.0) + animTime + (wiggler * 5.0)) / 64.0;
-					yOffset = (sin(animPos.y + ((animPos.x + animPos.z) / 4.0) + animTime) / 128.0) + (cos(((animPos.x + animPos.z) / 2.0) + (animPos.y / 4.0) + animTime * 2.0) / 128.0);
-					zOffset = cos(animPos.z + (animPos.y / 2.0) + animTime + (wiggler * 5.0)) / 64.0;
+					xOffset = cos(animPos.x + (animPos.y / 2.0) + animTime) / 128.0;
+					yOffset = wiggler / 48.0;
+					zOffset = sin(animPos.z + (animPos.y / 2.0) + animTime) / 128.0;
 				"""
 			)
 		);
