@@ -103,9 +103,9 @@ dependencies {
 
     // Sodium
     if (shouldRunSodium)
-        implementation("maven.modrinth:sodium:${sodium_version}")
+        implementation("net.caffeinemc:sodium-fabric:${sodium_version}")
     else
-        compileOnly("maven.modrinth:sodium:${sodium_version}")
+        compileOnly("net.caffeinemc:sodium-fabric:${sodium_version}")
 
     // LambDynamicLights
     if (shouldRunLambDynamicLights) {

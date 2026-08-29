@@ -127,6 +127,10 @@ subprojects {
         maven("https://maven.frozenblock.net/snapshot") { // Candlelight & Triangle
             name = "FrozenBlock Snapshot"
         }
+        maven("https://maven.frozenblock.net/caffeinemc") {
+            name = "CaffeineMC"
+        }
+        maven("https://maven.shedaniel.me/")
         maven("https://maven.minecraftforge.net/") {
             name = "Forge"
         }
