@@ -45,7 +45,7 @@ public class FluidModelUnbakedMixin {
 		@Local(name = "flowingMaterial") Material.Baked flowingMaterial
 	) {
 		// TODO: metadata-based selection
-		if (stillMaterial.sprite().contents().name().getPath().contains("lava")) return BlockAnimationType.FOLIAGE.getLayerByVanilla(original);
+		if (stillMaterial.sprite().contents().name().getPath().contains("lava")) return BlockAnimationType.LAVA.getLayerByVanilla(original);
 		return original;
 	}
 }
