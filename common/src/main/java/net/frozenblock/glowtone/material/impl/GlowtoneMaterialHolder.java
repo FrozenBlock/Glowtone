@@ -17,13 +17,13 @@
 
 package net.frozenblock.glowtone.material.impl;
 
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 @ClientOnly
 public interface GlowtoneMaterialHolder {
 	default int glowtone$materialIndex() {
-		return BlockMaterials.NO_SHADER;
+		return BlockMaterialRenderer.NO_SHADER;
 	}
 
 	default void glowtone$setMaterialIndex(int index) {}

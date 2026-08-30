@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.blaze3d.vertex.QuadInstance;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,11 +30,11 @@ public class QuadInstanceMixin {
 
 	@ModifyReturnValue(method = "getLightCoords(I)I", at = @At("RETURN"))
 	private int glowtone$markLightCoords(int lightCoords) {
-		return BlockMaterials.markQuad(lightCoords);
+		return BlockMaterialRenderer.markQuad(lightCoords);
 	}
 
 	@ModifyReturnValue(method = "getLightCoordsWithEmission(II)I", at = @At("RETURN"))
 	private int glowtone$markLightCoordsWithEmission(int lightCoords) {
-		return BlockMaterials.markQuad(lightCoords);
+		return BlockMaterialRenderer.markQuad(lightCoords);
 	}
 }

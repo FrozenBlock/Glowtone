@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockQuadOutput;
@@ -49,7 +49,7 @@ public class ModelBlockRendererMaterialMixin {
 		CallbackInfo info
 	) {
 		BlockLightPropertiesRenderer.beginBlock(blockState);
-		BlockMaterials.beginBlock(blockState);
+		BlockMaterialRenderer.beginBlock(blockState);
 	}
 
 	@Inject(method = "tesselateBlock", at = @At("RETURN"))
@@ -66,6 +66,6 @@ public class ModelBlockRendererMaterialMixin {
 		CallbackInfo info
 	) {
 		BlockLightPropertiesRenderer.endBlock();
-		BlockMaterials.endBlock();
+		BlockMaterialRenderer.endBlock();
 	}
 }

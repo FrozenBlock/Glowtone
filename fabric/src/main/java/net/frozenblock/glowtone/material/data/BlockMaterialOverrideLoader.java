@@ -21,7 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.BlockStateDefinitions;
 import net.minecraft.resources.FileToIdConverter;
@@ -47,7 +47,7 @@ import java.util.function.Function;
 @ClientOnly
 public final class BlockMaterialOverrideLoader implements PreparableReloadListener {
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final FileToIdConverter OVERRIDE_LISTER = FileToIdConverter.json(BlockMaterials.OVERRIDE_DIRECTORY);
+	private static final FileToIdConverter OVERRIDE_LISTER = FileToIdConverter.json(BlockMaterialRenderer.OVERRIDE_DIRECTORY);
 
 	private static CompletableFuture<Map<BlockState, Identifier>> loadOverrides(ResourceManager manager, Executor executor) {
 		final Function<Identifier, StateDefinition<Block, BlockState>> definitionToBlockState = BlockStateDefinitions.definitionLocationToBlockStateMapper();

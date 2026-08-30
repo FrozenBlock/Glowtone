@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.impl.GlowtoneMaterialHolder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.particle.TerrainParticle;
@@ -57,7 +57,7 @@ public class TerrainParticleMixin implements GlowtoneMaterialHolder {
 		CallbackInfo info,
 		@Local(argsOnly = true) BlockState blockState
 	) {
-		this.glowtone$materialIndex = BlockMaterials.shaderIndexFor(blockState);
+		this.glowtone$materialIndex = BlockMaterialRenderer.shaderIndexFor(blockState);
 	}
 
 	@ModifyReturnValue(method = "createTerrainParticle", at = @At("RETURN"))
@@ -68,7 +68,7 @@ public class TerrainParticleMixin implements GlowtoneMaterialHolder {
 		// TODO: injected interface
 		if (original == null || !(original instanceof GlowtoneMaterialHolder materialHolder)) return original;
 
-		final int index = BlockMaterials.shaderIndexFor(options.getState());
+		final int index = BlockMaterialRenderer.shaderIndexFor(options.getState());
 		materialHolder.glowtone$setMaterialIndex(index);
 		return original;
 	}

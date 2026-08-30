@@ -19,12 +19,12 @@ package net.frozenblock.glowtone.data;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.frozenblock.glowtone.material.BlockMaterials;
-import net.frozenblock.glowtone.material.CullMode;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
+import net.frozenblock.glowtone.material.data.CullMode;
 import net.frozenblock.glowtone.material.MaterialLayer;
-import net.frozenblock.glowtone.material.MaterialRenderShape;
+import net.frozenblock.glowtone.material.data.MaterialRenderShape;
 import net.frozenblock.glowtone.material.MaterialSamplers;
-import net.frozenblock.glowtone.material.MaterialShader;
+import net.frozenblock.glowtone.material.data.MaterialShader;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -52,7 +52,7 @@ public final class GTSchemaProvider implements DataProvider {
 			this.save(cache, "block_material_overrides", dispatcher(
 				"Glowtone block material overrides",
 				"Assigns a block material to the blockstates of one block.",
-				identifier("Material id, as defined under " + BlockMaterials.RESOURCE_PACK_DIRECTORY + ".")
+				identifier("Material id, as defined under " + BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY + ".")
 			)),
 			this.save(cache, "block_light_properties", dispatcher(
 				"Glowtone block light properties",

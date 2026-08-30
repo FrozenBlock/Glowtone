@@ -15,31 +15,25 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.material;
+package net.frozenblock.glowtone.material.render;
 
-import net.frozenblock.lib.block.api.attachment.BlockAttachmentKey;
+import net.frozenblock.glowtone.material.data.BlockMaterial;
+import net.frozenblock.glowtone.material.MaterialLayer;
+import net.frozenblock.glowtone.material.data.MaterialRenderShape;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
-import java.util.Map;
 
 @ClientOnly
-public final class BlockMaterials {
+public final class BlockMaterialRenderer {
 	public static final String RESOURCE_PACK_DIRECTORY = "glowtone/block_materials";
 	public static final String OVERRIDE_DIRECTORY = "glowtone/block_material_overrides";
-	public static final BlockAttachmentKey<Baked> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Block Materials");
 	public static final int NO_SHADER = 0;
 	public static final int MAX_SHADER_INDEX = 127;
 	public static final int SHADER_INDEX_SHIFT = 24;
 	public static final int GUI_MARKER = 0x2000;
-
-	public static final Assigned UNASSIGNED = new Assigned(null, BlockMaterial.NONE, NO_SHADER);
-	public static final Simple EMPTY = new Simple(UNASSIGNED);
-
-	public record Assigned(@Nullable Identifier id, BlockMaterial material, int shaderIndex) {}
 
 	private static volatile boolean anyLayers;
 	private static volatile boolean anySelfCulling;
@@ -52,20 +46,20 @@ public final class BlockMaterials {
 	private static final int STACK_DEPTH = 8;
 
 	private static final class State {
-		private final Assigned[] stack = new Assigned[STACK_DEPTH];
+		private final BlockMaterial.Assigned[] stack = new BlockMaterial.Assigned[STACK_DEPTH];
 		private int depth;
 		private boolean gui;
 
 		private @Nullable BlockState lastState;
-		private Assigned lastAssigned = UNASSIGNED;
+		private BlockMaterial.Assigned lastAssigned = BlockMaterial.UNASSIGNED;
 
 		State() {
-			java.util.Arrays.fill(this.stack, UNASSIGNED);
+			java.util.Arrays.fill(this.stack, BlockMaterial.UNASSIGNED);
 		}
 
 		private int seenGeneration = -1;
 
-		Assigned resolve(BlockState state) {
+		BlockMaterial.Assigned resolve(BlockState state) {
 			if (this.seenGeneration != generation) {
 				this.seenGeneration = generation;
 				this.lastState = null;
@@ -82,11 +76,11 @@ public final class BlockMaterials {
 
 	private static final ThreadLocal<State> STATE = ThreadLocal.withInitial(State::new);
 
-	private static void push(Assigned assigned) {
+	private static void push(BlockMaterial.Assigned assigned) {
 		push(STATE.get(), assigned);
 	}
 
-	private static void push(State state, Assigned assigned) {
+	private static void push(State state, BlockMaterial.Assigned assigned) {
 		if (state.depth >= STACK_DEPTH - 1) return;
 
 		state.stack[++state.depth] = assigned;
@@ -97,16 +91,16 @@ public final class BlockMaterials {
 		if (state.depth > 0) state.depth--;
 	}
 
-	private static Assigned current() {
+	private static BlockMaterial.Assigned current() {
 		final State state = STATE.get();
 		return state.stack[state.depth];
 	}
 
-	public static Assigned assigned(BlockState state) {
-		if (!any) return UNASSIGNED;
+	public static BlockMaterial.Assigned assigned(BlockState state) {
+		if (!any) return BlockMaterial.UNASSIGNED;
 
-		final Baked baked = state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, EMPTY);
-		return baked == null ? UNASSIGNED : baked.get(state);
+		final BlockMaterial.Baked baked = state.getBlock().frozenLib$getAttachedOrDefault(BlockMaterial.ATTACHMENT_KEY, BlockMaterial.EMPTY);
+		return baked == null ? BlockMaterial.UNASSIGNED : baked.get(state);
 	}
 
 	public static BlockMaterial forBlockState(BlockState state) {
@@ -133,15 +127,15 @@ public final class BlockMaterials {
 		return anyShaders ? current().shaderIndex() : NO_SHADER;
 	}
 
-	private static final Assigned[] INDEXED = new Assigned[MAX_SHADER_INDEX + 1];
+	private static final BlockMaterial.Assigned[] INDEXED = new BlockMaterial.Assigned[MAX_SHADER_INDEX + 1];
 
 	static {
-		INDEXED[NO_SHADER] = UNASSIGNED;
-		for (int index = 1; index <= MAX_SHADER_INDEX; index++) INDEXED[index] = new Assigned(null, BlockMaterial.NONE, index);
+		INDEXED[NO_SHADER] = BlockMaterial.UNASSIGNED;
+		for (int index = 1; index <= MAX_SHADER_INDEX; index++) INDEXED[index] = new BlockMaterial.Assigned(null, BlockMaterial.NONE, index);
 	}
 
-	private static Assigned indexed(int shaderIndex) {
-		return shaderIndex <= NO_SHADER || shaderIndex > MAX_SHADER_INDEX ? UNASSIGNED : INDEXED[shaderIndex];
+	private static BlockMaterial.Assigned indexed(int shaderIndex) {
+		return shaderIndex <= NO_SHADER || shaderIndex > MAX_SHADER_INDEX ? BlockMaterial.UNASSIGNED : INDEXED[shaderIndex];
 	}
 
 	public static void beginGui(boolean gui) {
@@ -256,35 +250,5 @@ public final class BlockMaterials {
 		return forBlockState(state).blockEntityRender().orElse(true);
 	}
 
-	public abstract static class Baked {
-		abstract Assigned get(BlockState state);
-	}
-
-	public static final class Simple extends Baked {
-		private final Assigned assigned;
-
-		public Simple(Assigned assigned) {
-			this.assigned = assigned;
-		}
-
-		@Override
-		Assigned get(BlockState state) {
-			return this.assigned;
-		}
-	}
-
-	public static final class MultiVariant extends Baked {
-		private final Map<BlockState, Assigned> map;
-
-		public MultiVariant(Map<BlockState, Assigned> map) {
-			this.map = map;
-		}
-
-		@Override
-		Assigned get(BlockState state) {
-			return this.map.getOrDefault(state, UNASSIGNED);
-		}
-	}
-
-	private BlockMaterials() {}
+	private BlockMaterialRenderer() {}
 }

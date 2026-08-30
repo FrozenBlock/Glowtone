@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.material;
 
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.impl.GlowtoneMaterialHolder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
@@ -47,6 +47,6 @@ public class ItemFeatureRendererMaterialMixin implements GlowtoneMaterialHolder 
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void glowtone$captureItemMaterial(CallbackInfo info) {
-		this.glowtone$materialIndex = BlockMaterials.renderedShaderIndex();
+		this.glowtone$materialIndex = BlockMaterialRenderer.renderedShaderIndex();
 	}
 }

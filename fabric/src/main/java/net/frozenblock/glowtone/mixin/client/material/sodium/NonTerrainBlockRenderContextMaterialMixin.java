@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.material.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -34,13 +34,13 @@ public class NonTerrainBlockRenderContextMaterialMixin {
 
 	@Inject(method = "processQuad", at = @At("RETURN"))
 	private void glowtone$markNonTerrainMaterial(MutableQuadViewImpl quad, CallbackInfo info) {
-		if (!BlockMaterials.anyShaders()) return;
+		if (!BlockMaterialRenderer.anyShaders()) return;
 
-		final int index = BlockMaterials.renderedShaderIndex();
-		if (index == BlockMaterials.NO_SHADER) return;
+		final int index = BlockMaterialRenderer.renderedShaderIndex();
+		if (index == BlockMaterialRenderer.NO_SHADER) return;
 
 		for (int vertex = 0; vertex < 4; vertex++) {
-			quad.setLight(vertex, BlockMaterials.markShaderIndex(quad.getLight(vertex)));
+			quad.setLight(vertex, BlockMaterialRenderer.markShaderIndex(quad.getLight(vertex)));
 		}
 	}
 }

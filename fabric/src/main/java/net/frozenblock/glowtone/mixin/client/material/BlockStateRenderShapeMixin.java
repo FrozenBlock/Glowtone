@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -32,7 +32,7 @@ public class BlockStateRenderShapeMixin {
 
 	@ModifyReturnValue(method = "getRenderShape", at = @At("RETURN"))
 	private RenderShape glowtone$overrideRenderShape(RenderShape shape) {
-		if (BlockBehaviour.BlockStateBase.class.cast(this) instanceof BlockState blockState) return BlockMaterials.renderShape(blockState, shape);
+		if (BlockBehaviour.BlockStateBase.class.cast(this) instanceof BlockState blockState) return BlockMaterialRenderer.renderShape(blockState, shape);
 		return shape;
 	}
 }

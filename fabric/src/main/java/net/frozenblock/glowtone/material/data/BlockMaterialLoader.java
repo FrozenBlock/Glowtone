@@ -22,13 +22,10 @@ import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import net.frozenblock.glowtone.config.GlowtoneReload;
-import net.frozenblock.glowtone.material.BlockMaterial;
-import net.frozenblock.glowtone.material.BlockMaterialDefinition;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.MaterialLayer;
 import net.frozenblock.glowtone.material.MaterialSamplers;
-import net.frozenblock.glowtone.material.MaterialShader;
-import net.frozenblock.glowtone.material.MaterialShaders;
+import net.frozenblock.glowtone.material.MaterialShaderPatcher;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -58,18 +55,16 @@ import java.util.concurrent.Executor;
 @ClientOnly
 public final class BlockMaterialLoader {
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final FileToIdConverter MATERIAL_LISTER = FileToIdConverter.json(BlockMaterials.RESOURCE_PACK_DIRECTORY);
+	private static final FileToIdConverter MATERIAL_LISTER = FileToIdConverter.json(BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY);
 
-	private static final FileToIdConverter SHADER_LISTER =
-		new FileToIdConverter(MaterialShader.RESOURCE_PACK_DIRECTORY, MaterialShader.FILE_SUFFIX);
+	private static final FileToIdConverter SHADER_LISTER = new FileToIdConverter(MaterialShader.RESOURCE_PACK_DIRECTORY, MaterialShader.FILE_SUFFIX);
 	public record Definitions(Map<Identifier, BlockMaterial> materials, Map<Identifier, String> shaderSources) {}
 
 	public static CompletableFuture<Definitions> load(ResourceManager manager, Executor executor) {
 		return CompletableFuture.supplyAsync(() -> {
 			final Map<Identifier, BlockMaterial> materials = resolve(read(manager));
 			final Map<Identifier, String> sources = readShaderSources(manager, materials);
-			LOGGER.info("Glowtone read {} block material definitions and {} material shaders",
-				materials.size(), sources.size());
+			LOGGER.info("Glowtone read {} block material definitions and {} material shaders", materials.size(), sources.size());
 			return new Definitions(materials, sources);
 		}, executor);
 	}
@@ -141,12 +136,14 @@ public final class BlockMaterialLoader {
 
 	private static Map<Identifier, BlockMaterial> resolve(Map<Identifier, BlockMaterialDefinition> definitions) {
 		final Map<Identifier, BlockMaterial> resolved = new HashMap<>(definitions.size());
-		for (Identifier materialId : definitions.keySet()) resolveInto(materialId, definitions, resolved);
+		for (Identifier materialId : definitions.keySet()) resolveDependencies(materialId, definitions, resolved);
 		return resolved;
 	}
 
-	private static BlockMaterial resolveInto(
-		Identifier materialId, Map<Identifier, BlockMaterialDefinition> definitions, Map<Identifier, BlockMaterial> resolved
+	private static BlockMaterial resolveDependencies(
+		Identifier materialId,
+		Map<Identifier, BlockMaterialDefinition> definitions,
+		Map<Identifier, BlockMaterial> resolved
 	) {
 		final BlockMaterial alreadyResolved = resolved.get(materialId);
 		if (alreadyResolved != null) return alreadyResolved;
@@ -175,13 +172,13 @@ public final class BlockMaterialLoader {
 
 	public static void apply(Map<BlockState, Identifier> overrides, Definitions definitions) {
 		final Map<Identifier, BlockMaterial> registry = definitions.materials();
-		BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockMaterials.ATTACHMENT_KEY));
+		BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockMaterial.ATTACHMENT_KEY));
 
-		final Map<Block, Map<BlockState, BlockMaterials.Assigned>> perBlock = new IdentityHashMap<>();
+		final Map<Block, Map<BlockState, BlockMaterial.Assigned>> perBlock = new IdentityHashMap<>();
 		final Set<Identifier> missing = new HashSet<>();
 		final Set<Identifier> unsupportedLayers = new HashSet<>();
 		final Map<Identifier, Integer> shaderIndices = new HashMap<>();
-		final List<MaterialShaders.Loaded> shaders = new ArrayList<>();
+		final List<MaterialShaderPatcher.Loaded> shaders = new ArrayList<>();
 		final List<Identifier> samplerSlots = new ArrayList<>();
 		boolean layers = false;
 		boolean selfCulling = false;
@@ -204,13 +201,11 @@ public final class BlockMaterialLoader {
 
 			final BlockState state = entry.getKey();
 			perBlock.computeIfAbsent(state.getBlock(), block -> new IdentityHashMap<>())
-				.put(state, new BlockMaterials.Assigned(materialId, material, shaderIndex));
+				.put(state, new BlockMaterial.Assigned(materialId, material, shaderIndex));
 
 			material.layer().filter(MaterialLayer::custom).ifPresent(layer -> {
-				if (unsupportedLayers.add(layer.id())) {
-					LOGGER.warn("Block material {} asks for layer {}, but only solid, cutout and translucent render; leaving it on its model's layer",
-						materialId, layer.id());
-				}
+				if (!unsupportedLayers.add(layer.id())) return;
+				LOGGER.warn("Block material {} asks for layer {}, but only solid, cutout and translucent render; leaving it on its model's layer", materialId, layer.id());
 			});
 
 			layers |= material.overridesLayer();
@@ -220,30 +215,29 @@ public final class BlockMaterialLoader {
 			blockEntity |= material.overridesBlockEntityRender();
 		}
 
-		BlockMaterials.setLoadedFeatures(layers, selfCulling, castCulling, !shaders.isEmpty(), renderShape, blockEntity);
+		BlockMaterialRenderer.setLoadedFeatures(layers, selfCulling, castCulling, !shaders.isEmpty(), renderShape, blockEntity);
 
-		final String previousShaderSource = MaterialShaders.generateFunctions(true);
+		final String previousShaderSource = MaterialShaderPatcher.generateFunctions(true);
 		MaterialSamplers.apply(samplerSlots);
-		MaterialShaders.apply(shaders);
-		if (!previousShaderSource.equals(MaterialShaders.generateFunctions(true))) GlowtoneReload.request();
+		MaterialShaderPatcher.apply(shaders);
+		if (!previousShaderSource.equals(MaterialShaderPatcher.generateFunctions(true))) GlowtoneReload.request();
 
 		perBlock.forEach((block, materials) -> {
-			final BlockMaterials.Baked baked;
+			final BlockMaterial.Baked baked;
 			if (materials.keySet().containsAll(block.getStateDefinition().getPossibleStates())
 				&& materials.values().stream().distinct().count() <= 1
 			) {
-				baked = new BlockMaterials.Simple(materials.get(block.defaultBlockState()));
+				baked = new BlockMaterial.Simple(materials.get(block.defaultBlockState()));
 			} else {
-				baked = new BlockMaterials.MultiVariant(materials);
+				baked = new BlockMaterial.MultiVariant(materials);
 			}
 
-			block.frozenLib$setAttached(BlockMaterials.ATTACHMENT_KEY, baked);
+			block.frozenLib$setAttached(BlockMaterial.ATTACHMENT_KEY, baked);
 		});
 
 		rebuildChunks();
 
-		LOGGER.info("Glowtone applied block materials: {} blockstates across {} blocks, {} shader materials",
-			overrides.size(), perBlock.size(), shaders.size());
+		LOGGER.info("Glowtone applied block materials: {} blockstates across {} blocks, {} shader materials", overrides.size(), perBlock.size(), shaders.size());
 	}
 
 	// The material index is baked into chunk meshes, so terrain only picks up a change once they rebuild.
@@ -260,20 +254,19 @@ public final class BlockMaterialLoader {
 		Identifier materialId,
 		BlockMaterial material,
 		Map<Identifier, String> sources,
-		List<MaterialShaders.Loaded> shaders,
+		List<MaterialShaderPatcher.Loaded> shaders,
 		List<Identifier> samplerSlots
 	) {
 		final MaterialShader shader = material.shader().orElse(null);
-		if (shader == null || shader.isEmpty()) return BlockMaterials.NO_SHADER;
+		if (shader == null || shader.isEmpty()) return BlockMaterialRenderer.NO_SHADER;
 
 		final String fragmentSource = stageSource(materialId, "fragment", shader.fragment(), sources);
 		final String vertexSource = stageSource(materialId, "vertex", shader.vertex(), sources);
-		if (fragmentSource == null && vertexSource == null) return BlockMaterials.NO_SHADER;
+		if (fragmentSource == null && vertexSource == null) return BlockMaterialRenderer.NO_SHADER;
 
-		if (shaders.size() >= BlockMaterials.MAX_SHADER_INDEX) {
-			LOGGER.error("Block material {} exceeds the limit of {} shader materials, ignoring its shader",
-				materialId, BlockMaterials.MAX_SHADER_INDEX);
-			return BlockMaterials.NO_SHADER;
+		if (shaders.size() >= BlockMaterialRenderer.MAX_SHADER_INDEX) {
+			LOGGER.error("Block material {} exceeds the limit of {} shader materials, ignoring its shader", materialId, BlockMaterialRenderer.MAX_SHADER_INDEX);
+			return BlockMaterialRenderer.NO_SHADER;
 		}
 
 		final Map<String, Integer> slots = new LinkedHashMap<>(shader.textures().size());
@@ -281,9 +274,8 @@ public final class BlockMaterialLoader {
 			int slot = samplerSlots.indexOf(texture.getValue());
 			if (slot < 0) {
 				if (samplerSlots.size() >= MaterialSamplers.SLOTS) {
-					LOGGER.error("Block material {} needs more than {} distinct shader textures, ignoring its shader",
-						materialId, MaterialSamplers.SLOTS);
-					return BlockMaterials.NO_SHADER;
+					LOGGER.error("Block material {} needs more than {} distinct shader textures, ignoring its shader", materialId, MaterialSamplers.SLOTS);
+					return BlockMaterialRenderer.NO_SHADER;
 				}
 
 				samplerSlots.add(texture.getValue());
@@ -293,21 +285,17 @@ public final class BlockMaterialLoader {
 			slots.put(texture.getKey(), slot);
 		}
 
-		shaders.add(new MaterialShaders.Loaded(materialId, shader, fragmentSource, vertexSource, slots));
+		shaders.add(new MaterialShaderPatcher.Loaded(materialId, shader, fragmentSource, vertexSource, slots));
 		return shaders.size();
 	}
 
-	private static @Nullable String stageSource(
-		Identifier materialId, String stage, Optional<Identifier> file, Map<Identifier, String> sources
-	) {
+	@Nullable
+	private static String stageSource(Identifier materialId, String stage, Optional<Identifier> file, Map<Identifier, String> sources) {
 		final Identifier id = file.orElse(null);
 		if (id == null) return null;
 
 		final String source = sources.get(id);
-		if (source == null) {
-			LOGGER.error("Block material {} wants a {} shader from {} but its source was not read, skipping that stage",
-				materialId, stage, id);
-		}
+		if (source == null) LOGGER.error("Block material {} wants a {} shader from {} but its source was not read, skipping that stage", materialId, stage, id);
 
 		return source;
 	}

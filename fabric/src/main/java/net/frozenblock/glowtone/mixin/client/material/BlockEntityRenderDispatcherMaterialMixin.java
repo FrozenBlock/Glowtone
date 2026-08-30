@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -39,7 +39,7 @@ public class BlockEntityRenderDispatcherMaterialMixin {
 		@Nullable BlockEntityRenderer<?, ?> renderer,
 		BlockEntity blockEntity
 	) {
-		if (renderer == null || BlockMaterials.blockEntityRender(blockEntity.getBlockState())) return renderer;
+		if (renderer == null || BlockMaterialRenderer.blockEntityRender(blockEntity.getBlockState())) return renderer;
 		return null;
 	}
 }

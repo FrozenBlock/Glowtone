@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import net.minecraft.client.renderer.feature.FeatureFrameContext;
@@ -35,7 +35,7 @@ public class MovingBlockFeatureRendererMaterialMixin {
 
 	@Inject(method = "buildGroup", at = @At("HEAD"))
 	private void glowtone$openMovingBlockMaterial(FeatureFrameContext context, List<MovingBlockFeatureRenderer.Submit> submits, CallbackInfo info) {
-		BlockMaterials.beginShaderIndex(BlockMaterials.NO_SHADER);
+		BlockMaterialRenderer.beginShaderIndex(BlockMaterialRenderer.NO_SHADER);
 	}
 
 	@Inject(
@@ -50,7 +50,7 @@ public class MovingBlockFeatureRendererMaterialMixin {
 		FeatureFrameContext context, List<MovingBlockFeatureRenderer.Submit> submits, CallbackInfo info,
 		@Local(name = "submit") MovingBlockFeatureRenderer.Submit submit
 	) {
-		BlockMaterials.setShaderIndex(BlockMaterials.shaderIndexFor(submit.movingBlockRenderState().blockState));
+		BlockMaterialRenderer.setShaderIndex(BlockMaterialRenderer.shaderIndexFor(submit.movingBlockRenderState().blockState));
 	}
 
 	@Inject(
@@ -69,6 +69,6 @@ public class MovingBlockFeatureRendererMaterialMixin {
 
 	@Inject(method = "buildGroup", at = @At("RETURN"))
 	private void glowtone$endMovingBlockMaterial(CallbackInfo info) {
-		BlockMaterials.endBlock();
+		BlockMaterialRenderer.endBlock();
 	}
 }

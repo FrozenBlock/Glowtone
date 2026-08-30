@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.material;
 
+import net.frozenblock.glowtone.material.data.MaterialShader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
@@ -24,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 @ClientOnly
-public final class MaterialShaders {
+// TODO: make patch code not unreadable
+public final class MaterialShaderPatcher {
 	public static final String ATLAS = "glowtone_Atlas";
 	public static final String COLOR = "glowtone_Color";
 	public static final String UV = "glowtone_Uv";
@@ -40,39 +42,18 @@ public final class MaterialShaders {
 	public static final String DISPATCH = "glowtone_materialShader";
 	public static final String VERTEX_DISPATCH = "glowtone_materialVertex";
 
-	private static final String FRAGMENT_PARAMS = "vec4 " + COLOR
-		+ ", vec2 " + UV
-		+ ", vec3 " + WORLD_POS
-		+ ", vec3 " + BLOCK_POS
-		+ ", vec3 " + LOCAL_POS
-		+ ", vec3 " + NORMAL
-		+ ", vec4 " + SCREEN_PROJ
-		+ ", vec2 " + LIGHT
-		+ ", float " + GAME_TIME
-		+ ", int " + CONTEXT;
+	private static final String FRAGMENT_PARAMS = "vec4 %s, vec2 %s, vec3 %s, vec3 %s, vec3 %s, vec3 %s, vec4 %s, vec2 %s, float %s, int %s"
+		.formatted(COLOR, UV, WORLD_POS, BLOCK_POS, LOCAL_POS, NORMAL, SCREEN_PROJ, LIGHT, GAME_TIME, CONTEXT);
 
-	private static final String FRAGMENT_ARGS = COLOR + ", " + UV + ", " + WORLD_POS + ", " + BLOCK_POS
-		+ ", " + LOCAL_POS + ", " + NORMAL + ", " + SCREEN_PROJ + ", " + LIGHT + ", " + GAME_TIME
-		+ ", " + CONTEXT;
+	private static final String FRAGMENT_ARGS = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
+		.formatted(COLOR, UV, WORLD_POS, BLOCK_POS, LOCAL_POS, NORMAL, SCREEN_PROJ, LIGHT, GAME_TIME, CONTEXT);
 
 	// No normal: terrain carries no normal attribute.
-	private static final String VERTEX_PARAMS = "vec3 " + POSITION
-		+ ", vec3 " + BLOCK_POS
-		+ ", vec3 " + LOCAL_POS
-		+ ", vec2 " + LIGHT
-		+ ", float " + GAME_TIME
-		+ ", int " + CONTEXT;
+	private static final String VERTEX_PARAMS = "vec3 %s, vec3 %s, vec3 %s, vec2 %s, float %s, int %s"
+		.formatted(POSITION, BLOCK_POS, LOCAL_POS, LIGHT, GAME_TIME, CONTEXT);
 
-	private static final String VERTEX_ARGS = POSITION + ", " + BLOCK_POS + ", " + LOCAL_POS
-		+ ", " + LIGHT + ", " + GAME_TIME + ", " + CONTEXT;
-
-	public record Loaded(
-		Identifier materialId,
-		MaterialShader shader,
-		@Nullable String fragmentSource,
-		@Nullable String vertexSource,
-		Map<String, Integer> slots
-	) {}
+	private static final String VERTEX_ARGS = "%s, %s, %s, %s, %s, %s"
+		.formatted(POSITION, BLOCK_POS, LOCAL_POS, LIGHT, GAME_TIME, CONTEXT);
 
 	private static volatile List<Loaded> loaded = List.of();
 	private static volatile boolean anyFragment;
@@ -134,10 +115,8 @@ public final class MaterialShaders {
 		for (int i = 0; i < loaded.size(); i++) {
 			if (loaded.get(i).fragmentSource() == null) continue;
 
-			builder.append("\t\tcase ").append(i + 1).append(": return ")
-				.append(DISPATCH).append('_').append(i + 1).append('(').append(ATLAS);
-			loaded.get(i).slots().values().forEach(slot ->
-				builder.append(", ").append(withSamplers ? MaterialSamplers.name(slot) : ATLAS));
+			builder.append("\t\tcase ").append(i + 1).append(": return ").append(DISPATCH).append('_').append(i + 1).append('(').append(ATLAS);
+			loaded.get(i).slots().values().forEach(slot -> builder.append(", ").append(withSamplers ? MaterialSamplers.name(slot) : ATLAS));
 			builder.append(", ").append(FRAGMENT_ARGS).append(");\n");
 		}
 
@@ -155,26 +134,31 @@ public final class MaterialShaders {
 			if (entry.vertexSource() == null) continue;
 
 			appendConstants(builder, entry, true);
-			builder.append("\nvec3 ").append(VERTEX_DISPATCH).append('_').append(i + 1)
-				.append('(').append(VERTEX_PARAMS).append(") {\n")
+			builder.append("\nvec3 ").append(VERTEX_DISPATCH).append('_').append(i + 1).append('(').append(VERTEX_PARAMS).append(") {\n")
 				.append(entry.vertexSource()).append("\n}\n");
 			appendConstants(builder, entry, false);
 		}
 
-		builder.append("\nvec3 ").append(VERTEX_DISPATCH)
-			.append("(int glowtone_index, ").append(VERTEX_PARAMS).append(") {\n")
+		builder.append("\nvec3 ").append(VERTEX_DISPATCH).append("(int glowtone_index, ").append(VERTEX_PARAMS).append(") {\n")
 			.append("\tswitch (glowtone_index) {\n");
 
 		for (int i = 0; i < loaded.size(); i++) {
 			if (loaded.get(i).vertexSource() == null) continue;
 
-			builder.append("\t\tcase ").append(i + 1).append(": return ")
-				.append(VERTEX_DISPATCH).append('_').append(i + 1).append('(').append(VERTEX_ARGS).append(");\n");
+			builder.append("\t\tcase ").append(i + 1).append(": return ").append(VERTEX_DISPATCH).append('_').append(i + 1).append('(').append(VERTEX_ARGS).append(");\n");
 		}
 
 		builder.append("\t}\n\treturn vec3(0.0);\n}\n\n");
 		return builder.toString();
 	}
 
-	private MaterialShaders() {}
+	public record Loaded(
+		Identifier materialId,
+		MaterialShader shader,
+		@Nullable String fragmentSource,
+		@Nullable String vertexSource,
+		Map<String, Integer> slots
+	) {}
+
+	private MaterialShaderPatcher() {}
 }

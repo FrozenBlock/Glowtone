@@ -21,7 +21,7 @@ import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @ClientOnly
 public final class MaterialLayer {
@@ -29,11 +29,9 @@ public final class MaterialLayer {
 	private static final int VANILLA_SOLID = 0;
 	private static final int VANILLA_CUTOUT = 1;
 	private static final int VANILLA_TRANSLUCENT = 2;
-
 	public static final MaterialLayer SOLID = new MaterialLayer(Identifier.withDefaultNamespace("solid"));
 	public static final MaterialLayer CUTOUT = new MaterialLayer(Identifier.withDefaultNamespace("cutout"));
 	public static final MaterialLayer TRANSLUCENT = new MaterialLayer(Identifier.withDefaultNamespace("translucent"));
-
 	public static final Codec<MaterialLayer> CODEC = Identifier.CODEC.xmap(MaterialLayer::new, MaterialLayer::id);
 
 	private final Identifier id;
@@ -59,7 +57,8 @@ public final class MaterialLayer {
 		return this.id;
 	}
 
-	public @Nullable ChunkSectionLayer vanilla() {
+	@Nullable
+	public ChunkSectionLayer vanilla() {
 		return switch (this.vanillaLayer) {
 			case VANILLA_SOLID -> ChunkSectionLayer.SOLID;
 			case VANILLA_CUTOUT -> ChunkSectionLayer.CUTOUT;

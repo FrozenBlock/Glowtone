@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.SectionCompiler;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,7 +42,7 @@ public class SectionCompilerMaterialMixin {
 	)
 	private void glowtone$beginBlockMaterial(CallbackInfoReturnable<?> info, @Local BlockState blockState) {
 		BlockLightPropertiesRenderer.beginBlock(blockState);
-		BlockMaterials.beginBlock(blockState);
+		BlockMaterialRenderer.beginBlock(blockState);
 	}
 
 	@Inject(
@@ -55,6 +55,6 @@ public class SectionCompilerMaterialMixin {
 	)
 	private void glowtone$endBlockMaterial(CallbackInfoReturnable<?> info) {
 		BlockLightPropertiesRenderer.endBlock();
-		BlockMaterials.endBlock();
+		BlockMaterialRenderer.endBlock();
 	}
 }

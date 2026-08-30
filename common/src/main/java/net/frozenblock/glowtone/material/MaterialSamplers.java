@@ -85,7 +85,8 @@ public final class MaterialSamplers {
 		for (int slot = 0; slot < SLOTS; slot++) pass.bindTexture(name(slot), views[slot], sampler);
 	}
 
-	private static @Nullable GpuTextureView[] resolve() {
+	@Nullable
+	private static GpuTextureView[] resolve() {
 		final GpuTextureView[] cached = resolved;
 		if (cached != null) return cached;
 
@@ -103,7 +104,8 @@ public final class MaterialSamplers {
 		return views;
 	}
 
-	private static @Nullable GpuTextureView view(Identifier texture) {
+	@Nullable
+	private static GpuTextureView view(Identifier texture) {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null || minecraft.getTextureManager() == null) return null;
 

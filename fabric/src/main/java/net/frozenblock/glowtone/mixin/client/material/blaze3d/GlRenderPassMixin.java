@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.material.blaze3d;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPassBackend;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,7 +33,7 @@ public class GlRenderPassMixin {
 
 	@Inject(method = "setPipeline", at = @At("RETURN"))
 	private void glowtone$bindMaterialSamplers(RenderPipeline pipeline, CallbackInfo info) {
-		if (!BlockMaterials.anyShaders()) return;
+		if (!BlockMaterialRenderer.anyShaders()) return;
 		if (!pipeline.getBindGroupLayouts().contains(MaterialSamplers.LAYOUT)) return;
 
 		MaterialSamplers.bind((RenderPassBackend) this);

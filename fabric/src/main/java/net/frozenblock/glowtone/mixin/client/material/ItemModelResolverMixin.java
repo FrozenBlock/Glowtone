@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.impl.GlowtoneMaterialHolder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -40,11 +40,11 @@ public class ItemModelResolverMixin {
 		@Local(argsOnly = true) ItemStackRenderState output,
 		@Local(argsOnly = true) ItemStack item
 	) {
-		if (!BlockMaterials.anyShaders() || !(output instanceof GlowtoneMaterialHolder holder)) return;
+		if (!BlockMaterialRenderer.anyShaders() || !(output instanceof GlowtoneMaterialHolder holder)) return;
 
 		final int index = item.getItem() instanceof BlockItem blockItem
-			? BlockMaterials.shaderIndexFor(blockItem.getBlock().defaultBlockState())
-			: BlockMaterials.NO_SHADER;
+			? BlockMaterialRenderer.shaderIndexFor(blockItem.getBlock().defaultBlockState())
+			: BlockMaterialRenderer.NO_SHADER;
 
 		holder.glowtone$setMaterialIndex(index);
 	}

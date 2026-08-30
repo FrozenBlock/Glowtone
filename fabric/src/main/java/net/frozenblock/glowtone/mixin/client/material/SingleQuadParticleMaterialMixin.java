@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.impl.GlowtoneMaterialHolder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.particle.SingleQuadParticle;
@@ -37,7 +37,7 @@ public class SingleQuadParticleMaterialMixin {
 		)
 	)
 	private int glowtone$markParticleMaterial(int lightCoords) {
-		if (!BlockMaterials.anyShaders() || !(this instanceof GlowtoneMaterialHolder holder)) return lightCoords;
-		return BlockMaterials.markShaderIndex(lightCoords, holder.glowtone$materialIndex());
+		if (!BlockMaterialRenderer.anyShaders() || !(this instanceof GlowtoneMaterialHolder holder)) return lightCoords;
+		return BlockMaterialRenderer.markShaderIndex(lightCoords, holder.glowtone$materialIndex());
 	}
 }

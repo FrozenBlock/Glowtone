@@ -23,7 +23,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRend
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,13 +44,13 @@ public class BlockRendererMaterialMixin {
 		@Local(argsOnly = true) BlockState state
 	) {
 		BlockLightPropertiesRenderer.beginBlock(state);
-		BlockMaterials.beginBlock(state);
+		BlockMaterialRenderer.beginBlock(state);
 	}
 
 	@Inject(method = "renderModel", at = @At("RETURN"))
 	private void glowtone$endBlockMaterial(CallbackInfo info) {
 		BlockLightPropertiesRenderer.endBlock();
-		BlockMaterials.endBlock();
+		BlockMaterialRenderer.endBlock();
 	}
 
 	@ModifyExpressionValue(
@@ -61,7 +61,7 @@ public class BlockRendererMaterialMixin {
 		)
 	)
 	private Material glowtone$overrideMaterialLayer(Material material) {
-		final ChunkSectionLayer override = BlockMaterials.overrideLayer();
+		final ChunkSectionLayer override = BlockMaterialRenderer.overrideLayer();
 		return override == null ? material : DefaultMaterials.forChunkLayer(override);
 	}
 }

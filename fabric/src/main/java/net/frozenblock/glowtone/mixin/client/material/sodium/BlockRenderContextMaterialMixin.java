@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.AbstractBlockRenderContext;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.MaterialCullHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
 @ClientOnly
-@Mixin(value = AbstractBlockRenderContext.class, remap = false)
+@Mixin(AbstractBlockRenderContext.class)
 public class BlockRenderContextMaterialMixin {
 	@Shadow
 	protected BlockState state;
@@ -45,7 +45,7 @@ public class BlockRenderContextMaterialMixin {
 
 	@Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
 	private void glowtone$overrideFaceCulling(Direction facing, CallbackInfoReturnable<Boolean> info) {
-		if (!BlockMaterials.anyFaceCulling() || this.state == null || this.level == null || this.pos == null) return;
+		if (!BlockMaterialRenderer.anyFaceCulling() || this.state == null || this.level == null || this.pos == null) return;
 
 		final Boolean override = MaterialCullHelper.overrideRenderFace(this.state, this.level.getBlockState(this.pos.relative(facing)));
 		if (override != null) info.setReturnValue(override);

@@ -17,6 +17,9 @@
 
 package net.frozenblock.glowtone.material;
 
+import net.frozenblock.glowtone.material.data.BlockMaterial;
+import net.frozenblock.glowtone.material.data.CullMode;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -26,18 +29,18 @@ public final class MaterialCullHelper {
 
 	@Nullable
 	public static Boolean overrideRenderFace(BlockState state, BlockState neighbour) {
-		if (!BlockMaterials.anyFaceCulling()) return null;
+		if (!BlockMaterialRenderer.anyFaceCulling()) return null;
 
-		final BlockMaterials.Assigned rendered = BlockMaterials.anySelfCulling()
-			? BlockMaterials.assigned(state)
-			: BlockMaterials.UNASSIGNED;
+		final BlockMaterial.Assigned rendered = BlockMaterialRenderer.anySelfCulling()
+			? BlockMaterialRenderer.assigned(state)
+			: BlockMaterial.UNASSIGNED;
 		final CullMode selfMode = rendered.material().cull().selfMode();
 
-		if (!BlockMaterials.anyCastCulling() && selfMode != CullMode.SAME_MATERIAL) {
+		if (!BlockMaterialRenderer.anyCastCulling() && selfMode != CullMode.SAME_MATERIAL) {
 			return selfMode.shouldRender(state, neighbour, rendered.id(), null);
 		}
 
-		final BlockMaterials.Assigned occluder = BlockMaterials.assigned(neighbour);
+		final BlockMaterial.Assigned occluder = BlockMaterialRenderer.assigned(neighbour);
 		final Boolean self = selfMode.shouldRender(state, neighbour, rendered.id(), occluder.id());
 		if (self != null) return self;
 

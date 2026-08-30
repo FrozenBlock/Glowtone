@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.material;
 
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.impl.GlowtoneMaterialHolder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
@@ -47,16 +47,16 @@ public class ItemStackRenderStateMixin implements GlowtoneMaterialHolder {
 
 	@Inject(method = "clear", at = @At("RETURN"))
 	private void glowtone$clearMaterial(CallbackInfo info) {
-		this.glowtone$materialIndex = BlockMaterials.NO_SHADER;
+		this.glowtone$materialIndex = BlockMaterialRenderer.NO_SHADER;
 	}
 
 	@Inject(method = "submit", at = @At("HEAD"))
 	private void glowtone$beginItemMaterial(CallbackInfo info) {
-		BlockMaterials.beginShaderIndex(this.glowtone$materialIndex);
+		BlockMaterialRenderer.beginShaderIndex(this.glowtone$materialIndex);
 	}
 
 	@Inject(method = "submit", at = @At("RETURN"))
 	private void glowtone$endItemMaterial(CallbackInfo info) {
-		BlockMaterials.endBlock();
+		BlockMaterialRenderer.endBlock();
 	}
 }

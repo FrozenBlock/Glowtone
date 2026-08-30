@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.material.fabric;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl;
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -34,13 +34,13 @@ public class AltModelBlockRendererMaterialMixin {
 
 	@ModifyReturnValue(method = "transform", at = @At("RETURN"))
 	private boolean glowtone$markMaterialQuad(boolean original, MutableQuadView quad) {
-		if (!original || !BlockMaterials.anyShaders()) return original;
+		if (!original || !BlockMaterialRenderer.anyShaders()) return original;
 
-		final int shaderIndex = BlockMaterials.renderedShaderIndex();
-		if (shaderIndex == BlockMaterials.NO_SHADER) return original;
+		final int shaderIndex = BlockMaterialRenderer.renderedShaderIndex();
+		if (shaderIndex == BlockMaterialRenderer.NO_SHADER) return original;
 
 		for (int vertex = 0; vertex < 4; vertex++) {
-			quad.lightmap(vertex, BlockMaterials.markShaderIndex(quad.lightmap(vertex), shaderIndex));
+			quad.lightmap(vertex, BlockMaterialRenderer.markShaderIndex(quad.lightmap(vertex), shaderIndex));
 		}
 
 		return original;

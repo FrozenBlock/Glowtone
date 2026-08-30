@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.material;
 
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.impl.GlowtoneMaterialHolder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
@@ -38,8 +38,8 @@ public class ItemFeatureRendererSubmitMaterialMixin {
 		if (!((Object) submit instanceof GlowtoneMaterialHolder materialHolder)) return;
 
 		final int index = materialHolder.glowtone$materialIndex();
-		BlockMaterials.beginShaderIndex(index);
-		BlockMaterials.beginGui(submit.displayContext() == ItemDisplayContext.GUI);
+		BlockMaterialRenderer.beginShaderIndex(index);
+		BlockMaterialRenderer.beginGui(submit.displayContext() == ItemDisplayContext.GUI);
 	}
 
 	@ModifyArg(
@@ -52,13 +52,13 @@ public class ItemFeatureRendererSubmitMaterialMixin {
 		require = 1
 	)
 	private int glowtone$markItemLightCoords(int lightCoords) {
-		final int marked = BlockMaterials.markGui(BlockMaterials.markShaderIndex(lightCoords));
+		final int marked = BlockMaterialRenderer.markGui(BlockMaterialRenderer.markShaderIndex(lightCoords));
 		return marked;
 	}
 
 	@Inject(method = "prepareMainSubmit", at = @At("RETURN"))
 	private void glowtone$endItemMaterial(CallbackInfo info) {
-		BlockMaterials.beginGui(false);
-		BlockMaterials.endBlock();
+		BlockMaterialRenderer.beginGui(false);
+		BlockMaterialRenderer.endBlock();
 	}
 }

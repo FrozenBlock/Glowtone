@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.material;
+package net.frozenblock.glowtone.material.data;
 
 import com.mojang.serialization.Codec;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -31,7 +31,6 @@ public enum CullMode implements StringRepresentable {
 	ALWAYS("always"),
 	SAME_BLOCK("same_block"),
 	SAME_MATERIAL("same_material");
-
 	public static final Codec<CullMode> CODEC = StringRepresentable.fromEnum(CullMode::values);
 
 	private final String name;
@@ -49,9 +48,8 @@ public enum CullMode implements StringRepresentable {
 		return this != AUTO;
 	}
 
-	public @Nullable Boolean shouldRender(
-		BlockState rendered, BlockState neighbour, @Nullable Identifier renderedMaterial, @Nullable Identifier neighbourMaterial
-	) {
+	@Nullable
+	public Boolean shouldRender(BlockState rendered, BlockState neighbour, @Nullable Identifier renderedMaterial, @Nullable Identifier neighbourMaterial) {
 		return switch (this) {
 			case AUTO -> null;
 			case NEVER -> Boolean.TRUE;

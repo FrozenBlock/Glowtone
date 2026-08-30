@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.material;
 
-import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.chunk.SectionCompiler;
@@ -32,6 +32,6 @@ public class SectionCompilerLayerMixin {
 	@ModifyVariable(method = "getOrBeginLayer", at = @At("HEAD"), argsOnly = true)
 	private ChunkSectionLayer glowtone$overrideLayer(ChunkSectionLayer layer) {
 		// TODO: this is a new layer. translucents won't work properly, test them! (water especially)
-		return BlockMaterials.layer(layer);
+		return BlockMaterialRenderer.layer(layer);
 	}
 }
