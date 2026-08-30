@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumQuad;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -50,6 +50,6 @@ public class MutableQuadViewImplMixin implements GlowtoneSodiumQuad {
 
 	@Inject(method = "fromBakedQuad", at = @At("RETURN"))
 	private void glowtone$captureEmissive(BakedQuad quad, CallbackInfoReturnable<MutableQuadViewImpl> info) {
-		this.glowtone$emissive = GlowtoneBloom.isEmissiveQuad(quad);
+		this.glowtone$emissive = BloomHelper.isEmissiveQuad(quad);
 	}
 }

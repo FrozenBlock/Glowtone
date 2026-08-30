@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.light.color.data.block;
+package net.frozenblock.glowtone.light.data.block;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 import net.frozenblock.glowtone.mixin.client.colour.data.PropertyDispatchAccessor;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;

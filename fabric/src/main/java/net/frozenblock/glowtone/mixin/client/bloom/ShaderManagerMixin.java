@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.shaders.ShaderType;
-import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
+import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.ShaderManager;
 import net.minecraft.resources.Identifier;
@@ -43,6 +43,6 @@ public class ShaderManagerMixin {
 		@Local(argsOnly = true) Identifier location,
 		@Local(argsOnly = true) ShaderType type
 	) {
-		return GlowtoneEmissiveShaders.patch(type.idConverter().fileToId(location), type, source);
+		return EmissiveShaderPatcher.patch(type.idConverter().fileToId(location), type, source);
 	}
 }

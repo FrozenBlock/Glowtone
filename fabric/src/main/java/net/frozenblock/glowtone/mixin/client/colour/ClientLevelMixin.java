@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;

@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.light.edge;
 
-import net.frozenblock.glowtone.light.color.OcclusionOverrides;
+import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.frozenblock.glowtone.render.GlowtoneCasterShapes;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -59,7 +59,7 @@ public final class EdgeNeighbours {
 		if (!this.dirty && this.source == level && this.x == pos.getX() && this.y == pos.getY() && this.z == pos.getZ()) return;
 
 		final BlockState here = level.getBlockState(pos);
-		this.receivesOcclusion = OcclusionOverrides.receives(here, here.getLightEmission() == 0);
+		this.receivesOcclusion = OcclusionOverrideHelper.receives(here, here.getLightEmission() == 0);
 
 		this.resolved = 1 << CENTRE;
 		this.cells[CENTRE] = casterBoxes(level, pos, here);
@@ -149,5 +149,4 @@ public final class EdgeNeighbours {
 		return bounds.minX <= SPAN_SLACK && bounds.maxX >= 1D - SPAN_SLACK
 			&& bounds.minZ <= SPAN_SLACK && bounds.maxZ >= 1D - SPAN_SLACK;
 	}
-
 }

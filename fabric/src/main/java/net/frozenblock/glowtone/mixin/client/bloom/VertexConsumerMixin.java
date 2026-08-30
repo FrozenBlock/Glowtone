@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,6 +55,6 @@ public interface VertexConsumerMixin {
 
 	@Unique
 	private static int glowtone$markQuad(int lightCoords, BakedQuad quad) {
-		return GlowtoneBloom.isEmissiveQuad(quad) ? GlowtoneBloom.mark(lightCoords) : lightCoords;
+		return BloomHelper.isEmissiveQuad(quad) ? BloomHelper.mark(lightCoords) : lightCoords;
 	}
 }

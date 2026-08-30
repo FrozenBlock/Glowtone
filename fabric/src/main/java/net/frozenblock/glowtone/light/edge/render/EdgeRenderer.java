@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.bloom;
+package net.frozenblock.glowtone.light.edge.render;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
@@ -47,14 +47,11 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 
 @Environment(EnvType.CLIENT)
-public final class GlowtoneEdgeRenderer {
+public final class EdgeRenderer {
 	private static final int UNIFORM_SIZE = new Std140SizeCalculator()
 		.putVec2().putFloat().putFloat().putFloat().putFloat().putFloat().putFloat().putFloat().get();
-
 	private static final float THRESHOLD = 0.02F;
-
 	private static final float REFERENCE_HEIGHT = 1080F;
-
 	private static final float NEAR = 0.05F;
 	private static final float MIN_FAR = 64F;
 
@@ -79,8 +76,6 @@ public final class GlowtoneEdgeRenderer {
 	private static float uniformNear = -1F;
 	private static float uniformFar = -1F;
 	private static float uniformDistance = -1F;
-
-	private GlowtoneEdgeRenderer() {}
 
 	public static boolean isEnabled() {
 		return GlowtonePackSettings.highlightSource() == GlowtonePackSettings.Source.POST;
@@ -173,4 +168,6 @@ public final class GlowtoneEdgeRenderer {
 		uniformFar = -1F;
 		uniformDistance = -1F;
 	}
+
+	private EdgeRenderer() {}
 }

@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
-import net.frozenblock.glowtone.bloom.GlowtoneEdgeRenderer;
+import net.frozenblock.glowtone.light.edge.render.EdgeRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Final;
@@ -59,6 +59,6 @@ public class GameRendererMixin {
 		)
 	)
 	private void glowtone$screenSpaceEdges(CallbackInfo info) {
-		GlowtoneEdgeRenderer.render(this.mainRenderTarget);
+		EdgeRenderer.render(this.mainRenderTarget);
 	}
 }

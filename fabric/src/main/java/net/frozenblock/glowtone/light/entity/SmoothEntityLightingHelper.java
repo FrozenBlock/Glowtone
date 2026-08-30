@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.light.entity;
 
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -93,7 +93,7 @@ public final class SmoothEntityLightingHelper {
 		final int result = LightCoordsUtil.smoothPack(
 			Math.max(smoothBlockLight, LightCoordsUtil.block(lightCoords) == LightEngine.MAX_LEVEL ? LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL : 0),
 			smoothSkyLight
-		) | (lightCoords & GlowtoneBloom.EMISSIVE_MARKER);
+		) | (lightCoords & BloomHelper.EMISSIVE_MARKER);
 		return result;
 	}
 

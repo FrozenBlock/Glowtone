@@ -1,17 +1,16 @@
 package net.frozenblock.glowtone.data;
 
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerators;
-import net.frozenblock.glowtone.light.color.data.block.MultiVariantGenerator;
+import net.frozenblock.glowtone.light.data.block.BlockLightPropertiesGenerators;
+import net.frozenblock.glowtone.light.data.block.MultiVariantGenerator;
 import net.frozenblock.glowtone.light.color.FilterColorHelper;
-import net.frozenblock.glowtone.light.color.data.LightPropertiesProvider;
+import net.frozenblock.glowtone.light.data.LightPropertiesProvider;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import static net.frozenblock.glowtone.light.color.data.block.BlockLightProperties.*;
 
 @ClientOnly
 public final class GTLightPropertiesProvider extends LightPropertiesProvider {

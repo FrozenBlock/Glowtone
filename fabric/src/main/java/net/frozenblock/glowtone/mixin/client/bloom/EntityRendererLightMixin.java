@@ -23,7 +23,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -32,7 +32,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @ClientOnly
@@ -65,6 +64,6 @@ public class EntityRendererLightMixin {
 		@Share("glowtone$selfLit") LocalBooleanRef selfLit
 	) {
 		if (!selfLit.get() || !GlowtoneConstants.GLOWTONE_EMISSIVES || !GlowtoneBloomRenderer.isEnabled()) return lightCoords;
-		return GlowtoneBloom.mark(lightCoords);
+		return BloomHelper.mark(lightCoords);
 	}
 }

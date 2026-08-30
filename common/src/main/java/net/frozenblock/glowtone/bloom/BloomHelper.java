@@ -22,7 +22,7 @@ import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.level.lighting.LightEngine;
 
 @ClientOnly
-public final class GlowtoneBloom {
+public final class BloomHelper {
 	public static final int EMISSIVE_MARKER = 0x1000;
 	public static final int LIGHT_COORDS_CHANNEL_MASK = 0xFF;
 
@@ -43,5 +43,5 @@ public final class GlowtoneBloom {
 		return lightCoords | EMISSIVE_MARKER;
 	}
 
-	private GlowtoneBloom() {}
+	private BloomHelper() {}
 }

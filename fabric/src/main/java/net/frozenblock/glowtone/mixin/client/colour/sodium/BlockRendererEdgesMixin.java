@@ -21,10 +21,11 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRend
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
 import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumContext;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumEdges;
+import net.frozenblock.glowtone.light.edge.sodium.SodiumEdges;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,18 +33,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
+@ClientOnly
 @Mixin(BlockRenderer.class)
 public class BlockRendererEdgesMixin {
 
 	@Inject(method = "renderModel", at = @At("HEAD"))
 	private void glowtone$captureModelBoxes(BlockStateModel model, BlockState state, BlockPos pos, BlockPos origin, CallbackInfo info) {
-		GlowtoneSodiumEdges.beginBlock(
+		SodiumEdges.beginBlock(
 			model, state, ((GlowtoneSodiumContext) this).glowtone$level(), pos);
 	}
 
 	@Inject(method = "bufferQuad", at = @At("HEAD"))
 	private void glowtone$buildEdges(MutableQuadViewImpl quad, float[] brightnesses, Material material, CallbackInfo info) {
 		final GlowtoneSodiumContext context = (GlowtoneSodiumContext) this;
-		GlowtoneSodiumEdges.begin(quad, context.glowtone$level(), context.glowtone$pos());
+		SodiumEdges.beginQuad(quad, context.glowtone$level(), context.glowtone$pos());
 	}
 }

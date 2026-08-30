@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render;
+package net.frozenblock.glowtone.light.color.render;
 
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.SectionPos;

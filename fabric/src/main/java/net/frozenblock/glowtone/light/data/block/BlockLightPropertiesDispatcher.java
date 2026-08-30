@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.light.color.data.block;
+package net.frozenblock.glowtone.light.data.block;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;

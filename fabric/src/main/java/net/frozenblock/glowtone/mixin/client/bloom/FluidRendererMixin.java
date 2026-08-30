@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.tags.FluidTags;
@@ -41,6 +41,6 @@ public class FluidRendererMixin {
 	)
 	private int glowtone$markLavaLight(int lightCoords, @Local(argsOnly = true) FluidState fluidState) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES || !fluidState.is(FluidTags.LAVA)) return lightCoords;
-		return GlowtoneBloom.mark(lightCoords);
+		return BloomHelper.mark(lightCoords);
 	}
 }

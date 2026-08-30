@@ -37,7 +37,7 @@ public final class ColorShaderPatcher {
 
 	// Split the lightmap: sky-only (block = 0) is the neutral base, and the block-lightColor contribution is
 	// whatever the full sample adds on top of it — only THAT is tinted. This keeps daylight neutral and keeps
-	// colour saturated even at full block lightColor, where vanilla's ramp is nearly white.
+	// color saturated even at full block lightColor, where vanilla's ramp is nearly white.
 	private static final String SPLIT_LIGHTMAP = """
 		    vec4 fullLight = sample_lightmap(Sampler2, UV2);
 		    vec4 skyOnlyLight = sample_lightmap(Sampler2, ivec2(0, UV2.y));
@@ -55,11 +55,9 @@ public final class ColorShaderPatcher {
 		""";
 
 	// Sky lightColor is tinted by whatever it passed through on the way down (a stained-glass roof), and block lightColor
-	// by the colour of the source. GlowtoneSkyChroma only ever ATTENUATES — it is plain white where nothing overhead
-	// colours the daylight — so open sky stays exactly as vanilla renders it.
+	// by the color of the source. GlowtoneSkyChroma only ever ATTENUATES — it is plain white where nothing overhead
+	// colors the daylight — so open sky stays exactly as vanilla renders it.
 	private static final String SAMPLE_LIGHTMAP_REPLACEMENT = "vec4(skyOnlyLight.rgb * GlowtoneSkyChroma.rgb + blockLightProperties * GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, fullLight.a)";
-
-	private ColorShaderPatcher() {}
 
 	private static final String SODIUM_INIT = "_vert_init();";
 	private static final String SODIUM_OUT_COLOR = "out vec4 v_Color;";
@@ -79,7 +77,8 @@ public final class ColorShaderPatcher {
 		    v_Color = _vert_color * vec4(
 		        glowtone_skyOnlyLight.rgb * a_GlowtoneSkyChroma.rgb
 		            + glowtone_blockLight * a_GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE,
-		        glowtone_fullLight.a);""";
+		        glowtone_fullLight.a);
+		""";
 
 	private static String patchSodiumTerrain(String source) {
 		if (!source.contains(SODIUM_INIT)
@@ -133,4 +132,6 @@ public final class ColorShaderPatcher {
 
 		return preTerrainSource + terrainOnlySource;
 	}
+
+	private ColorShaderPatcher() {}
 }

@@ -1,10 +1,10 @@
-package net.frozenblock.glowtone.light.color.data;
+package net.frozenblock.glowtone.light.data;
 
 import com.google.common.collect.Maps;
-import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
-import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesDispatcher;
-import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerator;
-import net.frozenblock.glowtone.light.color.data.block.BlockLightPropertiesGenerators;
+import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.data.block.BlockLightPropertiesDispatcher;
+import net.frozenblock.glowtone.light.data.block.BlockLightPropertiesGenerator;
+import net.frozenblock.glowtone.light.data.block.BlockLightPropertiesGenerators;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;

@@ -15,15 +15,14 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.light.color;
+package net.frozenblock.glowtone.light.occlusion;
 
-import net.frozenblock.glowtone.light.color.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
 
 @ClientOnly
-public final class OcclusionOverrides {
-
+public final class OcclusionOverrideHelper {
 	public static final float FULL_OCCLUDER = 0.2F;
 
 	public static boolean any() {
@@ -40,5 +39,5 @@ public final class OcclusionOverrides {
 		return BlockLightProperties.forBlockState(state).ambientOcclusion().cast().orElse(automatic);
 	}
 
-	private OcclusionOverrides() {}
+	private OcclusionOverrideHelper() {}
 }

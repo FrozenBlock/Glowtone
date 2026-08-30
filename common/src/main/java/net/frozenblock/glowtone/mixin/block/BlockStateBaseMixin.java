@@ -33,5 +33,4 @@ public class BlockStateBaseMixin {
 		if (BlockBehaviour.BlockStateBase.class.cast(this).getBlock() instanceof RedStoneOreBlock && GlowtoneConstants.GLOWTONE_EMISSIVES) return 0;
 		return lightEmission;
 	}
-
 }

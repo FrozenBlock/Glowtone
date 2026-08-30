@@ -15,25 +15,24 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.render.sodium;
+package net.frozenblock.glowtone.light.edge.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
+import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumQuad;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
-public final class GlowtoneSodiumEdges {
-	private GlowtoneSodiumEdges() {
-	}
+@ClientOnly
+public final class SodiumEdges {
 
-	public static void beginBlock(
-		BlockStateModel model, BlockState blockState, @Nullable BlockAndTintGetter level, BlockPos pos
-	) {
+	public static void beginBlock(BlockStateModel model, BlockState blockState, @Nullable BlockAndTintGetter level, BlockPos pos) {
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setModelFaces(null);
 
@@ -41,13 +40,10 @@ public final class GlowtoneSodiumEdges {
 		if (level == null) return;
 		if (EdgeNeighbours.isBlockLike(blockState.getOcclusionShape())) return;
 
-		state.setModelFaces(
-			GlowtoneModelBoxes.forState(model, level, pos, blockState, blockState.getSeed(pos)));
+		state.setModelFaces(GlowtoneModelBoxes.forState(model, level, pos, blockState, blockState.getSeed(pos)));
 	}
 
-	public static void begin(
-		MutableQuadViewImpl quad, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos
-	) {
+	public static void beginQuad(MutableQuadViewImpl quad, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos) {
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setEmissiveQuad(((GlowtoneSodiumQuad) quad).glowtone$emissive());
 
@@ -72,4 +68,6 @@ public final class GlowtoneSodiumEdges {
 		state.pendingEdges().setQuad(positions, quad.getLightFace(), neighbours, highlight, shade);
 		state.beginQuadEdges();
 	}
+
+	private SodiumEdges() {}
 }

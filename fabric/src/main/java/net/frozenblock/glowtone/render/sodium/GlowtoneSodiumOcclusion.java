@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.render.sodium;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.frozenblock.glowtone.light.color.OcclusionOverrides;
+import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -33,14 +33,14 @@ public final class GlowtoneSodiumOcclusion {
 		final boolean[] held = RECEIVES.get();
 
 		if (level == null || pos == null
-			|| !OcclusionOverrides.any()
+			|| !OcclusionOverrideHelper.any()
 			|| !ChromaBaker.vanillaOcclusionActive()
 		) {
 			held[0] = true;
 			return;
 		}
 
-		held[0] = OcclusionOverrides.receives(level.getBlockState(pos), true);
+		held[0] = OcclusionOverrideHelper.receives(level.getBlockState(pos), true);
 	}
 
 	public static float scaleSelf(float ambientOcclusion) {

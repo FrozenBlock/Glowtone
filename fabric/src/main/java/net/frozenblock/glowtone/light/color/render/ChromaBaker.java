@@ -25,11 +25,10 @@ import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.FilterColorHelper;
-import net.frozenblock.glowtone.light.color.OcclusionOverrides;
+import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
-import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -109,11 +108,11 @@ public final class ChromaBaker {
 
 	public static float occlusionShade(float brightness, BlockState state) {
 		if (!vanillaOcclusion) return 1F;
-		if (!OcclusionOverrides.any()) return occlusionShade(brightness);
+		if (!OcclusionOverrideHelper.any()) return occlusionShade(brightness);
 
 		final boolean automatic = brightness < 1F;
-		if (!OcclusionOverrides.casts(state, automatic)) return 1F;
-		return occlusionShade(automatic ? brightness : OcclusionOverrides.FULL_OCCLUDER);
+		if (!OcclusionOverrideHelper.casts(state, automatic)) return 1F;
+		return occlusionShade(automatic ? brightness : OcclusionOverrideHelper.FULL_OCCLUDER);
 	}
 
 	public static boolean vanillaOcclusionActive() {

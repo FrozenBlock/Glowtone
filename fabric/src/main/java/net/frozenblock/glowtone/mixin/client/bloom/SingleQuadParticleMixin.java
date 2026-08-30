@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.particle.SingleQuadParticle;
@@ -44,6 +44,6 @@ public class SingleQuadParticleMixin {
 		final int worldCoords = SingleQuadParticle.class.cast(this).glowtone$getWorldLightCoords();
 		if (LightCoordsUtil.smoothBlock(lightCoords) <= LightCoordsUtil.smoothBlock(worldCoords)) return lightCoords;
 
-		return GlowtoneBloom.mark(lightCoords);
+		return BloomHelper.mark(lightCoords);
 	}
 }

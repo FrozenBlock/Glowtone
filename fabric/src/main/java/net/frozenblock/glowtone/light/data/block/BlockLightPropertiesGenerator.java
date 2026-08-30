@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.light.color.data.block;
+package net.frozenblock.glowtone.light.data.block;
 
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.Block;

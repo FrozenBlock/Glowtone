@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.colour.shader;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
+import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,8 +48,8 @@ public abstract class RenderPipelinesMixin {
 		)
 	)
 	private static RenderPipeline glowtone$patchSolidTerrain(RenderPipeline.Builder instance, Operation<RenderPipeline> original) {
-		instance.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
-		instance.withShaderDefine(GlowtoneEmissiveShaders.OPAQUE_TERRAIN_DEFINE);
+		instance.withShaderDefine(EmissiveShaderPatcher.SHADED_TERRAIN_DEFINE);
+		instance.withShaderDefine(EmissiveShaderPatcher.OPAQUE_TERRAIN_DEFINE);
 		return original.call(instance);
 	}
 
@@ -68,8 +68,8 @@ public abstract class RenderPipelinesMixin {
 		)
 	)
 	private static RenderPipeline glowtone$patchCutoutTerrain(RenderPipeline.Builder instance, Operation<RenderPipeline> original) {
-		instance.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
-		instance.withShaderDefine(GlowtoneEmissiveShaders.OPAQUE_TERRAIN_DEFINE);
+		instance.withShaderDefine(EmissiveShaderPatcher.SHADED_TERRAIN_DEFINE);
+		instance.withShaderDefine(EmissiveShaderPatcher.OPAQUE_TERRAIN_DEFINE);
 		return original.call(instance);
 	}
 
@@ -88,8 +88,8 @@ public abstract class RenderPipelinesMixin {
 		)
 	)
 	private static RenderPipeline glowtone$patchTranslucentTerrain(RenderPipeline.Builder instance, Operation<RenderPipeline> original) {
-		instance.withShaderDefine(GlowtoneEmissiveShaders.SHADED_TERRAIN_DEFINE);
-		instance.withShaderDefine(GlowtoneEmissiveShaders.TRANSLUCENT_TERRAIN_DEFINE);
+		instance.withShaderDefine(EmissiveShaderPatcher.SHADED_TERRAIN_DEFINE);
+		instance.withShaderDefine(EmissiveShaderPatcher.TRANSLUCENT_TERRAIN_DEFINE);
 		return original.call(instance);
 	}
 }

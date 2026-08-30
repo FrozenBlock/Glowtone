@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.bloom;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,6 +37,6 @@ public class ItemFeatureRendererLightMixin {
 		require = 0
 	)
 	private int glowtone$dropInheritedEmissiveMarker(int lightCoords) {
-		return GlowtoneBloom.unmark(lightCoords);
+		return BloomHelper.unmark(lightCoords);
 	}
 }

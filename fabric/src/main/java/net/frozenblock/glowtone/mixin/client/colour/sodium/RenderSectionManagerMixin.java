@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
-import net.frozenblock.glowtone.render.GlowtoneSectionColorStore;
+import net.frozenblock.glowtone.light.color.render.GlowtoneSectionColorStore;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;

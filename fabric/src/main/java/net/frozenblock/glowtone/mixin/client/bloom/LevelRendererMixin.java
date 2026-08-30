@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
-import net.frozenblock.glowtone.bloom.GlowtoneEdgeRenderer;
+import net.frozenblock.glowtone.light.edge.render.EdgeRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -47,6 +47,6 @@ public class LevelRendererMixin {
 	@Inject(method = "close", at = @At("TAIL"))
 	private void glowtone$closeBloom(CallbackInfo info) {
 		GlowtoneBloomRenderer.free();
-		GlowtoneEdgeRenderer.free();
+		EdgeRenderer.free();
 	}
 }

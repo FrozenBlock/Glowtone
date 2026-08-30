@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.bloom.GlowtoneBloom;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.FlameFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,6 +39,6 @@ public class FlameFeatureRendererMixin {
 	)
 	private static int glowtone$markEntityFlame(int lightCoords) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return lightCoords;
-		return GlowtoneBloom.mark(lightCoords);
+		return BloomHelper.mark(lightCoords);
 	}
 }

@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.options;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import net.frozenblock.glowtone.bloom.GlowtoneEmissiveShaders;
+import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
@@ -77,10 +77,10 @@ public class KeyboardHandlerDebugMixin {
 		final boolean on;
 		if (event.key() == GLOWTONE_OCCLUSION_KEY) {
 			view = "glowtone.debug.ambient_occlusion.";
-			on = GlowtoneEmissiveShaders.toggleAoDebug();
+			on = EmissiveShaderPatcher.toggleAoDebug();
 		} else if (event.key() == GLOWTONE_EDGES_KEY) {
 			view = "glowtone.debug.edge_highlight.";
-			on = GlowtoneEmissiveShaders.toggleEdgeDebugColour();
+			on = EmissiveShaderPatcher.toggleEdgeDebugColour();
 		} else {
 			return;
 		}

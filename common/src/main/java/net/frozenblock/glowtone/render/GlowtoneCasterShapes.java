@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.render;
 
-import net.frozenblock.glowtone.light.color.OcclusionOverrides;
+import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -34,9 +34,9 @@ public final class GlowtoneCasterShapes {
 		if (state.isAir()) return Shapes.empty();
 
 		final VoxelShape automatic = automatic(level, pos, state);
-		if (!OcclusionOverrides.any()) return automatic;
+		if (!OcclusionOverrideHelper.any()) return automatic;
 
-		if (!OcclusionOverrides.casts(state, !automatic.isEmpty())) return Shapes.empty();
+		if (!OcclusionOverrideHelper.casts(state, !automatic.isEmpty())) return Shapes.empty();
 		return automatic.isEmpty() ? state.getShape(level, pos) : automatic;
 	}
 

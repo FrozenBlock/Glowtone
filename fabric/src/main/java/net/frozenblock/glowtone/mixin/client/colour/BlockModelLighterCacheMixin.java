@@ -21,7 +21,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
-import net.frozenblock.glowtone.light.color.OcclusionOverrides;
+import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockModelLighter;
@@ -44,10 +44,10 @@ public class BlockModelLighterCacheMixin {
 
 	@Unique
 	private static float glowtone$applyCast(float brightness, BlockState state) {
-		if (!OcclusionOverrides.any()) return brightness;
+		if (!OcclusionOverrideHelper.any()) return brightness;
 
 		final boolean automatic = brightness < 1F;
-		if (!OcclusionOverrides.casts(state, automatic)) return 1F;
-		return automatic ? brightness : OcclusionOverrides.FULL_OCCLUDER;
+		if (!OcclusionOverrideHelper.casts(state, automatic)) return 1F;
+		return automatic ? brightness : OcclusionOverrideHelper.FULL_OCCLUDER;
 	}
 }
