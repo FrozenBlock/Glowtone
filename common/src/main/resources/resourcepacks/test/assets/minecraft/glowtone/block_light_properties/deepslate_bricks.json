@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "ambient_occlusion": { "self": false, "cast": false }
+    }
+  }
+}

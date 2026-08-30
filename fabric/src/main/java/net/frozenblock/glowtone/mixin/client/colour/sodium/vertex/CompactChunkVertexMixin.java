@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.impl.CompactChunkVertex;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.material.BlockMaterials;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
@@ -73,7 +74,8 @@ public class CompactChunkVertexMixin {
 		stateRef.set(state);
 		edgesRef.set(state.pendingEdges());
 		fluidRef.set(state.fluidQuad());
-		flagsRef.set(state.emissiveQuad() ? 0x000000FF : 0);
+		flagsRef.set((state.emissiveQuad() ? 0x000000FF : 0)
+			| (BlockMaterials.renderedShaderIndex() << 8));
 	}
 
 	@Inject(

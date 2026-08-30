@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Assigns a block material to the blockstates of one block.",
+  "properties": {
+    "variants": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Material id, as defined under glowtone/block_materials.",
+        "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+      },
+      "description": "Blockstate selector to value. An empty key matches every state."
+    }
+  },
+  "required": [
+    "variants"
+  ],
+  "title": "Glowtone block material overrides"
+}

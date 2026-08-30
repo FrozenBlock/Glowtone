@@ -19,13 +19,18 @@ package net.frozenblock.glowtone.bloom;
 
 import com.mojang.blaze3d.shaders.ShaderType;
 import java.util.Set;
+import com.mojang.logging.LogUtils;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.material.BlockMaterials;
+import net.frozenblock.glowtone.material.MaterialSamplers;
+import net.frozenblock.glowtone.material.MaterialShaders;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
+import org.slf4j.Logger;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 
@@ -55,6 +60,8 @@ public final class EmissiveShaderPatcher {
 	private static final float EDGE_FLATTEN = 0.85F;
 	private static final float EDGE_WHITEN = 0.70F;
 	private static final float AO_RADIUS_UNITS = GlowtoneContactRects.RADIUS_UNITS;
+
+	private static final Logger MATERIAL_LOGGER = LogUtils.getLogger();
 
 	private static boolean debugView() {
 		return aoDebug() || edgeDebugColour();
@@ -315,6 +322,26 @@ public final class EmissiveShaderPatcher {
 
 		vec4 glowtone_sampleLightmap(sampler2D glowtone_lightMap, ivec2 glowtone_lightCoords) {
 			glowtone_Emissive = float((glowtone_lightCoords.x & %d) != 0);
+			glowtone_Material = (glowtone_lightCoords.y >> 8) & %d;
+			glowtone_Gui = (glowtone_lightCoords.x & %d) != 0 ? 1 : 0;
+			glowtone_Light = vec2(glowtone_lightCoords & ivec2(%d)) / 240.0;
+			return sample_lightmap(glowtone_lightMap, ivec2(glowtone_lightCoords.x & %d, glowtone_lightCoords.y & %d));
+		}
+
+		""".formatted(
+			BloomHelper.EMISSIVE_MARKER,
+			BlockMaterials.MAX_SHADER_INDEX,
+			BlockMaterials.GUI_MARKER,
+			BloomHelper.LIGHT_COORDS_CHANNEL_MASK,
+			BloomHelper.LIGHT_COORDS_CHANNEL_MASK,
+			BloomHelper.LIGHT_COORDS_CHANNEL_MASK
+		);
+
+	private static final String VERTEX_HEADER_PLAIN = """
+		flat out float glowtone_Emissive;
+
+		vec4 glowtone_sampleLightmap(sampler2D glowtone_lightMap, ivec2 glowtone_lightCoords) {
+			glowtone_Emissive = float((glowtone_lightCoords.x & %d) != 0);
 			return sample_lightmap(glowtone_lightMap, ivec2(glowtone_lightCoords.x & %d, glowtone_lightCoords.y & %d));
 		}
 
@@ -323,6 +350,28 @@ public final class EmissiveShaderPatcher {
 			BloomHelper.LIGHT_COORDS_CHANNEL_MASK,
 			BloomHelper.LIGHT_COORDS_CHANNEL_MASK
 		);
+
+	private static final String MATERIAL_VERTEX_DECLARATIONS = """
+		flat out int glowtone_Gui;
+		flat out int glowtone_Material;
+		out vec3 glowtone_WorldPos;
+		out vec3 glowtone_BlockPos;
+		out vec3 glowtone_LocalPos;
+		out vec2 glowtone_Light;
+		out vec4 glowtone_ScreenProj;
+
+		""";
+
+	private static final String MATERIAL_VERTEX_SETUP =
+		"	glowtone_Gui = 0;" + System.lineSeparator()
+			+ "	glowtone_Material = 0;" + System.lineSeparator()
+			+ "	glowtone_Light = vec2(0.0);" + System.lineSeparator()
+			+ "	glowtone_WorldPos = Position;" + System.lineSeparator()
+			+ "	glowtone_BlockPos = floor(Position);" + System.lineSeparator()
+			+ "	glowtone_LocalPos = Position - floor(Position);" + System.lineSeparator() + "	";
+
+	private static final String MATERIAL_VERTEX_PROJECT =
+		System.lineSeparator() + "	glowtone_ScreenProj = projection_from_position(gl_Position);";
 
 	private static final String VERTEX_FOOTER = """
 
@@ -334,6 +383,64 @@ public final class EmissiveShaderPatcher {
 		#endif
 			glowtone_main();
 		}
+		""";
+
+	private static String vertexHeader(String source) {
+		if (!MaterialShaders.anyFragment() && !MaterialShaders.anyVertex()) return VERTEX_HEADER_PLAIN;
+		if (!MaterialShaders.anyVertex()) return MATERIAL_VERTEX_DECLARATIONS + VERTEX_HEADER;
+
+		// Only terrain imports the globals block, and displacement needs its game time everywhere.
+		final String globals = source.contains(GAME_TIME_UNIFORM) ? "" : GLOBALS_BLOCK;
+		return MATERIAL_VERTEX_DECLARATIONS + globals + MaterialShaders.generateVertexFunctions()
+			+ vertexDisplaceFunction() + VERTEX_HEADER;
+	}
+
+	private static String vertexDisplaceFunction() {
+		return VERTEX_DISPLACE_FUNCTION.formatted(
+			BlockMaterials.MAX_SHADER_INDEX,
+			MaterialShaders.VERTEX_DISPATCH,
+			BloomHelper.LIGHT_COORDS_CHANNEL_MASK
+		);
+	}
+
+	private static final String TERRAIN_POSITION_ANCHOR =
+		"vec3 pos = Position + (ChunkPosition - CameraBlockPos) + CameraOffset;";
+
+	private static final String TERRAIN_POSITION_DISPLACED =
+		"vec3 pos = (Position + glowtone_displace(Position, Position + vec3(ChunkPosition), UV2, GameTime))"
+			+ " + (ChunkPosition - CameraBlockPos) + CameraOffset;";
+
+	// block.vsh offsets the model before projecting; the others project the raw attribute.
+	private static final String MODEL_OFFSET_ANCHOR = "vec3 pos = Position + ModelOffset;";
+
+	private static final String MODEL_OFFSET_DISPLACED =
+		"vec3 pos = (Position + glowtone_displace(Position, Position, UV2, GameTime)) + ModelOffset;";
+
+	private static final String GENERIC_POSITION_ANCHOR = "vec4(Position, 1.0)";
+
+	private static final String GENERIC_POSITION_DISPLACED =
+		"vec4(Position + glowtone_displace(Position, Position, UV2, GameTime), 1.0)";
+
+	private static String vertexFooter() {
+		if (!MaterialShaders.anyFragment() && !MaterialShaders.anyVertex()) return VERTEX_FOOTER;
+
+		return VERTEX_FOOTER.replace(
+			"	glowtone_main();",
+			MATERIAL_VERTEX_SETUP + "glowtone_main();" + MATERIAL_VERTEX_PROJECT
+		);
+	}
+
+	// Reads the index off the light coords directly - the varying is not assigned until the lightmap is sampled after the position is used.
+	private static final String VERTEX_DISPLACE_FUNCTION = """
+		vec3 glowtone_displace(vec3 glowtone_pos, vec3 glowtone_world, ivec2 glowtone_coords, float glowtone_time) {
+			int glowtone_index = (glowtone_coords.y >> 8) & %d;
+			if (glowtone_index == 0) return vec3(0.0);
+
+			vec3 glowtone_block = floor(glowtone_world);
+			return %s(glowtone_index, glowtone_pos, glowtone_block, glowtone_world - glowtone_block,
+				vec2(glowtone_coords & ivec2(%d)) / 240.0, glowtone_time, 0);
+		}
+
 		""";
 
 	private static final String FRAGMENT_HEADER = """
@@ -368,6 +475,10 @@ public final class EmissiveShaderPatcher {
 	private static final Identifier SODIUM_TERRAIN_FRAGMENT =
 		Identifier.fromNamespaceAndPath("sodium", "blocks/block_layer_opaque");
 
+	public static boolean usesMaterialSamplers(Identifier fragmentShader) {
+		return LIT_SHADERS.contains(fragmentShader);
+	}
+
 	public static boolean isLitShader(Identifier id) {
 		return LIT_SHADERS.contains(id) || SODIUM_TERRAIN_FRAGMENT.equals(id);
 	}
@@ -393,11 +504,14 @@ public final class EmissiveShaderPatcher {
 		if (LIT_SHADERS.contains(id)) {
 			if (type == ShaderType.VERTEX) {
 				final String vertex = patchVertex(source);
-				return id.equals(TERRAIN) ? patchTerrainVertex(vertex) : vertex;
+				final String finalVertex = id.equals(TERRAIN) ? patchTerrainVertex(vertex) : vertex;
+				return finalVertex;
 			}
 
-			final String patched = patchFragment(source);
-			return id.equals(TERRAIN) ? patchTerrainLines(patched) : patched;
+			final boolean terrain = id.equals(TERRAIN);
+			final String patched = patchFragment(source, id, terrain);
+			final String finalFragment = terrain ? patchTerrainLines(patched) : patched;
+			return finalFragment;
 		}
 		if (SELF_LIT_SHADERS.contains(id) && type == ShaderType.FRAGMENT) {
 			return patchSelfLitFragment(source);
@@ -474,6 +588,118 @@ public final class EmissiveShaderPatcher {
 			glowtone_Contact3 = a_GlowtoneContact3;
 		""";
 
+	private static final String SODIUM_MATERIAL_VERTEX = """
+		flat out int glowtone_Material;
+		out vec3 glowtone_WorldPos;
+		out vec3 glowtone_BlockPos;
+		out vec3 glowtone_LocalPos;
+		out vec2 glowtone_Light;
+		out vec4 glowtone_ScreenProj;
+		out float glowtone_GameTime;
+
+		""";
+
+	private static final String SODIUM_MATERIAL_WRITES =
+		System.lineSeparator()
+			+ "    glowtone_Material = int(a_GlowtoneFlags.g * 255.0 + 0.5);" + System.lineSeparator()
+			+ "    glowtone_WorldPos = position;" + System.lineSeparator()
+			+ "    vec3 glowtone_absPos = position + vec3(CameraBlockPos) - CameraOffset;" + System.lineSeparator()
+			+ "    glowtone_BlockPos = floor(glowtone_absPos);" + System.lineSeparator()
+			+ "    glowtone_LocalPos = glowtone_absPos - glowtone_BlockPos;" + System.lineSeparator()
+			+ "    glowtone_Light = vec2(0.0);" + System.lineSeparator()
+			+ "    vec4 glowtone_halfClip = gl_Position * 0.5;" + System.lineSeparator()
+			+ "    glowtone_ScreenProj = vec4(glowtone_halfClip.x + glowtone_halfClip.w,"
+			+ " glowtone_halfClip.y + glowtone_halfClip.w, gl_Position.z, gl_Position.w);" + System.lineSeparator()
+			+ "    glowtone_GameTime = float(u_CurrentTime % 1200000) / 1200000.0;";
+
+	private static final String SODIUM_MATERIAL_FRAGMENT = """
+		flat in int glowtone_Material;
+		in vec3 glowtone_WorldPos;
+		in vec3 glowtone_BlockPos;
+		in vec3 glowtone_LocalPos;
+		in vec2 glowtone_Light;
+		in vec4 glowtone_ScreenProj;
+		in float glowtone_GameTime;
+
+		vec3 glowtone_faceNormal() {
+			return normalize(cross(dFdx(glowtone_WorldPos), dFdy(glowtone_WorldPos)));
+		}
+
+		""";
+
+	private static final String SODIUM_MATERIAL_CALL =
+		"if (glowtone_Material != 0) color = " + MaterialShaders.DISPATCH
+			+ "(u_BlockTex, glowtone_Material, color, v_TexCoord, glowtone_WorldPos, glowtone_BlockPos,"
+			+ " glowtone_LocalPos, glowtone_faceNormal(), glowtone_ScreenProj, glowtone_Light, GameTime, 0);"
+			+ System.lineSeparator() + "    ";
+
+	private static final String SODIUM_LIGHT_COORD = "_vert_tex_light_coord";
+
+	private static final String SODIUM_POSITION_ANCHOR = "vec3 position =";
+
+	// Sodium's vertex stage has no Globals block of its own, and the block position needs the camera.
+	private static String sodiumDisplace(String source) {
+		final int declaration = source.indexOf(SODIUM_POSITION_ANCHOR);
+		final int end = declaration < 0 ? -1 : source.indexOf(';', declaration);
+		if (end < 0) {
+			MATERIAL_LOGGER.error("Glowtone could not apply material vertex shaders: Sodium's position anchor is missing");
+			return source;
+		}
+
+		final String displace = System.lineSeparator()
+			+ "    int glowtone_vIndex = int(a_GlowtoneFlags.g * 255.0 + 0.5);" + System.lineSeparator()
+			+ "    if (glowtone_vIndex != 0) {" + System.lineSeparator()
+			+ "        vec3 glowtone_vAbs = position + vec3(CameraBlockPos) - CameraOffset;" + System.lineSeparator()
+			+ "        vec3 glowtone_vBlock = floor(glowtone_vAbs);" + System.lineSeparator()
+			+ "        position += " + MaterialShaders.VERTEX_DISPATCH
+			+ "(glowtone_vIndex, position, glowtone_vBlock, glowtone_vAbs - glowtone_vBlock, vec2(0.0), GameTime, 0);"
+			+ System.lineSeparator() + "    }";
+
+		return source.substring(0, end + 1) + displace + source.substring(end + 1);
+	}
+
+	private static String patchSodiumMaterialVertex(String source) {
+		if (!MaterialShaders.any()
+			|| !source.contains(SODIUM_COLOR_OUT)
+			|| !source.contains(SODIUM_VERTEX_TAIL)
+			|| source.contains("glowtone_Material")
+		) {
+			return source;
+		}
+
+		final boolean hasLight = source.contains(SODIUM_LIGHT_COORD);
+
+		if (MaterialShaders.anyVertex()) {
+			source = sodiumDisplace(
+				source.replace(SODIUM_COLOR_OUT, GLOBALS_BLOCK + MaterialShaders.generateVertexFunctions() + SODIUM_COLOR_OUT)
+			);
+		}
+
+		final String patched = source
+			.replace(SODIUM_COLOR_OUT, SODIUM_MATERIAL_VERTEX + SODIUM_COLOR_OUT)
+			.replace(SODIUM_VERTEX_TAIL, SODIUM_VERTEX_TAIL + SODIUM_MATERIAL_WRITES);
+
+		return hasLight
+			? patched.replace("glowtone_Light = vec2(0.0);", "glowtone_Light = " + SODIUM_LIGHT_COORD + ";")
+			: patched;
+	}
+
+	private static String patchSodiumMaterialFragment(String source) {
+		if (!source.contains(SODIUM_FOG_CALL) || source.contains("GlowtoneMaterialTex0")) return source;
+
+		final String keep = "color.r += glowtone_keepSamplers();" + System.lineSeparator() + "    ";
+		final String declared = source
+			.replace(MAIN, MaterialSamplers.declarations() + MAIN)
+			.replace(SODIUM_FOG_CALL, keep + SODIUM_FOG_CALL);
+
+		if (!MaterialShaders.any()) return declared;
+
+		MATERIAL_LOGGER.info("Glowtone injected {} material shaders into Sodium's terrain fragment shader", MaterialShaders.loaded().size());
+		return declared
+			.replace(MAIN, GLOBALS_BLOCK + SODIUM_MATERIAL_FRAGMENT + MaterialShaders.generateFunctions(true) + MAIN)
+			.replace(SODIUM_FOG_CALL, SODIUM_MATERIAL_CALL + SODIUM_FOG_CALL);
+	}
+
 	private static String patchSodium(ShaderType type, String source) {
 		final float shade = AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING ? OcclusionStrengthOption.strength() : 0F;
 		final float option = EdgeHighlightOption.strength();
@@ -485,11 +711,15 @@ public final class EmissiveShaderPatcher {
 			? patchSodiumEmissiveVertex(source)
 			: patchSodiumEmissiveFragment(source);
 
-		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) return emissive;
+		final String material = type == ShaderType.VERTEX
+			? patchSodiumMaterialVertex(emissive)
+			: patchSodiumMaterialFragment(emissive);
+
+		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) return material;
 
 		return type == ShaderType.VERTEX
-			? patchSodiumVertex(emissive)
-			: patchSodiumFragment(emissive, shade, highlight, liquid, occlusionView);
+			? patchSodiumVertex(material)
+			: patchSodiumFragment(material, shade, highlight, liquid, occlusionView);
 	}
 
 	private static String patchSodiumEmissiveVertex(String source) {
@@ -657,6 +887,117 @@ public final class EmissiveShaderPatcher {
 			glowtone_Contact3 = GlowtoneContact3;
 		""";
 
+	private static final String MATERIAL_WRITES = """
+			glowtone_WorldPos = pos;
+			glowtone_BlockPos = floor(Position + vec3(ChunkPosition));
+			glowtone_LocalPos = (Position + vec3(ChunkPosition)) - glowtone_BlockPos;
+			""";
+
+	private static final String MATERIAL_FRAGMENT_IN = """
+		flat in int glowtone_Gui;
+		flat in int glowtone_Material;
+		in vec3 glowtone_WorldPos;
+		in vec3 glowtone_BlockPos;
+		in vec3 glowtone_LocalPos;
+		in vec2 glowtone_Light;
+		in vec4 glowtone_ScreenProj;
+
+		vec3 glowtone_faceNormal() {
+			return normalize(cross(dFdx(glowtone_WorldPos), dFdy(glowtone_WorldPos)));
+		}
+
+		""";
+
+	private static final String GAME_TIME_UNIFORM = "float GameTime;";
+
+	private static final String GLOBALS_BLOCK = """
+		layout(std140) uniform Globals {
+			ivec3 CameraBlockPos;
+			vec3 CameraOffset;
+			vec2 ScreenSize;
+			float GlintAlpha;
+			float GameTime;
+			int MenuBlurRadius;
+			int UseRgss;
+		};
+
+		""";
+
+	private static String materialCall(String time, String context) {
+		return "	if (glowtone_Material != 0) fragColor = " + MaterialShaders.DISPATCH
+			+ "(Sampler0, glowtone_Material, fragColor, texCoord0, glowtone_WorldPos, glowtone_BlockPos,"
+			+ " glowtone_LocalPos, glowtone_faceNormal(), glowtone_ScreenProj, glowtone_Light, "
+			+ time + ", " + context + ");"
+			+ System.lineSeparator() + "	";
+	}
+
+	private static String contextFor(Identifier id) {
+		if (id.equals(TERRAIN)) return "0";
+
+		final String base;
+		if (id.equals(Identifier.withDefaultNamespace("core/block"))) {
+			base = "1";
+		} else if (id.equals(Identifier.withDefaultNamespace("core/entity"))) {
+			base = "2";
+		} else if (id.equals(Identifier.withDefaultNamespace("core/item"))) {
+			base = "3";
+		} else {
+			base = "4";
+		}
+
+		return "(glowtone_Gui != 0 ? 5 : " + base + ")";
+	}
+
+	private static final String KEEP_SAMPLERS =
+		"	fragColor.r += glowtone_keepSamplers();" + System.lineSeparator() + "	";
+
+	private static final String GENERIC_FOG_APPLY =
+		"	fragColor.rgb = mix(fragColor.rgb, glowtone_FogTint, glowtone_FogAmount);"
+			+ System.lineSeparator() + "	";
+
+	private static boolean defersFog(String source, boolean terrain) {
+		return !terrain && MaterialShaders.anyFragment() && source.contains(APPLY_FOG);
+	}
+
+	private static String fragmentHeader(String source, boolean terrain) {
+		if (!MaterialShaders.anyFragment()) return FRAGMENT_HEADER;
+
+		final String globals = source.contains(GAME_TIME_UNIFORM) ? "" : GLOBALS_BLOCK;
+		final String functions = MaterialShaders.generateFunctions(true);
+		final String fog = defersFog(source, terrain) ? FOG_HEADER : "";
+
+		return globals + MaterialSamplers.declarations() + MATERIAL_FRAGMENT_IN + functions + fog + FRAGMENT_HEADER;
+	}
+
+	private static String fragmentFooter(String source, Identifier id, boolean terrain) {
+		if (!MaterialShaders.anyFragment()) return FRAGMENT_FOOTER;
+		if (terrain) return FRAGMENT_FOOTER.replace(EMISSIVE_WRITE, KEEP_SAMPLERS + EMISSIVE_WRITE);
+
+		final String fog = defersFog(source, terrain) ? GENERIC_FOG_APPLY : "";
+		return FRAGMENT_FOOTER.replace(
+			EMISSIVE_WRITE,
+			materialCall("GameTime", contextFor(id)) + fog + KEEP_SAMPLERS + EMISSIVE_WRITE
+		);
+	}
+
+	private static final String MATERIAL_CALL =
+		"	if (glowtone_Material != 0) fragColor = " + MaterialShaders.DISPATCH
+			+ "(Sampler0, glowtone_Material, fragColor, texCoord0, glowtone_WorldPos, glowtone_BlockPos,"
+			+ " glowtone_LocalPos, glowtone_faceNormal(), glowtone_ScreenProj, glowtone_Light, GameTime, 0);"
+			+ System.lineSeparator()
+			+ "	";
+
+	private static String patchMaterialFragment(String source) {
+		if (!MaterialShaders.anyFragment()) return source;
+		if (!source.contains(EMISSIVE_WRITE)) {
+			MATERIAL_LOGGER.error("Glowtone could not inject material shaders into the terrain fragment shader: anchor missing");
+			return source;
+		}
+
+		MATERIAL_LOGGER.info("Glowtone injected {} material shaders into the terrain fragment shader", MaterialShaders.loaded().size());
+		return source.replace(EMISSIVE_WRITE, MATERIAL_CALL + EMISSIVE_WRITE);
+	}
+
 	private static String patchTerrainVertex(String source) {
 		if (!source.contains(TERRAIN_IN_ANCHOR)
 			|| !source.contains(TERRAIN_OUT_ANCHOR)
@@ -664,20 +1005,46 @@ public final class EmissiveShaderPatcher {
 			return source;
 		}
 
+		final String varyings = TERRAIN_VARYINGS;
+		final boolean materials = MaterialShaders.anyFragment() || MaterialShaders.anyVertex();
+		final String writes = materials ? TERRAIN_WRITES + MATERIAL_WRITES : TERRAIN_WRITES;
+
+		if (MaterialShaders.anyVertex()) {
+			if (source.contains(TERRAIN_POSITION_ANCHOR)) {
+				source = source.replace(TERRAIN_POSITION_ANCHOR, TERRAIN_POSITION_DISPLACED);
+			} else {
+				MATERIAL_LOGGER.error("Glowtone could not apply material vertex shaders: the terrain position anchor is missing");
+			}
+		}
+
 		return source
 			.replace(TERRAIN_IN_ANCHOR, TERRAIN_IN_ANCHOR + System.lineSeparator() + TERRAIN_ATTRIBUTES)
-			.replace(TERRAIN_OUT_ANCHOR, TERRAIN_OUT_ANCHOR + System.lineSeparator() + TERRAIN_VARYINGS)
-			.replace(TERRAIN_WRITE_ANCHOR, TERRAIN_WRITE_ANCHOR + System.lineSeparator() + TERRAIN_WRITES);
+			.replace(TERRAIN_OUT_ANCHOR, TERRAIN_OUT_ANCHOR + System.lineSeparator() + varyings)
+			.replace(TERRAIN_WRITE_ANCHOR, TERRAIN_WRITE_ANCHOR + System.lineSeparator() + writes);
 	}
 
 	private static String patchVertex(String source) {
 		if (!source.contains(SAMPLE_LIGHTMAP)) return source;
-		return source.replace(SAMPLE_LIGHTMAP, GLOWTONE_SAMPLE_LIGHTMAP).replace(MAIN, VERTEX_HEADER + GLOWTONE_MAIN) + VERTEX_FOOTER;
+
+		final String displaced = MaterialShaders.anyVertex() ? displaceGeneric(source) : source;
+
+		return displaced.replace(SAMPLE_LIGHTMAP, GLOWTONE_SAMPLE_LIGHTMAP)
+			.replace(MAIN, vertexHeader(source) + GLOWTONE_MAIN) + vertexFooter();
 	}
 
-	private static String patchFragment(String source) {
+	private static String displaceGeneric(String source) {
+		if (source.contains(MODEL_OFFSET_ANCHOR)) return source.replace(MODEL_OFFSET_ANCHOR, MODEL_OFFSET_DISPLACED);
+		if (source.contains(GENERIC_POSITION_ANCHOR)) return source.replace(GENERIC_POSITION_ANCHOR, GENERIC_POSITION_DISPLACED);
+
+		return source;
+	}
+
+	private static String patchFragment(String source, Identifier id, boolean terrain) {
 		if (!source.contains(FRAG_COLOR_OUT)) return source;
-		return source.replace(FRAG_COLOR_OUT, GLOWTONE_FRAG_COLOR_OUT).replace(MAIN, FRAGMENT_HEADER + GLOWTONE_MAIN) + FRAGMENT_FOOTER;
+
+		final String deferred = defersFog(source, terrain) ? source.replace(APPLY_FOG, DEFER_FOG) : source;
+		return deferred.replace(FRAG_COLOR_OUT, GLOWTONE_FRAG_COLOR_OUT)
+			.replace(MAIN, fragmentHeader(source, terrain) + GLOWTONE_MAIN) + fragmentFooter(source, id, terrain);
 	}
 
 	private static String patchTerrainLines(String source) {
@@ -687,7 +1054,9 @@ public final class EmissiveShaderPatcher {
 		final float highlight = blockHighlight(option);
 		final float liquid = option * GlowtonePackSettings.waterStrength();
 		final boolean occlusionView = aoDebug();
-		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) return source;
+		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) {
+			return MaterialShaders.anyFragment() ? deferFog(patchMaterialFragment(source)) : source;
+		}
 
 		String patched = source.replace(GLOWTONE_MAIN, EDGE_DATA_HEADER + GLOWTONE_MAIN);
 
@@ -697,7 +1066,9 @@ public final class EmissiveShaderPatcher {
 		if (lines) patched = patchEdgeHighlight(patched, highlight, liquid);
 		if (shade > 0F && !occlusionView) patched = patchAmbientOcclusion(patched, shade);
 
-		return deferFog(patched);
+		return MaterialShaders.anyFragment()
+			? deferFog(patchMaterialFragment(patched))
+			: deferFog(patched);
 	}
 
 	private static String deferFog(String source) {

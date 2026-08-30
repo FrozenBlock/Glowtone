@@ -35,7 +35,7 @@ public final class GlowtoneReload {
 	public static boolean request() {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null || minecraft.getResourceManager() == null) return false;
-		if (minecraft.gui.overlay() instanceof LoadingOverlay) {
+		if (minecraft.gui == null || minecraft.gui.overlay() instanceof LoadingOverlay) {
 			pending = true;
 			return false;
 		}

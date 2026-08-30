@@ -1,0 +1,11 @@
+{
+  "shader": {
+    "vertex": "glowtone_test:waving_foliage",
+    "constants": {
+      "WAVE_SCALE": "0.5",
+      "WAVE_SPEED": "2000.0",
+      "WAVE_SWAY": "64.0",
+      "WAVE_BOB": "128.0"
+    }
+  }
+}

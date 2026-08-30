@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Light and ambient occlusion overrides for the blockstates of one block.",
+  "properties": {
+    "variants": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Light properties for one blockstate.",
+        "properties": {
+          "ambient_occlusion": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Ambient occlusion overrides.",
+            "properties": {
+              "cast": {
+                "type": "boolean",
+                "description": "Whether this block casts ambient occlusion onto its neighbours."
+              },
+              "self": {
+                "type": "boolean",
+                "description": "Whether this block receives ambient occlusion."
+              }
+            }
+          },
+          "emissive": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Emissive and bloom overrides.",
+            "properties": {
+              "bloom": {
+                "type": "boolean",
+                "description": "Whether this block contributes to bloom."
+              },
+              "brightness": {
+                "type": "integer",
+                "description": "Emissive brightness.",
+                "maximum": 15,
+                "minimum": 0
+              }
+            }
+          },
+          "light_color": {
+            "type": "integer",
+            "description": "Packed RGB colour of the light this block emits."
+          },
+          "light_filter_color": {
+            "type": "integer",
+            "description": "Packed RGB colour this block tints light passing through it."
+          }
+        }
+      },
+      "description": "Blockstate selector to value. An empty key matches every state."
+    }
+  },
+  "required": [
+    "variants"
+  ],
+  "title": "Glowtone block light properties"
+}

@@ -1,0 +1,95 @@
+{
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A Glowtone block material.",
+  "properties": {
+    "parent": {
+      "type": "string",
+      "description": "Another material to inherit every unset field from.",
+      "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+    },
+    "block_entity_render": {
+      "type": "boolean",
+      "description": "Set false to suppress the block entity renderer for this block."
+    },
+    "cull": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "How this material culls faces against its neighbours.",
+      "properties": {
+        "cast": {
+          "type": "string",
+          "description": "Whether this block hides the faces of its neighbours.",
+          "enum": [
+            "auto",
+            "never",
+            "always",
+            "same_block",
+            "same_material"
+          ]
+        },
+        "self": {
+          "type": "string",
+          "description": "Whether this block draws its own faces.",
+          "enum": [
+            "auto",
+            "never",
+            "always",
+            "same_block",
+            "same_material"
+          ]
+        }
+      }
+    },
+    "layer": {
+      "type": "string",
+      "description": "Chunk layer this material draws in.",
+      "enum": [
+        "solid",
+        "cutout",
+        "translucent"
+      ]
+    },
+    "render_shape": {
+      "type": "string",
+      "description": "Replaces the render shape of the block.",
+      "enum": [
+        "model",
+        "invisible"
+      ]
+    },
+    "shader": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Shader stages applied to this material.",
+      "properties": {
+        "constants": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Name to GLSL expression, emitted as a #define around the stage."
+        },
+        "fragment": {
+          "type": "string",
+          "description": "Fragment source under glowtone/shaders/material. Returns the vec4 fragment colour.",
+          "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+        },
+        "textures": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Sampler name to texture path. At most 4 distinct textures across every loaded material."
+        },
+        "vertex": {
+          "type": "string",
+          "description": "Vertex source under glowtone/shaders/material. Returns a vec3 displacement.",
+          "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+        }
+      }
+    }
+  },
+  "title": "Glowtone block material"
+}

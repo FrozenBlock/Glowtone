@@ -109,7 +109,8 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 				BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockLightProperties.ATTACHMENT_KEY));
 
 				BlockLightProperties.setLoadedFeatures(
-					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesOcclusion)
+					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesOcclusion),
+					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesEmissive)
 				);
 
 				final Map<Block, Map<BlockState, BlockLightProperties>> fullMap = new IdentityHashMap<>();

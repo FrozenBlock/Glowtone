@@ -6,6 +6,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.frozenblock.lib.block.api.attachment.BlockAttachmentKey;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 import java.util.Map;
@@ -15,10 +17,24 @@ import java.util.Optional;
 public record BlockLightProperties(
 	Optional<Integer> lightColor,
 	Optional<Integer> lightFilterColor,
-	AmbientOcclusion ambientOcclusion
+	AmbientOcclusion ambientOcclusion,
+	Emissive emissive
 ) {
 	public static final String RESOURCE_PACK_DIRECTORY_BLOCKS = "glowtone/block_light_properties";
 	static final BlockAttachmentKey<Baked> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Block Light Properties");
+
+	public record Emissive(Optional<Integer> brightness, Optional<Boolean> bloom) {
+		public static final Emissive AUTOMATIC = new Emissive(Optional.empty(), Optional.empty());
+
+		public static final Codec<Emissive> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			ExtraCodecs.intRange(0, LightEngine.MAX_LEVEL).optionalFieldOf("brightness").forGetter(Emissive::brightness),
+			Codec.BOOL.optionalFieldOf("bloom").forGetter(Emissive::bloom)
+		).apply(instance, Emissive::new));
+
+		public boolean overrides() {
+			return this.brightness.isPresent() || this.bloom.isPresent();
+		}
+	}
 
 	public record AmbientOcclusion(Optional<Boolean> self, Optional<Boolean> cast) {
 		public static final AmbientOcclusion AUTOMATIC = new AmbientOcclusion(Optional.empty(), Optional.empty());
@@ -34,30 +50,36 @@ public record BlockLightProperties(
 	}
 
 	public static final BlockLightProperties NONE = new BlockLightProperties(
-		Optional.empty(), Optional.empty(), AmbientOcclusion.AUTOMATIC
+		Optional.empty(), Optional.empty(), AmbientOcclusion.AUTOMATIC, Emissive.AUTOMATIC
 	);
 	public static final Simple EMPTY = new Simple(NONE);
 
 	public static final MapCodec<BlockLightProperties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.optionalFieldOf("light_color").forGetter(BlockLightProperties::lightColor),
 		Codec.INT.optionalFieldOf("light_filter_color").forGetter(BlockLightProperties::lightFilterColor),
-		AmbientOcclusion.CODEC.optionalFieldOf("ambient_occlusion", AmbientOcclusion.AUTOMATIC).forGetter(BlockLightProperties::ambientOcclusion)
+		AmbientOcclusion.CODEC.optionalFieldOf("ambient_occlusion", AmbientOcclusion.AUTOMATIC).forGetter(BlockLightProperties::ambientOcclusion),
+		Emissive.CODEC.optionalFieldOf("emissive", Emissive.AUTOMATIC).forGetter(BlockLightProperties::emissive)
 	).apply(instance, BlockLightProperties::createWithFixedColors));
 	public static final Codec<BlockLightProperties> CODEC = MAP_CODEC.codec();
 
 	private static BlockLightProperties createWithFixedColors(
 		Optional<Integer> lightColor,
 		Optional<Integer> lightFilterColor,
-		AmbientOcclusion ambientOcclusion
+		AmbientOcclusion ambientOcclusion,
+		Emissive emissive
 	) {
 		return new BlockLightProperties(
 			lightColor.map(ARGB::transparent),
 			lightFilterColor.map(ARGB::transparent),
-			ambientOcclusion
+			ambientOcclusion,
+			emissive
 		);
 	}
 
 	private static volatile boolean anyOcclusionScales;
+	private static volatile boolean anyEmissive;
+
+	private static final ThreadLocal<BlockLightProperties[]> RENDERED = ThreadLocal.withInitial(() -> new BlockLightProperties[]{NONE});
 
 	public static BlockLightProperties forBlockState(BlockState state) {
 		final Baked baked = state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, EMPTY);
@@ -68,12 +90,39 @@ public record BlockLightProperties(
 		return anyOcclusionScales;
 	}
 
-	static void setLoadedFeatures(boolean occlusionScales) {
+	public static boolean anyEmissive() {
+		return anyEmissive;
+	}
+
+	public static void beginBlock(BlockState state) {
+		if (!anyEmissive) return;
+		RENDERED.get()[0] = forBlockState(state);
+	}
+
+	public static void endBlock() {
+		if (!anyEmissive) return;
+		RENDERED.get()[0] = NONE;
+	}
+
+	public static int renderBrightness(int baked) {
+		return anyEmissive ? RENDERED.get()[0].emissive().brightness().orElse(baked) : baked;
+	}
+
+	public static boolean bloom(boolean baked) {
+		return anyEmissive ? RENDERED.get()[0].emissive().bloom().orElse(baked) : baked;
+	}
+
+	static void setLoadedFeatures(boolean occlusionScales, boolean emissive) {
 		anyOcclusionScales = occlusionScales;
+		anyEmissive = emissive;
 	}
 
 	public boolean overridesOcclusion() {
 		return this.ambientOcclusion.overrides();
+	}
+
+	public boolean overridesEmissive() {
+		return this.emissive.overrides();
 	}
 
 	public static BlockLightProperties color(int color) {
@@ -106,13 +155,13 @@ public record BlockLightProperties(
 
 	public BlockLightProperties withColor(int color) {
 		return new BlockLightProperties(
-			Optional.of(ARGB.transparent(color)), this.lightFilterColor, this.ambientOcclusion
+			Optional.of(ARGB.transparent(color)), this.lightFilterColor, this.ambientOcclusion, this.emissive
 		);
 	}
 
 	public BlockLightProperties withFilterColor(int color) {
 		return new BlockLightProperties(
-			this.lightColor, Optional.of(ARGB.transparent(color)), this.ambientOcclusion
+			this.lightColor, Optional.of(ARGB.transparent(color)), this.ambientOcclusion, this.emissive
 		);
 	}
 
@@ -120,7 +169,8 @@ public record BlockLightProperties(
 		return new BlockLightProperties(
 			this.lightColor,
 			this.lightFilterColor,
-			new AmbientOcclusion(Optional.ofNullable(self), Optional.ofNullable(cast))
+			new AmbientOcclusion(Optional.ofNullable(self), Optional.ofNullable(cast)),
+			this.emissive
 		);
 	}
 

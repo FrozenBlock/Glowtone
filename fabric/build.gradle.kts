@@ -163,6 +163,7 @@ tasks {
                 "**/*.png",
                 "**/*.ogg",
                 "**/*.mixins.json",
+                "**/schemas/*.json",
                 "**/*.zip"
             )
         ) {

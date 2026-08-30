@@ -1,0 +1,13 @@
+{
+  "layer": "solid",
+  "shader": {
+    "fragment": "glowtone_test:end_portal",
+    "textures": {
+      "Sky": "minecraft:textures/environment/end_sky.png",
+      "Stars": "minecraft:textures/entity/end_portal/end_portal.png"
+    },
+    "constants": {
+      "PORTAL_LAYERS": "15"
+    }
+  }
+}
