@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 @ClientOnly
 public final class GlowtoneCasterShapes {
@@ -33,22 +34,27 @@ public final class GlowtoneCasterShapes {
 	public static VoxelShape of(BlockAndTintGetter level, BlockPos pos, BlockState state) {
 		if (state.isAir()) return Shapes.empty();
 
-		final VoxelShape automatic = automatic(level, pos, state);
-		if (!OcclusionOverrideHelper.any()) return automatic;
+		final @Nullable VoxelShape automatic = automatic(level, pos, state);
+		if (!OcclusionOverrideHelper.any()) return automatic != null ? automatic : Shapes.empty();
 
-		if (!OcclusionOverrideHelper.casts(state, !automatic.isEmpty())) return Shapes.empty();
-		return automatic.isEmpty() ? state.getShape(level, pos) : automatic;
+		if (!OcclusionOverrideHelper.casts(state, automatic != null)) return Shapes.empty();
+		return automatic == null ? state.getShape(level, pos) : Shapes.empty();
 	}
 
+	@Nullable
 	private static VoxelShape automatic(BlockAndTintGetter level, BlockPos pos, BlockState state) {
-		final VoxelShape occlusionShape = state.getOcclusionShape();
-		if (!occlusionShape.isEmpty()) return occlusionShape;
+		if (state.canOcclude()) {
+			final VoxelShape occlusionShape = state.getOcclusionShape();
+			if (!occlusionShape.isEmpty()) return occlusionShape;
+		}
 
-		// TODO: block tag
+		// TODO: block tag & attachment
 		if (state.is(BlockTags.LEAVES) || state.is(BlockTags.DOORS) || state.is(BlockTags.TRAPDOORS)) return state.getShape(level, pos);
 
+		// Unfortunately we cannot safely simplify this using .hasCollision, as someone could extend getCollisionShape and ignore the property.
 		final VoxelShape collision = state.getCollisionShape(level, pos);
-		if (collision.isEmpty() || Block.isShapeFullBlock(collision)) return Shapes.empty();
+		// I decided to make this return null instead of Shapes.empty() because using the .isEmpty check is a lot more taxing!
+		if (Block.isShapeFullBlock(collision) || collision.isEmpty()) return null;
 
 		return collision;
 	}

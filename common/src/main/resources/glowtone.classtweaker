@@ -12,6 +12,8 @@ accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion minSect
 accessible field net/minecraft/client/renderer/chunk/SectionCopy section Lnet/minecraft/world/level/chunk/PalettedContainer;
 accessible field net/minecraft/client/renderer/chunk/SectionCopy debug Z
 
+accessible method net/minecraft/world/level/lighting/LightEngine isEmptyShape (Lnet/minecraft/world/level/block/state/BlockState;)Z
+
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch getEntries ()Ljava/util/Map;
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C1 <init> (Lnet/minecraft/world/level/block/state/properties/Property;)V
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C2 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V

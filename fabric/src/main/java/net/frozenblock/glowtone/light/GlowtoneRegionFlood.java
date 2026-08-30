@@ -40,9 +40,8 @@ import org.jspecify.annotations.Nullable;
 public final class GlowtoneRegionFlood {
 	public static final int SPAN = 48;
 	public static final int WHITE_RGB = 0xFFFFFF;
-	private static final java.util.function.Predicate<BlockState> TINTS_DAYLIGHT = state ->
-		FilterColorHelper.filterFor(state) != FilterColorHelper.FULLY_TRANSMISSIVE
-			&& state.getFluidState().isEmpty();
+	private static final Predicate<BlockState> TINTS_DAYLIGHT = state ->
+		FilterColorHelper.filterFor(state) != FilterColorHelper.FULLY_TRANSMISSIVE && state.getFluidState().isEmpty();
 
 	public static final int ENTITY_SPAN = 8;
 	public static final int ENTITY_CELL_BLOCKS = 2;
@@ -619,7 +618,7 @@ public final class GlowtoneRegionFlood {
 					final int merged = GlowtoneChannels.merge(this.levels[cell] & GlowtoneChannels.LEVEL_MASK, packed);
 					this.levels[cell] = (short) (merged & GlowtoneChannels.LEVEL_MASK);
 					this.lit = true;
-					this.enqueue(rx, ry, rz, merged, isEmptyShape(state), 0);
+					this.enqueue(rx, ry, rz, merged, LightEngine.isEmptyShape(state), 0);
 				}
 			}
 		}
@@ -690,9 +689,7 @@ public final class GlowtoneRegionFlood {
 			if (shapeOccludes(fromState, toState, direction)) continue;
 
 			if (!nextBrighter) {
-				final int blended = GlowtoneChannels.blendHues(
-					stored, next, GlowtoneChannels.level(stored), GlowtoneChannels.level(next)
-				);
+				final int blended = GlowtoneChannels.blendHues(stored, next, GlowtoneChannels.level(stored), GlowtoneChannels.level(next));
 				if (blended != stored) this.levels[neighbourCell] = (short) (blended & GlowtoneChannels.LEVEL_MASK);
 				continue;
 			}
@@ -705,7 +702,7 @@ public final class GlowtoneRegionFlood {
 				this.enqueue(
 					neighbourX, neighbourY, neighbourZ,
 					merged,
-					isEmptyShape(toState),
+					LightEngine.isEmptyShape(toState),
 					1 << direction.getOpposite().ordinal()
 				);
 			}
@@ -746,10 +743,6 @@ public final class GlowtoneRegionFlood {
 			LightEngine.getOcclusionShape(from, direction),
 			LightEngine.getOcclusionShape(to, direction.getOpposite())
 		);
-	}
-
-	private static boolean isEmptyShape(BlockState state) {
-		return !state.canOcclude() || !state.useShapeForLightOcclusion();
 	}
 
 	private BlockState stateAt(int cell, int x, int y, int z) {
