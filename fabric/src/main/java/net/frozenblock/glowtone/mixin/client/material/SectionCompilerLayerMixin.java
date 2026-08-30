@@ -31,6 +31,7 @@ public class SectionCompilerLayerMixin {
 
 	@ModifyVariable(method = "getOrBeginLayer", at = @At("HEAD"), argsOnly = true)
 	private ChunkSectionLayer glowtone$overrideLayer(ChunkSectionLayer layer) {
+		// TODO: this is a new layer. translucents won't work properly, test them! (water especially)
 		return BlockMaterials.layer(layer);
 	}
 }

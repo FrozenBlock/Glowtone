@@ -26,6 +26,5 @@ public interface GlowtoneMaterialHolder {
 		return BlockMaterials.NO_SHADER;
 	}
 
-	default void glowtone$setMaterialIndex(int index) {
-	}
+	default void glowtone$setMaterialIndex(int index) {}
 }

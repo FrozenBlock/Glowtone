@@ -32,6 +32,7 @@ public class BlockStateRenderShapeMixin {
 
 	@ModifyReturnValue(method = "getRenderShape", at = @At("RETURN"))
 	private RenderShape glowtone$overrideRenderShape(RenderShape shape) {
-		return BlockMaterials.renderShape((BlockState) (Object) this, shape);
+		if (BlockBehaviour.BlockStateBase.class.cast(this) instanceof BlockState blockState) return BlockMaterials.renderShape(blockState, shape);
+		return shape;
 	}
 }

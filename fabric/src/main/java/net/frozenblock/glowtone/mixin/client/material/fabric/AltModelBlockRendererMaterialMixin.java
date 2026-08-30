@@ -32,15 +32,15 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(AltModelBlockRendererImpl.class)
 public class AltModelBlockRendererMaterialMixin {
 
-	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0)
+	@ModifyReturnValue(method = "transform", at = @At("RETURN"))
 	private boolean glowtone$markMaterialQuad(boolean original, MutableQuadView quad) {
 		if (!original || !BlockMaterials.anyShaders()) return original;
 
-		final int index = BlockMaterials.renderedShaderIndex();
-		if (index == BlockMaterials.NO_SHADER) return original;
+		final int shaderIndex = BlockMaterials.renderedShaderIndex();
+		if (shaderIndex == BlockMaterials.NO_SHADER) return original;
 
 		for (int vertex = 0; vertex < 4; vertex++) {
-			quad.lightmap(vertex, BlockMaterials.markShaderIndex(quad.lightmap(vertex), index));
+			quad.lightmap(vertex, BlockMaterials.markShaderIndex(quad.lightmap(vertex), shaderIndex));
 		}
 
 		return original;

@@ -22,7 +22,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
-import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.frozenblock.glowtone.material.BlockMaterials;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
@@ -35,18 +35,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
 @ClientOnly
-@Mixin(value = BlockRenderer.class, remap = false)
+@Mixin(BlockRenderer.class)
 public class BlockRendererMaterialMixin {
 
 	@Inject(method = "renderModel", at = @At("HEAD"))
-	private void glowtone$beginBlockMaterial(CallbackInfo info, @Local(argsOnly = true) BlockState state) {
-		BlockLightProperties.beginBlock(state);
+	private void glowtone$beginBlockMaterial(
+		CallbackInfo info,
+		@Local(argsOnly = true) BlockState state
+	) {
+		BlockLightPropertiesRenderer.beginBlock(state);
 		BlockMaterials.beginBlock(state);
 	}
 
 	@Inject(method = "renderModel", at = @At("RETURN"))
 	private void glowtone$endBlockMaterial(CallbackInfo info) {
-		BlockLightProperties.endBlock();
+		BlockLightPropertiesRenderer.endBlock();
 		BlockMaterials.endBlock();
 	}
 

@@ -37,16 +37,15 @@ public class ItemModelResolverMixin {
 	@Inject(method = "appendItemLayers", at = @At("RETURN"))
 	private void glowtone$resolveItemMaterial(
 		CallbackInfo info,
-		@Local(argsOnly = true) ItemStackRenderState state,
-		@Local(argsOnly = true) ItemStack stack
+		@Local(argsOnly = true) ItemStackRenderState output,
+		@Local(argsOnly = true) ItemStack item
 	) {
-		if (!BlockMaterials.anyShaders() || !(state instanceof GlowtoneMaterialHolder holder)) return;
+		if (!BlockMaterials.anyShaders() || !(output instanceof GlowtoneMaterialHolder holder)) return;
 
-		final int index = stack.getItem() instanceof BlockItem blockItem
+		final int index = item.getItem() instanceof BlockItem blockItem
 			? BlockMaterials.shaderIndexFor(blockItem.getBlock().defaultBlockState())
 			: BlockMaterials.NO_SHADER;
 
 		holder.glowtone$setMaterialIndex(index);
-
 	}
 }

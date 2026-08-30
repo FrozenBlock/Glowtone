@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.material;
 
-import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.frozenblock.glowtone.material.BlockMaterials;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -48,7 +48,7 @@ public class ModelBlockRendererMaterialMixin {
 		long seed,
 		CallbackInfo info
 	) {
-		BlockLightProperties.beginBlock(blockState);
+		BlockLightPropertiesRenderer.beginBlock(blockState);
 		BlockMaterials.beginBlock(blockState);
 	}
 
@@ -65,7 +65,7 @@ public class ModelBlockRendererMaterialMixin {
 		long seed,
 		CallbackInfo info
 	) {
-		BlockLightProperties.endBlock();
+		BlockLightPropertiesRenderer.endBlock();
 		BlockMaterials.endBlock();
 	}
 }

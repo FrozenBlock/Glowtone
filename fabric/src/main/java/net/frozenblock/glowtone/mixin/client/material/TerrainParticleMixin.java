@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.material;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.material.BlockMaterials;
 import net.frozenblock.glowtone.material.impl.GlowtoneMaterialHolder;
@@ -29,7 +30,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @ClientOnly
 @Mixin(TerrainParticle.class)
@@ -53,19 +53,23 @@ public class TerrainParticleMixin implements GlowtoneMaterialHolder {
 		method = "<init>(Lnet/minecraft/client/multiplayer/ClientLevel;DDDDDDLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V",
 		at = @At("RETURN")
 	)
-	private void glowtone$captureDirectMaterial(CallbackInfo info, @Local(argsOnly = true) BlockState state) {
-		this.glowtone$materialIndex = BlockMaterials.shaderIndexFor(state);
+	private void glowtone$captureDirectMaterial(
+		CallbackInfo info,
+		@Local(argsOnly = true) BlockState blockState
+	) {
+		this.glowtone$materialIndex = BlockMaterials.shaderIndexFor(blockState);
 	}
 
-	@Inject(method = "createTerrainParticle", at = @At("RETURN"))
-	private static void glowtone$captureMaterial(
-		CallbackInfoReturnable<TerrainParticle> info,
-		@Local(argsOnly = true) BlockParticleOption option
+	@ModifyReturnValue(method = "createTerrainParticle", at = @At("RETURN"))
+	private static TerrainParticle glowtone$captureMaterial(
+		TerrainParticle original,
+		@Local(argsOnly = true) BlockParticleOption options
 	) {
-		final TerrainParticle particle = info.getReturnValue();
-		if (particle == null) return;
+		// TODO: injected interface
+		if (original == null || !(original instanceof GlowtoneMaterialHolder materialHolder)) return original;
 
-		final int index = BlockMaterials.shaderIndexFor(option.getState());
-		((GlowtoneMaterialHolder) particle).glowtone$setMaterialIndex(index);
+		final int index = BlockMaterials.shaderIndexFor(options.getState());
+		materialHolder.glowtone$setMaterialIndex(index);
+		return original;
 	}
 }

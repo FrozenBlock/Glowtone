@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,6 +36,6 @@ public interface VertexConsumerEmissionMixin {
 		)
 	)
 	private int glowtone$overrideLightEmission(int lightEmission) {
-		return BlockLightProperties.renderBrightness(lightEmission);
+		return BlockLightPropertiesRenderer.renderBrightness(lightEmission);
 	}
 }

@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.material;
+package net.frozenblock.glowtone.mixin.client.material.blaze3d;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPassBackend;
@@ -28,8 +28,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(targets = "com.mojang.blaze3d.opengl.GlRenderPass")
-public class GlRenderPassMixin {
+@Mixin(targets = "com.mojang.blaze3d.vulkan.VulkanRenderPass")
+public class VulkanRenderPassMixin {
 
 	@Inject(method = "setPipeline", at = @At("RETURN"))
 	private void glowtone$bindMaterialSamplers(RenderPipeline pipeline, CallbackInfo info) {

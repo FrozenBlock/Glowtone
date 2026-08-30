@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Pseudo
 @ClientOnly
-@Mixin(value = ShaderChunkRenderer.class, remap = false)
+@Mixin(ShaderChunkRenderer.class)
 public class ShaderChunkRendererMixin {
 
 	@WrapOperation(

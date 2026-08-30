@@ -21,6 +21,9 @@ accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C4 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C5 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
 
+accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder fragmentShader Ljava/util/Optional;
+accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder bindGroupLayouts Ljava/util/Optional;
+
 transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
 transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
 transitive-inject-interface net/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted

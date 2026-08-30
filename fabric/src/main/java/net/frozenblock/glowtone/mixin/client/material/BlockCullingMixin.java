@@ -18,13 +18,12 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.frozenblock.glowtone.material.MaterialCulling;
+import net.frozenblock.glowtone.material.MaterialCullHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import com.llamalad7.mixinextras.sugar.Local;
 
 @ClientOnly
 @Mixin(Block.class)
@@ -33,9 +32,8 @@ public class BlockCullingMixin {
 	@ModifyReturnValue(method = "shouldRenderFace", at = @At("RETURN"))
 	private static boolean glowtone$overrideFaceCulling(
 		boolean automatic,
-		@Local(argsOnly = true, ordinal = 0) BlockState state,
-		@Local(argsOnly = true, ordinal = 1) BlockState neighborState
+		BlockState state, final BlockState neighborState
 	) {
-		return MaterialCulling.shouldRenderFace(state, neighborState, automatic);
+		return MaterialCullHelper.shouldRenderFace(state, neighborState, automatic);
 	}
 }

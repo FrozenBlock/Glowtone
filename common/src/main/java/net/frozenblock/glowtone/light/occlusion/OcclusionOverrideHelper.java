@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.light.occlusion;
 
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +27,7 @@ public final class OcclusionOverrideHelper {
 	public static final float FULL_OCCLUDER = 0.2F;
 
 	public static boolean any() {
-		return BlockLightProperties.anyOcclusionScales();
+		return BlockLightPropertiesRenderer.anyOcclusionScales();
 	}
 
 	public static boolean receives(BlockState state, boolean automatic) {

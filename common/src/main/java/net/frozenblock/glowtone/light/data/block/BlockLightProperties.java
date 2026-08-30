@@ -21,39 +21,14 @@ public record BlockLightProperties(
 	Emissive emissive
 ) {
 	public static final String RESOURCE_PACK_DIRECTORY_BLOCKS = "glowtone/block_light_properties";
-	static final BlockAttachmentKey<Baked> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Block Light Properties");
-
-	public record Emissive(Optional<Integer> brightness, Optional<Boolean> bloom) {
-		public static final Emissive AUTOMATIC = new Emissive(Optional.empty(), Optional.empty());
-
-		public static final Codec<Emissive> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			ExtraCodecs.intRange(0, LightEngine.MAX_LEVEL).optionalFieldOf("brightness").forGetter(Emissive::brightness),
-			Codec.BOOL.optionalFieldOf("bloom").forGetter(Emissive::bloom)
-		).apply(instance, Emissive::new));
-
-		public boolean overrides() {
-			return this.brightness.isPresent() || this.bloom.isPresent();
-		}
-	}
-
-	public record AmbientOcclusion(Optional<Boolean> self, Optional<Boolean> cast) {
-		public static final AmbientOcclusion AUTOMATIC = new AmbientOcclusion(Optional.empty(), Optional.empty());
-
-		public static final Codec<AmbientOcclusion> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			Codec.BOOL.optionalFieldOf("self").forGetter(AmbientOcclusion::self),
-			Codec.BOOL.optionalFieldOf("cast").forGetter(AmbientOcclusion::cast)
-		).apply(instance, AmbientOcclusion::new));
-
-		public boolean overrides() {
-			return this.self.isPresent() || this.cast.isPresent();
-		}
-	}
-
 	public static final BlockLightProperties NONE = new BlockLightProperties(
-		Optional.empty(), Optional.empty(), AmbientOcclusion.AUTOMATIC, Emissive.AUTOMATIC
+		Optional.empty(),
+		Optional.empty(),
+		AmbientOcclusion.AUTOMATIC,
+		Emissive.AUTOMATIC
 	);
 	public static final Simple EMPTY = new Simple(NONE);
-
+	static final BlockAttachmentKey<Baked> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Block Light Properties");
 	public static final MapCodec<BlockLightProperties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.optionalFieldOf("light_color").forGetter(BlockLightProperties::lightColor),
 		Codec.INT.optionalFieldOf("light_filter_color").forGetter(BlockLightProperties::lightFilterColor),
@@ -76,45 +51,9 @@ public record BlockLightProperties(
 		);
 	}
 
-	private static volatile boolean anyOcclusionScales;
-	private static volatile boolean anyEmissive;
-
-	private static final ThreadLocal<BlockLightProperties[]> RENDERED = ThreadLocal.withInitial(() -> new BlockLightProperties[]{NONE});
-
 	public static BlockLightProperties forBlockState(BlockState state) {
-		final Baked baked = state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, EMPTY);
+		final BlockLightProperties.Baked baked = state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, EMPTY);
 		return baked == null ? NONE : baked.get(state);
-	}
-
-	public static boolean anyOcclusionScales() {
-		return anyOcclusionScales;
-	}
-
-	public static boolean anyEmissive() {
-		return anyEmissive;
-	}
-
-	public static void beginBlock(BlockState state) {
-		if (!anyEmissive) return;
-		RENDERED.get()[0] = forBlockState(state);
-	}
-
-	public static void endBlock() {
-		if (!anyEmissive) return;
-		RENDERED.get()[0] = NONE;
-	}
-
-	public static int renderBrightness(int baked) {
-		return anyEmissive ? RENDERED.get()[0].emissive().brightness().orElse(baked) : baked;
-	}
-
-	public static boolean bloom(boolean baked) {
-		return anyEmissive ? RENDERED.get()[0].emissive().bloom().orElse(baked) : baked;
-	}
-
-	static void setLoadedFeatures(boolean occlusionScales, boolean emissive) {
-		anyOcclusionScales = occlusionScales;
-		anyEmissive = emissive;
 	}
 
 	public boolean overridesOcclusion() {
@@ -201,6 +140,30 @@ public record BlockLightProperties(
 		@Override
 		public BlockLightProperties get(BlockState state) {
 			return this.map.getOrDefault(state, NONE);
+		}
+	}
+
+	public record Emissive(Optional<Integer> brightness, Optional<Boolean> bloom) {
+		public static final Emissive AUTOMATIC = new Emissive(Optional.empty(), Optional.empty());
+		public static final Codec<Emissive> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			ExtraCodecs.intRange(0, LightEngine.MAX_LEVEL).optionalFieldOf("brightness").forGetter(Emissive::brightness),
+			Codec.BOOL.optionalFieldOf("bloom").forGetter(Emissive::bloom)
+		).apply(instance, Emissive::new));
+
+		public boolean overrides() {
+			return this.brightness.isPresent() || this.bloom.isPresent();
+		}
+	}
+
+	public record AmbientOcclusion(Optional<Boolean> self, Optional<Boolean> cast) {
+		public static final AmbientOcclusion AUTOMATIC = new AmbientOcclusion(Optional.empty(), Optional.empty());
+		public static final Codec<AmbientOcclusion> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			Codec.BOOL.optionalFieldOf("self").forGetter(AmbientOcclusion::self),
+			Codec.BOOL.optionalFieldOf("cast").forGetter(AmbientOcclusion::cast)
+		).apply(instance, AmbientOcclusion::new));
+
+		public boolean overrides() {
+			return this.self.isPresent() || this.cast.isPresent();
 		}
 	}
 }

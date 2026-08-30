@@ -19,12 +19,13 @@ package net.frozenblock.glowtone.material;
 
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @ClientOnly
-public final class MaterialCulling {
+public final class MaterialCullHelper {
 
-	public static @Nullable Boolean overrideRenderFace(BlockState state, BlockState neighbour) {
+	@Nullable
+	public static Boolean overrideRenderFace(BlockState state, BlockState neighbour) {
 		if (!BlockMaterials.anyFaceCulling()) return null;
 
 		final BlockMaterials.Assigned rendered = BlockMaterials.anySelfCulling()
@@ -37,12 +38,10 @@ public final class MaterialCulling {
 		}
 
 		final BlockMaterials.Assigned occluder = BlockMaterials.assigned(neighbour);
-
 		final Boolean self = selfMode.shouldRender(state, neighbour, rendered.id(), occluder.id());
 		if (self != null) return self;
 
-		return occluder.material().cull().castMode()
-			.shouldRender(state, neighbour, rendered.id(), occluder.id());
+		return occluder.material().cull().castMode().shouldRender(state, neighbour, rendered.id(), occluder.id());
 	}
 
 	public static boolean shouldRenderFace(BlockState state, BlockState neighbour, boolean automatic) {
@@ -50,5 +49,5 @@ public final class MaterialCulling {
 		return override == null ? automatic : override;
 	}
 
-	private MaterialCulling() {}
+	private MaterialCullHelper() {}
 }

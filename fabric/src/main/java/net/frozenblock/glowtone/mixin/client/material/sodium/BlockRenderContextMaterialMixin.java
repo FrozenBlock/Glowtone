@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.material.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.AbstractBlockRenderContext;
 import net.frozenblock.glowtone.material.BlockMaterials;
-import net.frozenblock.glowtone.material.MaterialCulling;
+import net.frozenblock.glowtone.material.MaterialCullHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -47,8 +47,7 @@ public class BlockRenderContextMaterialMixin {
 	private void glowtone$overrideFaceCulling(Direction facing, CallbackInfoReturnable<Boolean> info) {
 		if (!BlockMaterials.anyFaceCulling() || this.state == null || this.level == null || this.pos == null) return;
 
-		final Boolean override = MaterialCulling.overrideRenderFace(this.state, this.level.getBlockState(this.pos.relative(facing)));
+		final Boolean override = MaterialCullHelper.overrideRenderFace(this.state, this.level.getBlockState(this.pos.relative(facing)));
 		if (override != null) info.setReturnValue(override);
 	}
-
 }

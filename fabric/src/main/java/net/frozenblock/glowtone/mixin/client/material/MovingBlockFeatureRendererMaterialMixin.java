@@ -34,11 +34,7 @@ import java.util.List;
 public class MovingBlockFeatureRendererMaterialMixin {
 
 	@Inject(method = "buildGroup", at = @At("HEAD"))
-	private void glowtone$openMovingBlockMaterial(
-		FeatureFrameContext context,
-		List<MovingBlockFeatureRenderer.Submit> submits,
-		CallbackInfo info
-	) {
+	private void glowtone$openMovingBlockMaterial(FeatureFrameContext context, List<MovingBlockFeatureRenderer.Submit> submits, CallbackInfo info) {
 		BlockMaterials.beginShaderIndex(BlockMaterials.NO_SHADER);
 	}
 
@@ -51,9 +47,7 @@ public class MovingBlockFeatureRendererMaterialMixin {
 		)
 	)
 	private void glowtone$beginMovingBlockMaterial(
-		FeatureFrameContext context,
-		List<MovingBlockFeatureRenderer.Submit> submits,
-		CallbackInfo info,
+		FeatureFrameContext context, List<MovingBlockFeatureRenderer.Submit> submits, CallbackInfo info,
 		@Local(name = "submit") MovingBlockFeatureRenderer.Submit submit
 	) {
 		BlockMaterials.setShaderIndex(BlockMaterials.shaderIndexFor(submit.movingBlockRenderState().blockState));
@@ -70,6 +64,7 @@ public class MovingBlockFeatureRendererMaterialMixin {
 		CallbackInfo info,
 		@Local(argsOnly = true) QuadInstance instance
 	) {
+		// TODO: luth didn't have any code here
 	}
 
 	@Inject(method = "buildGroup", at = @At("RETURN"))

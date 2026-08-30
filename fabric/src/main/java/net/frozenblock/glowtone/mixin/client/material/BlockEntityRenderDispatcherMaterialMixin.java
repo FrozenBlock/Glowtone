@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import com.llamalad7.mixinextras.sugar.Local;
 
 @ClientOnly
 @Mixin(BlockEntityRenderDispatcher.class)
@@ -36,9 +35,9 @@ public class BlockEntityRenderDispatcherMaterialMixin {
 		method = "getRenderer(Lnet/minecraft/world/level/block/entity/BlockEntity;)Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderer;",
 		at = @At("RETURN")
 	)
-	private @Nullable BlockEntityRenderer<?, ?> glowtone$suppressBlockEntityRenderer(
+	private BlockEntityRenderer<?, ?> glowtone$suppressBlockEntityRenderer(
 		@Nullable BlockEntityRenderer<?, ?> renderer,
-		@Local(argsOnly = true) BlockEntity blockEntity
+		BlockEntity blockEntity
 	) {
 		if (renderer == null || BlockMaterials.blockEntityRender(blockEntity.getBlockState())) return renderer;
 		return null;

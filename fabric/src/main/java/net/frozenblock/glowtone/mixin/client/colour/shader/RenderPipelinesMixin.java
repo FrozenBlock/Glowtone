@@ -23,7 +23,6 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.material.MaterialSamplers;
-import net.frozenblock.glowtone.mixin.client.material.RenderPipelineBuilderAccessor;
 import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.resources.Identifier;
 import java.util.List;
@@ -46,12 +45,11 @@ public abstract class RenderPipelinesMixin {
 		)
 	)
 	private static RenderPipeline glowtone$declareMaterialSamplers(RenderPipeline.Builder instance, Operation<RenderPipeline> original) {
-		final RenderPipelineBuilderAccessor accessor = (RenderPipelineBuilderAccessor) instance;
-		final Optional<Identifier> fragment = accessor.glowtone$fragmentShader();
+		final Optional<Identifier> fragment = instance.fragmentShader;
 		if (fragment != null && fragment.isPresent() && EmissiveShaderPatcher.usesMaterialSamplers(fragment.get())) {
 			instance.withBindGroupLayout(MaterialSamplers.LAYOUT);
 
-			final Optional<List<BindGroupLayout>> layouts = accessor.glowtone$bindGroupLayouts();
+			final Optional<List<BindGroupLayout>> layouts = instance.bindGroupLayouts;
 			if (layouts == null || layouts.isEmpty() || !layouts.get().contains(BindGroupLayouts.GLOBALS)) {
 				instance.withBindGroupLayout(BindGroupLayouts.GLOBALS);
 			}

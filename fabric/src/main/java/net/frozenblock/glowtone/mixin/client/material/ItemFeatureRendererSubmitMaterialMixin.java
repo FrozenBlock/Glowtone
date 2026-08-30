@@ -34,7 +34,10 @@ public class ItemFeatureRendererSubmitMaterialMixin {
 
 	@Inject(method = "prepareMainSubmit", at = @At("HEAD"))
 	private void glowtone$beginItemMaterial(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
-		final int index = ((GlowtoneMaterialHolder) (Object) submit).glowtone$materialIndex();
+		// TODO: injected interface
+		if (!((Object) submit instanceof GlowtoneMaterialHolder materialHolder)) return;
+
+		final int index = materialHolder.glowtone$materialIndex();
 		BlockMaterials.beginShaderIndex(index);
 		BlockMaterials.beginGui(submit.displayContext() == ItemDisplayContext.GUI);
 	}

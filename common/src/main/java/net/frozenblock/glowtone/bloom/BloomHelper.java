@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.bloom;
 
-import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.level.lighting.LightEngine;
@@ -29,7 +29,7 @@ public final class BloomHelper {
 
 	public static boolean isEmissiveQuad(BakedQuad quad) {
 		final BakedQuad.MaterialInfo materialInfo = quad.materialInfo();
-		return BlockLightProperties.bloom(isEmissiveLevel(BlockLightProperties.renderBrightness(materialInfo.lightEmission())));
+		return BlockLightPropertiesRenderer.bloom(isEmissiveLevel(BlockLightPropertiesRenderer.renderBrightness(materialInfo.lightEmission())));
 	}
 
 	public static boolean isEmissiveLevel(int lightEmission) {

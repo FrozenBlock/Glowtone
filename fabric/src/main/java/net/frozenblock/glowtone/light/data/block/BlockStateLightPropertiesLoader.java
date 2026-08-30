@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.BlockStateDefinitions;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -108,7 +109,7 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 			.thenAcceptAsync(lights -> {
 				BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockLightProperties.ATTACHMENT_KEY));
 
-				BlockLightProperties.setLoadedFeatures(
+				BlockLightPropertiesRenderer.setLoadedFeatures(
 					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesOcclusion),
 					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesEmissive)
 				);

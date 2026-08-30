@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.frozenblock.glowtone.material.BlockMaterials;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.SectionCompiler;
@@ -33,22 +33,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SectionCompiler.class)
 public class SectionCompilerMaterialMixin {
 
-	private static final String TESSELATE = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;"
-		+ "tesselateBlock(Lnet/minecraft/client/renderer/block/BlockQuadOutput;FFF"
-		+ "Lnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;"
-		+ "Lnet/minecraft/world/level/block/state/BlockState;"
-		+ "Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;J)V";
-
-	@Inject(method = "compile", at = @At(value = "INVOKE", target = TESSELATE))
+	@Inject(
+		method = "compile",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;tesselateBlock(Lnet/minecraft/client/renderer/block/BlockQuadOutput;FFFLnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;J)V"
+		)
+	)
 	private void glowtone$beginBlockMaterial(CallbackInfoReturnable<?> info, @Local BlockState blockState) {
-		BlockLightProperties.beginBlock(blockState);
+		BlockLightPropertiesRenderer.beginBlock(blockState);
 		BlockMaterials.beginBlock(blockState);
 	}
 
-	@Inject(method = "compile", at = @At(value = "INVOKE", target = TESSELATE, shift = At.Shift.AFTER))
+	@Inject(
+		method = "compile",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;tesselateBlock(Lnet/minecraft/client/renderer/block/BlockQuadOutput;FFFLnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;J)V",
+			shift = At.Shift.AFTER
+		)
+	)
 	private void glowtone$endBlockMaterial(CallbackInfoReturnable<?> info) {
-		BlockLightProperties.endBlock();
+		BlockLightPropertiesRenderer.endBlock();
 		BlockMaterials.endBlock();
 	}
-
 }
