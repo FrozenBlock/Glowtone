@@ -38,6 +38,7 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
+import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
@@ -54,8 +55,6 @@ public final class GlowtoneBloomRenderer {
 	private static final int UNIFORM_SIZE = new Std140SizeCalculator().putVec2().putFloat().putFloat().get();
 	private static final int BLUR_ITERATIONS = 4;
 	private static final int BLUR_DOWNSAMPLE = 2;
-	private static final float BLUR_RADIUS = 12F;
-	private static final float STRENGTH_SCALE = 2F;
 
 	private static final BindGroupLayout BLOOM_BIND_GROUP = BindGroupLayout.builder()
 		.withSampler("InSampler")
@@ -90,6 +89,8 @@ public final class GlowtoneBloomRenderer {
 	private static int uniformWidth;
 	private static int uniformHeight;
 	private static float uniformStrength = -1F;
+	private static float uniformRadius = -1F;
+	private static float uniformIntensity = -1F;
 
 	private GlowtoneBloomRenderer() {}
 
@@ -210,17 +211,29 @@ public final class GlowtoneBloomRenderer {
 	}
 
 	private static void updateUniforms(int width, int height, float strength) {
-		if (width == uniformWidth && height == uniformHeight && strength == uniformStrength) return;
+		// Without these in the key, a reload changes the settings but never the uniforms.
+		final float packRadius = GlowtonePackSettings.bloomRadius();
+		final float packIntensity = GlowtonePackSettings.bloomIntensity();
+		if (width == uniformWidth
+			&& height == uniformHeight
+			&& strength == uniformStrength
+			&& packRadius == uniformRadius
+			&& packIntensity == uniformIntensity
+		) {
+			return;
+		}
 
 		closeUniforms();
 		uniformWidth = width;
 		uniformHeight = height;
 		uniformStrength = strength;
+		uniformRadius = packRadius;
+		uniformIntensity = packIntensity;
 
-		final float radius = BLUR_RADIUS / BLUR_DOWNSAMPLE;
+		final float radius = packRadius / BLUR_DOWNSAMPLE;
 		horizontalUniform = createUniform("Glowtone bloom blur X", 1F / width, 0F, radius, strength);
 		verticalUniform = createUniform("Glowtone bloom blur Y", 0F, 1F / height, radius, strength);
-		compositeUniform = createUniform("Glowtone bloom composite", 0F, 0F, 0F, strength * STRENGTH_SCALE);
+		compositeUniform = createUniform("Glowtone bloom composite", 0F, 0F, 0F, strength * packIntensity);
 	}
 
 	private static GpuBuffer createUniform(String label, float dirX, float dirY, float radius, float strength) {
@@ -262,5 +275,7 @@ public final class GlowtoneBloomRenderer {
 		uniformWidth = 0;
 		uniformHeight = 0;
 		uniformStrength = -1F;
+		uniformRadius = -1F;
+		uniformIntensity = -1F;
 	}
 }

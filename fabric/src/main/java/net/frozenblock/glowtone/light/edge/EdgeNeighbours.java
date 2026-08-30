@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.light.edge;
 
+import net.frozenblock.glowtone.light.color.OcclusionOverrides;
 import net.frozenblock.glowtone.render.GlowtoneCasterShapes;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -44,7 +45,7 @@ public final class EdgeNeighbours {
 	private int resolved;
 	private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
 	private @Nullable BlockAndTintGetter source;
-	private boolean selfEmissive;
+	private boolean receivesOcclusion = true;
 	private boolean dirty = true;
 	private int x;
 	private int y;
@@ -58,7 +59,7 @@ public final class EdgeNeighbours {
 		if (!this.dirty && this.source == level && this.x == pos.getX() && this.y == pos.getY() && this.z == pos.getZ()) return;
 
 		final BlockState here = level.getBlockState(pos);
-		this.selfEmissive = here.getLightEmission() > 0;
+		this.receivesOcclusion = OcclusionOverrides.receives(here, here.getLightEmission() == 0);
 
 		this.resolved = 1 << CENTRE;
 		this.cells[CENTRE] = casterBoxes(level, pos, here);
@@ -129,6 +130,10 @@ public final class EdgeNeighbours {
 		return this.cells[slot];
 	}
 
+	public boolean receivesOcclusion() {
+		return !this.dirty && this.receivesOcclusion;
+	}
+
 	private static int cellOn(int axis, int axisA, int cellA, int axisB, int cellB, int axisC, int cellC) {
 		return axis == axisA ? cellA
 			: axis == axisB ? cellB
@@ -145,7 +150,4 @@ public final class EdgeNeighbours {
 			&& bounds.minZ <= SPAN_SLACK && bounds.maxZ >= 1D - SPAN_SLACK;
 	}
 
-	public boolean selfEmissive() {
-		return !this.dirty && this.selfEmissive;
-	}
 }

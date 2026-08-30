@@ -24,6 +24,7 @@ import net.frozenblock.glowtone.bloom.GlowtoneBloom;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @ClientOnly
@@ -38,7 +39,7 @@ public interface VertexConsumerMixin {
 		)
 	)
 	private int glowtone$markEmissiveBlockQuad(int lightCoords, @Local(argsOnly = true) BakedQuad quad) {
-		return GlowtoneBloom.isEmissiveQuad(quad) ? GlowtoneBloom.mark(lightCoords) : lightCoords;
+		return glowtone$markQuad(lightCoords, quad);
 	}
 
 	@ModifyExpressionValue(
@@ -49,6 +50,11 @@ public interface VertexConsumerMixin {
 		)
 	)
 	private int glowtone$markEmissiveQuad(int lightCoords, @Local(argsOnly = true) BakedQuad quad) {
+		return glowtone$markQuad(lightCoords, quad);
+	}
+
+	@Unique
+	private static int glowtone$markQuad(int lightCoords, BakedQuad quad) {
 		return GlowtoneBloom.isEmissiveQuad(quad) ? GlowtoneBloom.mark(lightCoords) : lightCoords;
 	}
 }

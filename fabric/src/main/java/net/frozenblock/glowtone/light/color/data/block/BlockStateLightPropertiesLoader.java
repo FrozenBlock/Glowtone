@@ -108,6 +108,10 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 			.thenAcceptAsync(lights -> {
 				BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockLightProperties.ATTACHMENT_KEY));
 
+				BlockLightProperties.setLoadedFeatures(
+					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesOcclusion)
+				);
+
 				final Map<Block, Map<BlockState, BlockLightProperties>> fullMap = new IdentityHashMap<>();
 				lights.lights().forEach((blockState, light) -> {
 					final Map<BlockState, BlockLightProperties> blockMap = fullMap.getOrDefault(blockState.getBlock(), new IdentityHashMap<>());
@@ -120,7 +124,7 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 					final Map<BlockState, BlockLightProperties> lightMap = fullMap.get(block);
 					if (lightMap == null) return;
 
-					if (block.getStateDefinition().getPossibleStates().containsAll(lightMap.keySet())
+					if (lightMap.keySet().containsAll(block.getStateDefinition().getPossibleStates())
 						&& lightMap.values().stream().distinct().count() <= 1
 					) {
 						bakedMap.put(block, new BlockLightProperties.Simple(lightMap.get(block.defaultBlockState())));
@@ -130,7 +134,8 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 				});
 
 				bakedMap.forEach((block, blockLight) -> block.frozenLib$setAttached(BlockLightProperties.ATTACHMENT_KEY, blockLight));
-			});
+
+			}, reloadExecutor);
 	}
 
 	private record LoadedBlockStateLightDispatcher(String source, BlockLightPropertiesDispatcher contents) {}

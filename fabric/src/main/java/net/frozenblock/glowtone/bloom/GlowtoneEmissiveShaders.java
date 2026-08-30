@@ -22,6 +22,7 @@ import java.util.Set;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
+import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
@@ -53,22 +54,12 @@ public final class GlowtoneEmissiveShaders {
 
 	public static final String TRANSLUCENT_TERRAIN_DEFINE = "GLOWTONE_TRANSLUCENT_TERRAIN";
 
-	private static final float LIQUID_STRENGTH_SCALE = 5F;
-
-	private static final float LIQUID_FACING_FADE = 0.5F;
-
-	private static final float EDGE_WIDTH_UNITS = 1F;
-
 	private static final float EDGE_ANCHOR = 0.95F;
 
 	private static final float EDGE_FLATTEN = 0.85F;
 
 	private static final float EDGE_WHITEN = 0.70F;
 
-	private static final float LIQUID_WHITEN = 0.8F;
-	private static final float LIQUID_FLOOR = 0.6F;
-	private static final float LIQUID_LIFT = 1.7F;
-	private static final float LIQUID_OPACITY = 0.9F;
 	private static final float AO_RADIUS_UNITS = GlowtoneContactRects.RADIUS_UNITS;
 
 	private static final Identifier TERRAIN = Identifier.withDefaultNamespace("core/terrain");
@@ -98,13 +89,14 @@ public final class GlowtoneEmissiveShaders {
 		in vec4 glowtone_EdgeDist;
 		in vec4 glowtone_EdgeMask;
 		in vec4 glowtone_Shade;
+		in float glowtone_ViewDist;
 		flat in vec4 glowtone_Contact0;
 		flat in vec4 glowtone_Contact1;
 		flat in vec4 glowtone_Contact2;
 		flat in vec4 glowtone_Contact3;
 
 		float glowtone_keepVaryings() {
-			return 1e-20 * (glowtone_Height
+			return 1e-20 * (glowtone_Height + glowtone_ViewDist
 				+ dot(glowtone_EdgeDist, vec4(1.0)) + dot(glowtone_EdgeMask, vec4(1.0))
 				+ dot(glowtone_Contact0, vec4(1.0)) + dot(glowtone_Contact1, vec4(1.0))
 				+ dot(glowtone_Contact2, vec4(1.0)) + dot(glowtone_Contact3, vec4(1.0))
@@ -214,15 +206,24 @@ public final class GlowtoneEmissiveShaders {
 
 	private static final String EDGE_HEADER = """
 		float glowtone_liquidFacing() {
-			return 1.0 - smoothstep(0.0, %s, glowtone_Height);
+			vec4 glowtone_reach = glowtone_edgeReach(%s);
+		%s
+			vec4 glowtone_facing = glowtone_reach * step(vec4(0.5), glowtone_EdgeMask);
+			return max(max(glowtone_facing.r, glowtone_facing.g), max(glowtone_facing.b, glowtone_facing.a));
 		}
 
 		vec4 glowtone_edgeLit() {
-			return glowtone_edgeReach(%s) * step(vec4(%s), glowtone_EdgeMask);
+			vec4 glowtone_reach = glowtone_edgeReach(%s);
+		%s
+			return glowtone_reach * step(vec4(%s), glowtone_EdgeMask);
 		}
 
 		float glowtone_edgeRim(vec4 glowtone_lit) {
-			return max(max(glowtone_lit.r, glowtone_lit.g), max(glowtone_lit.b, glowtone_lit.a));
+		%s
+		}
+
+		float glowtone_fade(float glowtone_max) {
+			return 1.0 - smoothstep(glowtone_max * 0.75, glowtone_max, %s);
 		}
 
 		vec3 glowtone_edgeHighlight(vec3 glowtone_colour, float glowtone_strength) {
@@ -232,7 +233,7 @@ public final class GlowtoneEmissiveShaders {
 		}
 
 		vec4 glowtone_liquidHighlight(vec4 glowtone_colour, float glowtone_strength) {
-			float glowtone_rim = min(1.0, glowtone_strength * glowtone_liquidFacing());
+			float glowtone_rim = min(1.0, glowtone_strength * glowtone_liquidFacing() * glowtone_fade(%s));
 			float glowtone_level = dot(glowtone_colour.rgb, vec3(0.2126, 0.7152, 0.0722));
 			vec3 glowtone_foam =
 				mix(glowtone_colour.rgb, vec3(max(glowtone_level, %s)), %s) * %s;
@@ -325,7 +326,11 @@ public final class GlowtoneEmissiveShaders {
 			return sample_lightmap(glowtone_lightMap, ivec2(glowtone_lightCoords.x & %d, glowtone_lightCoords.y & %d));
 		}
 
-		""".formatted(GlowtoneBloom.EMISSIVE_MARKER, GlowtoneBloom.LIGHT_COORDS_CHANNEL_MASK, GlowtoneBloom.LIGHT_COORDS_CHANNEL_MASK);
+		""".formatted(
+			GlowtoneBloom.EMISSIVE_MARKER,
+			GlowtoneBloom.LIGHT_COORDS_CHANNEL_MASK,
+			GlowtoneBloom.LIGHT_COORDS_CHANNEL_MASK
+		);
 
 	private static final String VERTEX_FOOTER = """
 
@@ -462,6 +467,7 @@ public final class GlowtoneEmissiveShaders {
 		out vec4 glowtone_EdgeDist;
 		out vec4 glowtone_EdgeMask;
 		out vec4 glowtone_Shade;
+		out float glowtone_ViewDist;
 		flat out vec4 glowtone_Contact0;
 		flat out vec4 glowtone_Contact1;
 		flat out vec4 glowtone_Contact2;
@@ -472,6 +478,7 @@ public final class GlowtoneEmissiveShaders {
 	private static final String SODIUM_WRITES = """
 
 			glowtone_Height = position.y;
+			glowtone_ViewDist = length(position);
 			glowtone_EdgeDist = a_GlowtoneEdge;
 			glowtone_EdgeMask = a_GlowtoneEdgeMask;
 			glowtone_Shade = _vert_color;
@@ -483,18 +490,20 @@ public final class GlowtoneEmissiveShaders {
 	private static String patchSodium(ShaderType type, String source) {
 		final float shade = AmbientOcclusionOption.glowtoneActive()
 			&& AmbientOcclusionOption.SHADER_CONTACT_SHADING ? OcclusionStrengthOption.strength() : 0F;
-		final float highlight = EdgeHighlightOption.strength();
+		final float option = EdgeHighlightOption.strength();
+		final float highlight = blockHighlight(option);
+		final float liquid = option * GlowtonePackSettings.waterStrength();
 		final boolean occlusionView = aoDebug();
 
 		final String emissive = type == ShaderType.VERTEX
 			? patchSodiumEmissiveVertex(source)
 			: patchSodiumEmissiveFragment(source);
 
-		if (shade <= 0F && highlight <= 0F && !occlusionView) return emissive;
+		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) return emissive;
 
 		return type == ShaderType.VERTEX
 			? patchSodiumVertex(emissive)
-			: patchSodiumFragment(emissive, shade, highlight, occlusionView);
+			: patchSodiumFragment(emissive, shade, highlight, liquid, occlusionView);
 	}
 
 	private static String patchSodiumEmissiveVertex(String source) {
@@ -545,29 +554,25 @@ public final class GlowtoneEmissiveShaders {
 	}
 
 	private static String patchSodiumFragment(
-		String source, float shade, float highlight, boolean occlusionView
+		String source, float shade, float highlight, float liquid, boolean occlusionView
 	) {
 		final String fragOut = source.contains(SODIUM_FRAG_OUT_RELOCATED)
 			? SODIUM_FRAG_OUT_RELOCATED : SODIUM_FRAG_OUT;
 		if (!source.contains(fragOut) || !source.contains(SODIUM_FOG_CALL)) return source;
 
 		final String newline = System.lineSeparator();
-		final boolean lines = highlight > 0F && (!occlusionView || edgeDebugColour());
+		final boolean lines = (highlight > 0F || liquid > 0F) && (!occlusionView || edgeDebugColour());
 
 		final StringBuilder header = new StringBuilder(EDGE_DATA_HEADER);
 		final StringBuilder body = new StringBuilder();
 
 		if (occlusionView || shade > 0F) {
-			header.append(AO_HEADER.formatted(
-				Float.toString(AO_RADIUS_UNITS),
-				hex(GlowtoneContactRects.OCCUPIED_FLAG),
-				hex(GlowtoneContactRects.GRID_FLAG)
-			));
+			header.append(aoHeader());
 		}
 		if (lines) header.append(sodiumEdgeHeader());
 
 		if (occlusionView) body.append(sodiumOcclusionBody(shade, true)).append(newline);
-		if (lines) body.append(sodiumHighlightBody(highlight)).append(newline);
+		if (lines) body.append(sodiumHighlightBody(highlight, liquid)).append(newline);
 		if (shade > 0F && !occlusionView) body.append(sodiumOcclusionBody(shade, false)).append(newline);
 
 		body.append("    ").append(SODIUM_TARGET).append(".rgb += vec3(glowtone_keepVaryings());")
@@ -587,14 +592,19 @@ public final class GlowtoneEmissiveShaders {
 			).replace("vertexColor", "v_Color");
 
 		return EDGE_HEADER.formatted(
-			Float.toString(LIQUID_FACING_FADE),
-			Float.toString(EDGE_WIDTH_UNITS),
+			Float.toString(GlowtonePackSettings.waterSize()),
+			edgeStyle(GlowtonePackSettings.waterStyle(), GlowtonePackSettings.waterSize()),
+			Float.toString(GlowtonePackSettings.highlightSize()),
+			edgeStyle(GlowtonePackSettings.highlightStyle(), GlowtonePackSettings.highlightSize()),
 			"0.5",
+			edgeCorners(GlowtonePackSettings.highlightCorners()),
+			"glowtone_ViewDist",
 			edgeReturn,
-			Float.toString(LIQUID_FLOOR),
-			Float.toString(LIQUID_WHITEN),
-			Float.toString(LIQUID_LIFT),
-			Float.toString(LIQUID_OPACITY)
+			Float.toString(GlowtonePackSettings.waterDistance()),
+			Float.toString(GlowtonePackSettings.waterFloor()),
+			Float.toString(GlowtonePackSettings.waterWhiten()),
+			Float.toString(GlowtonePackSettings.waterLift()),
+			Float.toString(GlowtonePackSettings.waterOpacity())
 		);
 	}
 
@@ -611,14 +621,14 @@ public final class GlowtoneEmissiveShaders {
 			+ ");";
 	}
 
-	private static String sodiumHighlightBody(float edgeStrength) {
+	private static String sodiumHighlightBody(float edgeStrength, float liquidStrength) {
 		final String newline = System.lineSeparator();
 		final String isLiquid = "(glowtone_contactBits(glowtone_Contact3) & "
 			+ hex(GlowtoneContactRects.LIQUID_FLAG) + ") != 0u";
 		final String liquid = edgeDebugColour()
 			? SODIUM_TARGET + ".rgb = glowtone_edgeHighlight(" + SODIUM_TARGET + ".rgb, 1.0);"
 			: SODIUM_TARGET + " = glowtone_liquidHighlight(" + SODIUM_TARGET + ", "
-				+ Float.toString(edgeStrength * LIQUID_STRENGTH_SCALE) + ");";
+				+ Float.toString(liquidStrength) + ");";
 
 		return "    if (" + isLiquid + ") {" + newline
 			+ "        " + liquid + newline
@@ -643,6 +653,7 @@ public final class GlowtoneEmissiveShaders {
 
 	private static final String TERRAIN_VARYINGS = """
 		out float glowtone_Height;
+		out float glowtone_ViewDist;
 		out vec4 glowtone_EdgeDist;
 		out vec4 glowtone_EdgeMask;
 		out vec4 glowtone_Shade;
@@ -657,6 +668,7 @@ public final class GlowtoneEmissiveShaders {
 			glowtone_EdgeDist = GlowtoneEdge;
 			glowtone_EdgeMask = GlowtoneEdgeMask;
 			glowtone_Shade = Color;
+			glowtone_ViewDist = length(pos);
 			glowtone_Contact0 = GlowtoneContact0;
 			glowtone_Contact1 = GlowtoneContact1;
 			glowtone_Contact2 = GlowtoneContact2;
@@ -689,14 +701,15 @@ public final class GlowtoneEmissiveShaders {
 	private static String patchTerrainLines(String source) {
 		final float shade = AmbientOcclusionOption.glowtoneActive()
 			&& AmbientOcclusionOption.SHADER_CONTACT_SHADING ? OcclusionStrengthOption.strength() : 0F;
-		final float highlight = EdgeHighlightOption.strength();
-		final float liquid = highlight * LIQUID_STRENGTH_SCALE;
+		final float option = EdgeHighlightOption.strength();
+		final float highlight = blockHighlight(option);
+		final float liquid = option * GlowtonePackSettings.waterStrength();
 		final boolean occlusionView = aoDebug();
-		if (shade <= 0F && highlight <= 0F && !occlusionView) return source;
+		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) return source;
 
 		String patched = source.replace(GLOWTONE_MAIN, EDGE_DATA_HEADER + GLOWTONE_MAIN);
 
-		final boolean lines = highlight > 0F && (!occlusionView || edgeDebugColour());
+		final boolean lines = (highlight > 0F || liquid > 0F) && (!occlusionView || edgeDebugColour());
 
 		if (occlusionView) patched = patchAmbientOcclusion(patched, shade);
 		if (lines) patched = patchEdgeHighlight(patched, highlight, liquid);
@@ -733,8 +746,39 @@ public final class GlowtoneEmissiveShaders {
 		return 0F;
 	}
 
+	private static float blockHighlight(float option) {
+		if (GlowtonePackSettings.highlightSource() == GlowtonePackSettings.Source.POST) return 0F;
+		return option * GlowtonePackSettings.highlightStrength();
+	}
+
+	private static String edgeCorners(GlowtonePackSettings.Corners corners) {
+		if (corners == GlowtonePackSettings.Corners.NUB) {
+			return "			vec4 glowtone_rest = 1.0 - clamp(glowtone_lit, 0.0, 1.0);" + System.lineSeparator()
+				+ "			return 1.0 - glowtone_rest.r * glowtone_rest.g * glowtone_rest.b * glowtone_rest.a;";
+		}
+
+		return "			return max(max(glowtone_lit.r, glowtone_lit.g), max(glowtone_lit.b, glowtone_lit.a));";
+	}
+
+	private static String edgeStyle(GlowtonePackSettings.Style style, float size) {
+		if (style == GlowtonePackSettings.Style.HARD) {
+			return "			glowtone_reach = step(vec4(1.0E-4), glowtone_reach);";
+		}
+
+		final String width = Float.toString(Math.max(size, 1.0E-4F));
+		return "			glowtone_reach *= clamp("
+			+ "(vec4(" + width + ") - glowtone_EdgeDist * 255.0) / " + width + ", 0.0, 1.0);";
+	}
+
+	private static String aoHeader() {
+		return AO_HEADER.formatted(
+			Float.toString(AO_RADIUS_UNITS),
+			hex(GlowtoneContactRects.OCCUPIED_FLAG),
+			hex(GlowtoneContactRects.GRID_FLAG)
+		);
+	}
+
 	private static String patchAmbientOcclusion(String source, float strength) {
-		final String radius = Float.toString(AO_RADIUS_UNITS);
 		final boolean view = aoDebug();
 		final String depth = Float.toString(view ? occlusionDepth() : strength);
 		final String shaded = "dot(glowtone_Shade.rgb, vec3(0.2126, 0.7152, 0.0722))";
@@ -749,14 +793,12 @@ public final class GlowtoneEmissiveShaders {
 			+ "	fragColor.rgb += vec3(glowtone_keepVaryings());";
 
 		return source
-			.replace(GLOWTONE_MAIN,
-				AO_HEADER.formatted(radius,
-					hex(GlowtoneContactRects.OCCUPIED_FLAG), hex(GlowtoneContactRects.GRID_FLAG))
-					+ GLOWTONE_MAIN)
+			.replace(GLOWTONE_MAIN, aoHeader() + GLOWTONE_MAIN)
 			.replace(EMISSIVE_WRITE, guarded(SHADED_TERRAIN_DEFINE, body) + EMISSIVE_WRITE);
 	}
 
 	private static String patchEdgeHighlight(String source, float edgeStrength, float liquidStrength) {
+		final float overlayStrength = edgeStrength / Math.max(EdgeHighlightOption.strength(), 1.0E-4F);
 		final String edgeReturn = edgeDebugColour() ? EDGE_RETURN_DEBUG
 			: EDGE_RETURN_NORMAL.formatted(
 				Float.toString(EDGE_ANCHOR),
@@ -764,14 +806,19 @@ public final class GlowtoneEmissiveShaders {
 				Float.toString(EDGE_WHITEN)
 			);
 		final String header = EDGE_HEADER.formatted(
-			Float.toString(LIQUID_FACING_FADE),
-			Float.toString(EDGE_WIDTH_UNITS),
+			Float.toString(GlowtonePackSettings.waterSize()),
+			edgeStyle(GlowtonePackSettings.waterStyle(), GlowtonePackSettings.waterSize()),
+			Float.toString(GlowtonePackSettings.highlightSize()),
+			edgeStyle(GlowtonePackSettings.highlightStyle(), GlowtonePackSettings.highlightSize()),
 			"0.5",
+			edgeCorners(GlowtonePackSettings.highlightCorners()),
+			"glowtone_ViewDist",
 			edgeReturn,
-			Float.toString(LIQUID_FLOOR),
-			Float.toString(LIQUID_WHITEN),
-			Float.toString(LIQUID_LIFT),
-			Float.toString(LIQUID_OPACITY)
+			Float.toString(GlowtonePackSettings.waterDistance()),
+			Float.toString(GlowtonePackSettings.waterFloor()),
+			Float.toString(GlowtonePackSettings.waterWhiten()),
+			Float.toString(GlowtonePackSettings.waterLift()),
+			Float.toString(GlowtonePackSettings.waterOpacity())
 		);
 		final String newline = System.lineSeparator();
 		final String isLiquid = "(glowtone_contactBits(glowtone_Contact3) & "

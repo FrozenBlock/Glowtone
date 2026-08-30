@@ -19,6 +19,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
+import net.frozenblock.glowtone.bloom.GlowtoneEdgeRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Final;
@@ -47,5 +48,17 @@ public class GameRendererMixin {
 	private void glowtone$compositeBloom(CallbackInfo info) {
 		if (!GlowtoneBloomRenderer.isEnabled()) return;
 		GlowtoneBloomRenderer.render(this.mainRenderTarget);
+	}
+
+	/** The next call clears depth for the held item. */
+	@Inject(
+		method = "renderLevel",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearDepthTexture(Lcom/mojang/blaze3d/textures/GpuTexture;D)V"
+		)
+	)
+	private void glowtone$screenSpaceEdges(CallbackInfo info) {
+		GlowtoneEdgeRenderer.render(this.mainRenderTarget);
 	}
 }

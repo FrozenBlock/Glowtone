@@ -25,6 +25,7 @@ import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.GlowtoneReload;
+import net.frozenblock.glowtone.config.pack.GlowtonePackSettingsLoader;
 import net.frozenblock.glowtone.light.color.data.block.BlockStateLightPropertiesLoader;
 import net.minecraft.server.packs.PackType;
 
@@ -38,6 +39,7 @@ public final class GlowtoneClient implements ClientModInitializer {
 		ColoredLightingOption.applyMode(GlowtoneConfig.coloredLighting());
 
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("block_light"), new BlockStateLightPropertiesLoader());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("settings"), new GlowtonePackSettingsLoader());
 
 		// MOD COMPAT
 		GlowtoneDynamicLights.init();

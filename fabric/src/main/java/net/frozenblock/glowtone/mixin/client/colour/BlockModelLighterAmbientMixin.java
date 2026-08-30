@@ -17,9 +17,13 @@
 
 package net.frozenblock.glowtone.mixin.client.colour;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.light.color.OcclusionOverrides;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockModelLighter;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -37,7 +41,10 @@ public class BlockModelLighterAmbientMixin {
 		index = 0,
 		require = 0
 	)
-	private static float glowtone$clampCorner(float occlusion) {
-		return Mth.clamp(occlusion, 0F, 1F);
+	private static float glowtone$clampCorner(float occlusion, @Local(argsOnly = true) BlockState state) {
+		final float clamped = Mth.clamp(occlusion, 0F, 1F);
+		if (!AmbientOcclusionOption.vanillaActive()) return clamped;
+
+		return OcclusionOverrides.receives(state, true) ? clamped : 1F;
 	}
 }

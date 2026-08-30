@@ -25,6 +25,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import org.spongepowered.asm.mixin.Unique;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -67,14 +68,21 @@ public abstract class UnbakedCuboidGeometryMixin {
 
 		final TextureAtlasSprite sprite = original.sprite();
 		final Identifier location = sprite.contents().name();
-		final Identifier emissiveLocation = location.withSuffix(GlowtoneConstants.EMISSIVE_SUFFIX);
 
-		final Material.Baked emissiveMaterial = modelBaker.materials().get(new Material(emissiveLocation), name);
-		if (emissiveMaterial != null && !emissiveMaterial.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
-			emissiveMaterialRef.set(emissiveMaterial);
-		}
+		emissiveMaterialRef.set(glowtone$overlayMaterial(modelBaker, name, location, GlowtoneConstants.EMISSIVE_SUFFIX));
 
 		return original;
+	}
+
+	@Unique
+	private static Material.Baked glowtone$overlayMaterial(
+		ModelBaker modelBaker, ModelDebugName name, Identifier location, String suffix
+	) {
+		final Material.Baked material = modelBaker.materials().get(new Material(location.withSuffix(suffix)), name);
+		if (material == null) return null;
+		if (material.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return null;
+
+		return material;
 	}
 
 	@WrapOperation(

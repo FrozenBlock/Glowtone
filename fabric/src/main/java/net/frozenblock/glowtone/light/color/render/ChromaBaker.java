@@ -25,6 +25,7 @@ import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.FilterColorHelper;
+import net.frozenblock.glowtone.light.color.OcclusionOverrides;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
@@ -104,6 +105,19 @@ public final class ChromaBaker {
 
 		final float scale = occlusionScale;
 		return scale == 1F ? brightness : 1F - (1F - brightness) * scale;
+	}
+
+	public static float occlusionShade(float brightness, BlockState state) {
+		if (!vanillaOcclusion) return 1F;
+		if (!OcclusionOverrides.any()) return occlusionShade(brightness);
+
+		final boolean automatic = brightness < 1F;
+		if (!OcclusionOverrides.casts(state, automatic)) return 1F;
+		return occlusionShade(automatic ? brightness : OcclusionOverrides.FULL_OCCLUDER);
+	}
+
+	public static boolean vanillaOcclusionActive() {
+		return vanillaOcclusion;
 	}
 
 	public static SectionState state() {
@@ -515,6 +529,7 @@ public final class ChromaBaker {
 			}
 
 			if (!this.smoothLighting) accumulator = ChromaBlender.add(ChromaBlender.EMPTY, brightest);
+
 			return ChromaBlender.toArgb(accumulator);
 		}
 

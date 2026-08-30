@@ -17,10 +17,14 @@
 
 package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,14 +34,16 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(LightDataAccess.class)
 public class LightDataAccessMixin {
 
-	@ModifyExpressionValue(
+	@WrapOperation(
 		method = "compute",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/level/block/state/BlockState;getShadeBrightness(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)F"
 		)
 	)
-	private float glowtone$scaleOcclusion(float brightness) {
-		return ChromaBaker.occlusionShade(brightness);
+	private float glowtone$scaleOcclusion(
+		BlockState state, BlockGetter level, BlockPos pos, Operation<Float> original
+	) {
+		return ChromaBaker.occlusionShade(original.call(state, level, pos), state);
 	}
 }

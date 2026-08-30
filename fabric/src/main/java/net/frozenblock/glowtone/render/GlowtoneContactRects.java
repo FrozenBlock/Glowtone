@@ -294,6 +294,7 @@ public final class GlowtoneContactRects {
 			this.rects[a * 4 + c] = this.rects[b * 4 + c];
 			this.rects[b * 4 + c] = held;
 		}
+
 	}
 
 	public float occlusionAt(float u, float v) {

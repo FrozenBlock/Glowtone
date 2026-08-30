@@ -21,12 +21,12 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 @ClientOnly
 public final class FluidEdges {
-	private static final float WIDTH = 1F / QuadEdges.UNITS_PER_BLOCK;
 	private static final float CLEARANCE = 0.001F;
 	private static final float WRAP_CLEARANCE = 1F / 512F;
 	private static final float MATCH = 1F / 10000F;
@@ -34,6 +34,7 @@ public final class FluidEdges {
 	private static final float TOUCH = 1F / 4096F;
 
 	private final float[] corners = new float[12];
+	private float rimWidth;
 	private final float[] held = new float[12];
 	private final float[] rimUvs = new float[8];
 	private final int[] grid = new int[4];
@@ -60,6 +61,7 @@ public final class FluidEdges {
 		int colour,
 		int light
 	) {
+		this.rimWidth = width();
 		this.corners[0] = x0;
 		this.corners[1] = y0;
 		this.corners[2] = z0;
@@ -345,10 +347,14 @@ public final class FluidEdges {
 		}
 	}
 
+	private static float width() {
+		return Math.clamp(GlowtonePackSettings.waterSize(), 0F, QuadEdges.UNITS_PER_BLOCK) / QuadEdges.UNITS_PER_BLOCK;
+	}
+
 	private float inwards(float outer, int origin) {
 		return this.facePositive
-			? Math.max(outer - WIDTH, origin)
-			: Math.min(outer + WIDTH, origin + 1F);
+			? Math.max(outer - this.rimWidth, origin)
+			: Math.min(outer + this.rimWidth, origin + 1F);
 	}
 
 	private void frame() {

@@ -81,7 +81,7 @@ public class DefaultFluidRendererMixin {
 		ChromaBaker.state().setEmissiveQuad(GlowtoneConstants.GLOWTONE_EMISSIVES && fluidState.is(FluidTags.LAVA));
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
-		if (!state.highlightEnabled()) return;
+		if (!state.highlightEnabled() || !fluidState.is(FluidTags.WATER)) return;
 
 		state.beginFluid(level, blockPos);
 	}

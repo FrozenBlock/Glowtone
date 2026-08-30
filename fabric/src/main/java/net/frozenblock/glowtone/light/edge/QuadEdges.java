@@ -256,7 +256,7 @@ public final class QuadEdges {
 		final float lowV = minV - originV;
 		final float highV = maxV - originV;
 
-		final boolean shaded = (shade || bake) && !neighbours.selfEmissive();
+		final boolean shaded = (shade || bake) && neighbours.receivesOcclusion();
 
 		final float[] modelFaces = rim ? null : ChromaBaker.state().modelFaces();
 
@@ -292,6 +292,18 @@ public final class QuadEdges {
 		final float midU = (lowU + highU) * 0.5F;
 		final float midV = (lowV + highV) * 0.5F;
 
+		float rimOuter = 0F;
+		if (rim) {
+			float narrowMin = Float.MAX_VALUE;
+			float narrowMax = -Float.MAX_VALUE;
+			for (int vertex = 0; vertex < 4; vertex++) {
+				final float along = component(vertex, this.rimNarrowAxis);
+				narrowMin = Math.min(narrowMin, along);
+				narrowMax = Math.max(narrowMax, along);
+			}
+			rimOuter = this.rimPositive ? narrowMax : narrowMin;
+		}
+
 		for (int vertex = 0; vertex < 4; vertex++) {
 			final float u = component(vertex, axisU);
 			final float v = component(vertex, axisV);
@@ -306,7 +318,7 @@ public final class QuadEdges {
 			}
 
 			this.vertices[vertex] = rim
-				? 0
+				? rimAcross(vertex, rimOuter)
 				: (units(u - minU) << 24)
 					| (units(maxU - u) << 16)
 					| (units(v - minV) << 8)
@@ -348,6 +360,11 @@ public final class QuadEdges {
 			case 1 -> az * bx - ax * bz > 0F;
 			default -> ax * by - ay * bx > 0F;
 		};
+	}
+
+	private int rimAcross(int vertex, float outer) {
+		final int across = units(Math.abs(component(vertex, this.rimNarrowAxis) - outer));
+		return (across << 24) | (across << 16) | (across << 8) | across;
 	}
 
 	private static int units(float toEdge) {

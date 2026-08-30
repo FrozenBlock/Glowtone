@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.FluidRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,6 +48,7 @@ public class FluidRendererEdgesMixin {
 		CallbackInfo info
 	) {
 		if (!EdgeHighlightOption.enabled()) return;
+		if (!fluidState.is(FluidTags.WATER)) return;
 		ChromaBaker.state().beginFluid(level, pos);
 	}
 

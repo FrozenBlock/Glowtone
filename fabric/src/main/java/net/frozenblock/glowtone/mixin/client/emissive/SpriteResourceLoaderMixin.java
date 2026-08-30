@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -50,11 +51,17 @@ public interface SpriteResourceLoaderMixin {
 	) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
 		if (image == null) return;
-		if (!spriteLocation.getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)) return;
+		if (!glowtone$isOverlay(spriteLocation)) return;
 
 		try {
 			final int[] pixels = image.getPixels();
 			if (Arrays.stream(pixels).allMatch(pixel -> ARGB.alpha(pixel) == 0)) info.setReturnValue(null);
 		} catch (Exception ignored) {}
+	}
+
+	@Unique
+	private static boolean glowtone$isOverlay(Identifier spriteLocation) {
+		final String path = spriteLocation.getPath();
+		return path.endsWith(GlowtoneConstants.EMISSIVE_SUFFIX);
 	}
 }

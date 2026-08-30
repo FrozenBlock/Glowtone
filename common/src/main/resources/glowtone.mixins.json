@@ -60,6 +60,7 @@
     "client.colour.sodium.BlockRendererEdgesMixin",
     "client.colour.sodium.DefaultFluidRendererMixin",
     "client.colour.sodium.LightDataAccessMixin",
+    "client.colour.sodium.SmoothLightPipelineMixin",
     "client.colour.sodium.MutableQuadViewImplMixin",
     "client.colour.sodium.NonTerrainBlockRenderContextMixin",
     "client.colour.sodium.RenderSectionManagerMixin",
