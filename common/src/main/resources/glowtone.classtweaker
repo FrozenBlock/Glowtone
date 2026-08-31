@@ -1,10 +1,44 @@
 classTweaker v1 official
 
+# Block & Item Models
 accessible class net/minecraft/client/resources/model/cuboid/ItemModelGenerator$ItemLayerKey
 accessible method net/minecraft/client/resources/model/cuboid/ItemModelGenerator$ItemLayerKey <init> (Lnet/minecraft/client/resources/model/sprite/Material$Baked;Lnet/minecraft/client/renderer/block/dispatch/ModelState;I)V
+
+# Light
+accessible method net/minecraft/world/level/lighting/LightEngine isEmptyShape (Lnet/minecraft/world/level/block/state/BlockState;)Z
+
+transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
+transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
+transitive-inject-interface net/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
+
+# Animated Sprite
+accessible class net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture
+accessible field net/minecraft/client/renderer/texture/SpriteContents$AnimationState animationInfo Lnet/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture;
+accessible field net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture interpolateFrames Z
+accessible field net/minecraft/client/renderer/texture/TextureAtlas animatedTexturesStates Ljava/util/List;
+
+transitive-inject-interface net/minecraft/client/renderer/texture/SpriteContents$AnimationState net/frozenblock/glowtone/animation/impl/AnimationStatePartialTickExtension
+
+# Particle
+accessible field net/minecraft/client/particle/SingleQuadParticle rCol F
+accessible field net/minecraft/client/particle/SingleQuadParticle gCol F
+accessible field net/minecraft/client/particle/SingleQuadParticle bCol F
+accessible field net/minecraft/client/particle/SingleQuadParticle sprite Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;
+
 accessible class net/minecraft/client/particle/ItemPickupParticleGroup$State
 accessible method net/minecraft/client/particle/ItemPickupParticleGroup$State <init> (Ljava/util/List;)V
 
+transitive-inject-interface net/minecraft/client/particle/Particle net/frozenblock/glowtone/emissive/particle/impl/GlowtoneLitParticle
+transitive-inject-interface net/minecraft/core/particles/DustColorTransitionOptions net/frozenblock/glowtone/emissive/particle/impl/GlowtoneParticle
+transitive-inject-interface net/minecraft/client/particle/DustColorTransitionParticle net/frozenblock/glowtone/emissive/particle/impl/GlowtoneParticle
+transitive-inject-interface net/minecraft/core/particles/DustParticleOptions net/frozenblock/glowtone/emissive/particle/impl/GlowtoneParticle
+transitive-inject-interface net/minecraft/client/particle/DustParticle net/frozenblock/glowtone/emissive/particle/impl/GlowtoneParticle
+
+# Rendering
+accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder fragmentShader Ljava/util/Optional;
+accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder bindGroupLayouts Ljava/util/Optional;
+
+# Chunk
 accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion sections [Lnet/minecraft/client/renderer/chunk/SectionCopy;
 accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion minSectionX I
 accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion minSectionY I
@@ -12,8 +46,7 @@ accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion minSect
 accessible field net/minecraft/client/renderer/chunk/SectionCopy section Lnet/minecraft/world/level/chunk/PalettedContainer;
 accessible field net/minecraft/client/renderer/chunk/SectionCopy debug Z
 
-accessible method net/minecraft/world/level/lighting/LightEngine isEmptyShape (Lnet/minecraft/world/level/block/state/BlockState;)Z
-
+# Datagen
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch getEntries ()Ljava/util/Map;
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C1 <init> (Lnet/minecraft/world/level/block/state/properties/Property;)V
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C2 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
@@ -21,15 +54,5 @@ accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C4 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
 accessible method net/minecraft/client/data/models/blockstates/PropertyDispatch$C5 <init> (Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;Lnet/minecraft/world/level/block/state/properties/Property;)V
 
-accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder fragmentShader Ljava/util/Optional;
-accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder bindGroupLayouts Ljava/util/Optional;
-
-transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
-transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
-transitive-inject-interface net/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
-
-transitive-inject-interface net/minecraft/client/particle/Particle net/frozenblock/glowtone/particle/impl/GlowtoneLitParticle
-transitive-inject-interface net/minecraft/core/particles/DustColorTransitionOptions net/frozenblock/glowtone/particle/impl/GlowtoneParticle
-transitive-inject-interface net/minecraft/client/particle/DustColorTransitionParticle net/frozenblock/glowtone/particle/impl/GlowtoneParticle
-transitive-inject-interface net/minecraft/core/particles/DustParticleOptions net/frozenblock/glowtone/particle/impl/GlowtoneParticle
-transitive-inject-interface net/minecraft/client/particle/DustParticle net/frozenblock/glowtone/particle/impl/GlowtoneParticle
+# Options
+accessible field net/minecraft/client/gui/screens/options/OptionsSubScreen list Lnet/minecraft/client/gui/components/OptionsList;

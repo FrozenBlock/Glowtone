@@ -23,6 +23,7 @@ import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
 import net.caffeinemc.mods.sodium.api.config.structure.ConfigBuilder;
 import net.caffeinemc.mods.sodium.api.config.structure.OptionGroupBuilder;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.config.option.animation.SmoothAnimationOption;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
@@ -131,13 +132,27 @@ public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 				.setImpact(OptionImpact.LOW)
 				.setFlags(OptionFlag.REQUIRES_ASSET_RELOAD));
 
+		final OptionGroupBuilder smoothAnimation = builder.createOptionGroup()
+			.setName(caption("smooth_animation"))
+			.addOption(builder.createBooleanOption(id("smooth_animation"))
+				.setName(caption("smooth_animation"))
+				.setTooltip(tooltip("smooth_animation"))
+				.setDefaultValue(SmoothAnimationOption.DEFAULT)
+				.setBinding(
+					value -> SmoothAnimationOption.get().set(value),
+					GlowtoneConfig::smoothAnimation
+				)
+				.setImpact(OptionImpact.LOW));
+
 		builder.registerOwnModOptions()
 			.addPage(builder.createOptionPage()
 				.setName(Component.translatable("options.glowtone.page"))
 				.addOptionGroup(lighting)
 				.addOptionGroup(occlusion)
 				.addOptionGroup(highlights)
-				.addOptionGroup(emissives));
+				.addOptionGroup(emissives)
+				.addOptionGroup(smoothAnimation)
+			);
 	}
 
 	private static void saved() {}

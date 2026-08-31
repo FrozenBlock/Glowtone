@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.config.option.animation.SmoothAnimationOption;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
@@ -58,6 +59,7 @@ public final class GlowtoneConfig {
 	private static ColoredLightingMode coloredLighting = ColoredLightingMode.SUBTLE;
 	private static AmbientOcclusionMode ambientOcclusion = AmbientOcclusionMode.DEFAULT;
 	private static int occlusionStrength = DEFAULT_OCCLUSION_STRENGTH;
+	private static boolean smoothAnimation = SmoothAnimationOption.DEFAULT;
 	private static boolean loaded;
 
 	public static int bloom() {
@@ -157,6 +159,19 @@ public final class GlowtoneConfig {
 
 		bloom = clamped;
 		bloomEnabled = bloom > 0;
+		save();
+	}
+
+	public static boolean smoothAnimation() {
+		if (!loaded) load();
+		return smoothAnimation;
+	}
+
+	public static void setSmoothAnimation(boolean value) {
+		if (!loaded) load();
+		if (value == smoothAnimation) return;
+
+		smoothAnimation = value;
 		save();
 	}
 

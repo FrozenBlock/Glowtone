@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.emissive.particle;
 
-import net.frozenblock.glowtone.particle.impl.GlowtoneEmissiveParticle;
+import net.frozenblock.glowtone.emissive.particle.impl.GlowtoneEmissiveParticle;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.state.level.QuadParticleRenderState;
@@ -39,7 +39,7 @@ public abstract class SingleQuadParticleMixin {
 	protected float alpha;
 
 	@Shadow
-	public abstract float getQuadSize(float partialTickTime);
+	public abstract float getQuadSize(float a);
 
 	@Inject(
 		method = "extractRotatedQuad(Lnet/minecraft/client/renderer/state/level/QuadParticleRenderState;Lorg/joml/Quaternionf;FFFF)V",
@@ -63,7 +63,7 @@ public abstract class SingleQuadParticleMixin {
 			emissiveParticle.glowtone$emissiveBCol()
 		);
 
-		final int baseLightCoords = ((ParticleInvokerMixin) this).glowtone$getLightCoords(partialTickTime);
+		final int baseLightCoords = ((ParticleLightCoordsInvoker) this).glowtone$getLightCoords(partialTickTime);
 		final int emissiveLightEmission = emissiveParticle.glowtone$emissiveLightEmission();
 		final int emissiveLightCoords = emissiveLightEmission == 0
 			? baseLightCoords

@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.options;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import net.frozenblock.glowtone.config.option.animation.SmoothAnimationOption;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionMode;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
@@ -134,6 +135,28 @@ public class GraphicsPresetMixin {
 		if (option.get().intValue() == bloom.intValue()) return;
 
 		option.set(bloom);
+		screen.resetOption(option);
+	}
+
+	@Inject(method = "apply", at = @At("TAIL"))
+	private void glowtone$applySmoothAnimationPreset(
+		Minecraft minecraft,
+		CallbackInfo info,
+		@Local(name = "screen") @Nullable OptionsSubScreen screen
+	) {
+		if (screen == null) return;
+
+		final Boolean smoothAnimation = switch (GraphicsPreset.class.cast(this)) {
+			case FAST -> false;
+			case FANCY, FABULOUS -> SmoothAnimationOption.DEFAULT;
+			case CUSTOM -> null;
+		};
+		if (smoothAnimation == null) return;
+
+		final OptionInstance<Boolean> option = SmoothAnimationOption.get();
+		if (option.get().booleanValue() == smoothAnimation.booleanValue()) return;
+
+		option.set(smoothAnimation);
 		screen.resetOption(option);
 	}
 }

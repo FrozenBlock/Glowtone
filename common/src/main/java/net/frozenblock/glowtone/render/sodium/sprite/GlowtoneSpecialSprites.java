@@ -1,0 +1,47 @@
+/*
+ * Copyright 2025-2026 FrozenBlock
+ * This file is part of Glowtone.
+ *
+ * This program is free software; you can modify it under
+ * the terms of version 1 of the FrozenBlock Modding Oasis License
+ * as published by FrozenBlock Modding Oasis.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * FrozenBlock Modding Oasis License for more details.
+ *
+ * You should have received a copy of the FrozenBlock Modding Oasis License
+ * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
+ */
+
+package net.frozenblock.glowtone.render.sodium.sprite;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+
+@ClientOnly
+public final class GlowtoneSpecialSprites {
+	private static final Set<TextureAtlasSprite> SPRITES = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+	public static void register(TextureAtlasSprite sprite) {
+		SPRITES.add(sprite);
+	}
+
+	public static Set<TextureAtlasSprite> all() {
+		return SPRITES;
+	}
+
+	public static boolean isEmpty() {
+		return SPRITES.isEmpty();
+	}
+
+	public static void clear() {
+		SPRITES.clear();
+	}
+
+	private GlowtoneSpecialSprites() {}
+}

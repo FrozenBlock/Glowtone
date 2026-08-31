@@ -20,6 +20,7 @@ package net.frozenblock.glowtone.mixin.client.options;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import java.util.ArrayList;
 import java.util.List;
+import net.frozenblock.glowtone.config.option.animation.SmoothAnimationOption;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
@@ -48,7 +49,7 @@ public class VideoSettingsScreenMixin {
 
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void glowtone$syncOcclusionLocks(CallbackInfo info) {
-		final OptionsList list = ((OptionsSubScreenAccessor) this).glowtone$list();
+		final OptionsList list = VideoSettingsScreen.class.cast(this).list;
 		if (list == null) return;
 
 		glowtone$setActive(list, AmbientOcclusionOption.get(), AmbientOcclusionOption.available());
@@ -70,23 +71,40 @@ public class VideoSettingsScreenMixin {
 	@ModifyReturnValue(method = "qualityOptions", at = @At("RETURN"))
 	private static OptionInstance<?>[] glowtone$addOptions(OptionInstance<?>[] original, Options options) {
 		final List<OptionInstance<?>> afterSmoothLighting = List.of(AmbientOcclusionOption.get(), OcclusionStrengthOption.get(), ColoredLightingOption.get());
+		final List<OptionInstance<?>> afterMipmap = List.of(SmoothAnimationOption.get());
 		final List<OptionInstance<?>> afterTransparency = List.of(ShadingOption.get(), BloomOption.get(), EdgeHighlightOption.get());
-		final ArrayList<OptionInstance<?>> withGlowtone = new ArrayList<>(original.length + afterSmoothLighting.size() + afterTransparency.size());
-		boolean placedColour = false;
-		boolean placedRest = false;
 
+		final ArrayList<OptionInstance<?>> withGlowtone = new ArrayList<>(
+			original.length
+				+ afterSmoothLighting.size()
+				+ afterMipmap.size()
+				+ afterTransparency.size()
+		);
+		boolean placedAfterSmoothLighting = false;
+		boolean placedAfterMipmap = false;
+		boolean placedAfterTransparency = false;
 		for (OptionInstance<?> option : original) {
 			withGlowtone.add(option);
-			if (!placedColour && option == options.ambientOcclusion()) {
+
+			if (!placedAfterSmoothLighting && option == options.ambientOcclusion()) {
 				withGlowtone.addAll(afterSmoothLighting);
-				placedColour = true;
-			} else if (!placedRest && option == options.improvedTransparency()) {
+				placedAfterSmoothLighting = true;
+			}
+
+			if (!placedAfterMipmap && option == options.mipmapLevels()) {
+				withGlowtone.addAll(afterMipmap);
+				placedAfterMipmap = true;
+			}
+
+			if (!placedAfterTransparency && option == options.improvedTransparency()) {
 				withGlowtone.addAll(afterTransparency);
-				placedRest = true;
+				placedAfterTransparency = true;
 			}
 		}
-		if (!placedColour) withGlowtone.addAll(afterSmoothLighting);
-		if (!placedRest) withGlowtone.addAll(afterTransparency);
+
+		if (!placedAfterSmoothLighting) withGlowtone.addAll(afterSmoothLighting);
+		if (!placedAfterMipmap) withGlowtone.addAll(afterMipmap);
+		if (!placedAfterTransparency) withGlowtone.addAll(afterTransparency);
 
 		return withGlowtone.toArray(OptionInstance<?>[]::new);
 	}
