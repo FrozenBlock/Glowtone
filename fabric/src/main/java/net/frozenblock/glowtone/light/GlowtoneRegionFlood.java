@@ -667,7 +667,10 @@ public final class GlowtoneRegionFlood {
 			final int neighbourY = y + direction.getStepY();
 			final int neighbourZ = z + direction.getStepZ();
 			if (isOutside(neighbourX, neighbourY, neighbourZ)) continue;
-			if (!reaches(reducedLevel, neighbourX, neighbourY, neighbourZ)) continue;
+
+			final int neighbourDistance =
+				axisDistance(neighbourX) + axisDistance(neighbourY) + axisDistance(neighbourZ);
+			if (reducedLevel - neighbourDistance <= 0) continue;
 
 			final int neighbourCell = cellIndex(neighbourX, neighbourY, neighbourZ);
 			final int stored = this.levels[neighbourCell] & GlowtoneChannels.LEVEL_MASK;
@@ -682,7 +685,7 @@ public final class GlowtoneRegionFlood {
 			);
 			final boolean nextBrighter = GlowtoneChannels.anyGreater(next, stored);
 			if (!nextBrighter && !canBlend(next, stored, next)) continue;
-			if (!reaches(GlowtoneChannels.level(next), neighbourX, neighbourY, neighbourZ)) continue;
+			if (GlowtoneChannels.level(next) - neighbourDistance <= 0) continue;
 
 			if (fromState == null) fromState = fromEmptyShape ? AIR : this.stateAt(cell, x, y, z);
 

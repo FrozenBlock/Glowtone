@@ -109,10 +109,17 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 			.thenAcceptAsync(lights -> {
 				BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockLightProperties.ATTACHMENT_KEY));
 
-				BlockLightPropertiesRenderer.setLoadedFeatures(
-					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesOcclusion),
-					lights.lights().values().stream().anyMatch(BlockLightProperties::overridesEmissive)
-				);
+				boolean occlusion = false;
+				boolean emissive = false;
+				boolean filterColors = false;
+				boolean lightColors = false;
+				for (BlockLightProperties light : lights.lights().values()) {
+					occlusion |= light.overridesOcclusion();
+					emissive |= light.overridesEmissive();
+					filterColors |= light.lightFilterColor().isPresent();
+					lightColors |= light.lightColor().isPresent();
+				}
+				BlockLightPropertiesRenderer.setLoadedFeatures(occlusion, emissive, filterColors, lightColors);
 
 				final Map<Block, Map<BlockState, BlockLightProperties>> fullMap = new IdentityHashMap<>();
 				lights.lights().forEach((blockState, light) -> {

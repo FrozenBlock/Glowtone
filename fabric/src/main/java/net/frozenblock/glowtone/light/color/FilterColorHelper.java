@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.light.color;
 
+import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,6 +30,7 @@ public final class FilterColorHelper {
 
 	public static int filterFor(BlockState state) {
 		// TODO: see if methods that *call* this can be optimized first-hand
+		if (!BlockLightPropertiesRenderer.anyFilterColors()) return FULLY_TRANSMISSIVE;
 		if (state.isAir()) return FULLY_TRANSMISSIVE;
 		if (state.isSolidRender() && state.getLightDampening() >= LightEngine.MAX_LEVEL) return FULLY_TRANSMISSIVE;
 		return BlockLightProperties.forBlockState(state).lightFilterColor().orElse(FULLY_TRANSMISSIVE);

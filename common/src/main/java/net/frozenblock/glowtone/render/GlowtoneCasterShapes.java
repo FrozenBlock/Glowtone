@@ -24,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -53,10 +54,21 @@ public final class GlowtoneCasterShapes {
 
 		// Unfortunately we cannot safely simplify this using .hasCollision, as someone could extend getCollisionShape and ignore the property.
 		final VoxelShape collision = state.getCollisionShape(level, pos);
-		// I decided to make this return null instead of Shapes.empty() because using the .isEmpty check is a lot more taxing!
-		if (Block.isShapeFullBlock(collision) || collision.isEmpty()) return null;
+		if (collision.isEmpty() || fullBlock(collision)) return null;
 
 		return collision;
+	}
+
+	private static boolean fullBlock(VoxelShape shape) {
+		if (shape == Shapes.block()) return true;
+
+		final AABB bounds = shape.bounds();
+		if (bounds.minX > 0D || bounds.minY > 0D || bounds.minZ > 0D
+			|| bounds.maxX < 1D || bounds.maxY < 1D || bounds.maxZ < 1D) {
+			return false;
+		}
+
+		return Block.isShapeFullBlock(shape);
 	}
 
 	private GlowtoneCasterShapes() {}

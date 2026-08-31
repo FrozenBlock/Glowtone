@@ -17,7 +17,6 @@
 
 package net.frozenblock.glowtone.light.edge;
 
-import com.mojang.datafixers.util.Function5;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
@@ -27,7 +26,6 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
-import java.util.function.Function;
 
 @ClientOnly
 public final class QuadEdges {
@@ -264,23 +262,20 @@ public final class QuadEdges {
 		final int litHighU;
 		final int litLowV;
 		final int litHighV;
-		final Function5<Integer, Boolean, Float, Float, Float, Integer> edgePair = (edgeAxis, edgePositive, edgeCoord, alongMin, alongMax) -> {
-			return edgePair(neighbours, normal, positive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMin, alongMax, rim);
-		};
 		if (rim) {
 			final boolean narrowIsU = axisU == this.rimNarrowAxis;
 			final float narrowMid = narrowIsU ? (lowU + highU) * 0.5F : (lowV + highV) * 0.5F;
 			final int lit = this.rimForceLit
 				? FULLY_LIT
-				: !highlight ? 0 : edgePair.apply(this.rimNarrowAxis, true, narrowMid, narrowIsU ? lowV : lowU, narrowIsU ? highV : highU);
+				: !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, this.rimNarrowAxis, true, narrowMid, narrowIsU ? lowV : lowU, narrowIsU ? highV : highU, rim);
 
 			litLowU = litHighU = narrowIsU ? lit : 0;
 			litLowV = litHighV = narrowIsU ? 0 : lit;
 		} else {
-			litLowU = !highlight ? 0 : edgePair.apply(axisU, false, lowU, lowV, highV);
-			litHighU = !highlight ? 0 : edgePair.apply(axisU, true, highU, lowV, highV);
-			litLowV = !highlight ? 0 : edgePair.apply(axisV, false, lowV, lowU, highU);
-			litHighV = !highlight ? 0 : edgePair.apply(axisV, true, highV, lowU, highU);
+			litLowU = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisU, false, lowU, lowV, highV, rim);
+			litHighU = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisU, true, highU, lowV, highV, rim);
+			litLowV = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisV, false, lowV, lowU, highU, rim);
+			litHighV = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisV, true, highV, lowU, highU, rim);
 		}
 
 		final int[] built = !shaded ? GlowtoneContactRects.NONE
@@ -384,11 +379,10 @@ public final class QuadEdges {
 		float alongMax,
 		boolean rim
 	) {
-		final Function<Float, Boolean> edgeState = along -> {
-			return edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, along, alongMin, alongMax, rim);
-		};
-		final boolean atLow = edgeState.apply(alongMin);
-		final boolean atHigh = edgeState.apply(alongMax);
+		final boolean atLow = edgeState(
+			neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMin, alongMin, alongMax, rim);
+		final boolean atHigh = edgeState(
+			neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMax, alongMin, alongMax, rim);
 
 		if (atLow == atHigh) return atLow ? 0xFFFF : 0x0000;
 		if (alongMax - alongMin <= FLAT_EPSILON) return 0x0000;
@@ -398,7 +392,8 @@ public final class QuadEdges {
 		for (int step = 0; step < 10; step++) {
 			final float mid = (lo + hi) * 0.5F;
 			final float sample = alongMin + (alongMax - alongMin) * mid;
-			final boolean here = edgeState.apply(sample);
+			final boolean here = edgeState(
+				neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, sample, alongMin, alongMax, rim);
 			if (here == atLow) lo = mid; else hi = mid;
 		}
 

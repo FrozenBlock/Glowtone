@@ -21,7 +21,6 @@ import java.util.Arrays;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 
@@ -78,6 +77,13 @@ public final class GlowtoneContactRects {
 
 	private static final int CAPACITY = 32;
 	private static final int TRIM = 16;
+	private static final float[] NODE_FRACTION = nodeFractions();
+
+	private static float[] nodeFractions() {
+		final float[] fractions = new float[GRID_NODES];
+		for (int i = 0; i < GRID_NODES; i++) fractions[i] = i / (GRID_NODES - 1F);
+		return fractions;
+	}
 	private static final float PROBE = 1F / 32F;
 	private static final float TOUCH_EPSILON = 1F / 4096F;
 	private static final float MERGE_EPSILON = 1F / 256F;
@@ -274,10 +280,10 @@ public final class GlowtoneContactRects {
 		Arrays.fill(this.packed, 0);
 
 		for (int i = 0; i < GRID_NODES; i++) {
-			final float u = i / (GRID_NODES - 1F) * spanU;
+			final float u = NODE_FRACTION[i] * spanU;
 
 			for (int j = 0; j < GRID_NODES; j++) {
-				final float occlusion = occlusionAt(u, j / (GRID_NODES - 1F) * spanV);
+				final float occlusion = occlusionAt(u, NODE_FRACTION[j] * spanV);
 				final int level = Math.clamp(Math.round(occlusion * 31F), 0, 31);
 				putBits(this.packed, (i * GRID_NODES + j) * GRID_BITS, GRID_BITS, level);
 			}
@@ -298,20 +304,22 @@ public final class GlowtoneContactRects {
 	}
 
 	public float occlusionAt(float u, float v) {
-		float nearest = 0F;
+		float nearestSq = Float.MAX_VALUE;
 		for (int i = 0; i < this.count; i++) {
 			final int at = i * 4;
 			final float du = Math.max(Math.max(this.rects[at] - u, u - this.rects[at + 1]), 0F);
 			final float dv = Math.max(Math.max(this.rects[at + 2] - v, v - this.rects[at + 3]), 0F);
-			nearest = Math.max(nearest, 2F * (1F - kernelBelow((float) Math.sqrt(du * du + dv * dv))));
+			final float sq = du * du + dv * dv;
+			if (sq < nearestSq) {
+				nearestSq = sq;
+				if (sq <= 0F) break;
+			}
 		}
-		return nearest;
-	}
 
-	private static float kernelBelow(float t) {
-		final float reach = Math.min(Math.abs(t) / RADIUS_UNITS, 1F);
-		final float half = 0.5F * reach * (2F - reach);
-		return t < 0F ? 0.5F - half : 0.5F + half;
+		if (nearestSq >= RADIUS_UNITS * RADIUS_UNITS) return 0F;
+
+		final float rest = 1F - (float) Math.sqrt(nearestSq) / RADIUS_UNITS;
+		return COVERAGE_SCALE * 0.5F * rest * rest;
 	}
 
 	private int[] pack() {
@@ -344,14 +352,12 @@ public final class GlowtoneContactRects {
 		return Math.max(0, Math.min(COORD_MAX - COORD_MIN, Math.round(texels) - COORD_MIN));
 	}
 
-	private static final Direction.Axis[] AXI = Direction.Axis.values();
-
 	private static double min(AABB box, int axis) {
-		return box.min(AXI[axis]);
+		return axis == 0 ? box.minX : axis == 1 ? box.minY : box.minZ;
 	}
 
 	private static double max(AABB box, int axis) {
-		return box.max(AXI[axis]);
+		return axis == 0 ? box.maxX : axis == 1 ? box.maxY : box.maxZ;
 	}
 
 	private static int cellOn(int axis, int axisA, int cellA, int axisB, int cellB, int axisC, int cellC) {

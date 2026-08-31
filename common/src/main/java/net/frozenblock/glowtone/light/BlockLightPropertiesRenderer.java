@@ -9,6 +9,9 @@ public class BlockLightPropertiesRenderer {
 	private static final ThreadLocal<BlockLightProperties[]> RENDERED = ThreadLocal.withInitial(() -> new BlockLightProperties[]{BlockLightProperties.NONE});
 	private static volatile boolean anyOcclusionScales;
 	private static volatile boolean anyEmissive;
+	private static volatile boolean anyFilterColors;
+	private static volatile boolean anyLightColors;
+	private static volatile int generation;
 
 	public static boolean anyOcclusionScales() {
 		return anyOcclusionScales;
@@ -36,8 +39,23 @@ public class BlockLightPropertiesRenderer {
 		return anyEmissive ? RENDERED.get()[0].emissive().bloom().orElse(baked) : baked;
 	}
 
-	public static void setLoadedFeatures(boolean occlusionScales, boolean emissive) {
+	public static boolean anyFilterColors() {
+		return anyFilterColors;
+	}
+
+	public static boolean anyLightColors() {
+		return anyLightColors;
+	}
+
+	public static int generation() {
+		return generation;
+	}
+
+	public static void setLoadedFeatures(boolean occlusionScales, boolean emissive, boolean filterColors, boolean lightColors) {
+		generation++;
 		anyOcclusionScales = occlusionScales;
 		anyEmissive = emissive;
+		anyFilterColors = filterColors;
+		anyLightColors = lightColors;
 	}
 }
