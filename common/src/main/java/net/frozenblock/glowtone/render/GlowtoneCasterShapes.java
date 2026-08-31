@@ -18,10 +18,10 @@
 package net.frozenblock.glowtone.render;
 
 import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
+import net.frozenblock.glowtone.tag.GlowtoneBlockTags;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -49,11 +49,12 @@ public final class GlowtoneCasterShapes {
 			if (!occlusionShape.isEmpty()) return occlusionShape;
 		}
 
-		// TODO: block tag & attachment
-		if (state.is(BlockTags.LEAVES) || state.is(BlockTags.DOORS) || state.is(BlockTags.TRAPDOORS)) return state.getShape(level, pos);
+		// TODO: attachment if needed
+		if (state.is(GlowtoneBlockTags.CASTER_SHAPE_USES_DEFAULT)) return state.getShape(level, pos);
 
 		// Unfortunately we cannot safely simplify this using .hasCollision, as someone could extend getCollisionShape and ignore the property.
 		final VoxelShape collision = state.getCollisionShape(level, pos);
+		// I decided to make this return null instead of Shapes.empty() because using the .isEmpty check is a lot more taxing!
 		if (collision.isEmpty() || fullBlock(collision)) return null;
 
 		return collision;
@@ -64,7 +65,8 @@ public final class GlowtoneCasterShapes {
 
 		final AABB bounds = shape.bounds();
 		if (bounds.minX > 0D || bounds.minY > 0D || bounds.minZ > 0D
-			|| bounds.maxX < 1D || bounds.maxY < 1D || bounds.maxZ < 1D) {
+			|| bounds.maxX < 1D || bounds.maxY < 1D || bounds.maxZ < 1D
+		) {
 			return false;
 		}
 

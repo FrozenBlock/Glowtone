@@ -265,9 +265,21 @@ public final class QuadEdges {
 		if (rim) {
 			final boolean narrowIsU = axisU == this.rimNarrowAxis;
 			final float narrowMid = narrowIsU ? (lowU + highU) * 0.5F : (lowV + highV) * 0.5F;
-			final int lit = this.rimForceLit
-				? FULLY_LIT
-				: !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, this.rimNarrowAxis, true, narrowMid, narrowIsU ? lowV : lowU, narrowIsU ? highV : highU, rim);
+			final int lit = this.rimForceLit ? FULLY_LIT : !highlight
+				? 0
+				: edgePair(
+					neighbours,
+					normal,
+					positive,
+					plane,
+					modelFaces,
+					this.rimNarrowAxis,
+					true,
+					narrowMid,
+					narrowIsU ? lowV : lowU,
+					narrowIsU ? highV : highU,
+					rim
+				);
 
 			litLowU = litHighU = narrowIsU ? lit : 0;
 			litLowV = litHighV = narrowIsU ? 0 : lit;
@@ -278,10 +290,8 @@ public final class QuadEdges {
 			litHighV = !highlight ? 0 : edgePair(neighbours, normal, positive, plane, modelFaces, axisV, true, highV, lowU, highU, rim);
 		}
 
-		final int[] built = !shaded ? GlowtoneContactRects.NONE
-			: this.contactRects.build(neighbours, normal, positive, plane, axisU, lowU, highU, axisV, lowV, highV, !bake);
-		final int[] contactPack = rim ? GlowtoneContactRects.FLUID
-			: shade ? built : GlowtoneContactRects.NONE;
+		final int[] built = !shaded ? GlowtoneContactRects.NONE : this.contactRects.build(neighbours, normal, positive, plane, axisU, lowU, highU, axisV, lowV, highV, !bake);
+		final int[] contactPack = rim ? GlowtoneContactRects.FLUID : shade ? built : GlowtoneContactRects.NONE;
 		final float bakeDepth = bake && shaded ? OcclusionStrengthOption.strength() : 0F;
 
 		final float midU = (lowU + highU) * 0.5F;
@@ -379,10 +389,8 @@ public final class QuadEdges {
 		float alongMax,
 		boolean rim
 	) {
-		final boolean atLow = edgeState(
-			neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMin, alongMin, alongMax, rim);
-		final boolean atHigh = edgeState(
-			neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMax, alongMin, alongMax, rim);
+		final boolean atLow = edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMin, alongMin, alongMax, rim);
+		final boolean atHigh = edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, alongMax, alongMin, alongMax, rim);
 
 		if (atLow == atHigh) return atLow ? 0xFFFF : 0x0000;
 		if (alongMax - alongMin <= FLAT_EPSILON) return 0x0000;
@@ -392,8 +400,7 @@ public final class QuadEdges {
 		for (int step = 0; step < 10; step++) {
 			final float mid = (lo + hi) * 0.5F;
 			final float sample = alongMin + (alongMax - alongMin) * mid;
-			final boolean here = edgeState(
-				neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, sample, alongMin, alongMax, rim);
+			final boolean here = edgeState(neighbours, normalAxis, normalPositive, plane, modelFaces, edgeAxis, edgePositive, edgeCoord, sample, alongMin, alongMax, rim);
 			if (here == atLow) lo = mid; else hi = mid;
 		}
 

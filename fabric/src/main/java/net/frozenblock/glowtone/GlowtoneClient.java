@@ -18,16 +18,16 @@
 package net.frozenblock.glowtone;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
-import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.GlowtoneReload;
+import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
+import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettingsLoader;
+import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.frozenblock.glowtone.light.data.block.BlockStateLightPropertiesLoader;
 import net.frozenblock.glowtone.material.data.BlockMaterialOverrideLoader;
 import net.minecraft.server.packs.PackType;

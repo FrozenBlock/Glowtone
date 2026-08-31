@@ -17,9 +17,9 @@
 
 package net.frozenblock.glowtone.light;
 
+import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import java.util.Arrays;
 import java.util.function.Predicate;
-import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import net.frozenblock.glowtone.light.color.EmitterColorHelper;
 import net.frozenblock.glowtone.light.color.FilterColorHelper;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
@@ -75,12 +75,13 @@ public final class GlowtoneRegionFlood {
 
 	static {
 		if (RenderSectionRegion.RADIUS != 1 || RenderSectionRegion.SIZE != 3) {
-			throw new AssertionError("Glowtone assumes a 3x3x3 RenderSectionRegion, found SIZE="
-					+ RenderSectionRegion.SIZE);
+			throw new AssertionError("Glowtone assumes a 3x3x3 RenderSectionRegion, found SIZE=" + RenderSectionRegion.SIZE);
 		}
 		if (WINDOW_MIN - MAX_REACH != 0 || WINDOW_MAX + MAX_REACH != SPAN - 1) {
-			throw new AssertionError("Coloured-lightColor reach does not match the region: window ["
-					+ WINDOW_MIN + ", " + WINDOW_MAX + "] expanded by " + MAX_REACH + " must be [0, " + (SPAN - 1) + "]");
+			throw new AssertionError(
+				"Colored-lightColor reach does not match the region: window [%s, %s], expanded by %s. must be [0, %s]"
+					.formatted(WINDOW_MIN, WINDOW_MAX, MAX_REACH, SPAN - 1)
+			);
 		}
 		if (SPAN != RenderSectionRegion.SIZE * 16 || SPAN > ENTRY_COORD_MASK + 1) {
 			throw new AssertionError("Region span " + SPAN + " does not fit the flood's cell encoding.");
@@ -668,8 +669,7 @@ public final class GlowtoneRegionFlood {
 			final int neighbourZ = z + direction.getStepZ();
 			if (isOutside(neighbourX, neighbourY, neighbourZ)) continue;
 
-			final int neighbourDistance =
-				axisDistance(neighbourX) + axisDistance(neighbourY) + axisDistance(neighbourZ);
+			final int neighbourDistance = axisDistance(neighbourX) + axisDistance(neighbourY) + axisDistance(neighbourZ);
 			if (reducedLevel - neighbourDistance <= 0) continue;
 
 			final int neighbourCell = cellIndex(neighbourX, neighbourY, neighbourZ);

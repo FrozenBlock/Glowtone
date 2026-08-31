@@ -124,7 +124,7 @@ public final class EdgeNeighbours {
 
 	private AABB[] boxesOf(VoxelShape shape) {
 		if (shape.isEmpty()) return NONE;
-		if (shape == Shapes.block() || shape.equals(Shapes.block())) return FULL;
+		if (shape == Shapes.block()) return FULL;
 
 		AABB[] cached = this.boxCache.get(shape);
 		if (cached == null) {
@@ -166,7 +166,7 @@ public final class EdgeNeighbours {
 
 	public static boolean isBlockLike(VoxelShape shape) {
 		if (shape.isEmpty()) return false;
-		if (shape == Shapes.block() || shape.equals(Shapes.block())) return true;
+		if (shape == Shapes.block()) return true;
 
 		final AABB bounds = shape.bounds();
 		return bounds.minX <= SPAN_SLACK && bounds.maxX >= 1D - SPAN_SLACK
