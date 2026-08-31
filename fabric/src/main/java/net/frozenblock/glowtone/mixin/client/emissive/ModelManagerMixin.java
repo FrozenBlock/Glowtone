@@ -19,6 +19,9 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.frozenblock.glowtone.config.option.shade.ShadingOption;
+import net.frozenblock.glowtone.particle.GlowtoneParticleEmissives;
+import net.frozenblock.glowtone.render.GlowtoneEmissiveSprites;
+import net.frozenblock.glowtone.render.entity.GlowtoneEmissiveLayer;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.ModelManager;
@@ -39,6 +42,9 @@ public class ModelManagerMixin {
 	)
 	public ResourceManager glowtone$toggleShading(ResourceManager resourceManager) {
 		ShadingOption.applyFlags(GlowtoneConfig.shading());
+		GlowtoneEmissiveLayer.clearCache();
+		GlowtoneEmissiveSprites.clear();
+		GlowtoneParticleEmissives.clear();
 		return resourceManager;
 	}
 }

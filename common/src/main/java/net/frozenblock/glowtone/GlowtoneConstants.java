@@ -26,6 +26,16 @@ public final class GlowtoneConstants {
 	public static final String MOD_ID = "glowtone";
 	public static final String EMISSIVE_SUFFIX = "_glowtone_emissive";
 
+	public static Identifier withEmissiveSuffix(Identifier location) {
+		final String path = location.getPath();
+		final int lastSlash = path.lastIndexOf('/');
+		final int lastDot = path.lastIndexOf('.');
+		if (lastDot > lastSlash) {
+			return location.withPath(path.substring(0, lastDot) + EMISSIVE_SUFFIX + path.substring(lastDot));
+		}
+		return location.withSuffix(EMISSIVE_SUFFIX);
+	}
+
 	public static boolean GLOWTONE_EMISSIVES = false;
 	public static boolean GLOWTONE_SHADING = false;
 	public static boolean GLOWTONE_NO_SHADING = false;

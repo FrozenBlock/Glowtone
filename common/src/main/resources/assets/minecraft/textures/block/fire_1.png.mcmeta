@@ -1,5 +1,7 @@
 {
-  "animation": {},
+  "animation": {
+    "interpolate": true
+  },
   "glowtone_emissive": {
     "light_emission": 15
   }

@@ -483,8 +483,29 @@ public final class EmissiveShaderPatcher {
 		return LIT_SHADERS.contains(id) || SODIUM_TERRAIN_FRAGMENT.equals(id);
 	}
 
+	private static final String MIX_LIGHT =
+		"vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);";
+	private static final String MIX_LIGHT_BACK =
+		"vertexPerFaceColorBack = minecraft_mix_light_separate(-light, Color);";
+	private static final String MIX_LIGHT_FRONT =
+		"vertexPerFaceColorFront = minecraft_mix_light_separate(light, Color);";
+
 	private static final String DIFFUSE_ACCUM = "float lightAccum = min(1.0, (lightValue.x + lightValue.y) * MINECRAFT_LIGHT_POWER + MINECRAFT_AMBIENT_LIGHT);";
 	private static final String DIFFUSE_FLAT = "float lightAccum = 1.0;";
+
+	private static String unshadeEmissiveFaces(String source) {
+		if (GlowtoneConstants.GLOWTONE_NO_SHADING || !GlowtoneConstants.GLOWTONE_SHADING) return source;
+		if (!source.contains(MIX_LIGHT) && !source.contains(MIX_LIGHT_FRONT)) return source;
+
+		final String emissive = "((UV2.x & " + BloomHelper.EMISSIVE_MARKER + ") != 0)";
+		return source
+			.replace(MIX_LIGHT, "vertexColor = " + emissive
+				+ " ? Color : minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);")
+			.replace(MIX_LIGHT_BACK, "vertexPerFaceColorBack = " + emissive
+				+ " ? Color : minecraft_mix_light_separate(-light, Color);")
+			.replace(MIX_LIGHT_FRONT, "vertexPerFaceColorFront = " + emissive
+				+ " ? Color : minecraft_mix_light_separate(light, Color);");
+	}
 
 	private static String flattenDiffuse(String source) {
 		if (!GlowtoneConstants.GLOWTONE_NO_SHADING) return source;
@@ -504,7 +525,9 @@ public final class EmissiveShaderPatcher {
 		if (LIT_SHADERS.contains(id)) {
 			if (type == ShaderType.VERTEX) {
 				final String vertex = patchVertex(source);
-				final String finalVertex = id.equals(TERRAIN) ? patchTerrainVertex(vertex) : vertex;
+				final String finalVertex = id.equals(TERRAIN)
+					? patchTerrainVertex(vertex)
+					: unshadeEmissiveFaces(vertex);
 				return finalVertex;
 			}
 
