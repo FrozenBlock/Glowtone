@@ -34,7 +34,7 @@ public class ClientLevelMixin {
 
 	@Inject(method = "setBlocksDirty", at = @At("HEAD"))
 	private void glowtone$onColourChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo info) {
-		if (BlockLightProperties.forBlockState(oldState).equals(BlockLightProperties.forBlockState(newState))) return;
+		if (BlockLightProperties.hasSameColorProperties(newState, oldState)) return;
 
 		final int sectionX = SectionPos.blockToSectionCoord(pos.getX());
 		final int sectionY = SectionPos.blockToSectionCoord(pos.getY());

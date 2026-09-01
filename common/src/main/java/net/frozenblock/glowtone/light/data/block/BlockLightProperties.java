@@ -56,6 +56,14 @@ public record BlockLightProperties(
 		return baked == null ? NONE : baked.get(state);
 	}
 
+	public boolean hasSameColorProperties(BlockLightProperties other) {
+		return this.lightColor.equals(other.lightColor) && this.lightFilterColor.equals(other.lightFilterColor);
+	}
+
+	public static boolean hasSameColorProperties(BlockState state, BlockState other) {
+		return forBlockState(state).hasSameColorProperties(forBlockState(other));
+	}
+
 	public boolean overridesOcclusion() {
 		return this.ambientOcclusion.overrides();
 	}
