@@ -798,7 +798,7 @@ public final class GlowtoneRegionFlood {
 			this.levels[neighbourCell] = (short) (merged & GlowtoneChannels.LEVEL_MASK);
 			this.lit = true;
 
-			if (GlowtoneChannels.max(merged) > 1) {
+			if (GlowtoneChannels.level(merged) > 1) {
 				this.enqueue(
 					neighbourX, neighbourY, neighbourZ,
 					merged,

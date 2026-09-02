@@ -52,10 +52,6 @@ final class GlowtoneChannels {
 		return (packed >>> HUE_SHIFT) & WHITE_HUE;
 	}
 
-	static int max(int packed) {
-		return level(packed);
-	}
-
 	static boolean anyGreater(int candidate, int current) {
 		return level(candidate) > level(current);
 	}

@@ -64,10 +64,6 @@ public final class GlowtoneColorWindowCache {
 		}
 	}
 
-	public static int size() {
-		return WINDOWS.size();
-	}
-
 	public static void clear() {
 		WINDOWS.clear();
 	}

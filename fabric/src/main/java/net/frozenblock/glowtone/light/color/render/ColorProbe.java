@@ -88,8 +88,9 @@ public final class ColorProbe {
 			this.cachedColors[slot] = mesh.glowtone$sectionColors();
 			this.cachedSkyHues[slot] = mesh.glowtone$sectionSkyHues();
 		} else {
-			this.cachedColors[slot] = GlowtoneSectionColorStore.colors(sectionNode);
-			this.cachedSkyHues[slot] = GlowtoneSectionColorStore.skyHues(sectionNode);
+			final GlowtoneSectionColorStore.Colors stored = GlowtoneSectionColorStore.colors(sectionNode);
+			this.cachedColors[slot] = stored == null ? null : stored.levels();
+			this.cachedSkyHues[slot] = stored == null ? null : stored.skyHues();
 		}
 		this.cacheValid[slot] = true;
 		this.lastSlot = slot;
