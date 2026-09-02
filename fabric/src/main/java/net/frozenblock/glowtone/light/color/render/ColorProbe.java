@@ -81,7 +81,7 @@ public final class ColorProbe {
 			}
 		}
 
-		final int slot = Math.floorMod(Long.hashCode(sectionNode), CACHE_SLOTS);
+		final int slot = Long.hashCode(sectionNode) & (CACHE_SLOTS - 1);
 		final GlowtoneSectionColors mesh = lookup(sectionNode);
 		this.cachedSections[slot] = sectionNode;
 		if (mesh != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 FrozenBlock
+ * Copyright 2025-2026 FrozenBlock
  * This file is part of Glowtone.
  *
  * This program is free software; you can modify it under
@@ -15,33 +15,26 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.sodium;
+package net.frozenblock.glowtone.mixin.client.colour;
 
-import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.frozenblock.glowtone.light.color.render.GlowtoneColorWindowCache;
-import net.frozenblock.glowtone.light.color.render.GlowtoneSectionColorStore;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.core.SectionPos;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Pseudo
 @ClientOnly
-@Mixin(RenderSectionManager.class)
-public class RenderSectionManagerMixin {
+@Mixin(SectionRenderDispatcher.RenderSection.class)
+public class RenderSectionWindowMixin {
 
-	@Inject(method = "onSectionRemoved", at = @At("HEAD"))
-	private void glowtone$dropSectionColors(int x, int y, int z, CallbackInfo info) {
-		GlowtoneSectionColorStore.remove(x, y, z);
-		GlowtoneColorWindowCache.invalidate(SectionPos.asLong(x, y, z));
-	}
+	@Shadow
+	private volatile long sectionNode;
 
-	@Inject(method = "destroy", at = @At("HEAD"))
-	private void glowtone$dropAllSectionColors(CallbackInfo info) {
-		GlowtoneSectionColorStore.clear();
-		GlowtoneColorWindowCache.clear();
+	@Inject(method = "setSectionNode", at = @At("HEAD"))
+	private void glowtone$dropWindowForOldSection(long node, CallbackInfo info) {
+		if (node != this.sectionNode) GlowtoneColorWindowCache.invalidate(this.sectionNode);
 	}
 }

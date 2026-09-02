@@ -27,6 +27,18 @@ final class GlowtoneChannels {
 	static final int WHITE_HUE = 0xFFF;
 	private static final int HUE_SHIFT = 4;
 
+	private static final int[] SCALED = scaledTable();
+
+	private static int[] scaledTable() {
+		final int[] table = new int[(MAX_LEVEL + 1) << 4];
+		for (int value = 0; value <= MAX_LEVEL; value++) {
+			for (int brightest = 1; brightest <= MAX_LEVEL; brightest++) {
+				table[(value << 4) | brightest] = value * MAX_LEVEL / brightest;
+			}
+		}
+		return table;
+	}
+
 	static int pack(int level, int hue) {
 		if (level <= 0) return 0;
 		return (Math.min(level, MAX_LEVEL) & 0xF) | ((hue & WHITE_HUE) << HUE_SHIFT);
@@ -119,9 +131,9 @@ final class GlowtoneChannels {
 		final int brightest = Math.max(red, Math.max(green, blue));
 		if (brightest <= 0) return WHITE_HUE;
 
-		return ((red * MAX_LEVEL / brightest) << 8)
-			| ((green * MAX_LEVEL / brightest) << 4)
-			| (blue * MAX_LEVEL / brightest);
+		return (SCALED[(red << 4) | brightest] << 8)
+			| (SCALED[(green << 4) | brightest] << 4)
+			| SCALED[(blue << 4) | brightest];
 	}
 
 	private static int expand(int channel) {

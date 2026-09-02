@@ -217,16 +217,22 @@ public final class ChromaBaker {
 			this.reset();
 			if (region == null) return;
 
+			final long section = sectionPos.asLong();
+			final short[] cached = GlowtoneColorWindowCache.get(section);
 			final GlowtoneRegionFlood flood = this.bind(sectionPos);
-			flood.begin(region, sectionPos.x(), sectionPos.y(), sectionPos.z());
+			flood.begin(region, sectionPos.x(), sectionPos.y(), sectionPos.z(), cached);
+			if (cached == null) GlowtoneColorWindowCache.put(section, flood.extractWindow());
 			this.latch(flood);
 		}
 
 		void beginSodium(SectionPos sectionPos, PalettedContainerRO<BlockState>[] grid) {
 			this.reset();
 
+			final long section = sectionPos.asLong();
+			final short[] cached = GlowtoneColorWindowCache.get(section);
 			final GlowtoneRegionFlood flood = this.bind(sectionPos);
-			flood.begin(grid, sectionPos.x() - 1, sectionPos.y() - 1, sectionPos.z() - 1);
+			flood.begin(grid, sectionPos.x() - 1, sectionPos.y() - 1, sectionPos.z() - 1, cached);
+			if (cached == null) GlowtoneColorWindowCache.put(section, flood.extractWindow());
 			this.latch(flood);
 
 			GlowtoneSectionColorStore.publish(

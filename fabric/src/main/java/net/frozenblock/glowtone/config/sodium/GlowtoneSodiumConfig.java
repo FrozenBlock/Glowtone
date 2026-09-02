@@ -142,6 +142,7 @@ public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 					value -> SmoothAnimationOption.get().set(value),
 					GlowtoneConfig::smoothAnimation
 				)
+				.setStorageHandler(GlowtoneSodiumConfig::saved)
 				.setImpact(OptionImpact.LOW));
 
 		builder.registerOwnModOptions()
