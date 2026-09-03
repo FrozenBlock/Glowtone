@@ -27,6 +27,7 @@ import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
 import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettingsLoader;
+import net.frozenblock.glowtone.emissive.entity.RenderTypeTextureValidityCache;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.frozenblock.glowtone.light.data.block.BlockStateLightPropertiesLoader;
 import net.frozenblock.glowtone.material.data.BlockMaterialOverrideLoader;
@@ -44,6 +45,7 @@ public final class GlowtoneClient implements ClientModInitializer {
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("block_light"), new BlockStateLightPropertiesLoader());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("block_material"), new BlockMaterialOverrideLoader());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("settings"), new GlowtonePackSettingsLoader());
+		RenderTypeTextureValidityCache.init();
 
 		FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID).ifPresent(container ->
 			ResourceLoader.registerBuiltinPack(GlowtoneConstants.id("test"), container, PackActivationType.NORMAL));

@@ -18,11 +18,10 @@
 package net.frozenblock.glowtone.mixin.client;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.emissive.particle.GlowtoneParticleEmissives;
 import net.frozenblock.glowtone.render.sodium.sprite.GlowtoneSpecialSprites;
-import net.frozenblock.glowtone.render.entity.GlowtoneEmissiveLayer;
-import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -43,7 +42,6 @@ public class ModelManagerMixin {
 	public ResourceManager glowtone$onReload(ResourceManager resourceManager) {
 		ShadingOption.applyFlags(GlowtoneConfig.shading());
 
-		GlowtoneEmissiveLayer.clearCache();
 		GlowtoneSpecialSprites.clear();
 		GlowtoneParticleEmissives.clear();
 
