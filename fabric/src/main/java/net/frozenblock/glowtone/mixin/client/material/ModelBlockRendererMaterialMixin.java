@@ -38,9 +38,9 @@ public class ModelBlockRendererMaterialMixin {
 	@Inject(method = "tesselateBlock", at = @At("HEAD"))
 	private void glowtone$beginBlockMaterial(
 		BlockQuadOutput output,
-		float red,
-		float green,
-		float blue,
+		float x,
+		float y,
+		float z,
 		BlockAndTintGetter level,
 		BlockPos pos,
 		BlockState blockState,
@@ -55,9 +55,9 @@ public class ModelBlockRendererMaterialMixin {
 	@Inject(method = "tesselateBlock", at = @At("RETURN"))
 	private void glowtone$endBlockMaterial(
 		BlockQuadOutput output,
-		float red,
-		float green,
-		float blue,
+		float x,
+		float y,
+		float z,
 		BlockAndTintGetter level,
 		BlockPos pos,
 		BlockState blockState,

@@ -17,6 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.material;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -32,14 +34,14 @@ public interface VertexConsumerMaterialTargetMixin {
 
 	@Inject(method = "putBlockBakedQuad", at = @At("HEAD"))
 	private void glowtone$targetBlockQuad(
-		float red, float green, float blue, BakedQuad quad, com.mojang.blaze3d.vertex.QuadInstance instance, CallbackInfo info
+		float x, float y, float z, BakedQuad quad, QuadInstance instance, CallbackInfo info
 	) {
 		BlockMaterialRenderer.beginQuad(quad);
 	}
 
 	@Inject(method = "putBakedQuad", at = @At("HEAD"))
 	private void glowtone$targetQuad(
-		com.mojang.blaze3d.vertex.PoseStack.Pose pose, BakedQuad quad, com.mojang.blaze3d.vertex.QuadInstance instance, CallbackInfo info
+		PoseStack.Pose pose, BakedQuad quad, QuadInstance instance, CallbackInfo info
 	) {
 		BlockMaterialRenderer.beginQuad(quad);
 	}

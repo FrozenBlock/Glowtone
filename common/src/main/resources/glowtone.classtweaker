@@ -44,6 +44,7 @@ accessible class net/minecraft/client/renderer/rendertype/RenderSetup$TextureBin
 accessible method net/minecraft/client/renderer/rendertype/RenderSetup$TextureBinding <init> (Lnet/minecraft/resources/Identifier;Ljava/util/function/Supplier;)V
 
 transitive-inject-interface net/minecraft/client/renderer/rendertype/RenderType net/frozenblock/glowtone/emissive/entity/impl/GTEmissiveRenderType
+transitive-inject-interface net/minecraft/client/renderer/SubmitNodeCollection net/frozenblock/glowtone/emissive/entity/impl/GTEmissiveSubmitNodeCollection
 
 # Chunk
 accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion sections [Lnet/minecraft/client/renderer/chunk/SectionCopy;

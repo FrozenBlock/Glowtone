@@ -35,10 +35,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class VariantSlotsMixin {
 
 	@Inject(method = "bake", at = @At("RETURN"))
-	private void glowtone$recordTextureSlots(ModelBaker baker, CallbackInfoReturnable<BlockStateModelPart> info) {
+	private void glowtone$recordTextureSlots(ModelBaker modelBakery, CallbackInfoReturnable<BlockStateModelPart> info) {
 		if (!BlockTextureSlots.wanted()) return;
 
-		final ResolvedModel model = baker.getModel(((Variant) (Object) this).modelLocation());
+		final ResolvedModel model = modelBakery.getModel(Variant.class.cast(this).modelLocation());
 		if (model == null) return;
 
 		final TextureSlots slots = model.getTopTextureSlots();
@@ -46,7 +46,7 @@ public class VariantSlotsMixin {
 			final Material material = slots.getMaterial(slot);
 			if (material == null) continue;
 
-			final Material.Baked baked = baker.materials().get(material, model);
+			final Material.Baked baked = modelBakery.materials().get(material, model);
 			if (baked != null) BlockTextureSlots.record(slot, baked.sprite());
 		}
 	}
