@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.block;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;

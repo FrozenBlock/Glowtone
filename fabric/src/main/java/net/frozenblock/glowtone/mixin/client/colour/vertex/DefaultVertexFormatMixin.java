@@ -31,8 +31,29 @@ public class DefaultVertexFormatMixin {
 		)
 	)
 	private static VertexFormat glowtone$modifyBlockVertexFormat(VertexFormat.Builder instance, Operation<VertexFormat> original) {
-		final VertexFormat format = original.call(GTDefaultVertexFormat.appendTerrainAttributes(instance));
-		GTDefaultVertexFormat.setupOffsets(format);
+		final VertexFormat format = original.call(GTDefaultVertexFormat.appendBlockAttributes(instance));
+		GTDefaultVertexFormat.setupBlockOffsets(format);
+		return format;
+	}
+
+	@WrapOperation(
+		method = "<clinit>",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/mojang/blaze3d/vertex/VertexFormat$Builder;build()Lcom/mojang/blaze3d/vertex/VertexFormat;",
+			ordinal = 0
+		),
+		slice = @Slice(
+			from = @At(
+				value = "FIELD",
+				target = "Lcom/mojang/blaze3d/vertex/DefaultVertexFormat;BLOCK:Lcom/mojang/blaze3d/vertex/VertexFormat;",
+				opcode = Opcodes.PUTSTATIC
+			)
+		)
+	)
+	private static VertexFormat glowtone$modifyEntityVertexFormat(VertexFormat.Builder instance, Operation<VertexFormat> original) {
+		final VertexFormat format = original.call(GTDefaultVertexFormat.appendEntityAttributes(instance));
+		GTDefaultVertexFormat.setupEntityOffsets(format);
 		return format;
 	}
 }

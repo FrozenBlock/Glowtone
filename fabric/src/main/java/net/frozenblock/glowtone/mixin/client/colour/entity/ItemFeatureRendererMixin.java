@@ -15,38 +15,41 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.entity;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(ItemFeatureRenderer.Submit.class)
-public class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
-	@Unique
-	private int glowtone$chromaTint;
+@Mixin(ItemFeatureRenderer.class)
+public class ItemFeatureRendererMixin {
 
-	@Unique
-	@Override
-	public int glowtone$chromaTint() {
-		return this.glowtone$chromaTint;
+	@Inject(method = "prepareMainSubmit", at = @At("HEAD"))
+	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
+		ChromaFold.beginItemQuads(submit.glowtone$chromaTint(), submit.lightCoords());
 	}
 
-	@Unique
-	@Override
-	public void glowtone$setChromaTint(int tint) {
-		this.glowtone$chromaTint = tint;
+	@Inject(method = "prepareMainSubmit", at = @At("RETURN"))
+	private void glowtone$endItemQuads(CallbackInfo info) {
+		ChromaFold.endItemQuads();
 	}
 
-	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$captureChromaTint(CallbackInfo info) {
-		this.glowtone$chromaTint = ChromaFold.currentTint();
+	@ModifyArg(
+		method = "prepareMainSubmit",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/mojang/blaze3d/vertex/QuadInstance;setColor(I)V"
+		),
+		index = 0
+	)
+	private int glowtone$tintItemQuad(int quadColor) {
+		// TODO: i swear this can be done via localref
+		return ChromaFold.tintItemColor(quadColor);
 	}
 }

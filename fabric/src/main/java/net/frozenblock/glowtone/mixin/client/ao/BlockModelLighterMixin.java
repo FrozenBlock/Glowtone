@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.ao;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @ClientOnly
 @Mixin(BlockModelLighter.class)
-public class BlockModelLighterAmbientMixin {
+public class BlockModelLighterMixin {
 
 	@ModifyArg(
 		method = "prepareQuadAmbientOcclusion",

@@ -47,24 +47,49 @@ public class BufferBuilderMixin {
 	private long vertexPointer;
 
 	@Inject(method = "endLastVertex", at = @At("HEAD"))
-	private void glowtone$writeChroma(CallbackInfo info) {
+	private void glowtone$writeChromaBlock(CallbackInfo info) {
 		if (this.format != DefaultVertexFormat.BLOCK || this.vertexPointer == -1L) return;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.rotateFlatPins();
 
 		if (!ChromaBlender.isEnabled()) {
-			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET, ChromaBaker.NEUTRAL_ARGB);
-			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET, ChromaBaker.NEUTRAL_SKY_ARGB);
+			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_BLOCK, ChromaBaker.NEUTRAL_ARGB);
+			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_BLOCK, ChromaBaker.NEUTRAL_SKY_ARGB);
 			return;
 		}
 
-		final float x = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET);
-		final float y = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET + 4L);
-		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET + 8L);
+		final float x = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_BLOCK);
+		final float y = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_BLOCK + 4L);
+		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_BLOCK + 8L);
 
-		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET, state.sample(x, y, z));
-		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET, state.sampleSky(x, y, z));
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_BLOCK, state.sample(x, y, z));
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_BLOCK, state.sampleSky(x, y, z));
+	}
+
+	@Inject(method = "endLastVertex", at = @At("HEAD"))
+	private void glowtone$writeChromaEntity(CallbackInfo info) {
+		if (this.format != DefaultVertexFormat.ENTITY || this.vertexPointer == -1L) return;
+
+		// TODO: EntityState? Or something else?
+		final ChromaBaker.SectionState state = ChromaBaker.state();
+		state.rotateFlatPins();
+
+		if (!ChromaBlender.isEnabled()) {
+			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, ChromaBaker.NEUTRAL_ARGB);
+			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, ChromaBaker.NEUTRAL_SKY_ARGB);
+			return;
+		}
+
+		final float x = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_ENTITY);
+		final float y = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_ENTITY + 4L);
+		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_ENTITY + 8L);
+
+		// TODO: EntityState? Or something else?
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, state.sample(x, y, z));
+		// TODO: EntityState? Or something else?
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, ChromaBaker.NEUTRAL_SKY_ARGB);
+		//glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, state.sampleSky(x, y, z));
 	}
 
 	@Inject(method = "addVertex(FFFIFFIIFFF)V", at = @At("RETURN"))
@@ -84,12 +109,12 @@ public class BufferBuilderMixin {
 		final boolean fluid = state.fluidQuad();
 		final int index = fluid ? edges.indexOf(x, y, z) : state.nextEdgeVertex();
 
-		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.EDGE_OFFSET, index < 0 ? QuadEdges.NO_EDGES : edges.get(index));
-		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.EDGE_MASK_OFFSET, index < 0 ? 0 : edges.mask(index));
-		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT0_OFFSET, index < 0 ? GlowtoneContactRects.NONE[0] : edges.contact(0));
-		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT1_OFFSET, index < 0 ? GlowtoneContactRects.NONE[1] : edges.contact(1));
-		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT2_OFFSET, index < 0 ? GlowtoneContactRects.NONE[2] : edges.contact(2));
-		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT3_OFFSET, index < 0 ? GlowtoneContactRects.NONE[3] : edges.contact(3));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.EDGE_OFFSET_BLOCK, index < 0 ? QuadEdges.NO_EDGES : edges.get(index));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.EDGE_MASK_OFFSET_BLOCK, index < 0 ? 0 : edges.mask(index));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT0_OFFSET_BLOCK, index < 0 ? GlowtoneContactRects.NONE[0] : edges.contact(0));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT1_OFFSET_BLOCK, index < 0 ? GlowtoneContactRects.NONE[1] : edges.contact(1));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT2_OFFSET_BLOCK, index < 0 ? GlowtoneContactRects.NONE[2] : edges.contact(2));
+		glowtone$writeRaw(this.vertexPointer + GTDefaultVertexFormat.CONTACT3_OFFSET_BLOCK, index < 0 ? GlowtoneContactRects.NONE[3] : edges.contact(3));
 
 	}
 

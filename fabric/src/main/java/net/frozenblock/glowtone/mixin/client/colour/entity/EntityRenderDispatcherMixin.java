@@ -15,41 +15,40 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(ItemFeatureRenderer.class)
-public class ItemFeatureRendererMixin {
+@Mixin(EntityRenderDispatcher.class)
+public class EntityRenderDispatcherMixin {
 
-	@Inject(method = "prepareMainSubmit", at = @At("HEAD"))
-	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
-		ChromaFold.beginItemQuads(submit.glowtone$chromaTint(), submit.lightCoords());
+	@Inject(method = "submit", at = @At("HEAD"))
+	private void glowtone$pushEntityTint(
+		EntityRenderState renderState,
+		CameraRenderState camera,
+		double x,
+		double y,
+		double z,
+		PoseStack poseStack,
+		SubmitNodeCollector submitNodeCollector,
+		CallbackInfo info
+	) {
+		ChromaFold.pushTint(renderState.glowtone$chromaTint());
 	}
 
-	@Inject(method = "prepareMainSubmit", at = @At("RETURN"))
-	private void glowtone$endItemQuads(CallbackInfo info) {
-		ChromaFold.endItemQuads();
-	}
-
-	@ModifyArg(
-		method = "prepareMainSubmit",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/mojang/blaze3d/vertex/QuadInstance;setColor(I)V"
-		),
-		index = 0
-	)
-	private int glowtone$tintItemQuad(int quadColor) {
-		// TODO: i swear this can be done via localref
-		return ChromaFold.tintItemColor(quadColor);
+	@Inject(method = "submit", at = @At("RETURN"))
+	private void glowtone$popEntityTint(CallbackInfo info) {
+		ChromaFold.popTint();
 	}
 }

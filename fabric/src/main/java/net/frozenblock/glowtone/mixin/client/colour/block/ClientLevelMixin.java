@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.block;
 
 import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;

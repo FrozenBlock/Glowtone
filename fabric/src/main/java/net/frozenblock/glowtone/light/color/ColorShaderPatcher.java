@@ -24,14 +24,18 @@ import net.minecraft.resources.Identifier;
 @ClientOnly
 public final class ColorShaderPatcher {
 	private static final Identifier TERRAIN_ID = Identifier.withDefaultNamespace("core/terrain");
+	private static final Identifier ENTITY_ID = Identifier.withDefaultNamespace("core/entity");
 	private static final String MAIN = "void main()";
 	private static final String UNIFORM = "uniform ";
-	private static final String SET_VERTEX_COLOR = "vertexColor = Color *";
+	// ONLY used for splitting the source string at the right place.
+	private static final String SET_VERTEX_COLOR_TERRAIN = "vertexColor = Color *";
+	// ONLY used for splitting the source string at the right place.
+	private static final String SET_VERTEX_COLOR_ENTITY = "vertexColor = ";
 	private static final String SAMPLE_LIGHTMAP = "sample_lightmap(Sampler2, UV2)";
 
 	private static final String IN_GLOWTONE_CHROMA = """
-		in vec4 GlowtoneChroma;    // colour of the BLOCK light reaching this vertex, stored at 1/GLOWTONE_CHROMA_SCALE
-		in vec4 GlowtoneSkyChroma; // colour DAYLIGHT has picked up on its way down, white where nothing tints it
+		in vec4 GlowtoneChroma;    // color of the BLOCK light reaching this vertex, stored at 1/GLOWTONE_CHROMA_SCALE
+		in vec4 GlowtoneSkyChroma; // color DAYLIGHT has picked up on its way down, white where nothing tints it
 
 		""";
 
@@ -94,10 +98,47 @@ public final class ColorShaderPatcher {
 			.replace(SODIUM_SET_COLOR, SODIUM_SPLIT);
 	}
 
+	public static String patchEntityShader(Identifier id, ShaderType type, String source) {
+		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
+		if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
+		if (!id.equals(ENTITY_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR_ENTITY)) return source;
+
+		final String preEntitySource = source.substring(0, source.lastIndexOf("#version"));
+		String entityOnlySource = source.substring(source.lastIndexOf("#version"));
+
+		// Glowtone — override of vanilla 26.2 core/entity.vsh.
+		// Here we recolour ONLY the block-lightColor half of the lightmap: the sky-lightColor contribution is sampled
+		// separately and left untouched, so daylight stays neutral while block lightColor takes the emitter's colour.
+
+		injectUniforms: {
+			String preUniform = entityOnlySource.substring(0, entityOnlySource.indexOf(UNIFORM));
+			preUniform = preUniform + IN_GLOWTONE_CHROMA;
+			final String postUniform = entityOnlySource.substring(entityOnlySource.indexOf(UNIFORM));
+			entityOnlySource = preUniform + postUniform;
+		}
+
+		patchLightmap: {
+			String preColor = entityOnlySource.substring(0, entityOnlySource.indexOf(SET_VERTEX_COLOR_ENTITY));
+			preColor = preColor + SPLIT_LIGHTMAP + DEFINE_GLOWTONE_CHROMA_SCALE;
+
+			String postColor = entityOnlySource.substring(entityOnlySource.indexOf(SET_VERTEX_COLOR_ENTITY));
+			patchLightmapSampler: {
+				String postColorOnly = postColor.substring(0, postColor.indexOf(";"));
+				postColorOnly = postColorOnly.replace(SAMPLE_LIGHTMAP, SAMPLE_LIGHTMAP_REPLACEMENT);
+				String postPostColor = postColor.substring(postColor.indexOf(";"));
+				postColor = postColorOnly + postPostColor;
+			}
+
+			entityOnlySource = preColor + postColor;
+		}
+
+		return preEntitySource + entityOnlySource;
+	}
+
 	public static String patchTerrainShader(Identifier id, ShaderType type, String source) {
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
 		if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
-		if (!id.equals(TERRAIN_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR)) return source;
+		if (!id.equals(TERRAIN_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR_TERRAIN)) return source;
 
 		final String preTerrainSource = source.substring(0, source.lastIndexOf("#version"));
 		String terrainOnlySource = source.substring(source.lastIndexOf("#version"));
@@ -116,10 +157,10 @@ public final class ColorShaderPatcher {
 		}
 
 		patchLightmap: {
-			String preColor = terrainOnlySource.substring(0, terrainOnlySource.indexOf(SET_VERTEX_COLOR));
+			String preColor = terrainOnlySource.substring(0, terrainOnlySource.indexOf(SET_VERTEX_COLOR_TERRAIN));
 			preColor = preColor + SPLIT_LIGHTMAP + DEFINE_GLOWTONE_CHROMA_SCALE;
 
-			String postColor = terrainOnlySource.substring(terrainOnlySource.indexOf(SET_VERTEX_COLOR));
+			String postColor = terrainOnlySource.substring(terrainOnlySource.indexOf(SET_VERTEX_COLOR_TERRAIN));
 			patchLightmapSampler: {
 				String postColorOnly = postColor.substring(0, postColor.indexOf(";"));
 				postColorOnly = postColorOnly.replace(SAMPLE_LIGHTMAP, SAMPLE_LIGHTMAP_REPLACEMENT);

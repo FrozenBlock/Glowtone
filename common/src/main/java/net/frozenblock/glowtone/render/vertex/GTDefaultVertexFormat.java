@@ -19,8 +19,8 @@ package net.frozenblock.glowtone.render.vertex;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.GpuFormat;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import com.mojang.blaze3d.GpuFormat;
 
 // TODO: self emission to offset tint with
 @ClientOnly
@@ -34,17 +34,21 @@ public final class GTDefaultVertexFormat {
 	public static final String CONTACT2_SEMANTIC_NAME = "GlowtoneContact2";
 	public static final String CONTACT3_SEMANTIC_NAME = "GlowtoneContact3";
 
-	public static long POSITION_OFFSET;
-	public static long CHROMA_OFFSET;
-	public static long SKY_CHROMA_OFFSET;
-	public static long EDGE_OFFSET;
-	public static long EDGE_MASK_OFFSET;
-	public static long CONTACT0_OFFSET;
-	public static long CONTACT1_OFFSET;
-	public static long CONTACT2_OFFSET;
-	public static long CONTACT3_OFFSET;
+	public static long POSITION_OFFSET_BLOCK;
+	public static long CHROMA_OFFSET_BLOCK;
+	public static long SKY_CHROMA_OFFSET_BLOCK;
+	public static long EDGE_OFFSET_BLOCK;
+	public static long EDGE_MASK_OFFSET_BLOCK;
+	public static long CONTACT0_OFFSET_BLOCK;
+	public static long CONTACT1_OFFSET_BLOCK;
+	public static long CONTACT2_OFFSET_BLOCK;
+	public static long CONTACT3_OFFSET_BLOCK;
 
-	public static VertexFormat.Builder appendTerrainAttributes(VertexFormat.Builder builder) {
+	public static long POSITION_OFFSET_ENTITY;
+	public static long CHROMA_OFFSET_ENTITY;
+	public static long SKY_CHROMA_OFFSET_ENTITY;
+
+	public static VertexFormat.Builder appendBlockAttributes(VertexFormat.Builder builder) {
 		builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		builder.addAttribute(SKY_CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		builder.addAttribute(EDGE_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
@@ -56,16 +60,28 @@ public final class GTDefaultVertexFormat {
 		return builder;
 	}
 
-	public static void setupOffsets(VertexFormat format) {
-		POSITION_OFFSET = format.getElement(DefaultVertexFormat.POSITION_SEMANTIC_NAME).offset();
-		CHROMA_OFFSET = format.getElement(CHROMA_SEMANTIC_NAME).offset();
-		SKY_CHROMA_OFFSET = format.getElement(SKY_CHROMA_SEMANTIC_NAME).offset();
-		EDGE_OFFSET = format.getElement(EDGE_SEMANTIC_NAME).offset();
-		EDGE_MASK_OFFSET = format.getElement(EDGE_MASK_SEMANTIC_NAME).offset();
-		CONTACT0_OFFSET = format.getElement(CONTACT0_SEMANTIC_NAME).offset();
-		CONTACT1_OFFSET = format.getElement(CONTACT1_SEMANTIC_NAME).offset();
-		CONTACT2_OFFSET = format.getElement(CONTACT2_SEMANTIC_NAME).offset();
-		CONTACT3_OFFSET = format.getElement(CONTACT3_SEMANTIC_NAME).offset();
+	public static void setupBlockOffsets(VertexFormat format) {
+		POSITION_OFFSET_BLOCK = format.getElement(DefaultVertexFormat.POSITION_SEMANTIC_NAME).offset();
+		CHROMA_OFFSET_BLOCK = format.getElement(CHROMA_SEMANTIC_NAME).offset();
+		SKY_CHROMA_OFFSET_BLOCK = format.getElement(SKY_CHROMA_SEMANTIC_NAME).offset();
+		EDGE_OFFSET_BLOCK = format.getElement(EDGE_SEMANTIC_NAME).offset();
+		EDGE_MASK_OFFSET_BLOCK = format.getElement(EDGE_MASK_SEMANTIC_NAME).offset();
+		CONTACT0_OFFSET_BLOCK = format.getElement(CONTACT0_SEMANTIC_NAME).offset();
+		CONTACT1_OFFSET_BLOCK = format.getElement(CONTACT1_SEMANTIC_NAME).offset();
+		CONTACT2_OFFSET_BLOCK = format.getElement(CONTACT2_SEMANTIC_NAME).offset();
+		CONTACT3_OFFSET_BLOCK = format.getElement(CONTACT3_SEMANTIC_NAME).offset();
+	}
+
+	public static VertexFormat.Builder appendEntityAttributes(VertexFormat.Builder builder) {
+		builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+		builder.addAttribute(SKY_CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+		return builder;
+	}
+
+	public static void setupEntityOffsets(VertexFormat format) {
+		POSITION_OFFSET_ENTITY = format.getElement(DefaultVertexFormat.POSITION_SEMANTIC_NAME).offset();
+		CHROMA_OFFSET_ENTITY = format.getElement(CHROMA_SEMANTIC_NAME).offset();
+		SKY_CHROMA_OFFSET_ENTITY = format.getElement(SKY_CHROMA_SEMANTIC_NAME).offset();
 	}
 
 	private GTDefaultVertexFormat() {}

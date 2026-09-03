@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 FrozenBlock
+ * Copyright 2025-2026 FrozenBlock
  * This file is part of Glowtone.
  *
  * This program is free software; you can modify it under
@@ -15,38 +15,26 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.block;
 
-import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.light.color.render.GlowtoneColorWindowCache;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(BlockModelFeatureRenderer.Submit.class)
-public class BlockModelFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
-	@Unique
-	private int glowtone$chromaTint;
+@Mixin(SectionRenderDispatcher.RenderSection.class)
+public class RenderSectionWindowMixin {
 
-	@Unique
-	@Override
-	public int glowtone$chromaTint() {
-		return this.glowtone$chromaTint;
-	}
+	@Shadow
+	private volatile long sectionNode;
 
-	@Unique
-	@Override
-	public void glowtone$setChromaTint(int tint) {
-		this.glowtone$chromaTint = tint;
-	}
-
-	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$captureChromaTint(CallbackInfo info) {
-		this.glowtone$chromaTint = ChromaFold.currentTint();
+	@Inject(method = "setSectionNode", at = @At("HEAD"))
+	private void glowtone$dropWindowForOldSection(long sectionNode, CallbackInfo info) {
+		if (sectionNode != this.sectionNode) GlowtoneColorWindowCache.invalidate(this.sectionNode);
 	}
 }

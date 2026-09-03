@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.light.color.render;
 import java.util.Arrays;
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.render.impl.GlowtoneSectionColors;
-import net.frozenblock.glowtone.mixin.client.colour.ViewAreaInvoker;
+import net.frozenblock.glowtone.mixin.client.colour.block.ViewAreaInvoker;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;

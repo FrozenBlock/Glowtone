@@ -35,7 +35,7 @@ public class MinecraftLevelSwapMixin {
 	}
 
 	@Inject(method = "disconnectFromWorld", at = @At("HEAD"))
-	private void glowtone$dropWindowsOnDisconnect(@Nullable Component reason, CallbackInfo info) {
+	private void glowtone$dropWindowsOnDisconnect(@Nullable Component message, CallbackInfo info) {
 		GlowtoneColorWindowCache.clear();
 	}
 }

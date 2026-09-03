@@ -15,18 +15,30 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.entity;
 
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.ViewArea;
-import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Invoker;
+import org.spongepowered.asm.mixin.Unique;
 
 @ClientOnly
-@Mixin(ViewArea.class)
-public interface ViewAreaInvoker {
-	@Invoker("getRenderSection")
-	@Nullable SectionRenderDispatcher.RenderSection glowtone$getRenderSection(long sectionNode);
+@Mixin(EntityRenderState.class)
+public class EntityRenderStateMixin implements GlowtoneChromaTinted {
+	@Unique
+	private int glowtone$chromaTint = ChromaFold.NO_TINT;
+
+	@Unique
+	@Override
+	public int glowtone$chromaTint() {
+		return this.glowtone$chromaTint;
+	}
+
+	@Unique
+	@Override
+	public void glowtone$setChromaTint(int tint) {
+		this.glowtone$chromaTint = tint;
+	}
 }

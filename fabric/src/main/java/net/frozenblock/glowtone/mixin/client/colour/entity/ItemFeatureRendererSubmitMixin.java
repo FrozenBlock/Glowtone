@@ -15,40 +15,38 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(EntityRenderDispatcher.class)
-public class EntityRenderDispatcherMixin {
+@Mixin(ItemFeatureRenderer.Submit.class)
+public class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
+	@Unique
+	private int glowtone$chromaTint;
 
-	@Inject(method = "submit", at = @At("HEAD"))
-	private void glowtone$pushEntityTint(
-		EntityRenderState renderState,
-		CameraRenderState camera,
-		double x,
-		double y,
-		double z,
-		PoseStack poseStack,
-		SubmitNodeCollector submitNodeCollector,
-		CallbackInfo info
-	) {
-		ChromaFold.pushTint(renderState.glowtone$chromaTint());
+	@Unique
+	@Override
+	public int glowtone$chromaTint() {
+		return this.glowtone$chromaTint;
 	}
 
-	@Inject(method = "submit", at = @At("RETURN"))
-	private void glowtone$popEntityTint(CallbackInfo info) {
-		ChromaFold.popTint();
+	@Unique
+	@Override
+	public void glowtone$setChromaTint(int tint) {
+		this.glowtone$chromaTint = tint;
+	}
+
+	@Inject(method = "<init>", at = @At("RETURN"))
+	private void glowtone$captureChromaTint(CallbackInfo info) {
+		this.glowtone$chromaTint = ChromaFold.currentTint();
 	}
 }

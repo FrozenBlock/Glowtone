@@ -15,14 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour;
+package net.frozenblock.glowtone.mixin.client.colour.block;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,10 +28,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(BlockEntityRenderState.class)
-public class BlockEntityRenderStateMixin implements GlowtoneChromaTinted {
+@Mixin(BlockModelFeatureRenderer.Submit.class)
+public class BlockModelFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
 	@Unique
-	private int glowtone$chromaTint = ChromaFold.NO_TINT;
+	private int glowtone$chromaTint;
 
 	@Unique
 	@Override
@@ -47,13 +45,8 @@ public class BlockEntityRenderStateMixin implements GlowtoneChromaTinted {
 		this.glowtone$chromaTint = tint;
 	}
 
-	@Inject(method = "extractBase", at = @At("TAIL"))
-	private static void glowtone$resolveChromaTint(
-		BlockEntity blockEntity,
-		BlockEntityRenderState state,
-		ModelFeatureRenderer.CrumblingOverlay breakProgress,
-		CallbackInfo info
-	) {
-		state.glowtone$setChromaTint(ChromaFold.resolveBlockEntity(state.blockPos, state.lightCoords));
+	@Inject(method = "<init>", at = @At("RETURN"))
+	private void glowtone$captureChromaTint(CallbackInfo info) {
+		this.glowtone$chromaTint = ChromaFold.currentTint();
 	}
 }

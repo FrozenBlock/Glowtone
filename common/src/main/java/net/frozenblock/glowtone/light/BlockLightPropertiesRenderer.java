@@ -5,7 +5,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;
 
 @ClientOnly
-public class BlockLightPropertiesRenderer {
+public final class BlockLightPropertiesRenderer {
 	private static final ThreadLocal<BlockLightProperties[]> RENDERED = ThreadLocal.withInitial(() -> new BlockLightProperties[]{BlockLightProperties.NONE});
 	private static volatile boolean anyOcclusionScales;
 	private static volatile boolean anyEmissive;
@@ -58,4 +58,6 @@ public class BlockLightPropertiesRenderer {
 		anyFilterColors = filterColors;
 		anyLightColors = lightColors;
 	}
+
+	private BlockLightPropertiesRenderer() {}
 }
