@@ -49,7 +49,9 @@ public class ItemFeatureRendererMixin {
 		index = 0
 	)
 	private int glowtone$tintItemQuad(int quadColor) {
+		// FIXME
+		return quadColor;
 		// TODO: i swear this can be done via localref
-		return ChromaFold.tintItemColor(quadColor);
+		//return ChromaFold.tintItemColor(quadColor);
 	}
 }

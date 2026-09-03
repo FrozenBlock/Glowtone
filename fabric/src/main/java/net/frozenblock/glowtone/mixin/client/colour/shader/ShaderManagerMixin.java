@@ -43,21 +43,8 @@ public class ShaderManagerMixin {
 		@Local(argsOnly = true) Identifier location,
 		@Local(argsOnly = true) ShaderType type
 	) {
-		return ColorShaderPatcher.patchTerrainShader(type.idConverter().fileToId(location), type, source);
-	}
-
-	@ModifyExpressionValue(
-		method = "loadShader",
-		at = @At(
-			value = "INVOKE",
-			target = "Ljava/lang/String;join(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;"
-		)
-	)
-	private static String glowtone$patchColourShaderEntity(
-		String source,
-		@Local(argsOnly = true) Identifier location,
-		@Local(argsOnly = true) ShaderType type
-	) {
-		return ColorShaderPatcher.patchEntityShader(type.idConverter().fileToId(location), type, source);
+		final Identifier id = type.idConverter().fileToId(location);
+		source = ColorShaderPatcher.patchTerrainShader(id, type, source);
+		return ColorShaderPatcher.patchEntityShader(id, type, source);
 	}
 }

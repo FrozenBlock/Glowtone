@@ -18,7 +18,6 @@
 package net.frozenblock.glowtone.mixin.client.colour.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -41,7 +40,8 @@ public class BlockEntityRenderDispatcherMixin {
 		CameraRenderState camera,
 		CallbackInfo info
 	) {
-		ChromaFold.pushTint(state.glowtone$chromaTint());
+		// FIXME
+		//ChromaFold.pushTint(state.glowtone$chromaTint());
 	}
 
 	@Inject(method = "submit", at = @At("RETURN"))
@@ -52,6 +52,7 @@ public class BlockEntityRenderDispatcherMixin {
 		CameraRenderState camera,
 		CallbackInfo info
 	) {
-		ChromaFold.popTint();
+		// FIXME
+		//ChromaFold.popTint();
 	}
 }

@@ -19,7 +19,6 @@ package net.frozenblock.glowtone.mixin.client.colour.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
-import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -35,7 +34,8 @@ public class NonTerrainBlockRenderContextMixin {
 	@Inject(method = "processQuad", at = @At("HEAD"))
 	private void glowtone$tintMovingBlockQuad(MutableQuadViewImpl quad, CallbackInfo info) {
 		for (int vertex = 0; vertex < 4; vertex++) {
-			quad.setColor(vertex, ChromaFold.tintMovingBlockQuadColor(quad.getColor(vertex)));
+			// FIXME
+			//quad.setColor(vertex, ChromaFold.tintMovingBlockQuadColor(quad.getColor(vertex)));
 		}
 	}
 }

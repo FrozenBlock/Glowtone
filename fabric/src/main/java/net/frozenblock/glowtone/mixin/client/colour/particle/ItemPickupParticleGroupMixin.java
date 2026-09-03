@@ -20,7 +20,6 @@ package net.frozenblock.glowtone.mixin.client.colour.particle;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.entity.SmoothEntityLightingHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.particle.ItemPickupParticleGroup;
@@ -60,8 +59,9 @@ public class ItemPickupParticleGroupMixin {
 		final int liveLight = SmoothEntityLightingHelper.worldLightAt(x, y, z, renderState.lightCoords);
 		renderState.lightCoords = SmoothEntityLightingHelper.smooth(x, y, z, liveLight);
 
-		final int tint = ChromaFold.resolveEntity(x, y, z, renderState.eyeHeight, liveLight);
-		renderState.glowtone$setChromaTint(tint);
+		// FIXME
+		//final int tint = ChromaFold.resolveEntity(x, y, z, renderState.eyeHeight, liveLight);
+		//renderState.glowtone$setChromaTint(tint);
 
 		original.call(dispatcher, renderState, camera, xOffset, yOffset, zOffset, poseStack, submitNodeCollector);
 	}

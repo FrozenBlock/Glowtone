@@ -45,11 +45,10 @@ public final class ChromaFold {
 
 	private static int[] tintStack = new int[16];
 	private static int tintDepth;
-	private static int itemTint = NO_TINT;
-
 	private static int blockTint = NO_TINT;
-
 	private static int movingBlockTint = NO_TINT;
+	private static int entityTint = NO_TINT;
+	private static int itemTint = NO_TINT;
 
 	public static int resolveEntity(double x, double y, double z, float eyeHeight, int lightCoords) {
 		final ColorProbe probe = ColorProbe.get();
@@ -76,6 +75,26 @@ public final class ChromaFold {
 		return resolved;
 	}
 
+	public static int resolveEntityTint(double x, double y, double z, float eyeHeight, int lightCoords) {
+		final ColorProbe probe = ColorProbe.get();
+		final int blockX = Mth.floor(x);
+		final int blockZ = Mth.floor(z);
+		final int eyeY = Mth.floor(y + eyeHeight);
+
+		final float weight = blockLightShare(lightCoords);
+		if (weight <= 0F) return NO_TINT;
+
+		long samples = smoothLighting()
+			? sampleTrilinear(probe, x, y + eyeHeight, z)
+			: sampleNearest(probe, blockX, eyeY, blockZ);
+		if (ChromaBlender.isEmpty(samples)) {
+			final int feetBlockY = Mth.floor(y);
+			if (feetBlockY != eyeY) samples = ChromaBlender.add(samples, probe.getPackedLevels(blockX, feetBlockY, blockZ));
+		}
+
+		return ChromaBlender.toEntityArgb(samples);
+	}
+
 	public static int resolveBlockEntity(BlockPos pos, int lightCoords) {
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = pos.getX();
@@ -89,6 +108,20 @@ public final class ChromaFold {
 		long samples = ChromaBlender.add(ChromaBlender.EMPTY, probe.getPackedLevels(blockX, blockY, blockZ));
 		if (ChromaBlender.isEmpty(samples)) samples = addNeighbours(probe, samples, blockX, blockY, blockZ);
 		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), sky);
+	}
+
+	public static int resolveBlockEntityTint(BlockPos pos, int lightCoords) {
+		final ColorProbe probe = ColorProbe.get();
+		final int blockX = pos.getX();
+		final int blockY = pos.getY();
+		final int blockZ = pos.getZ();
+
+		final float weight = blockLightShare(lightCoords);
+		if (weight <= 0F) return NO_TINT;
+
+		long samples = ChromaBlender.add(ChromaBlender.EMPTY, probe.getPackedLevels(blockX, blockY, blockZ));
+		if (ChromaBlender.isEmpty(samples)) samples = addNeighbours(probe, samples, blockX, blockY, blockZ);
+		return ChromaBlender.toEntityArgb(samples);
 	}
 
 	public static int resolveParticle(double x, double y, double z, int lightCoords) {
@@ -274,7 +307,7 @@ public final class ChromaFold {
 		final float skyLevel = Math.min(1F, LightCoordsUtil.smoothSky(lightCoords) / PACKED_LIGHT_SCALE);
 		final float blockPart = brightness(blockLevel) * blockFactor;
 		final float total = blockPart + brightness(skyLevel) * skyFactor + ambient;
-		return total <= 1.0e-5f ? 0F : Math.min(1F, blockPart / total);
+		return total <= 1.0e-5F ? 0F : Math.min(1F, blockPart / total);
 	}
 
 	private static float brightness(float level) {
@@ -353,6 +386,22 @@ public final class ChromaFold {
 			return ARGB.multiply(quadColor, ARGB.addRgb(blockTint, ARGB.scaleRGB(ARGB.white(0F), selfEmissionStrength)));
 		}
 		return ARGB.multiply(quadColor, blockTint);
+	}
+
+	public static void beginEntityQuads(int tint) {
+		entityTint = tint;
+	}
+
+	public static void endEntityQuads() {
+		entityTint = NO_TINT;
+	}
+
+	public static int tintEntityQuadColor(int quadColor) {
+		return entityTint == NO_TINT ? quadColor : ARGB.multiply(quadColor, entityTint);
+	}
+
+	public static int entityTintColor() {
+		return entityTint;
 	}
 
 	public static int tintItemColor(int quadColor) {

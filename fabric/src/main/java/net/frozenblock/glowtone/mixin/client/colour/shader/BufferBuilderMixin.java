@@ -22,6 +22,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
 import net.frozenblock.glowtone.render.vertex.GTDefaultVertexFormat;
@@ -71,7 +72,6 @@ public class BufferBuilderMixin {
 	private void glowtone$writeChromaEntity(CallbackInfo info) {
 		if (this.format != DefaultVertexFormat.ENTITY || this.vertexPointer == -1L) return;
 
-		// TODO: EntityState? Or something else?
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.rotateFlatPins();
 
@@ -86,7 +86,7 @@ public class BufferBuilderMixin {
 		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_ENTITY + 8L);
 
 		// TODO: EntityState? Or something else?
-		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, state.sample(x, y, z));
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, ChromaFold.entityTintColor());
 		// TODO: EntityState? Or something else?
 		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, ChromaBaker.NEUTRAL_SKY_ARGB);
 		//glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, state.sampleSky(x, y, z));

@@ -56,7 +56,8 @@ public class ItemInHandRendererMixin {
 	) {
 		final Vec3 probe = player.getLightProbePosition(frameInterp);
 		final int smoothed = SmoothEntityLightingHelper.smooth(probe.x, probe.y, probe.z, lightCoords);
-		ChromaFold.pushTint(ChromaFold.resolveHand(probe.x, probe.y, probe.z, smoothed));
+		// FIXME
+		//ChromaFold.pushTint(ChromaFold.resolveHand(probe.x, probe.y, probe.z, smoothed));
 	}
 
 	@Inject(method = "submitHandsWithItems", at = @At("RETURN"))

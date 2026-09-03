@@ -54,6 +54,7 @@ public class BlockEntityRenderStateMixin implements GlowtoneChromaTinted {
 		ModelFeatureRenderer.CrumblingOverlay breakProgress,
 		CallbackInfo info
 	) {
-		state.glowtone$setChromaTint(ChromaFold.resolveBlockEntity(state.blockPos, state.lightCoords));
+		// FIXME
+		//state.glowtone$setChromaTint(ChromaFold.resolveBlockEntity(state.blockPos, state.lightCoords));
 	}
 }

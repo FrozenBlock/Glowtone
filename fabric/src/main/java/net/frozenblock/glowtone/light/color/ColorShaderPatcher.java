@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.light.color;
 
 import com.mojang.blaze3d.shaders.ShaderType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 
@@ -27,10 +28,12 @@ public final class ColorShaderPatcher {
 	private static final Identifier ENTITY_ID = Identifier.withDefaultNamespace("core/entity");
 	private static final String MAIN = "void main()";
 	private static final String UNIFORM = "uniform ";
+	// I've opted to use this as the chroma injection point, as entity uniforms are definition-specific unlike terrain.
+	private static final String IN_NORMAL_ENTITY = "in vec3 Normal;";
 	// ONLY used for splitting the source string at the right place.
 	private static final String SET_VERTEX_COLOR_TERRAIN = "vertexColor = Color *";
 	// ONLY used for splitting the source string at the right place.
-	private static final String SET_VERTEX_COLOR_ENTITY = "vertexColor = ";
+	private static final String LIGHTMAP_COLOR_ENTITY = "lightMapColor = ";
 	private static final String SAMPLE_LIGHTMAP = "sample_lightmap(Sampler2, UV2)";
 
 	private static final String IN_GLOWTONE_CHROMA = """
@@ -100,37 +103,40 @@ public final class ColorShaderPatcher {
 
 	public static String patchEntityShader(Identifier id, ShaderType type, String source) {
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
-		if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
-		if (!id.equals(ENTITY_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR_ENTITY)) return source;
+		// TODO: sodium entity
+		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
+		if (!id.equals(ENTITY_ID) || !source.contains(IN_NORMAL_ENTITY) || !source.contains(LIGHTMAP_COLOR_ENTITY)) return source;
 
 		final String preEntitySource = source.substring(0, source.lastIndexOf("#version"));
 		String entityOnlySource = source.substring(source.lastIndexOf("#version"));
 
 		// Glowtone — override of vanilla 26.2 core/entity.vsh.
-		// Here we recolour ONLY the block-lightColor half of the lightmap: the sky-lightColor contribution is sampled
-		// separately and left untouched, so daylight stays neutral while block lightColor takes the emitter's colour.
+		// Here we recolor ONLY the block-lightColor half of the lightmap: the sky-lightColor contribution is sampled
+		// separately and left untouched, so daylight stays neutral while block lightColor takes the emitter's color.
 
-		injectUniforms: {
-			String preUniform = entityOnlySource.substring(0, entityOnlySource.indexOf(UNIFORM));
-			preUniform = preUniform + IN_GLOWTONE_CHROMA;
-			final String postUniform = entityOnlySource.substring(entityOnlySource.indexOf(UNIFORM));
-			entityOnlySource = preUniform + postUniform;
+		injectChroma: {
+			String preNormal = entityOnlySource.substring(0, entityOnlySource.indexOf(IN_NORMAL_ENTITY));
+			preNormal = preNormal + IN_GLOWTONE_CHROMA;
+			final String postNormal = entityOnlySource.substring(entityOnlySource.indexOf(IN_NORMAL_ENTITY));
+			entityOnlySource = preNormal + postNormal;
 		}
 
 		patchLightmap: {
-			String preColor = entityOnlySource.substring(0, entityOnlySource.indexOf(SET_VERTEX_COLOR_ENTITY));
-			preColor = preColor + SPLIT_LIGHTMAP + DEFINE_GLOWTONE_CHROMA_SCALE;
+			String preLightmapColor = entityOnlySource.substring(0, entityOnlySource.indexOf(LIGHTMAP_COLOR_ENTITY));
+			preLightmapColor = preLightmapColor + SPLIT_LIGHTMAP + DEFINE_GLOWTONE_CHROMA_SCALE;
 
-			String postColor = entityOnlySource.substring(entityOnlySource.indexOf(SET_VERTEX_COLOR_ENTITY));
+			String postLightmapColor = entityOnlySource.substring(entityOnlySource.indexOf(LIGHTMAP_COLOR_ENTITY));
 			patchLightmapSampler: {
-				String postColorOnly = postColor.substring(0, postColor.indexOf(";"));
-				postColorOnly = postColorOnly.replace(SAMPLE_LIGHTMAP, SAMPLE_LIGHTMAP_REPLACEMENT);
-				String postPostColor = postColor.substring(postColor.indexOf(";"));
-				postColor = postColorOnly + postPostColor;
+				String postLightmapColorOnly = postLightmapColor.substring(0, postLightmapColor.indexOf(";"));
+				postLightmapColorOnly = postLightmapColorOnly.replace(SAMPLE_LIGHTMAP, SAMPLE_LIGHTMAP_REPLACEMENT);
+				String postPostLightmapColor = postLightmapColor.substring(postLightmapColor.indexOf(";"));
+				postLightmapColor = postLightmapColorOnly + postPostLightmapColor;
 			}
 
-			entityOnlySource = preColor + postColor;
+			entityOnlySource = preLightmapColor + postLightmapColor;
 		}
+
+		if (FabricLoader.getInstance().isDevelopmentEnvironment()) System.out.println(entityOnlySource);
 
 		return preEntitySource + entityOnlySource;
 	}
@@ -144,12 +150,12 @@ public final class ColorShaderPatcher {
 		String terrainOnlySource = source.substring(source.lastIndexOf("#version"));
 
 		// Glowtone — override of vanilla 26.2 core/terrain.vsh.
-		// Coloured lighting is BAKED into the chunk mesh: each vertex carries an RGB chroma (GlowtoneChroma) produced by
-		// the coloured-lightColor engine at mesh time. Here we recolour ONLY the block-lightColor half of the lightmap: the
+		// Colored lighting is BAKED into the chunk mesh: each vertex carries an RGB chroma (GlowtoneChroma) produced by
+		// the colored-lightColor engine at mesh time. Here we recolor ONLY the block-lightColor half of the lightmap: the
 		// sky-lightColor contribution is sampled separately and left untouched, so daylight stays neutral while block lightColor
-		// takes the emitter's colour. Costs nothing per frame and works at full render distance.
+		// takes the emitter's color. Costs nothing per frame and works at full render distance.
 
-		injectUniforms: {
+		injectChroma: {
 			String preUniform = terrainOnlySource.substring(0, terrainOnlySource.indexOf(UNIFORM));
 			preUniform = preUniform + IN_GLOWTONE_CHROMA;
 			final String postUniform = terrainOnlySource.substring(terrainOnlySource.indexOf(UNIFORM));

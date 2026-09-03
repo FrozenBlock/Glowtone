@@ -20,13 +20,7 @@ package net.frozenblock.glowtone.mixin.client.colour.shader;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
-import net.frozenblock.glowtone.material.MaterialSamplers;
-import net.minecraft.client.renderer.BindGroupLayouts;
-import net.minecraft.resources.Identifier;
-import java.util.List;
-import java.util.Optional;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,27 +29,8 @@ import org.spongepowered.asm.mixin.injection.Slice;
 
 @ClientOnly
 @Mixin(RenderPipelines.class)
-public abstract class RenderPipelinesMixin {
+public class RenderPipelinesMixin {
 
-	@WrapOperation(
-		method = "<clinit>",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;build()Lcom/mojang/blaze3d/pipeline/RenderPipeline;"
-		)
-	)
-	private static RenderPipeline glowtone$declareMaterialSamplers(RenderPipeline.Builder instance, Operation<RenderPipeline> original) {
-		final Optional<Identifier> fragment = instance.fragmentShader;
-		if (fragment != null && fragment.isPresent() && EmissiveShaderPatcher.usesMaterialSamplers(fragment.get())) {
-			instance.withBindGroupLayout(MaterialSamplers.LAYOUT);
-			final Optional<List<BindGroupLayout>> layouts = instance.bindGroupLayouts;
-			if (layouts == null || layouts.isEmpty() || !layouts.get().contains(BindGroupLayouts.GLOBALS)) {
-				instance.withBindGroupLayout(BindGroupLayouts.GLOBALS);
-			}
-		}
-
-		return original.call(instance);
-	}
 	// The way I've set up these injects may seem counterintuitive.
 	// The reason I'm doing it this way is so we'll receive an error if the name of one of these pipelines changes.
 

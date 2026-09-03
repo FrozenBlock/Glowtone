@@ -20,12 +20,11 @@ package net.frozenblock.glowtone.mixin.client.colour.fabric;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl;
+import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
-import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
-import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -52,7 +51,8 @@ public class AltModelBlockRendererFlatMixin {
 
 		if (!ChromaBaker.buildingSection()) {
 			for (int vertex = 0; vertex < 4; vertex++) {
-				quad.color(vertex, ChromaFold.tintMovingBlockQuadColor(quad.color(vertex)));
+				// FIXME
+				//quad.color(vertex, ChromaFold.tintMovingBlockQuadColor(quad.color(vertex)));
 			}
 		}
 
