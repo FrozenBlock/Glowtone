@@ -4,11 +4,6 @@
   "additionalProperties": false,
   "description": "A Glowtone block material.",
   "properties": {
-    "parent": {
-      "type": "string",
-      "description": "Another material to inherit every unset field from.",
-      "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
-    },
     "block_entity_render": {
       "type": "boolean",
       "description": "Set false to suppress the block entity renderer for this block."
@@ -51,6 +46,11 @@
         "translucent"
       ]
     },
+    "parent": {
+      "type": "string",
+      "description": "Another material to inherit every unset field from.",
+      "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+    },
     "render_shape": {
       "type": "string",
       "description": "Replaces the render shape of the block.",
@@ -64,6 +64,13 @@
       "additionalProperties": false,
       "description": "Shader stages applied to this material.",
       "properties": {
+        "block_textures": {
+          "type": "array",
+          "description": "Texture slot names declared on the block's own model, sampled off the block atlas. Each arrives in the snippet as a vec4 atlas rectangle.",
+          "items": {
+            "type": "string"
+          }
+        },
         "constants": {
           "type": "object",
           "additionalProperties": {
@@ -75,6 +82,13 @@
           "type": "string",
           "description": "Fragment source under glowtone/shaders/material. Returns the vec4 fragment colour.",
           "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Name to GLSL float expression, passed to the snippet as an argument. Two materials whose snippets match share one compiled program even when their parameter values differ."
         },
         "textures": {
           "type": "object",
@@ -88,6 +102,13 @@
           "description": "Vertex source under glowtone/shaders/material. Returns a vec3 displacement.",
           "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
         }
+      }
+    },
+    "target": {
+      "type": "array",
+      "description": "Model texture slot names this material applies to. When set, only quads baked from those slots are affected, so an overlay element can be shaded while the rest of the block is left alone. The reserved name 'emissive' targets the overlay quads baked from _glowtone_emissive textures.",
+      "items": {
+        "type": "string"
       }
     }
   },

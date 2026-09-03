@@ -1,0 +1,8 @@
+{
+  "layer": "solid",
+  "shader": {
+    "fragment": "glowtone_test:portal_slots",
+    "block_textures": ["end_sky", "end_portal"],
+    "constants": { "PORTAL_LAYERS": "8" }
+  }
+}

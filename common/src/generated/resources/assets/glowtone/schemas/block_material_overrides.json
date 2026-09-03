@@ -7,9 +7,35 @@
     "variants": {
       "type": "object",
       "additionalProperties": {
-        "type": "string",
-        "description": "Material id, as defined under glowtone/block_materials.",
-        "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+        "oneOf": [
+          {
+            "type": "string",
+            "description": "Material id, as defined under glowtone/block_materials.",
+            "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+          },
+          {
+            "type": "object",
+            "description": "A material plus parameter values that override the material's own.",
+            "properties": {
+              "material": {
+                "type": "string",
+                "description": "Material id, as defined under glowtone/block_materials.",
+                "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+              },
+              "parameters": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Name to GLSL float expression, overriding a parameter the material declares."
+              }
+            },
+            "required": [
+              "material"
+            ],
+            "additionalProperties": false
+          }
+        ]
       },
       "description": "Blockstate selector to value. An empty key matches every state."
     }

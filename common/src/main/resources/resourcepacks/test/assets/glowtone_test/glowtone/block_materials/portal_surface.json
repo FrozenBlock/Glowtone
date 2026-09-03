@@ -8,6 +8,10 @@
     },
     "constants": {
       "PORTAL_LAYERS": "15"
-    }
+    },
+    "block_textures": [
+      "end_sky",
+      "end_portal"
+    ]
   }
 }

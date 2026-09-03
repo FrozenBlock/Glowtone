@@ -1,0 +1,9 @@
+{
+  "shader": {
+    "fragment": "glowtone_test:pulse",
+    "parameters": {
+      "PULSE_SCALE": "6.0",
+      "PULSE_SPEED": "2400.0"
+    }
+  }
+}

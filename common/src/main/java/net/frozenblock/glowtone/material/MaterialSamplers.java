@@ -33,7 +33,7 @@ import java.util.List;
 
 @ClientOnly
 public final class MaterialSamplers {
-	public static final int SLOTS = 4;
+	public static final int SLOTS = 10;
 	private static final String PREFIX = "GlowtoneMaterialTex";
 
 	public static final BindGroupLayout LAYOUT = layout();
@@ -63,13 +63,14 @@ public final class MaterialSamplers {
 	}
 
 	public static String declarations() {
+		final int used = Math.min(textures.size(), SLOTS);
 		final StringBuilder builder = new StringBuilder();
-		for (int slot = 0; slot < SLOTS; slot++) {
+		for (int slot = 0; slot < used; slot++) {
 			builder.append("uniform sampler2D ").append(name(slot)).append(";\n");
 		}
 
 		builder.append("\nfloat glowtone_keepSamplers() {\n\treturn 1.0e-20 * float(0");
-		for (int slot = 0; slot < SLOTS; slot++) {
+		for (int slot = 0; slot < used; slot++) {
 			builder.append(" + textureSize(").append(name(slot)).append(", 0).x");
 		}
 		builder.append(");\n}\n\n");
@@ -81,8 +82,11 @@ public final class MaterialSamplers {
 		final GpuTextureView[] views = resolve();
 		if (views == null) return;
 
+		final int used = Math.min(textures.size(), SLOTS);
+		if (used == 0) return;
+
 		final GpuSampler sampler = RenderSystem.getSamplerCache().getRepeat(FilterMode.NEAREST);
-		for (int slot = 0; slot < SLOTS; slot++) pass.bindTexture(name(slot), views[slot], sampler);
+		for (int slot = 0; slot < used; slot++) pass.bindTexture(name(slot), views[slot], sampler);
 	}
 
 	@Nullable

@@ -52,7 +52,7 @@ public final class GTSchemaProvider implements DataProvider {
 			this.save(cache, "block_material_overrides", dispatcher(
 				"Glowtone block material overrides",
 				"Assigns a block material to the blockstates of one block.",
-				identifier("Material id, as defined under " + BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY + ".")
+				assignment()
 			)),
 			this.save(cache, "block_light_properties", dispatcher(
 				"Glowtone block light properties",
@@ -83,7 +83,9 @@ public final class GTSchemaProvider implements DataProvider {
 				+ ". Returns a vec3 displacement.")),
 			entry("textures", map("Sampler name to texture path. At most " + MaterialSamplers.SLOTS
 				+ " distinct textures across every loaded material.", string(null))),
-			entry("constants", map("Name to GLSL expression, emitted as a #define around the stage.", string(null)))
+			entry("block_textures", list("Texture slot names declared on the block's own model, sampled off the block atlas. Each arrives in the snippet as a vec4 atlas rectangle.", string(null))),
+			entry("constants", map("Name to GLSL expression, emitted as a #define around the stage. Use for values that must be compile time, such as loop bounds.", string(null))),
+			entry("parameters", map("Name to GLSL float expression, passed to the snippet as an argument. Two materials whose snippets match share one compiled program even when their parameter values differ.", string(null)))
 		));
 		shader.addProperty("additionalProperties", false);
 
@@ -96,6 +98,7 @@ public final class GTSchemaProvider implements DataProvider {
 			entry("render_shape", enumOf("Replaces the render shape of the block.", MaterialRenderShape.values())),
 			entry("block_entity_render", bool("Set false to suppress the block entity renderer for this block.")),
 			entry("cull", cull),
+			entry("target", list("Model texture slot names this material applies to. When set, only quads baked from those slots are affected, so an overlay element can be shaded while the rest of the block is left alone.", string(null))),
 			entry("shader", shader)
 		));
 		root.addProperty("additionalProperties", false);
@@ -127,6 +130,24 @@ public final class GTSchemaProvider implements DataProvider {
 		));
 		root.addProperty("additionalProperties", false);
 		return root;
+	}
+
+	private static JsonObject assignment() {
+		final JsonObject full = object("A material plus parameter values that override the material's own.");
+		full.add("properties", properties(
+			entry("material", identifier("Material id, as defined under " + BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY + ".")),
+			entry("parameters", map("Name to GLSL float expression, overriding a parameter the material declares.", string(null)))
+		));
+		full.add("required", array("material"));
+		full.addProperty("additionalProperties", false);
+
+		final JsonArray forms = new JsonArray();
+		forms.add(identifier("Material id, as defined under " + BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY + "."));
+		forms.add(full);
+
+		final JsonObject json = new JsonObject();
+		json.add("oneOf", forms);
+		return json;
 	}
 
 	private static JsonObject dispatcher(String title, String description, JsonObject value) {
@@ -201,6 +222,14 @@ public final class GTSchemaProvider implements DataProvider {
 	private static JsonObject map(String description, JsonObject value) {
 		final JsonObject json = object(description);
 		json.add("additionalProperties", value);
+		return json;
+	}
+
+	private static JsonObject list(String description, JsonObject element) {
+		final JsonObject json = new JsonObject();
+		json.addProperty("type", "array");
+		json.addProperty("description", description);
+		json.add("items", element);
 		return json;
 	}
 

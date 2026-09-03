@@ -27,6 +27,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,14 +37,16 @@ public record BlockMaterial(
 	Cull cull,
 	Optional<MaterialRenderShape> renderShape,
 	Optional<Boolean> blockEntityRender,
-	Optional<MaterialShader> shader
+	Optional<MaterialShader> shader,
+	List<String> target
 ) {
 	public static final BlockMaterial NONE = new BlockMaterial(
 		Optional.empty(),
 		Cull.AUTOMATIC,
 		Optional.empty(),
 		Optional.empty(),
-		Optional.empty()
+		Optional.empty(),
+		List.of()
 	);
 	public static final Assigned UNASSIGNED = new Assigned(null, NONE, BlockMaterialRenderer.NO_SHADER);
 	public static final Simple EMPTY = new Simple(UNASSIGNED);
@@ -53,7 +56,8 @@ public record BlockMaterial(
 		Cull.CODEC.optionalFieldOf("cull", Cull.AUTOMATIC).forGetter(BlockMaterial::cull),
 		MaterialRenderShape.CODEC.optionalFieldOf("render_shape").forGetter(BlockMaterial::renderShape),
 		Codec.BOOL.optionalFieldOf("block_entity_render").forGetter(BlockMaterial::blockEntityRender),
-		MaterialShader.CODEC.optionalFieldOf("shader").forGetter(BlockMaterial::shader)
+		MaterialShader.CODEC.optionalFieldOf("shader").forGetter(BlockMaterial::shader),
+		Codec.STRING.listOf().optionalFieldOf("target", List.of()).forGetter(BlockMaterial::target)
 	).apply(instance, BlockMaterial::new));
 	public static final Codec<BlockMaterial> CODEC = MAP_CODEC.codec();
 
@@ -87,7 +91,8 @@ public record BlockMaterial(
 			this.cull.mergedOver(under.cull),
 			this.renderShape.or(under::renderShape),
 			this.blockEntityRender.or(under::blockEntityRender),
-			this.shader.or(under::shader)
+			this.shader.or(under::shader),
+			this.target.isEmpty() ? under.target() : this.target
 		);
 	}
 
@@ -121,7 +126,20 @@ public record BlockMaterial(
 		}
 	}
 
-	public record Assigned(@Nullable Identifier id, BlockMaterial material, int shaderIndex) {}
+	public record Assigned(
+		@Nullable Identifier id,
+		BlockMaterial material,
+		int shaderIndex,
+		@Nullable List<String> targetSlots
+	) {
+		public Assigned(@Nullable Identifier id, BlockMaterial material, int shaderIndex) {
+			this(id, material, shaderIndex, null);
+		}
+
+		public boolean targeted() {
+			return this.targetSlots != null;
+		}
+	}
 
 	public record Cull(Optional<CullMode> self, Optional<CullMode> cast) {
 		public static final Cull AUTOMATIC = new Cull(Optional.empty(), Optional.empty());

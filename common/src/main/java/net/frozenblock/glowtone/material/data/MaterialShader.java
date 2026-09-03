@@ -21,6 +21,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,7 +30,9 @@ public record MaterialShader(
 	Optional<Identifier> fragment,
 	Optional<Identifier> vertex,
 	Map<String, Identifier> textures,
-	Map<String, String> constants
+	Map<String, String> constants,
+	Map<String, String> parameters,
+	List<String> blockTextures
 ) {
 	public static final String RESOURCE_PACK_DIRECTORY = "glowtone/shaders/material";
 	public static final String FILE_SUFFIX = ".glsl";
@@ -37,7 +40,9 @@ public record MaterialShader(
 		Identifier.CODEC.optionalFieldOf("fragment").forGetter(MaterialShader::fragment),
 		Identifier.CODEC.optionalFieldOf("vertex").forGetter(MaterialShader::vertex),
 		Codec.unboundedMap(Codec.STRING, Identifier.CODEC).optionalFieldOf("textures", Map.of()).forGetter(MaterialShader::textures),
-		Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("constants", Map.of()).forGetter(MaterialShader::constants)
+		Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("constants", Map.of()).forGetter(MaterialShader::constants),
+		Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("parameters", Map.of()).forGetter(MaterialShader::parameters),
+		Codec.STRING.listOf().optionalFieldOf("block_textures", List.of()).forGetter(MaterialShader::blockTextures)
 	).apply(instance, MaterialShader::new));
 
 	public boolean isEmpty() {

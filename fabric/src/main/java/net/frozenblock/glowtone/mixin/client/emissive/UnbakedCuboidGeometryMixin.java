@@ -24,6 +24,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Unique;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
@@ -82,6 +83,7 @@ public abstract class UnbakedCuboidGeometryMixin {
 		if (material == null) return null;
 		if (material.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return null;
 
+		BlockTextureSlots.recordEmissiveOverlay(material.sprite());
 		return material;
 	}
 

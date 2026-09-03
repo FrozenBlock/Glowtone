@@ -49,11 +49,11 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final FileToIdConverter OVERRIDE_LISTER = FileToIdConverter.json(BlockMaterialRenderer.OVERRIDE_DIRECTORY);
 
-	private static CompletableFuture<Map<BlockState, Identifier>> loadOverrides(ResourceManager manager, Executor executor) {
+	private static CompletableFuture<Map<BlockState, BlockMaterialOverrideDispatcher.Assignment>> loadOverrides(ResourceManager manager, Executor executor) {
 		final Function<Identifier, StateDefinition<Block, BlockState>> definitionToBlockState = BlockStateDefinitions.definitionLocationToBlockStateMapper();
 		return CompletableFuture.supplyAsync(() -> OVERRIDE_LISTER.listMatchingResourceStacks(manager), executor).thenCompose(
 			resources -> {
-				final List<CompletableFuture<Map<BlockState, Identifier>>> result = new ArrayList<>(resources.size());
+				final List<CompletableFuture<Map<BlockState, BlockMaterialOverrideDispatcher.Assignment>>> result = new ArrayList<>(resources.size());
 
 				for (Map.Entry<Identifier, List<Resource>> resourceStack : resources.entrySet()) {
 					result.add(CompletableFuture.supplyAsync(
@@ -62,10 +62,10 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 							final StateDefinition<Block, BlockState> stateDefinition = definitionToBlockState.apply(stateDefinitionId);
 							if (stateDefinition == null) {
 								LOGGER.debug("Discovered unknown block material override {}, ignoring", stateDefinitionId);
-								return Map.<BlockState, Identifier>of();
+								return Map.<BlockState, BlockMaterialOverrideDispatcher.Assignment>of();
 							}
 
-							final Map<BlockState, Identifier> assignments = new IdentityHashMap<>();
+							final Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> assignments = new IdentityHashMap<>();
 							for (Resource resource : resourceStack.getValue()) {
 								try (Reader reader = resource.openAsReader()) {
 									final JsonElement element = StrictJsonParser.parse(reader);
@@ -85,8 +85,8 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 				}
 
 				return Util.sequence(result).thenApply(partialMaps -> {
-					final Map<BlockState, Identifier> fullMap = new IdentityHashMap<>();
-					for (Map<BlockState, Identifier> partialMap : partialMaps) fullMap.putAll(partialMap);
+					final Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> fullMap = new IdentityHashMap<>();
+					for (Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> partialMap : partialMaps) fullMap.putAll(partialMap);
 					LOGGER.info("Glowtone found {} block material override files covering {} blockstates",
 						resources.size(), fullMap.size());
 					return fullMap;
@@ -98,7 +98,7 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 	public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
 		final ResourceManager manager = currentReload.resourceManager();
 		final CompletableFuture<BlockMaterialLoader.Definitions> definitions = BlockMaterialLoader.load(manager, taskExecutor);
-		final CompletableFuture<Map<BlockState, Identifier>> overrides = loadOverrides(manager, taskExecutor);
+		final CompletableFuture<Map<BlockState, BlockMaterialOverrideDispatcher.Assignment>> overrides = loadOverrides(manager, taskExecutor);
 
 		return definitions
 			.exceptionally(failure -> {
@@ -122,5 +122,5 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 			}, reloadExecutor);
 	}
 
-	private record Loaded(BlockMaterialLoader.Definitions definitions, Map<BlockState, Identifier> overrides) {}
+	private record Loaded(BlockMaterialLoader.Definitions definitions, Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides) {}
 }

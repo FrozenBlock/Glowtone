@@ -48,7 +48,6 @@ public abstract class RenderPipelinesMixin {
 		final Optional<Identifier> fragment = instance.fragmentShader;
 		if (fragment != null && fragment.isPresent() && EmissiveShaderPatcher.usesMaterialSamplers(fragment.get())) {
 			instance.withBindGroupLayout(MaterialSamplers.LAYOUT);
-
 			final Optional<List<BindGroupLayout>> layouts = instance.bindGroupLayouts;
 			if (layouts == null || layouts.isEmpty() || !layouts.get().contains(BindGroupLayouts.GLOBALS)) {
 				instance.withBindGroupLayout(BindGroupLayouts.GLOBALS);

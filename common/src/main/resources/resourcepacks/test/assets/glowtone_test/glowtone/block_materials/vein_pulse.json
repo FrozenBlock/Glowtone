@@ -1,0 +1,15 @@
+{
+  "target": ["emissive"],
+  "shader": {
+    "fragment": "glowtone_test:vein_pulse",
+    "parameters": {
+      "PULSE_SPEED": "1100.0",
+      "PULSE_SCALE_Y": "0.85",
+      "PULSE_SKEW_X": "0.12",
+      "PULSE_SKEW_Z": "0.17",
+      "PULSE_SHARPNESS": "1.6",
+      "PULSE_MIN": "0.25",
+      "PULSE_MAX": "1.9"
+    }
+  }
+}

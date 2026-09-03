@@ -36,7 +36,10 @@ public class AltModelBlockRendererMaterialMixin {
 	private boolean glowtone$markMaterialQuad(boolean original, MutableQuadView quad) {
 		if (!original || !BlockMaterialRenderer.anyShaders()) return original;
 
-		final int shaderIndex = BlockMaterialRenderer.renderedShaderIndex();
+		final float u = (quad.u(0) + quad.u(1) + quad.u(2) + quad.u(3)) * 0.25F;
+		final float v = (quad.v(0) + quad.v(1) + quad.v(2) + quad.v(3)) * 0.25F;
+
+		final int shaderIndex = BlockMaterialRenderer.indexForAtlasCoord(u, v);
 		if (shaderIndex == BlockMaterialRenderer.NO_SHADER) return original;
 
 		for (int vertex = 0; vertex < 4; vertex++) {

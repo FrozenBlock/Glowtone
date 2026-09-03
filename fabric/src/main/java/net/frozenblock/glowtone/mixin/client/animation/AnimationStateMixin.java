@@ -18,7 +18,6 @@
 package net.frozenblock.glowtone.mixin.client.animation;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.animation.impl.AnimationStatePartialTickExtension;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
