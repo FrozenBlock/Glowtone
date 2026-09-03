@@ -47,6 +47,11 @@ public final class GlowtoneRegionFlood {
 	public static final int ENTITY_CELL_BLOCKS = 2;
 	public static final int ENTITY_CELLS = ENTITY_SPAN * ENTITY_SPAN * ENTITY_SPAN;
 
+	public static final int WINDOW_SPAN = 20;
+	private static final int DOWN_SPAN = WINDOW_SPAN / ENTITY_CELL_BLOCKS;
+	private static final int DOWN_CELLS = DOWN_SPAN * DOWN_SPAN * DOWN_SPAN;
+	public static final int WINDOW_CELLS = WINDOW_SPAN * WINDOW_SPAN * WINDOW_SPAN;
+
 	private static final int WINDOW_MIN = 14;
 	private static final int WINDOW_MAX = 33;
 
@@ -89,6 +94,12 @@ public final class GlowtoneRegionFlood {
 	}
 
 	private short[] levels;
+	private int[] stateStamp;
+	private short[] downsampled;
+	private int[] downsampledStamp;
+	private int stateGeneration;
+	private boolean levelsBeyondWindow;
+	private boolean dynamicSeeded;
 	private short[] skyHues;
 	private byte[] skyLevels;
 	private short[] columnCover;
@@ -123,7 +134,10 @@ public final class GlowtoneRegionFlood {
 		return new PalettedContainerRO[SECTION_GRID * SECTION_GRID * SECTION_GRID];
 	}
 
-	public boolean begin(PalettedContainerRO<BlockState>[] grid, int minSectionX, int minSectionY, int minSectionZ) {
+	public boolean begin(
+		PalettedContainerRO<BlockState>[] grid, int minSectionX, int minSectionY, int minSectionZ,
+		short @Nullable [] cachedWindow
+	) {
 		this.release();
 
 		if (grid.length != SECTION_GRID * SECTION_GRID * SECTION_GRID) return false;
@@ -137,6 +151,9 @@ public final class GlowtoneRegionFlood {
 		if (this.levels == null) {
 			this.levels = new short[CELLS];
 			this.states = new BlockState[CELLS];
+			this.stateStamp = new int[CELLS];
+			this.downsampled = new short[DOWN_CELLS];
+			this.downsampledStamp = new int[DOWN_CELLS];
 		}
 
 		this.region = null;
@@ -149,9 +166,16 @@ public final class GlowtoneRegionFlood {
 		this.lit = false;
 		this.skyTinted = false;
 
+		this.dynamicSeeded = dynamic;
+		if (cachedWindow != null && !dynamic) {
+			this.restoreWindow(cachedWindow);
+			return this.lit;
+		}
+
 		java.util.Arrays.fill(this.levels, (short) 0);
-		java.util.Arrays.fill(this.states, null);
 		java.util.Arrays.fill(this.bucketSizes, 0);
+		this.nextStateGeneration();
+		this.levelsBeyondWindow = true;
 
 		this.seed(this.containers, emitterMask);
 		this.seedDynamicLights();
@@ -160,7 +184,10 @@ public final class GlowtoneRegionFlood {
 		return this.lit;
 	}
 
-	public boolean begin(RenderSectionRegion region, int centreSectionX, int centreSectionY, int centreSectionZ) {
+	public boolean begin(
+		RenderSectionRegion region, int centreSectionX, int centreSectionY, int centreSectionZ,
+		short @Nullable [] cachedWindow
+	) {
 		this.release();
 
 		final SectionCopy[] sections = region.sections;
@@ -194,6 +221,9 @@ public final class GlowtoneRegionFlood {
 		if (this.levels == null) {
 			this.levels = new short[CELLS];
 			this.states = new BlockState[CELLS];
+			this.stateStamp = new int[CELLS];
+			this.downsampled = new short[DOWN_CELLS];
+			this.downsampledStamp = new int[DOWN_CELLS];
 		}
 
 		this.region = region;
@@ -209,16 +239,63 @@ public final class GlowtoneRegionFlood {
 		if (this.skyTinted) this.floodSkyTint(this.containers, tintMask);
 
 		final boolean anyDynamic = GlowtoneDynamicLights.get().anyWithin(this.minBlockX, this.minBlockY, this.minBlockZ, SPAN);
+		this.dynamicSeeded = anyDynamic;
+		if (cachedWindow != null && !anyDynamic) {
+			this.restoreWindow(cachedWindow);
+			return this.lit || this.skyTinted;
+		}
+
 		if (emitterMask != 0 || anyDynamic) {
 			Arrays.fill(this.levels, (short) 0);
-			Arrays.fill(this.states, null);
 			Arrays.fill(this.bucketSizes, 0);
+			this.nextStateGeneration();
+			this.levelsBeyondWindow = true;
 
 			this.seed(this.containers, emitterMask);
 			if (anyDynamic) this.seedDynamicLights();
 			this.propagate();
 		}
 		return this.lit || this.skyTinted;
+	}
+
+	public short @Nullable [] extractWindow() {
+		if (!this.lit || this.levels == null || this.dynamicSeeded) return null;
+
+		final short[] window = new short[WINDOW_CELLS];
+		int at = 0;
+		for (int y = 0; y < WINDOW_SPAN; y++) {
+			for (int z = 0; z < WINDOW_SPAN; z++) {
+				System.arraycopy(this.levels, cellIndex(WINDOW_MIN, WINDOW_MIN + y, WINDOW_MIN + z), window, at, WINDOW_SPAN);
+				at += WINDOW_SPAN;
+			}
+		}
+		return window;
+	}
+
+	private void nextStateGeneration() {
+		if (this.stateGeneration == Integer.MAX_VALUE) {
+			Arrays.fill(this.stateStamp, 0);
+			this.stateGeneration = 0;
+		}
+		this.stateGeneration++;
+	}
+
+	private void restoreWindow(short[] window) {
+		if (this.levelsBeyondWindow) {
+			Arrays.fill(this.levels, (short) 0);
+			this.levelsBeyondWindow = false;
+		}
+		this.nextStateGeneration();
+		this.dynamicSeeded = false;
+
+		int at = 0;
+		for (int y = 0; y < WINDOW_SPAN; y++) {
+			for (int z = 0; z < WINDOW_SPAN; z++) {
+				System.arraycopy(window, at, this.levels, cellIndex(WINDOW_MIN, WINDOW_MIN + y, WINDOW_MIN + z), WINDOW_SPAN);
+				at += WINDOW_SPAN;
+			}
+		}
+		this.lit = true;
 	}
 
 	public boolean isLit() {
@@ -413,6 +490,20 @@ public final class GlowtoneRegionFlood {
 		final int baseY = worldY & ~(ENTITY_CELL_BLOCKS - 1);
 		final int baseZ = worldZ & ~(ENTITY_CELL_BLOCKS - 1);
 
+		final int cellX = baseX - this.minBlockX - WINDOW_MIN;
+		final int cellY = baseY - this.minBlockY - WINDOW_MIN;
+		final int cellZ = baseZ - this.minBlockZ - WINDOW_MIN;
+
+		int slot = -1;
+		if ((cellX | cellY | cellZ) >= 0
+			&& cellX < WINDOW_SPAN - 1 && cellY < WINDOW_SPAN - 1 && cellZ < WINDOW_SPAN - 1
+		) {
+			slot = ((cellY >> 1) * DOWN_SPAN + (cellZ >> 1)) * DOWN_SPAN + (cellX >> 1);
+			if (this.downsampledStamp[slot] == this.stateGeneration) {
+				return this.downsampled[slot] & GlowtoneChannels.LEVEL_MASK;
+			}
+		}
+
 		int best = 0;
 		for (int dy = 0; dy < ENTITY_CELL_BLOCKS; dy++) {
 			for (int dz = 0; dz < ENTITY_CELL_BLOCKS; dz++) {
@@ -428,6 +519,11 @@ public final class GlowtoneRegionFlood {
 					);
 				}
 			}
+		}
+
+		if (slot >= 0) {
+			this.downsampled[slot] = (short) (best & GlowtoneChannels.LEVEL_MASK);
+			this.downsampledStamp[slot] = this.stateGeneration;
 		}
 		return best;
 	}
@@ -608,6 +704,7 @@ public final class GlowtoneRegionFlood {
 					final int cell = cellIndex(rx, ry, rz);
 					final BlockState state = container.get(localX, localY, localZ);
 					this.states[cell] = state;
+					this.stateStamp[cell] = this.stateGeneration;
 
 					final int emission = state.getLightEmission();
 					if (emission <= 0) continue;
@@ -701,7 +798,7 @@ public final class GlowtoneRegionFlood {
 			this.levels[neighbourCell] = (short) (merged & GlowtoneChannels.LEVEL_MASK);
 			this.lit = true;
 
-			if (GlowtoneChannels.max(merged) > 1) {
+			if (GlowtoneChannels.level(merged) > 1) {
 				this.enqueue(
 					neighbourX, neighbourY, neighbourZ,
 					merged,
@@ -749,11 +846,14 @@ public final class GlowtoneRegionFlood {
 	}
 
 	private BlockState stateAt(int cell, int x, int y, int z) {
-		final BlockState cached = this.states[cell];
-		if (cached != null) return cached;
+		if (this.stateStamp[cell] == this.stateGeneration) {
+			final BlockState cached = this.states[cell];
+			if (cached != null) return cached;
+		}
 
 		final BlockState state = this.readState(x, y, z);
 		this.states[cell] = state;
+		this.stateStamp[cell] = this.stateGeneration;
 		return state;
 	}
 

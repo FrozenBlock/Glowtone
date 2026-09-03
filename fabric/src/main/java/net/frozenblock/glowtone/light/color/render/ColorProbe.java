@@ -81,15 +81,16 @@ public final class ColorProbe {
 			}
 		}
 
-		final int slot = Math.floorMod(Long.hashCode(sectionNode), CACHE_SLOTS);
+		final int slot = Long.hashCode(sectionNode) & (CACHE_SLOTS - 1);
 		final GlowtoneSectionColors mesh = lookup(sectionNode);
 		this.cachedSections[slot] = sectionNode;
 		if (mesh != null) {
 			this.cachedColors[slot] = mesh.glowtone$sectionColors();
 			this.cachedSkyHues[slot] = mesh.glowtone$sectionSkyHues();
 		} else {
-			this.cachedColors[slot] = GlowtoneSectionColorStore.colors(sectionNode);
-			this.cachedSkyHues[slot] = GlowtoneSectionColorStore.skyHues(sectionNode);
+			final GlowtoneSectionColorStore.Colors stored = GlowtoneSectionColorStore.colors(sectionNode);
+			this.cachedColors[slot] = stored == null ? null : stored.levels();
+			this.cachedSkyHues[slot] = stored == null ? null : stored.skyHues();
 		}
 		this.cacheValid[slot] = true;
 		this.lastSlot = slot;

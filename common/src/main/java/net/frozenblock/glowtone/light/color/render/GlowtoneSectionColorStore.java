@@ -17,53 +17,37 @@
 
 package net.frozenblock.glowtone.light.color.render;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.SectionPos;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 @ClientOnly
 public final class GlowtoneSectionColorStore {
-	private static final Map<Long, short[]> COLORS = new ConcurrentHashMap<>();
-	private static final Map<Long, short[]> SKY_HUES = new ConcurrentHashMap<>();
+	public record Colors(short @Nullable [] levels, short @Nullable [] skyHues) {}
 
-	private GlowtoneSectionColorStore() {}
+	private static final Map<Long, Colors> SECTIONS = new ConcurrentHashMap<>();
 
-	public static void publish(long section, short @Nullable [] colors, short @Nullable [] skyHues) {
-		store(COLORS, section, colors);
-		store(SKY_HUES, section, skyHues);
-	}
-
-	private static void store(Map<Long, short[]> into, long section, short @Nullable [] payload) {
-		if (payload == null) {
-			into.remove(section);
-		} else {
-			into.put(section, payload);
+	public static void publish(long section, short @Nullable [] levels, short @Nullable [] skyHues) {
+		if (levels == null && skyHues == null) {
+			SECTIONS.remove(section);
+			return;
 		}
+		SECTIONS.put(section, new Colors(levels, skyHues));
 	}
 
-	public static short @Nullable [] colors(long section) {
-		return COLORS.get(section);
-	}
-
-	public static short @Nullable [] skyHues(long section) {
-		return SKY_HUES.get(section);
-	}
-
-	public static boolean isEmpty() {
-		return COLORS.isEmpty() && SKY_HUES.isEmpty();
+	public static @Nullable Colors colors(long section) {
+		return SECTIONS.get(section);
 	}
 
 	public static void remove(int sectionX, int sectionY, int sectionZ) {
-		final long section = SectionPos.asLong(sectionX, sectionY, sectionZ);
-		COLORS.remove(section);
-		SKY_HUES.remove(section);
+		SECTIONS.remove(SectionPos.asLong(sectionX, sectionY, sectionZ));
 	}
 
 	public static void clear() {
-		COLORS.clear();
-		SKY_HUES.clear();
+		SECTIONS.clear();
 	}
+
+	private GlowtoneSectionColorStore() {}
 }

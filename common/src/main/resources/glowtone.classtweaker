@@ -6,6 +6,8 @@ accessible method net/minecraft/client/resources/model/cuboid/ItemModelGenerator
 
 # Light
 accessible method net/minecraft/world/level/lighting/LightEngine isEmptyShape (Lnet/minecraft/world/level/block/state/BlockState;)Z
+accessible method net/minecraft/world/level/chunk/DataLayer getIndex (III)I
+accessible method net/minecraft/world/level/chunk/DataLayer getByteIndex (I)I
 
 transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
 transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/light/color/render/impl/GlowtoneChromaTinted
@@ -37,6 +39,11 @@ transitive-inject-interface net/minecraft/client/particle/DustParticle net/froze
 # Rendering
 accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder fragmentShader Ljava/util/Optional;
 accessible field com/mojang/blaze3d/pipeline/RenderPipeline$Builder bindGroupLayouts Ljava/util/Optional;
+accessible field net/minecraft/client/renderer/rendertype/RenderSetup textures Ljava/util/Map;
+accessible class net/minecraft/client/renderer/rendertype/RenderSetup$TextureBinding
+accessible method net/minecraft/client/renderer/rendertype/RenderSetup$TextureBinding <init> (Lnet/minecraft/resources/Identifier;Ljava/util/function/Supplier;)V
+
+transitive-inject-interface net/minecraft/client/renderer/rendertype/RenderType net/frozenblock/glowtone/emissive/entity/impl/GTEmissiveRenderType
 
 # Chunk
 accessible field net/minecraft/client/renderer/chunk/RenderSectionRegion sections [Lnet/minecraft/client/renderer/chunk/SectionCopy;
