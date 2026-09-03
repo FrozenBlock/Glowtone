@@ -115,6 +115,7 @@
     "client.material.TerrainParticleMixin",
     "client.material.VariantSlotsMixin",
     "client.material.VertexConsumerMaterialTargetMixin",
+    "client.material.blaze3d.GlProgramMixin",
     "client.material.blaze3d.GlRenderPassMixin",
     "client.material.blaze3d.VulkanRenderPassMixin",
     "client.material.fabric.AltModelBlockRendererMaterialMixin",

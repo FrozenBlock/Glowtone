@@ -25,6 +25,7 @@ public final class GlowtoneConstants {
 	public static final String PROJECT_ID = "Glowtone";
 	public static final String MOD_ID = "glowtone";
 	public static final String EMISSIVE_SUFFIX = "_glowtone_emissive";
+	public static final boolean LOG_GLOWTONE_MATERIAL_TEX_WARNINGS = false;
 
 	public static Identifier withEmissiveSuffix(Identifier location) {
 		final String path = location.getPath();

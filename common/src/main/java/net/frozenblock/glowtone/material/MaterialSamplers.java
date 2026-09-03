@@ -34,7 +34,7 @@ import java.util.List;
 @ClientOnly
 public final class MaterialSamplers {
 	public static final int SLOTS = 10;
-	private static final String PREFIX = "GlowtoneMaterialTex";
+	public static final String PREFIX = "GlowtoneMaterialTex";
 
 	public static final BindGroupLayout LAYOUT = layout();
 
