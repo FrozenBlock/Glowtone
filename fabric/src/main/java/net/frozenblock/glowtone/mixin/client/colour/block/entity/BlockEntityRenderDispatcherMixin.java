@@ -15,29 +15,35 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.entity;
+package net.frozenblock.glowtone.mixin.client.colour.block.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(BlockEntityRenderState.class)
-public class BlockEntityRenderStateMixin {
+@Mixin(BlockEntityRenderDispatcher.class)
+public class BlockEntityRenderDispatcherMixin {
 
-	@Inject(method = "extractBase", at = @At("TAIL"))
-	private static void glowtone$captureBlockLightTint(
-		BlockEntity blockEntity,
-		BlockEntityRenderState state,
-		ModelFeatureRenderer.CrumblingOverlay breakProgress,
-		CallbackInfo info
+	@Inject(method = "submit", at = @At("HEAD"))
+	private <S extends BlockEntityRenderState> void glowtone$pushTint(
+		S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo info
 	) {
-		state.glowtone$setBlockLightTint(ChromaFold.resolveBlockEntityBlockTint(state.blockPos, state.lightCoords));
+		ChromaFold.pushSubmitTint(state.glowtone$blockLightTint());
+	}
+
+	@Inject(method = "submit", at = @At("RETURN"))
+	private <S extends BlockEntityRenderState> void glowtone$popTint(
+		S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo info
+	) {
+		ChromaFold.popSubmitTint();
 	}
 }

@@ -15,38 +15,29 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.block;
+package net.frozenblock.glowtone.mixin.client.colour.feature;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(BlockModelFeatureRenderer.Submit.class)
-public class BlockModelFeatureRendererSubmitMixin implements BlockLightTinted {
-	@Unique
-	private int glowtone$blockLightTint;
-
-	@Unique
-	@Override
-	public int glowtone$blockLightTint() {
-		return this.glowtone$blockLightTint;
-	}
-
-	@Unique
-	@Override
-	public void glowtone$setBlockLightTint(int tint) {
-		this.glowtone$blockLightTint = tint;
-	}
+@Mixin({
+	BlockModelFeatureRenderer.Submit.class,
+	ModelFeatureRenderer.Submit.class,
+	ItemFeatureRenderer.Submit.class
+})
+public class BlockLightTintedSubmitMixin {
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void glowtone$captureBlockLightTint(CallbackInfo info) {
-		this.glowtone$blockLightTint = ChromaFold.currentExtractTint();
+		((BlockLightTinted) this).glowtone$setBlockLightTint(ChromaFold.currentSubmitTint());
 	}
 }

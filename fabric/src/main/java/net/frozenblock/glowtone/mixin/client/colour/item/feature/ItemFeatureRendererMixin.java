@@ -15,38 +15,27 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.item;
+package net.frozenblock.glowtone.mixin.client.colour.item.feature;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(ItemFeatureRenderer.Submit.class)
-public class ItemFeatureRendererSubmitMixin implements BlockLightTinted {
-	@Unique
-	private int glowtone$blockLightTint;
+@Mixin(ItemFeatureRenderer.class)
+public class ItemFeatureRendererMixin {
 
-	@Unique
-	@Override
-	public int glowtone$blockLightTint() {
-		return this.glowtone$blockLightTint;
+	@Inject(method = "prepareSubmit", at = @At("HEAD"))
+	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, boolean foil, CallbackInfo info) {
+		ChromaFold.beginModelQuads(submit.glowtone$blockLightTint());
 	}
 
-	@Unique
-	@Override
-	public void glowtone$setBlockLightTint(int tint) {
-		this.glowtone$blockLightTint = tint;
-	}
-
-	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$captureBlockLightTint(CallbackInfo info) {
-		this.glowtone$blockLightTint = ChromaFold.currentExtractTint();
+	@Inject(method = "prepareSubmit", at = @At("RETURN"))
+	private void glowtone$endItemQuads(CallbackInfo info) {
+		ChromaFold.endModelQuads();
 	}
 }

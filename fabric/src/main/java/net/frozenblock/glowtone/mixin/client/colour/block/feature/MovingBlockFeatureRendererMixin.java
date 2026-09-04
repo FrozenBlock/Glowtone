@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.block;
+package net.frozenblock.glowtone.mixin.client.colour.block.feature;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;

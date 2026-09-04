@@ -309,7 +309,7 @@ public final class ChromaFold {
 		ColorProbe.get().invalidate();
 	}
 
-	public static int currentExtractTint() {
+	public static int currentSubmitTint() {
 		return tintDepth == 0 ? NO_TINT : tintStack[tintDepth - 1];
 	}
 

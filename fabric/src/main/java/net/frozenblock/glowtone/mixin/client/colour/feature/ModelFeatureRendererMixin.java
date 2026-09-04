@@ -15,29 +15,34 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.item;
+package net.frozenblock.glowtone.mixin.client.colour.feature;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(ItemFeatureRenderer.class)
-public class ItemFeatureRendererMixin {
+@Mixin(ModelFeatureRenderer.class)
+public class ModelFeatureRendererMixin {
 
-	@Inject(method = "prepareMainSubmit", at = @At("HEAD"))
-	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
-		ChromaFold.beginModelQuads(submit.glowtone$blockLightTint());
+	@Inject(
+		method = "prepareModel",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/model/Model;setupAnim(Ljava/lang/Object;)V"
+		)
+	)
+	private <S> void glowtone$beginModelQuads(ModelFeatureRenderer.Submit<S> submit, CallbackInfo info) {
+		if ((Object) submit instanceof BlockLightTinted blockLightTinted) ChromaFold.beginModelQuads(blockLightTinted.glowtone$blockLightTint());
 	}
 
-	@Inject(method = "prepareMainSubmit", at = @At("RETURN"))
-	private void glowtone$endItemQuads(CallbackInfo info) {
+	@Inject(method = "prepareModel", at = @At("RETURN"))
+	private void glowtone$endModelQuads(CallbackInfo info) {
 		ChromaFold.endModelQuads();
 	}
 }

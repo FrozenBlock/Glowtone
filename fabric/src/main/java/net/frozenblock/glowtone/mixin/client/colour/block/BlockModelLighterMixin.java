@@ -36,7 +36,7 @@ import net.minecraft.client.renderer.block.BlockModelLighter;
 public class BlockModelLighterMixin {
 
 	@Inject(method = "prepareQuadFlat", at = @At("TAIL"))
-	private void glowtone$pinFlatQuadColour(
+	private void glowtone$pinFlatQuadColor(
 		BlockAndTintGetter level,
 		BlockState state,
 		BlockPos pos,

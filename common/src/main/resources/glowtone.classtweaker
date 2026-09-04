@@ -12,6 +12,7 @@ accessible method net/minecraft/world/level/chunk/DataLayer getByteIndex (I)I
 transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
 transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
 transitive-inject-interface net/minecraft/client/renderer/feature/BlockModelFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
+transitive-inject-interface net/minecraft/client/renderer/feature/ModelFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
 transitive-inject-interface net/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
 
 # Animated Sprite
