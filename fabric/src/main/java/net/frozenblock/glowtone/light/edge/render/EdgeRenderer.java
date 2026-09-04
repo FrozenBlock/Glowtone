@@ -23,10 +23,8 @@ import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
@@ -41,7 +39,7 @@ import net.fabricmc.api.Environment;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
-import net.minecraft.client.Minecraft;
+import net.frozenblock.glowtone.render.SceneDepth;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
@@ -52,8 +50,6 @@ public final class EdgeRenderer {
 		.putVec2().putFloat().putFloat().putFloat().putFloat().putFloat().putFloat().putFloat().get();
 	private static final float THRESHOLD = 0.02F;
 	private static final float REFERENCE_HEIGHT = 1080F;
-	private static final float NEAR = 0.05F;
-	private static final float MIN_FAR = 64F;
 
 	private static final BindGroupLayout EDGE_BIND_GROUP = BindGroupLayout.builder()
 		.withSampler("DepthSampler")
@@ -90,10 +86,7 @@ public final class EdgeRenderer {
 		final float strength = EdgeHighlightOption.strength() * GlowtonePackSettings.highlightStrength();
 		if (strength <= 0F) return;
 
-		final Minecraft minecraft = Minecraft.getInstance();
-		final float far = Math.max(minecraft.options.getEffectiveRenderDistance() * 16F, MIN_FAR);
-
-		updateUniform(mainTarget.width, mainTarget.height, strength, NEAR, far);
+		updateUniform(mainTarget.width, mainTarget.height, strength, SceneDepth.NEAR, SceneDepth.far());
 		if (uniform == null) return;
 
 		final CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
@@ -146,15 +139,10 @@ public final class EdgeRenderer {
 				.putFloat(far)
 				.putFloat(distance)
 				.putFloat(THRESHOLD)
-				.putFloat(reversedDepth() ? 1F : 0F)
+				.putFloat(SceneDepth.reversed() ? 1F : 0F)
 				.get();
 			uniform = RenderSystem.getDevice().createBuffer(() -> "Glowtone edge highlight", GpuBuffer.USAGE_UNIFORM, data);
 		}
-	}
-
-	private static boolean reversedDepth() {
-		final CompareOp test = DepthStencilState.DEFAULT.depthTest();
-		return test == CompareOp.GREATER_THAN || test == CompareOp.GREATER_THAN_OR_EQUAL;
 	}
 
 	public static void free() {

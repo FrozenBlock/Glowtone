@@ -58,7 +58,7 @@ public class DefaultChunkRendererMixin {
 		Operation<RenderPass> original
 	) {
 		final RenderPass emissivePass = GlowtoneBloomRenderer.createEmissiveRenderPass(
-			encoder, label, colorTexture, clearColor, depthTexture, clearDepth);
+			encoder, label, colorTexture, clearColor, depthTexture, clearDepth, true);
 		return emissivePass != null
 			? emissivePass
 			: original.call(encoder, label, colorTexture, clearColor, depthTexture, clearDepth);
