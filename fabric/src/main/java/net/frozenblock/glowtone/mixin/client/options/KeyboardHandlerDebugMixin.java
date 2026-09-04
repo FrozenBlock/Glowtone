@@ -19,6 +19,7 @@ package net.frozenblock.glowtone.mixin.client.options;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
+import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
@@ -47,6 +48,9 @@ public class KeyboardHandlerDebugMixin {
 	@Unique
 	private static final int GLOWTONE_EDGES_KEY = GLFW.GLFW_KEY_E;
 
+	@Unique
+	private static final int GLOWTONE_EMISSIVE_KEY = GLFW.GLFW_KEY_B;
+
 	@Inject(method = "handleDebugKeys", at = @At("RETURN"), require = 0)
 	private void glowtone$debugHelp(KeyEvent event, CallbackInfoReturnable<Boolean> info) {
 		if (event.key() != GLFW.GLFW_KEY_Q || !info.getReturnValueZ()) return;
@@ -56,6 +60,7 @@ public class KeyboardHandlerDebugMixin {
 
 		minecraft.showDebugChat(Component.translatable("glowtone.debug.ambient_occlusion.help"));
 		minecraft.showDebugChat(Component.translatable("glowtone.debug.edge_highlight.help"));
+		minecraft.showDebugChat(Component.translatable("glowtone.debug.emissive_buffer.help"));
 	}
 
 	@Inject(
@@ -81,6 +86,9 @@ public class KeyboardHandlerDebugMixin {
 		} else if (event.key() == GLOWTONE_EDGES_KEY) {
 			view = "glowtone.debug.edge_highlight.";
 			on = EmissiveShaderPatcher.toggleEdgeDebugColour();
+		} else if (event.key() == GLOWTONE_EMISSIVE_KEY) {
+			view = "glowtone.debug.emissive_buffer.";
+			on = GlowtoneBloomRenderer.toggleBufferDebug();
 		} else {
 			return;
 		}

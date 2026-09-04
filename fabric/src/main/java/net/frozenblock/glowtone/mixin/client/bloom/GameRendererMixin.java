@@ -50,7 +50,6 @@ public class GameRendererMixin {
 		GlowtoneBloomRenderer.render(this.mainRenderTarget);
 	}
 
-	/** The next call clears depth for the held item. */
 	@Inject(
 		method = "renderLevel",
 		at = @At(
@@ -58,7 +57,8 @@ public class GameRendererMixin {
 			target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearDepthTexture(Lcom/mojang/blaze3d/textures/GpuTexture;D)V"
 		)
 	)
-	private void glowtone$screenSpaceEdges(CallbackInfo info) {
+	private void glowtone$readWorldDepth(CallbackInfo info) {
 		EdgeRenderer.render(this.mainRenderTarget);
+		GlowtoneBloomRenderer.captureDepth(this.mainRenderTarget);
 	}
 }

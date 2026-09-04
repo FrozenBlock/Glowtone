@@ -54,7 +54,7 @@ public class EntityRendererLightMixin {
 		final int dynamic = Math.max(GlowtoneDynamicLights.get().luminanceOf(entity), GlowtoneDynamicLights.get().dynamicLightLevelAt(blockPos));
 		final int ambient = Math.max(entity.level().getBrightness(LightLayer.BLOCK, blockPos), dynamic);
 
-		selfLit.set(entity.isOnFire() || blockLight > ambient);
+		selfLit.set(!entity.isOnFire() && blockLight > ambient);
 		return blockLight;
 	}
 

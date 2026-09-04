@@ -17,7 +17,11 @@
 
 package net.frozenblock.glowtone.config;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.mixin.client.options.DebugScreenEntriesInvoker;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -33,18 +37,19 @@ import org.jspecify.annotations.Nullable;
 public final class GlowtoneDebugEntries {
 	public static final Identifier EDGE_HIGHLIGHT = GlowtoneConstants.id("edge_highlight");
 	public static final Identifier AMBIENT_OCCLUSION = GlowtoneConstants.id("ambient_occlusion");
+	public static final Identifier EMISSIVE_BUFFER = GlowtoneConstants.id("emissive_buffer");
+	private static final List<Identifier> ENTRIES = List.of(EDGE_HIGHLIGHT, AMBIENT_OCCLUSION, EMISSIVE_BUFFER);
+	private static final Set<Identifier> NEEDS_RELOAD = Set.of(EDGE_HIGHLIGHT, AMBIENT_OCCLUSION);
+	private static final Set<Identifier> ENABLED = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private static boolean registered;
 	private static boolean settingOurselves;
-	private static volatile boolean occlusionOn;
-	private static volatile boolean edgeOn;
 
 	public static synchronized void register() {
 		if (registered) return;
 		registered = true;
 
 		try {
-			DebugScreenEntriesInvoker.glowtone$register(EDGE_HIGHLIGHT, new DebugEntryNoop());
-			DebugScreenEntriesInvoker.glowtone$register(AMBIENT_OCCLUSION, new DebugEntryNoop());
+			for (Identifier entry : ENTRIES) DebugScreenEntriesInvoker.glowtone$register(entry, new DebugEntryNoop());
 			seedProfiles();
 		} catch (Throwable failure) {
 			registered = false;
@@ -54,8 +59,7 @@ public final class GlowtoneDebugEntries {
 	private static void seedProfiles() {
 		for (Map<Identifier, DebugScreenEntryStatus> profile : DebugScreenEntries.PROFILES.values()) {
 			try {
-				profile.putIfAbsent(AMBIENT_OCCLUSION, DebugScreenEntryStatus.NEVER);
-				profile.putIfAbsent(EDGE_HIGHLIGHT, DebugScreenEntryStatus.NEVER);
+				for (Identifier entry : ENTRIES) profile.putIfAbsent(entry, DebugScreenEntryStatus.NEVER);
 			} catch (UnsupportedOperationException immutable) {
 				return;
 			}
@@ -69,23 +73,23 @@ public final class GlowtoneDebugEntries {
 	}
 
 	public static boolean enabled(Identifier id) {
-		return AMBIENT_OCCLUSION.equals(id) ? occlusionOn : edgeOn;
+		return ENABLED.contains(id);
 	}
 
 	public static boolean toggle(Identifier id) {
 		final boolean next = !enabled(id);
 		set(id, next);
 		mirror(id, next);
-		GlowtoneReload.request();
+		if (NEEDS_RELOAD.contains(id)) GlowtoneReload.request();
 
 		return next;
 	}
 
 	private static void set(Identifier id, boolean on) {
-		if (AMBIENT_OCCLUSION.equals(id)) {
-			occlusionOn = on;
+		if (on) {
+			ENABLED.add(id);
 		} else {
-			edgeOn = on;
+			ENABLED.remove(id);
 		}
 	}
 
@@ -105,7 +109,7 @@ public final class GlowtoneDebugEntries {
 
 	public static void statusChanged(Identifier id) {
 		if (settingOurselves || !registered) return;
-		if (!AMBIENT_OCCLUSION.equals(id) && !EDGE_HIGHLIGHT.equals(id)) return;
+		if (!ENTRIES.contains(id)) return;
 
 		final DebugScreenEntryList entries = list();
 		if (entries == null) return;
@@ -114,7 +118,7 @@ public final class GlowtoneDebugEntries {
 		if (now == enabled(id)) return;
 
 		set(id, now);
-		GlowtoneReload.request();
+		if (NEEDS_RELOAD.contains(id)) GlowtoneReload.request();
 	}
 
 	private GlowtoneDebugEntries() {}
