@@ -25,6 +25,7 @@
     "client.bloom.PreparedRenderTypeMixin",
     "client.bloom.QuadParticleFeatureRendererMixin",
     "client.bloom.ShaderManagerMixin",
+    "client.bloom.ShaderManagerPrepareMixin",
     "client.bloom.SingleQuadParticleMixin",
     "client.bloom.SkyRendererMixin",
     "client.bloom.VertexConsumerMixin",

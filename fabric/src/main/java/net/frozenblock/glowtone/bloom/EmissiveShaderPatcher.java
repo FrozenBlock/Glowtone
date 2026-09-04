@@ -22,6 +22,7 @@ import java.util.Set;
 import com.mojang.logging.LogUtils;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
+import net.frozenblock.glowtone.material.MaterialBlockTextures;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.frozenblock.glowtone.material.MaterialShaderPatcher;
 import net.frozenblock.glowtone.config.GlowtoneShaderDump;
@@ -1061,7 +1062,8 @@ public final class EmissiveShaderPatcher {
 	}
 
 	private static String samplerDeclarations() {
-		return MaterialShaderPatcher.anySamplers() ? MaterialSamplers.declarations() : "";
+		if (!MaterialShaderPatcher.anySamplers()) return "";
+		return MaterialSamplers.declarations() + MaterialBlockTextures.declarations();
 	}
 
 	private static String keepSamplers() {

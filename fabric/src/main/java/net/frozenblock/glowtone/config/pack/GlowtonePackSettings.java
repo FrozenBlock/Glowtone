@@ -227,7 +227,7 @@ public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom
 	static boolean apply(GlowtonePackSettings settings) {
 		final GlowtonePackSettings previous = current;
 		current = settings;
-		return !previous.equals(settings);
+		return !previous.highlight.equals(settings.highlight) || !previous.water.equals(settings.water);
 	}
 
 	public static Style highlightStyle() {

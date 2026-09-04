@@ -21,14 +21,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
-import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.frozenblock.glowtone.material.MaterialLayer;
+import net.frozenblock.glowtone.material.MaterialBlockTextures;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.frozenblock.glowtone.material.MaterialShaderNames;
 import net.frozenblock.glowtone.material.MaterialShaderPatcher;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
@@ -184,6 +185,40 @@ public final class BlockMaterialLoader {
 		return merged;
 	}
 
+	private static void allocateShaders(
+		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides,
+		Definitions definitions,
+		Map<ShaderKey, Integer> shaderIndices,
+		List<MaterialShaderPatcher.Loaded> shaders,
+		List<Identifier> samplerSlots
+	) {
+		final Map<Identifier, BlockMaterial> registry = definitions.materials();
+		overrides.values().stream()
+			.map(assignment -> new ShaderKey(assignment.material(), assignment.parameters()))
+			.distinct()
+			.sorted(Comparator.comparing(ShaderKey::sortOrder))
+			.forEach(key -> {
+				final BlockMaterial material = registry.get(key.material());
+				if (material == null || material.isNone()) return;
+
+				shaderIndices.computeIfAbsent(
+					key, entry -> allocateShader(entry, material, definitions.shaderSources(), shaders, samplerSlots)
+				);
+			});
+	}
+
+	public static void applyShaderSource(
+		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, Definitions definitions
+	) {
+		final List<MaterialShaderPatcher.Loaded> shaders = new ArrayList<>();
+		final List<Identifier> samplerSlots = new ArrayList<>();
+		allocateShaders(overrides, definitions, new HashMap<>(), shaders, samplerSlots);
+
+		MaterialBlockTextures.apply(shaders.stream().flatMap(loaded -> loaded.blockTextures().stream()).toList());
+		MaterialSamplers.apply(samplerSlots);
+		MaterialShaderPatcher.apply(shaders);
+	}
+
 	public static void apply(Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, Definitions definitions) {
 		final Map<Identifier, BlockMaterial> registry = definitions.materials();
 		BuiltInRegistries.BLOCK.forEach(block -> block.frozenLib$removeAttached(BlockMaterial.ATTACHMENT_KEY));
@@ -201,18 +236,7 @@ public final class BlockMaterialLoader {
 		boolean blockEntity = false;
 		boolean targets = false;
 
-		overrides.values().stream()
-			.map(assignment -> new ShaderKey(assignment.material(), assignment.parameters()))
-			.distinct()
-			.sorted(Comparator.comparing(ShaderKey::sortOrder))
-			.forEach(key -> {
-				final BlockMaterial material = registry.get(key.material());
-				if (material == null || material.isNone()) return;
-
-				shaderIndices.computeIfAbsent(
-					key, entry -> allocateShader(entry, material, definitions.shaderSources(), shaders, samplerSlots)
-				);
-			});
+		allocateShaders(overrides, definitions, shaderIndices, shaders, samplerSlots);
 
 		for (Map.Entry<BlockState, BlockMaterialOverrideDispatcher.Assignment> entry : overrides.entrySet()) {
 			final Identifier materialId = entry.getValue().material();
@@ -252,6 +276,7 @@ public final class BlockMaterialLoader {
 		BlockMaterialRenderer.setAssignedByIndex(byIndex);
 
 		final String previousShaderSource = MaterialShaderPatcher.generateFunctions(true);
+		MaterialBlockTextures.apply(shaders.stream().flatMap(loaded -> loaded.blockTextures().stream()).toList());
 		MaterialSamplers.apply(samplerSlots);
 		MaterialShaderPatcher.apply(shaders);
 		if (!previousShaderSource.equals(MaterialShaderPatcher.generateFunctions(true))) GlowtoneReload.request();
@@ -359,22 +384,9 @@ public final class BlockMaterialLoader {
 
 		samplerSlots.addAll(pending);
 		shaders.add(new MaterialShaderPatcher.Loaded(
-			materialId, shader, fragmentSource, vertexSource, slots, blockTexturesFor(materialId, shader)
+			materialId, shader, fragmentSource, vertexSource, slots, List.copyOf(shader.blockTextures())
 		));
 		return shaders.size();
-	}
-
-	private static Map<String, BlockTextureSlots.Slot> blockTexturesFor(Identifier materialId, MaterialShader shader) {
-		if (shader.blockTextures().isEmpty()) return Map.of();
-
-		final Map<String, BlockTextureSlots.Slot> resolved = BlockTextureSlots.resolve(shader.blockTextures());
-		if (resolved == null) {
-			LOGGER.error("Block material {} wants block textures {} but no block model declares them all",
-				materialId, shader.blockTextures());
-			return Map.of();
-		}
-
-		return resolved;
 	}
 
 	private static boolean namesAreLegal(Identifier materialId, MaterialShader shader) {

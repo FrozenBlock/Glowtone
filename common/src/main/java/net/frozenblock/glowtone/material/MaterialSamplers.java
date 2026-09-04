@@ -82,11 +82,8 @@ public final class MaterialSamplers {
 		final GpuTextureView[] views = resolve();
 		if (views == null) return;
 
-		final int used = Math.min(textures.size(), SLOTS);
-		if (used == 0) return;
-
 		final GpuSampler sampler = RenderSystem.getSamplerCache().getRepeat(FilterMode.NEAREST);
-		for (int slot = 0; slot < used; slot++) pass.bindTexture(name(slot), views[slot], sampler);
+		for (int slot = 0; slot < SLOTS; slot++) pass.bindTexture(name(slot), views[slot], sampler);
 	}
 
 	@Nullable

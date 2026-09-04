@@ -22,6 +22,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
+import net.frozenblock.glowtone.material.MaterialBlockTextures;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.resources.Identifier;
@@ -48,6 +49,7 @@ public abstract class RenderPipelinesMixin {
 		final Optional<Identifier> fragment = instance.fragmentShader;
 		if (fragment != null && fragment.isPresent() && EmissiveShaderPatcher.usesMaterialSamplers(fragment.get())) {
 			instance.withBindGroupLayout(MaterialSamplers.LAYOUT);
+			instance.withBindGroupLayout(MaterialBlockTextures.LAYOUT);
 			final Optional<List<BindGroupLayout>> layouts = instance.bindGroupLayouts;
 			if (layouts == null || layouts.isEmpty() || !layouts.get().contains(BindGroupLayouts.GLOBALS)) {
 				instance.withBindGroupLayout(BindGroupLayouts.GLOBALS);

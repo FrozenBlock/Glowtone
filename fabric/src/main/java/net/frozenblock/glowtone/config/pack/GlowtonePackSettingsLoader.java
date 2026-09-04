@@ -50,6 +50,10 @@ public final class GlowtonePackSettingsLoader implements PreparableReloadListene
 	private static final String BLOOM = "bloom";
 	private static final Set<String> SECTIONS = Set.of(HIGHLIGHT, WATER, BLOOM);
 
+	public static void applyFrom(ResourceManager manager) {
+		GlowtonePackSettings.apply(load(manager));
+	}
+
 	@Override
 	public CompletableFuture<Void> reload(
 		SharedState currentReload, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor

@@ -32,7 +32,6 @@ public final class GlowtoneReload {
 		});
 	}
 
-	// TODO: remove this.
 	public static boolean request() {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null || minecraft.getResourceManager() == null) return false;

@@ -18,7 +18,6 @@
 package net.frozenblock.glowtone.material;
 
 import net.frozenblock.glowtone.material.data.MaterialShader;
-import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
@@ -110,7 +109,7 @@ public final class MaterialShaderPatcher {
 		final StringBuilder text = new StringBuilder();
 		entry.shader().parameters().keySet().stream().sorted()
 			.forEach(name -> text.append(", float ").append(name));
-		entry.blockTextures().keySet().stream().sorted()
+		entry.blockTextures().stream().sorted()
 			.forEach(name -> text.append(", vec4 ").append(name));
 
 		return text.toString();
@@ -121,13 +120,14 @@ public final class MaterialShaderPatcher {
 		entry.shader().parameters().entrySet().stream()
 			.sorted(Map.Entry.comparingByKey())
 			.forEach(parameter -> text.append(", float(").append(parameter.getValue()).append(')'));
-		entry.blockTextures().entrySet().stream()
-			.sorted(Map.Entry.comparingByKey())
-			.forEach(texture -> {
-				final BlockTextureSlots.Slot slot = texture.getValue();
-				text.append(", vec4(").append(slot.u0()).append(", ").append(slot.u1())
-					.append(", ").append(slot.v0()).append(", ").append(slot.v1()).append(')');
-			});
+		entry.blockTextures().stream().sorted().forEach(name -> {
+			final int index = MaterialBlockTextures.indexOf(name);
+			if (index < 0) {
+				text.append(", vec4(0.0)");
+			} else {
+				text.append(", ").append(MaterialBlockTextures.ARRAY).append('[').append(index).append(']');
+			}
+		});
 
 		return text.toString();
 	}
@@ -148,7 +148,7 @@ public final class MaterialShaderPatcher {
 		final StringBuilder key = new StringBuilder(source);
 		key.append(' ').append(String.join(",", entry.slots().keySet())).append(' ');
 		key.append(String.join(",", entry.shader().parameters().keySet().stream().sorted().toList())).append(' ');
-		key.append(String.join(",", entry.blockTextures().keySet().stream().sorted().toList())).append(' ');
+		key.append(String.join(",", entry.blockTextures().stream().sorted().toList())).append(' ');
 		entry.shader().constants().entrySet().stream()
 			.sorted(Map.Entry.comparingByKey())
 			.forEach(constant -> key.append(constant.getKey()).append('=').append(constant.getValue()).append(';'));
@@ -290,13 +290,13 @@ public final class MaterialShaderPatcher {
 		@Nullable String fragmentSource,
 		@Nullable String vertexSource,
 		Map<String, Integer> slots,
-		Map<String, BlockTextureSlots.Slot> blockTextures
+		List<String> blockTextures
 	) {
 		public Loaded(
 			Identifier materialId, MaterialShader shader,
 			@Nullable String fragmentSource, @Nullable String vertexSource, Map<String, Integer> slots
 		) {
-			this(materialId, shader, fragmentSource, vertexSource, slots, Map.of());
+			this(materialId, shader, fragmentSource, vertexSource, slots, List.of());
 		}
 	}
 
