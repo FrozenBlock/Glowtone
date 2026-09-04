@@ -48,7 +48,6 @@ public final class ChromaFold {
 	private static int blockTint = NO_TINT;
 	private static int movingBlockTint = NO_TINT;
 	private static int modelTint = NO_TINT;
-	private static int itemTint = NO_TINT;
 
 	public static int resolveEntityBlockTint(double x, double y, double z, float eyeHeight, int lightCoords) {
 		final ColorProbe probe = ColorProbe.get();
@@ -296,37 +295,22 @@ public final class ChromaFold {
 		return minecraft.gameRenderer.gameRenderState().lightmapRenderState;
 	}
 
-	public static void pushTint(int tint) {
+	public static void pushSubmitTint(int tint) {
 		if (tintDepth == tintStack.length) tintStack = Arrays.copyOf(tintStack, tintDepth * 2);
 		tintStack[tintDepth++] = tint;
 	}
 
-	public static void popTint() {
+	public static void popSubmitTint() {
 		if (tintDepth > 0) tintDepth--;
 	}
 
 	public static void resetScopes() {
 		tintDepth = 0;
-		itemTint = NO_TINT;
 		ColorProbe.get().invalidate();
 	}
 
-	public static int currentTint() {
+	public static int currentExtractTint() {
 		return tintDepth == 0 ? NO_TINT : tintStack[tintDepth - 1];
-	}
-
-	public static int tintModelColor(int submittedColor, RenderType renderType) {
-		final int tint = currentTint();
-		if (tint == NO_TINT || !liesUnderLightmap(renderType)) return submittedColor;
-		return ARGB.multiply(submittedColor, tint);
-	}
-
-	public static void beginItemQuads(int tint, int lightCoords) {
-		itemTint = lightCoords == LightCoordsUtil.FULL_BRIGHT ? NO_TINT : tint;
-	}
-
-	public static void endItemQuads() {
-		itemTint = NO_TINT;
 	}
 
 	public static void beginBlockQuads(int tint, int lightCoords, RenderType renderType) {
@@ -373,10 +357,6 @@ public final class ChromaFold {
 
 	public static int modelTintColor() {
 		return modelTint;
-	}
-
-	public static int tintItemColor(int quadColor) {
-		return itemTint == NO_TINT ? quadColor : ARGB.multiply(quadColor, itemTint);
 	}
 
 	public static int tintParticleColor(int color, int lightCoords, double x, double y, double z) {

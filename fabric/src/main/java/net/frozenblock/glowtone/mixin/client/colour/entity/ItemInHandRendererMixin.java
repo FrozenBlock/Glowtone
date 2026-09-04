@@ -62,6 +62,6 @@ public class ItemInHandRendererMixin {
 
 	@Inject(method = "submitHandsWithItems", at = @At("RETURN"))
 	private void glowtone$popHandTint(CallbackInfo info) {
-		ChromaFold.popTint();
+		ChromaFold.popSubmitTint();
 	}
 }

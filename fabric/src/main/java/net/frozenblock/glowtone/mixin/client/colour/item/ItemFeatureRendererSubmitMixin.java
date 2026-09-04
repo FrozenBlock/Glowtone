@@ -15,12 +15,12 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.block;
+package net.frozenblock.glowtone.mixin.client.colour.item;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,8 +28,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(BlockModelFeatureRenderer.Submit.class)
-public class BlockModelFeatureRendererSubmitMixin implements BlockLightTinted {
+@Mixin(ItemFeatureRenderer.Submit.class)
+public class ItemFeatureRendererSubmitMixin implements BlockLightTinted {
 	@Unique
 	private int glowtone$blockLightTint;
 

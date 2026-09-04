@@ -21,20 +21,23 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.entity.SmoothEntityLightingHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.extract.LevelExtractor;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @ClientOnly
-@Mixin(LevelExtractor.class)
-public class LevelExtractorMixin {
+@Mixin(EntityRenderer.class)
+public class EntityRendererMixin {
 
-	@ModifyReturnValue(method = "extractEntity", at = @At("RETURN"))
+	@ModifyReturnValue(
+		method = "createRenderState(Lnet/minecraft/world/entity/Entity;F)Lnet/minecraft/client/renderer/entity/state/EntityRenderState;",
+		at = @At("RETURN")
+	)
 	private EntityRenderState glowtone$resolveEntityTint(
 		EntityRenderState original,
-		Entity entity, float partialTickTime
+		Entity entity, float partialTicks
 	) {
 		original.lightCoords = SmoothEntityLightingHelper.smooth(original.x, original.y + original.eyeHeight * 0.5F, original.z, original.lightCoords);
 		original.glowtone$setBlockLightTint(ChromaFold.resolveEntityBlockTint(original.x, original.y, original.z, original.eyeHeight, original.lightCoords));

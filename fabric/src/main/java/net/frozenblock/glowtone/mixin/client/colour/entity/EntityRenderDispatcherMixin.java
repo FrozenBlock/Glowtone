@@ -17,36 +17,33 @@
 
 package net.frozenblock.glowtone.mixin.client.colour.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(ItemFeatureRenderer.Submit.class)
-public class ItemFeatureRendererSubmitMixin implements BlockLightTinted {
-	@Unique
-	private int glowtone$blockLightTint;
+@Mixin(EntityRenderDispatcher.class)
+public class EntityRenderDispatcherMixin {
 
-	@Unique
-	@Override
-	public int glowtone$blockLightTint() {
-		return this.glowtone$blockLightTint;
+	@Inject(method = "submit", at = @At("HEAD"))
+	private <S extends EntityRenderState> void glowtone$pushTint(
+		S renderState, CameraRenderState camera, double x, double y, double z, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CallbackInfo info
+	) {
+		ChromaFold.pushSubmitTint(renderState.glowtone$blockLightTint());
 	}
 
-	@Unique
-	@Override
-	public void glowtone$setBlockLightTint(int tint) {
-		this.glowtone$blockLightTint = tint;
-	}
-
-	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$captureBlockLightTint(CallbackInfo info) {
-		this.glowtone$blockLightTint = ChromaFold.currentTint();
+	@Inject(method = "submit", at = @At("RETURN"))
+	private <S extends EntityRenderState> void glowtone$popTint(
+		S renderState, CameraRenderState camera, double x, double y, double z, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CallbackInfo info
+	) {
+		ChromaFold.popSubmitTint();
 	}
 }

@@ -45,6 +45,8 @@ public class ShaderManagerMixin {
 	) {
 		final Identifier id = type.idConverter().fileToId(location);
 		source = ColorShaderPatcher.patchTerrainShader(id, type, source);
-		return ColorShaderPatcher.patchEntityShader(id, type, source);
+		source = ColorShaderPatcher.patchEntityShader(id, type, source);
+		source = ColorShaderPatcher.patchItemShader(id, type, source);
+		return source;
 	}
 }

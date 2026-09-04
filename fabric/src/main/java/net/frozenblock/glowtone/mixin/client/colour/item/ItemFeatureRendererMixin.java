@@ -15,9 +15,10 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.entity;
+package net.frozenblock.glowtone.mixin.client.colour.item;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,26 +33,11 @@ public class ItemFeatureRendererMixin {
 
 	@Inject(method = "prepareMainSubmit", at = @At("HEAD"))
 	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
-		ChromaFold.beginItemQuads(submit.glowtone$blockLightTint(), submit.lightCoords());
+		ChromaFold.beginModelQuads(submit.glowtone$blockLightTint());
 	}
 
 	@Inject(method = "prepareMainSubmit", at = @At("RETURN"))
 	private void glowtone$endItemQuads(CallbackInfo info) {
-		ChromaFold.endItemQuads();
-	}
-
-	@ModifyArg(
-		method = "prepareMainSubmit",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/mojang/blaze3d/vertex/QuadInstance;setColor(I)V"
-		),
-		index = 0
-	)
-	private int glowtone$tintItemQuad(int quadColor) {
-		// FIXME
-		return quadColor;
-		// TODO: i swear this can be done via localref
-		//return ChromaFold.tintItemColor(quadColor);
+		ChromaFold.endModelQuads();
 	}
 }
