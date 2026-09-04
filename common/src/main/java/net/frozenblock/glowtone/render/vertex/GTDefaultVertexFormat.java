@@ -34,6 +34,14 @@ public final class GTDefaultVertexFormat {
 	public static final String CONTACT2_SEMANTIC_NAME = "GlowtoneContact2";
 	public static final String CONTACT3_SEMANTIC_NAME = "GlowtoneContact3";
 
+	public static final VertexFormat POSITION_COLOR_LIGHTMAP_TINTED = VertexFormat.builder(0)
+		.addAttribute("Position", GpuFormat.RGB32_FLOAT)
+		.addAttribute("Color", GpuFormat.RGBA8_UNORM)
+		.addAttribute("UV2", GpuFormat.RG16_SINT)
+		.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM)
+		.addAttribute(SKY_CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM)
+		.build();
+
 	public static long POSITION_OFFSET_BLOCK;
 	public static long CHROMA_OFFSET_BLOCK;
 	public static long SKY_CHROMA_OFFSET_BLOCK;
@@ -47,6 +55,9 @@ public final class GTDefaultVertexFormat {
 	public static long POSITION_OFFSET_ENTITY;
 	public static long CHROMA_OFFSET_ENTITY;
 	public static long SKY_CHROMA_OFFSET_ENTITY;
+
+	public static long CHROMA_OFFSET_POSITION_COLOR_LIGHTMAP_TINTED;
+	public static long SKY_CHROMA_OFFSET_POSITION_COLOR_LIGHTMAP_TINTED;
 
 	public static VertexFormat.Builder appendBlockAttributes(VertexFormat.Builder builder) {
 		builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
@@ -82,6 +93,11 @@ public final class GTDefaultVertexFormat {
 		POSITION_OFFSET_ENTITY = format.getElement(DefaultVertexFormat.POSITION_SEMANTIC_NAME).offset();
 		CHROMA_OFFSET_ENTITY = format.getElement(CHROMA_SEMANTIC_NAME).offset();
 		SKY_CHROMA_OFFSET_ENTITY = format.getElement(SKY_CHROMA_SEMANTIC_NAME).offset();
+	}
+
+	static {
+		CHROMA_OFFSET_POSITION_COLOR_LIGHTMAP_TINTED = POSITION_COLOR_LIGHTMAP_TINTED.getElement(CHROMA_SEMANTIC_NAME).offset();
+		SKY_CHROMA_OFFSET_POSITION_COLOR_LIGHTMAP_TINTED = POSITION_COLOR_LIGHTMAP_TINTED.getElement(SKY_CHROMA_SEMANTIC_NAME).offset();
 	}
 
 	private GTDefaultVertexFormat() {}

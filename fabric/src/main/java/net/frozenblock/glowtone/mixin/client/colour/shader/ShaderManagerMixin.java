@@ -47,6 +47,7 @@ public class ShaderManagerMixin {
 		source = ColorShaderPatcher.patchTerrainShader(id, type, source);
 		source = ColorShaderPatcher.patchEntityShader(id, type, source);
 		source = ColorShaderPatcher.patchItemShader(id, type, source);
+		source = ColorShaderPatcher.patchLeashShader(id, type, source);
 		return source;
 	}
 }

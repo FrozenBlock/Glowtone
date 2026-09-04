@@ -26,16 +26,21 @@ public final class ColorShaderPatcher {
 	private static final Identifier TERRAIN_ID = Identifier.withDefaultNamespace("core/terrain");
 	private static final Identifier ENTITY_ID = Identifier.withDefaultNamespace("core/entity");
 	private static final Identifier ITEM_ID = Identifier.withDefaultNamespace("core/item");
+	private static final Identifier LEASH_ID = Identifier.withDefaultNamespace("core/rendertype_leash");
 	private static final String MAIN = "void main()";
 	private static final String UNIFORM = "uniform ";
 	// I've opted to use this as the chroma injection point, as entity uniforms are definition-specific unlike terrain.
 	// As for items... don't know. I just felt like it.
 	private static final String IN_NORMAL = "in vec3 Normal;";
+	// Injection point I chose for leashes!
+	private static final String IN_UV2 = "in ivec2 UV2;";
 	// ONLY used for splitting the source string at the right place.
 	private static final String SET_VERTEX_COLOR_TERRAIN = "vertexColor = Color *";
 	// ONLY used for splitting the source string at the right place.
 	// Use for: entity and item
 	private static final String LIGHTMAP_COLOR_EQUALS = "lightMapColor = ";
+	// ONLY used for splitting the source string at the right place.
+	private static final String SET_VERTEX_COLOR_LEASH = "vertexColor = Color * ColorModulator * ";
 	private static final String SAMPLE_LIGHTMAP = "sample_lightmap(Sampler2, UV2)";
 
 	private static final String IN_GLOWTONE_CHROMA = """
@@ -177,6 +182,44 @@ public final class ColorShaderPatcher {
 		}
 
 		return preItemSource + itemOnlySource;
+	}
+
+	public static String patchLeashShader(Identifier id, ShaderType type, String source) {
+		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
+		// TODO: sodium leash
+		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
+		if (!id.equals(LEASH_ID) || !source.contains(IN_UV2) || !source.contains(SET_VERTEX_COLOR_LEASH)) return source;
+
+		final String preLeashSource = source.substring(0, source.lastIndexOf("#version"));
+		String leashOnlySource = source.substring(source.lastIndexOf("#version"));
+
+		// Glowtone — override of vanilla 26.2 core/rendertype_leash.vsh.
+		// Here we recolor ONLY the block-lightColor half of the lightmap: the sky-lightColor contribution is sampled
+		// separately and left untouched, so daylight stays neutral while block lightColor takes the emitter's color.
+
+		injectChroma: {
+			String preUV2 = leashOnlySource.substring(0, leashOnlySource.indexOf(IN_UV2));
+			preUV2 = preUV2 + IN_GLOWTONE_CHROMA;
+			final String posUV2 = leashOnlySource.substring(leashOnlySource.indexOf(IN_UV2));
+			leashOnlySource = preUV2 + posUV2;
+		}
+
+		patchLightmap: {
+			String preColor = leashOnlySource.substring(0, leashOnlySource.indexOf(SET_VERTEX_COLOR_LEASH));
+			preColor = preColor + SPLIT_LIGHTMAP + DEFINE_GLOWTONE_CHROMA_SCALE;
+
+			String postColor = leashOnlySource.substring(leashOnlySource.indexOf(SET_VERTEX_COLOR_LEASH));
+			patchLightmapSampler: {
+				String postLightmapColorOnly = postColor.substring(0, postColor.indexOf(";"));
+				postLightmapColorOnly = postLightmapColorOnly.replace(SAMPLE_LIGHTMAP, SAMPLE_LIGHTMAP_REPLACEMENT);
+				String postPostLightmapColor = postColor.substring(postColor.indexOf(";"));
+				postColor = postLightmapColorOnly + postPostLightmapColor;
+			}
+
+			leashOnlySource = preColor + postColor;
+		}
+
+		return preLeashSource + leashOnlySource;
 	}
 
 	public static String patchTerrainShader(Identifier id, ShaderType type, String source) {

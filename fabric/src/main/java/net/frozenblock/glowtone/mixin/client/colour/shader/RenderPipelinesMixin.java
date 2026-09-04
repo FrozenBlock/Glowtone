@@ -20,9 +20,12 @@ package net.frozenblock.glowtone.mixin.client.colour.shader;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
+import net.frozenblock.glowtone.render.vertex.GTDefaultVertexFormat;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
@@ -92,5 +95,24 @@ public class RenderPipelinesMixin {
 		instance.withShaderDefine(EmissiveShaderPatcher.SHADED_TERRAIN_DEFINE);
 		instance.withShaderDefine(EmissiveShaderPatcher.TRANSLUCENT_TERRAIN_DEFINE);
 		return original.call(instance);
+	}
+
+	@WrapOperation(
+		method = "<clinit>",
+		at = @At(
+			value = "FIELD",
+			target = "Lcom/mojang/blaze3d/vertex/DefaultVertexFormat;POSITION_COLOR_LIGHTMAP:Lcom/mojang/blaze3d/vertex/VertexFormat;",
+			ordinal = 0,
+			opcode = Opcodes.GETSTATIC
+		),
+		slice = @Slice(
+			from = @At(
+				value = "CONSTANT",
+				args = "stringValue=pipeline/leash"
+			)
+		)
+	)
+	private static VertexFormat glowtone$patchLeash(Operation<VertexFormat> original) {
+		return GTDefaultVertexFormat.POSITION_COLOR_LIGHTMAP_TINTED;
 	}
 }
