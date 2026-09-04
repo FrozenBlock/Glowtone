@@ -94,6 +94,17 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 			});
 	}
 
+	public static void applyShaderSource(ResourceManager manager) {
+		try {
+			BlockMaterialLoader.applyShaderSource(
+				loadOverrides(manager, Runnable::run).join(),
+				BlockMaterialLoader.load(manager, Runnable::run).join()
+			);
+		} catch (Throwable failure) {
+			LOGGER.error("Glowtone failed to read block materials before shaders were built", failure);
+		}
+	}
+
 	@Override
 	public CompletableFuture<Void> reload(SharedState currentReload, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
 		final ResourceManager manager = currentReload.resourceManager();

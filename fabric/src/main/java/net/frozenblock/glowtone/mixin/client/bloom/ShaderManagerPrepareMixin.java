@@ -15,27 +15,26 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.material.blaze3d;
+package net.frozenblock.glowtone.mixin.client.bloom;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.RenderPassBackend;
-import net.frozenblock.glowtone.material.MaterialBlockTextures;
-import net.frozenblock.glowtone.material.MaterialSamplers;
+import net.frozenblock.glowtone.config.pack.GlowtonePackSettingsLoader;
+import net.frozenblock.glowtone.material.data.BlockMaterialOverrideLoader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.renderer.ShaderManager;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @ClientOnly
-@Mixin(targets = "com.mojang.blaze3d.opengl.GlRenderPass")
-public class GlRenderPassMixin {
+@Mixin(value = ShaderManager.class, priority = 990)
+public class ShaderManagerPrepareMixin {
 
-	@Inject(method = "setPipeline", at = @At("RETURN"))
-	private void glowtone$bindMaterialSamplers(RenderPipeline pipeline, CallbackInfo info) {
-		if (!pipeline.getBindGroupLayouts().contains(MaterialSamplers.LAYOUT)) return;
-
-		MaterialSamplers.bind((RenderPassBackend) this);
-		MaterialBlockTextures.bind((RenderPassBackend) this);
+	@Inject(method = "prepare", at = @At("HEAD"))
+	private void glowtone$loadShaderInputs(ResourceManager manager, ProfilerFiller profiler, CallbackInfoReturnable<Object> info) {
+		GlowtonePackSettingsLoader.applyFrom(manager);
+		BlockMaterialOverrideLoader.applyShaderSource(manager);
 	}
 }
