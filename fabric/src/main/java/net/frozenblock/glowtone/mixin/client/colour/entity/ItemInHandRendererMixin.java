@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.item;
+package net.frozenblock.glowtone.mixin.client.colour.entity;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
@@ -37,27 +37,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemInHandRendererMixin {
 
 	@Inject(method = "submitHandsWithItems", at = @At("HEAD"))
-	private void glowtone$smoothHandLight(
+	private void glowtone$smoothAndTintedHandLight(
 		float frameInterp, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer player, int lightCoords, CallbackInfo info,
 		@Local(argsOnly = true, ordinal = 0) LocalIntRef lightCoordsRef
 	) {
 		final Vec3 probe = player.getLightProbePosition(frameInterp);
 		lightCoordsRef.set(SmoothEntityLightingHelper.smooth(probe.x, probe.y, probe.z, lightCoords));
-	}
-
-	@Inject(method = "submitHandsWithItems", at = @At("HEAD"))
-	private void glowtone$pushHandTint(
-		float frameInterp,
-		PoseStack poseStack,
-		SubmitNodeCollector submitNodeCollector,
-		LocalPlayer player,
-		int lightCoords,
-		CallbackInfo info
-	) {
-		final Vec3 probe = player.getLightProbePosition(frameInterp);
-		final int smoothed = SmoothEntityLightingHelper.smooth(probe.x, probe.y, probe.z, lightCoords);
-		// FIXME
-		//ChromaFold.pushTint(ChromaFold.resolveHand(probe.x, probe.y, probe.z, smoothed));
+		ChromaFold.pushSubmitTint(ChromaFold.resolveHand(probe.x, probe.y, probe.z, lightCoordsRef.get()));
 	}
 
 	@Inject(method = "submitHandsWithItems", at = @At("RETURN"))
