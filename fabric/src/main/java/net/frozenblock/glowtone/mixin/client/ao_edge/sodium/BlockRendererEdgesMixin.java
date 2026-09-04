@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.sodium;
+package net.frozenblock.glowtone.mixin.client.ao_edge.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
@@ -39,8 +39,7 @@ public class BlockRendererEdgesMixin {
 
 	@Inject(method = "renderModel", at = @At("HEAD"))
 	private void glowtone$captureModelBoxes(BlockStateModel model, BlockState state, BlockPos pos, BlockPos origin, CallbackInfo info) {
-		SodiumEdges.beginBlock(
-			model, state, ((GlowtoneSodiumContext) this).glowtone$level(), pos);
+		SodiumEdges.beginBlock(model, state, ((GlowtoneSodiumContext) this).glowtone$level(), pos);
 	}
 
 	@Inject(method = "bufferQuad", at = @At("HEAD"))

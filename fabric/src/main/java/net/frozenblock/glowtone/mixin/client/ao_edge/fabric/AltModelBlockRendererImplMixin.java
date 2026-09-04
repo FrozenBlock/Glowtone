@@ -15,46 +15,67 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.fabric;
+package net.frozenblock.glowtone.mixin.client.ao_edge.fabric;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
+import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.AltModelBlockRendererImpl;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
-import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
+import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
 @ClientOnly
-@Mixin(AltModelBlockRendererImpl.class)
-public class AltModelBlockRendererFlatMixin {
+@Mixin(value = AltModelBlockRendererImpl.class, priority = 1001)
+public class AltModelBlockRendererImplMixin {
 	@Shadow
 	private BlockAndTintGetter level;
 
 	@Shadow
 	private BlockPos pos;
 
-	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0)
-	private boolean glowtone$pinFlatQuadColour(boolean original, MutableQuadView quad) {
-		if (!original) return original;
+	@Inject(method = "tesselateBlock", at = @At("HEAD"), require = 0)
+	private void glowtone$captureModelBoxes(
+		QuadEmitter output,
+		float x, float y, float z,
+		BlockAndTintGetter level,
+		BlockPos pos,
+		BlockState blockState,
+		BlockStateModel model,
+		long seed,
+		CallbackInfo info
+	) {
+		final ChromaBaker.SectionState state = ChromaBaker.state();
+		state.setModelFaces(null);
 
-		if (!ChromaBaker.buildingSection()) {
-			for (int vertex = 0; vertex < 4; vertex++) {
-				// FIXME
-				//quad.color(vertex, ChromaFold.tintMovingBlockQuadColor(quad.color(vertex)));
-			}
+		if (!EdgeHighlightOption.enabled()
+			&& !AmbientOcclusionOption.glowtoneActive()
+			&& !GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION)) {
+			return;
 		}
+		if (EdgeNeighbours.isBlockLike(blockState.getOcclusionShape())) return;
+
+		state.setModelFaces(GlowtoneModelBoxes.forState(model, level, pos, blockState, seed));
+	}
+
+	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0)
+	private boolean glowtone$captureNeighbors(boolean original, MutableQuadView quad) {
+		if (!original) return original;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		final boolean highlight = EdgeHighlightOption.enabled() && quad.ambientOcclusion().orElse(true);
@@ -73,29 +94,6 @@ public class AltModelBlockRendererFlatMixin {
 			state.beginQuadEdges();
 		}
 
-		if (!ChromaBlender.isEnabled()) return original;
-		if (ChromaBaker.smoothLightingEnabled() && quad.ambientOcclusion().orElse(true)) return original;
-
-		float x = 0F;
-		float y = 0F;
-		float z = 0F;
-		for (int vertex = 0; vertex < 4; vertex++) {
-			x += quad.x(vertex);
-			y += quad.y(vertex);
-			z += quad.z(vertex);
-		}
-		x *= 0.25F;
-		y *= 0.25F;
-		z *= 0.25F;
-
-		final Direction face = quad.lightFace();
-		if (face != null) {
-			x += face.getStepX() * 0.5F;
-			y += face.getStepY() * 0.5F;
-			z += face.getStepZ() * 0.5F;
-		}
-
-		state.beginFlatQuadLocal(x, y, z);
 		return original;
 	}
 }

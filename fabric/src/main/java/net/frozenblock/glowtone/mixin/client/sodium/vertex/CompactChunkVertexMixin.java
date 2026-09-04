@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.mixin.client.colour.sodium.vertex;
+package net.frozenblock.glowtone.mixin.client.sodium.vertex;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

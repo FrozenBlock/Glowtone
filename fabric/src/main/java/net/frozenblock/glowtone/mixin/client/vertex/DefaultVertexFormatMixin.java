@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.mixin.client.colour.vertex;
+package net.frozenblock.glowtone.mixin.client.vertex;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

@@ -55,6 +55,7 @@ public class MovingBlockFeatureRendererMixin {
 		final BlockPos pos = renderState.blockPos;
 		final int lightCoords = SmoothEntityLightingHelper.worldLightAt(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, LightCoordsUtil.FULL_BRIGHT);
 
+		// TODO: figure out this nonsense
 		ChromaFold.beginMovingBlockQuads(ChromaFold.resolveBlockEntity(pos, lightCoords));
 	}
 

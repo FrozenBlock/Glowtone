@@ -47,35 +47,10 @@ public final class ChromaFold {
 	private static int tintDepth;
 	private static int blockTint = NO_TINT;
 	private static int movingBlockTint = NO_TINT;
-	private static int entityTint = NO_TINT;
+	private static int modelTint = NO_TINT;
 	private static int itemTint = NO_TINT;
 
-	public static int resolveEntity(double x, double y, double z, float eyeHeight, int lightCoords) {
-		final ColorProbe probe = ColorProbe.get();
-		final int blockX = Mth.floor(x);
-		final int blockZ = Mth.floor(z);
-		final int eyeY = Mth.floor(y + eyeHeight);
-
-		final int sky = skyTint(probe, blockX, eyeY, blockZ, lightCoords);
-
-		final float weight = blockLightShare(lightCoords);
-		if (weight <= 0F) return sky;
-
-		long samples = smoothLighting()
-			? sampleTrilinear(probe, x, y + eyeHeight, z)
-			: sampleNearest(probe, blockX, eyeY, blockZ);
-		if (ChromaBlender.isEmpty(samples)) {
-			final int feetBlockY = Mth.floor(y);
-			if (feetBlockY != eyeY) samples = ChromaBlender.add(samples, probe.getPackedLevels(blockX, feetBlockY, blockZ));
-		}
-
-		final int chromaArgb = ChromaBlender.toEntityArgb(samples);
-		final int folded = fold(chromaArgb, weight);
-		final int resolved = combine(folded, sky);
-		return resolved;
-	}
-
-	public static int resolveEntityTint(double x, double y, double z, float eyeHeight, int lightCoords) {
+	public static int resolveEntityBlockTint(double x, double y, double z, float eyeHeight, int lightCoords) {
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = Mth.floor(x);
 		final int blockZ = Mth.floor(z);
@@ -110,7 +85,7 @@ public final class ChromaFold {
 		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), sky);
 	}
 
-	public static int resolveBlockEntityTint(BlockPos pos, int lightCoords) {
+	public static int resolveBlockEntityBlockTint(BlockPos pos, int lightCoords) {
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = pos.getX();
 		final int blockY = pos.getY();
@@ -388,20 +363,16 @@ public final class ChromaFold {
 		return ARGB.multiply(quadColor, blockTint);
 	}
 
-	public static void beginEntityQuads(int tint) {
-		entityTint = tint;
+	public static void beginModelQuads(int tint) {
+		modelTint = tint;
 	}
 
-	public static void endEntityQuads() {
-		entityTint = NO_TINT;
+	public static void endModelQuads() {
+		modelTint = NO_TINT;
 	}
 
-	public static int tintEntityQuadColor(int quadColor) {
-		return entityTint == NO_TINT ? quadColor : ARGB.multiply(quadColor, entityTint);
-	}
-
-	public static int entityTintColor() {
-		return entityTint;
+	public static int modelTintColor() {
+		return modelTint;
 	}
 
 	public static int tintItemColor(int quadColor) {

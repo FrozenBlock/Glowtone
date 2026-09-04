@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.colour.entity;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,24 +29,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
 @Mixin(ItemFeatureRenderer.Submit.class)
-public class ItemFeatureRendererSubmitMixin implements GlowtoneChromaTinted {
+public class ItemFeatureRendererSubmitMixin implements BlockLightTinted {
 	@Unique
-	private int glowtone$chromaTint;
+	private int glowtone$blockLightTint;
 
 	@Unique
 	@Override
-	public int glowtone$chromaTint() {
-		return this.glowtone$chromaTint;
+	public int glowtone$blockLightTint() {
+		return this.glowtone$blockLightTint;
 	}
 
 	@Unique
 	@Override
-	public void glowtone$setChromaTint(int tint) {
-		this.glowtone$chromaTint = tint;
+	public void glowtone$setBlockLightTint(int tint) {
+		this.glowtone$blockLightTint = tint;
 	}
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void glowtone$captureChromaTint(CallbackInfo info) {
-		this.glowtone$chromaTint = ChromaFold.currentTint();
+	private void glowtone$captureBlockLightTint(CallbackInfo info) {
+		this.glowtone$blockLightTint = ChromaFold.currentTint();
 	}
 }

@@ -69,11 +69,8 @@ public class BufferBuilderMixin {
 	}
 
 	@Inject(method = "endLastVertex", at = @At("HEAD"))
-	private void glowtone$writeChromaEntity(CallbackInfo info) {
+	private void glowtone$writeChromaModel(CallbackInfo info) {
 		if (this.format != DefaultVertexFormat.ENTITY || this.vertexPointer == -1L) return;
-
-		final ChromaBaker.SectionState state = ChromaBaker.state();
-		state.rotateFlatPins();
 
 		if (!ChromaBlender.isEnabled()) {
 			glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, ChromaBaker.NEUTRAL_ARGB);
@@ -86,7 +83,7 @@ public class BufferBuilderMixin {
 		final float z = MemoryUtil.memGetFloat(this.vertexPointer + GTDefaultVertexFormat.POSITION_OFFSET_ENTITY + 8L);
 
 		// TODO: EntityState? Or something else?
-		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, ChromaFold.entityTintColor());
+		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, ChromaFold.modelTintColor());
 		// TODO: EntityState? Or something else?
 		glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, ChromaBaker.NEUTRAL_SKY_ARGB);
 		//glowtone$writeARGB(this.vertexPointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, state.sampleSky(x, y, z));

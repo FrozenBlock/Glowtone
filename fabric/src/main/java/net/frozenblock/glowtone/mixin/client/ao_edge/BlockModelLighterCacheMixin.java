@@ -15,36 +15,39 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.ao;
+package net.frozenblock.glowtone.mixin.client.ao_edge;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockModelLighter;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @ClientOnly
-@Mixin(BlockModelLighter.class)
-public class BlockModelLighterMixin {
+@Mixin(BlockModelLighter.Cache.class)
+public class BlockModelLighterCacheMixin {
 
-	@ModifyArg(
-		method = "prepareQuadAmbientOcclusion",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/util/ARGB;gray(F)I"
-		),
-		index = 0,
-		require = 0
-	)
-	private static float glowtone$clampCorner(float occlusion, @Local(argsOnly = true) BlockState state) {
-		final float clamped = Mth.clamp(occlusion, 0F, 1F);
-		if (!AmbientOcclusionOption.vanillaActive()) return clamped;
+	@ModifyReturnValue(method = "getShadeBrightness", at = @At("RETURN"))
+	private float glowtone$scaleVanillaOcclusion(float brightness, @Local(argsOnly = true) BlockState state) {
+		if (AmbientOcclusionOption.vanillaActive()) {
+			return OcclusionStrengthOption.brightness(glowtone$applyCast(brightness, state));
+		}
+		return ChromaBaker.buildingSection() ? 1F : brightness;
+	}
 
-		return OcclusionOverrideHelper.receives(state, true) ? clamped : 1F;
+	@Unique
+	private static float glowtone$applyCast(float brightness, BlockState state) {
+		if (!OcclusionOverrideHelper.any()) return brightness;
+
+		final boolean automatic = brightness < 1F;
+		if (!OcclusionOverrideHelper.casts(state, automatic)) return 1F;
+		return automatic ? brightness : OcclusionOverrideHelper.FULL_OCCLUDER;
 	}
 }

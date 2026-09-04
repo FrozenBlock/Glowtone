@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.sodium;
+package net.frozenblock.glowtone.mixin.client.ao_edge.sodium;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.caffeinemc.mods.sodium.client.model.light.data.LightDataAccess;
@@ -59,9 +59,9 @@ public class SmoothLightPipelineMixin {
 
 	@Inject(method = "applyAmbientLighting", at = @At("HEAD"), require = 0)
 	private void glowtone$scaleSelfOcclusion(
-		float[] out, Direction face, boolean shade, CallbackInfo info
+		float[] brightness, Direction face, boolean shade, CallbackInfo info
 	) {
-		GlowtoneSodiumOcclusion.scaleSelf(out);
+		GlowtoneSodiumOcclusion.scaleSelf(brightness);
 	}
 
 	@ModifyExpressionValue(

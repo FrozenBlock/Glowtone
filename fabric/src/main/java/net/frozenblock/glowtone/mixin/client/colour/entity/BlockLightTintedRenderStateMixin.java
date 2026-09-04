@@ -15,33 +15,34 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.sodium;
+package net.frozenblock.glowtone.mixin.client.colour.entity;
 
-import net.caffeinemc.mods.sodium.client.render.model.AbstractBlockRenderContext;
-import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumContext;
+import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Pseudo;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
-@Pseudo
 @ClientOnly
-@Mixin(AbstractBlockRenderContext.class)
-public class BlockRenderContextMixin implements GlowtoneSodiumContext {
-	@Shadow
-	protected BlockAndTintGetter level;
-	@Shadow
-	protected BlockPos pos;
+@Mixin({
+	EntityRenderState.class,
+	BlockEntityRenderState.class
+})
+public class BlockLightTintedRenderStateMixin implements BlockLightTinted {
+	@Unique
+	private int glowtone$blockLightTint = ChromaFold.NO_TINT;
 
+	@Unique
 	@Override
-	public BlockAndTintGetter glowtone$level() {
-		return this.level;
+	public int glowtone$blockLightTint() {
+		return this.glowtone$blockLightTint;
 	}
 
+	@Unique
 	@Override
-	public BlockPos glowtone$pos() {
-		return this.pos;
+	public void glowtone$setBlockLightTint(int tint) {
+		this.glowtone$blockLightTint = tint;
 	}
 }

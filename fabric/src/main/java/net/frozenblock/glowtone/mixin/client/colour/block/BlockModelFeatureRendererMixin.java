@@ -23,7 +23,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.GlowtoneChromaTinted;
+import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -49,7 +49,7 @@ public class BlockModelFeatureRendererMixin {
 		@Local(name = "submit") BlockModelFeatureRenderer.Submit submit
 	) {
 		ChromaFold.beginBlockQuads(
-			((GlowtoneChromaTinted) (Object) submit).glowtone$chromaTint(),
+			submit.glowtone$blockLightTint(),
 			submit.lightCoords(),
 			submit.renderType()
 		);

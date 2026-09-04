@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.colour.block;
+package net.frozenblock.glowtone.mixin.client.ao_edge;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
 @Mixin(FluidRenderer.class)
-public class FluidRendererEdgesMixin {
+public class FluidRendererMixin {
 
 	@Inject(method = "tesselate", at = @At("HEAD"))
 	private void glowtone$beginFluid(

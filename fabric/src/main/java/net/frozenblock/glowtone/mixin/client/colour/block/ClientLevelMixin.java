@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientLevelMixin {
 
 	@Inject(method = "setBlocksDirty", at = @At("HEAD"))
-	private void glowtone$onColourChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo info) {
+	private void glowtone$onColorChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo info) {
 		if (BlockLightProperties.hasSameColorProperties(newState, oldState)) return;
 
 		final int sectionX = SectionPos.blockToSectionCoord(pos.getX());

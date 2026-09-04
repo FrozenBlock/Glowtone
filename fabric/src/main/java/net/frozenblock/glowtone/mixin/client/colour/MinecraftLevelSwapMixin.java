@@ -29,6 +29,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class MinecraftLevelSwapMixin {
+
+	// TODO: migrate to fabric api or frozenlib events
 	@Inject(method = "setLevel", at = @At("HEAD"))
 	private void glowtone$dropWindowsOnLevelSwap(ClientLevel level, CallbackInfo info) {
 		GlowtoneColorWindowCache.clear();

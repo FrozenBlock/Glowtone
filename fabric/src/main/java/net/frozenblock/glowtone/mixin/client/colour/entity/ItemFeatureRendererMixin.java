@@ -32,7 +32,7 @@ public class ItemFeatureRendererMixin {
 
 	@Inject(method = "prepareMainSubmit", at = @At("HEAD"))
 	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, CallbackInfo info) {
-		ChromaFold.beginItemQuads(submit.glowtone$chromaTint(), submit.lightCoords());
+		ChromaFold.beginItemQuads(submit.glowtone$blockLightTint(), submit.lightCoords());
 	}
 
 	@Inject(method = "prepareMainSubmit", at = @At("RETURN"))

@@ -17,13 +17,16 @@
 
 package net.frozenblock.glowtone.light.color.render.impl;
 
-public interface GlowtoneChromaTinted {
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
-	default int glowtone$chromaTint() {
+@ClientOnly
+public interface BlockLightTinted {
+
+	default int glowtone$blockLightTint() {
 		throw new AssertionError();
 	}
 
-	default void glowtone$setChromaTint(int tint) {
+	default void glowtone$setBlockLightTint(int tint) {
 		throw new AssertionError();
 	}
 }

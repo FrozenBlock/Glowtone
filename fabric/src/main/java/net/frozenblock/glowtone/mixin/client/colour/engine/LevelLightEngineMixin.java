@@ -60,10 +60,10 @@ public class LevelLightEngineMixin {
 
 	@Inject(method = "queueSectionData", at = @At("HEAD"))
 	private void glowtone$invalidateOnLightData(
-		LightLayer layer, SectionPos sectionPos, DataLayer data, CallbackInfo info
+		LightLayer layer, SectionPos pos, DataLayer data, CallbackInfo info
 	) {
 		if (layer != LightLayer.BLOCK || !this.glowtone$isClient()) return;
 
-		GlowtoneColorWindowCache.invalidateAround(sectionPos.x(), sectionPos.y(), sectionPos.z());
+		GlowtoneColorWindowCache.invalidateAround(pos.x(), pos.y(), pos.z());
 	}
 }
