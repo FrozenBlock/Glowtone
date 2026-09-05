@@ -17,6 +17,8 @@
 
 package net.frozenblock.glowtone.mixin.client.colour.entity;
 
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -35,15 +37,18 @@ public class EntityRenderDispatcherMixin {
 
 	@Inject(method = "submit", at = @At("HEAD"))
 	private <S extends EntityRenderState> void glowtone$pushTint(
-		S renderState, CameraRenderState camera, double x, double y, double z, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CallbackInfo info
+		S renderState, CameraRenderState camera, double x, double y, double z, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CallbackInfo info,
+		@Share("glowtone$pushedTint") LocalBooleanRef pushedTint
 	) {
 		ChromaFold.pushSubmitTint(renderState.glowtone$blockLightTint());
+		pushedTint.set(true);
 	}
 
 	@Inject(method = "submit", at = @At("RETURN"))
 	private <S extends EntityRenderState> void glowtone$popTint(
-		S renderState, CameraRenderState camera, double x, double y, double z, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CallbackInfo info
+		S renderState, CameraRenderState camera, double x, double y, double z, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CallbackInfo info,
+		@Share("glowtone$pushedTint") LocalBooleanRef pushedTint
 	) {
-		ChromaFold.popSubmitTint();
+		if (pushedTint.get()) ChromaFold.popSubmitTint();
 	}
 }

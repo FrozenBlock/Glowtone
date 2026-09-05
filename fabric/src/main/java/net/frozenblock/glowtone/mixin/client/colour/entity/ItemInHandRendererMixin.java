@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.mixin.client.colour.entity;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
@@ -39,15 +41,20 @@ public class ItemInHandRendererMixin {
 	@Inject(method = "submitHandsWithItems", at = @At("HEAD"))
 	private void glowtone$smoothAndTintedHandLight(
 		float frameInterp, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, LocalPlayer player, int lightCoords, CallbackInfo info,
-		@Local(argsOnly = true, ordinal = 0) LocalIntRef lightCoordsRef
+		@Local(argsOnly = true, ordinal = 0) LocalIntRef lightCoordsRef,
+		@Share("glowtone$pushedTint") LocalBooleanRef pushedTint
 	) {
 		final Vec3 probe = player.getLightProbePosition(frameInterp);
 		lightCoordsRef.set(SmoothEntityLightingHelper.smooth(probe.x, probe.y, probe.z, lightCoords));
 		ChromaFold.pushSubmitTint(ChromaFold.resolveHand(probe.x, probe.y, probe.z, lightCoordsRef.get()));
+		pushedTint.set(true);
 	}
 
 	@Inject(method = "submitHandsWithItems", at = @At("RETURN"))
-	private void glowtone$popHandTint(CallbackInfo info) {
-		ChromaFold.popSubmitTint();
+	private void glowtone$popHandTint(
+		CallbackInfo info,
+		@Share("glowtone$pushedTint") LocalBooleanRef pushedTint
+	) {
+		if (pushedTint.get()) ChromaFold.popSubmitTint();
 	}
 }
