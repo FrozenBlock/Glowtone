@@ -7,7 +7,6 @@ import net.frozenblock.glowtone.tag.GlowtoneBlockTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.BlockItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
@@ -19,10 +18,7 @@ public final class GTBlockTagsProvider extends FabricTagsProvider.BlockTagsProvi
 
 	@Override
 	protected void addTags(HolderLookup.Provider arg) {
-		this.builder(GlowtoneBlockTags.CASTER_SHAPE_USES_DEFAULT)
-			.addOptionalTag(BlockItemTags.LEAVES.block())
-			.addOptionalTag(BlockItemTags.DOORS.block())
-			.addOptionalTag(BlockItemTags.TRAPDOORS.block());
+		this.builder(GlowtoneBlockTags.CASTER_SHAPE_USES_DEFAULT);
 
 	}
 

@@ -1,7 +1,0 @@
-{
-  "variants": {
-    "": {
-      "emissive": { "brightness": 15, "bloom": false }
-    }
-  }
-}

@@ -1,16 +1,3 @@
 {
-  "values": [
-    {
-      "id": "#minecraft:leaves",
-      "required": false
-    },
-    {
-      "id": "#minecraft:doors",
-      "required": false
-    },
-    {
-      "id": "#minecraft:trapdoors",
-      "required": false
-    }
-  ]
+  "values": []
 }

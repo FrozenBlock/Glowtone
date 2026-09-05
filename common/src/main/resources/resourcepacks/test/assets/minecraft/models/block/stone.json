@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "minecraft:block/stone",
-    "end_sky": "minecraft:environment/end_sky",
-    "end_portal": "minecraft:entity/end_portal/end_portal"
-  }
-}

@@ -34,6 +34,8 @@ import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.option.shade.ShadingMode;
 import net.frozenblock.lib.platform.ModLoader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.GraphicsPreset;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import org.slf4j.Logger;
@@ -41,7 +43,7 @@ import org.slf4j.Logger;
 @ClientOnly
 public final class GlowtoneConfig {
 	public static final int DEFAULT_BLOOM = 25;
-	public static final int DEFAULT_EDGE_HIGHLIGHT = 0;
+	public static final int DEFAULT_EDGE_HIGHLIGHT = EdgeHighlightOption.DEFAULT;
 	public static final int DEFAULT_OCCLUSION_STRENGTH = OcclusionStrengthOption.VANILLA;
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final String BLOOM_KEY = "bloom";
@@ -175,6 +177,15 @@ public final class GlowtoneConfig {
 		save();
 	}
 
+	private static int freshEdgeHighlight() {
+		final Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft == null || minecraft.options == null) return DEFAULT_EDGE_HIGHLIGHT;
+
+		return minecraft.options.graphicsPreset().get() == GraphicsPreset.FAST
+			? EdgeHighlightOption.MIN
+			: EdgeHighlightOption.DEFAULT;
+	}
+
 	private static Path path() {
 		return ModLoader.getConfigDir().resolve(GlowtoneConstants.MOD_ID + ".json");
 	}
@@ -182,7 +193,10 @@ public final class GlowtoneConfig {
 	private static void load() {
 		loaded = true;
 		final Path path = path();
-		if (!Files.exists(path)) return;
+		if (!Files.exists(path)) {
+			edgeHighlight = freshEdgeHighlight();
+			return;
+		}
 
 		try (Reader reader = Files.newBufferedReader(path)) {
 			final JsonObject json = GsonHelper.parse(reader);

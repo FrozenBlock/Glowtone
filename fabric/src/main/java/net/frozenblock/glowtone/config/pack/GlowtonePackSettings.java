@@ -182,6 +182,7 @@ public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom
 		Bloom.CODEC.optionalFieldOf("bloom", Bloom.NONE).forGetter(GlowtonePackSettings::bloom)
 	).apply(instance, GlowtonePackSettings::new));
 
+	public static final Style DEFAULT_HIGHLIGHT_STYLE = Style.HARD;
 	public static final float DEFAULT_HIGHLIGHT_SIZE = 1F;
 	public static final float DEFAULT_HIGHLIGHT_STRENGTH = 1F;
 	public static final float DEFAULT_WATER_SIZE = 0.5F;
@@ -201,7 +202,7 @@ public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom
 	}
 
 	public String describe() {
-		return "highlight[style=" + this.highlight.style().orElse(Style.DEFAULT).getSerializedName()
+		return "highlight[style=" + this.highlight.style().orElse(DEFAULT_HIGHLIGHT_STYLE).getSerializedName()
 			+ " source=" + this.highlight.source().orElse(Source.DEFAULT).getSerializedName()
 			+ " corners=" + this.highlight.corners().orElse(Corners.DEFAULT).getSerializedName()
 			+ " size=" + this.highlight.size().orElse(DEFAULT_HIGHLIGHT_SIZE)
@@ -231,7 +232,7 @@ public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom
 	}
 
 	public static Style highlightStyle() {
-		return current.highlight.style.orElse(Style.DEFAULT);
+		return current.highlight.style.orElse(DEFAULT_HIGHLIGHT_STYLE);
 	}
 
 	public static Corners highlightCorners() {
