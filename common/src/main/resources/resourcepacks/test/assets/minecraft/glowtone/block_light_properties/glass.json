@@ -1,7 +1,0 @@
-{
-  "variants": {
-    "": {
-      "ambient_occlusion": { "cast": true }
-    }
-  }
-}

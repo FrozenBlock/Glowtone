@@ -1,8 +1,0 @@
-{
-  "variants": {
-    "": {
-      "ambient_occlusion": { "self": false },
-      "emissive": { "brightness": 15, "bloom": true }
-    }
-  }
-}

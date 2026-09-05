@@ -787,7 +787,9 @@ public final class EmissiveShaderPatcher {
 	private static String patchSodiumMaterialFragment(String source) {
 		if (!source.contains(SODIUM_FOG_CALL) || source.contains("GlowtoneMaterialTex0")) return source;
 
-		final String keep = "color.r += glowtone_keepSamplers();" + System.lineSeparator() + "    ";
+		final String keep = MaterialShaderPatcher.anySamplers()
+			? "color.r += glowtone_keepSamplers();" + System.lineSeparator() + "    "
+			: "";
 		final String declared = source
 			.replace(MAIN, samplerDeclarations() + MAIN)
 			.replace(SODIUM_FOG_CALL, keep + SODIUM_FOG_CALL);

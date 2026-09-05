@@ -49,6 +49,8 @@ public final class GlowtoneCasterShapes {
 			if (!occlusionShape.isEmpty()) return occlusionShape;
 		}
 
+		if (!state.canOcclude()) return null;
+
 		// TODO: attachment if needed
 		if (state.is(GlowtoneBlockTags.CASTER_SHAPE_USES_DEFAULT)) return state.getShape(level, pos);
 

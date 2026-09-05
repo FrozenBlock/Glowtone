@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "": {
+      "material": "glowtone_test:vein_pulse",
+      "parameters": {
+        "PULSE_SPEED": "700.0",
+        "PULSE_SHARPNESS": "4.0"
+      }
+    }
+  }
+}

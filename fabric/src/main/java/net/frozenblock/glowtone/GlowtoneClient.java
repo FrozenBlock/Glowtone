@@ -19,6 +19,7 @@ package net.frozenblock.glowtone;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.minecraft.network.chat.Component;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
@@ -50,7 +51,12 @@ public final class GlowtoneClient implements ClientModInitializer {
 		RenderTypeTextureValidityCache.init();
 
 		FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID).ifPresent(container ->
-			ResourceLoader.registerBuiltinPack(GlowtoneConstants.id("test"), container, PackActivationType.NORMAL));
+			ResourceLoader.registerBuiltinPack(
+				GlowtoneConstants.id("test"),
+				container,
+				Component.literal("Glowtone Materials (Experimental)"),
+				PackActivationType.NORMAL
+			));
 
 		// MOD COMPAT
 		GlowtoneDynamicLights.init();
