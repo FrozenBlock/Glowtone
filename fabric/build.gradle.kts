@@ -150,7 +150,10 @@ dependencies {
 
     if (shouldRunVoxy) implementation("maven.modrinth:voxy:${voxy_version}")
     if (shouldRunNvidium) implementation("maven.modrinth:nvidium:${nvidium_version}")
-    if (shouldRunAsyncParticles) implementation("maven.modrinth:asyncparticles:${asyncparticles_version}")
+    if (shouldRunAsyncParticles)
+        implementation("maven.modrinth:asyncparticles:${asyncparticles_version}")
+    else
+        compileOnly("maven.modrinth:asyncparticles:${asyncparticles_version}")
 }
 
 tasks {

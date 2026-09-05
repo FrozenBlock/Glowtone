@@ -47,7 +47,8 @@ public class BufferBuilderIntrinsicsMixin {
 			value = "FIELD",
 			target = "Lcom/mojang/blaze3d/vertex/BufferBuilder;blockFormat:Z",
 			opcode = Opcodes.GETFIELD
-		)
+		),
+		require = 0
 	)
 	private boolean glowtone$skipBlockBakedQuadIntrinsic(boolean original) {
 		return false;
