@@ -178,8 +178,8 @@ public final class GlowtoneRegionFlood {
 		this.levelsBeyondWindow = true;
 
 		this.seed(this.containers, emitterMask);
-		this.seedDynamicLights();
 		this.propagate();
+		this.seedDynamicLights();
 
 		return this.lit;
 	}
@@ -252,8 +252,8 @@ public final class GlowtoneRegionFlood {
 			this.levelsBeyondWindow = true;
 
 			this.seed(this.containers, emitterMask);
-			if (anyDynamic) this.seedDynamicLights();
 			this.propagate();
+			if (anyDynamic) this.seedDynamicLights();
 		}
 		return this.lit || this.skyTinted;
 	}
@@ -653,20 +653,46 @@ public final class GlowtoneRegionFlood {
 		final int[] dynamic = GlowtoneDynamicLights.get().snapshot();
 
 		for (int index = 0; index < dynamic.length; index += GlowtoneDynamicLights.STRIDE) {
-			final int rx = dynamic[index] - this.minBlockX;
-			final int ry = dynamic[index + 1] - this.minBlockY;
-			final int rz = dynamic[index + 2] - this.minBlockZ;
-			if (isOutside(rx, ry, rz)) continue;
+			final int luminance = dynamic[index + 3];
+			if (luminance <= 0) continue;
 
-			final int packed = GlowtoneChannels.emissionLevels(dynamic[index + 3], dynamic[index + 4]);
-			if (packed == 0) continue;
-			if (!reaches(GlowtoneChannels.level(packed), rx, ry, rz)) continue;
+			this.seedDynamicLight(
+				Float.intBitsToFloat(dynamic[index + 5]) - this.minBlockX,
+				Float.intBitsToFloat(dynamic[index + 6]) - this.minBlockY,
+				Float.intBitsToFloat(dynamic[index + 7]) - this.minBlockZ,
+				luminance,
+				dynamic[index + 4]
+			);
+		}
+	}
 
-			final int cell = cellIndex(rx, ry, rz);
-			final int merged = GlowtoneChannels.merge(this.levels[cell] & GlowtoneChannels.LEVEL_MASK, packed);
-			this.levels[cell] = (short) (merged & GlowtoneChannels.LEVEL_MASK);
-			this.lit = true;
-			this.enqueue(rx, ry, rz, merged, true, 0);
+	private void seedDynamicLight(double sourceX, double sourceY, double sourceZ, int luminance, int rgb) {
+		final int reach = (int) Math.ceil(GlowtoneDynamicLights.RADIUS);
+		final int minX = Math.max(0, (int) Math.floor(sourceX) - reach);
+		final int minY = Math.max(0, (int) Math.floor(sourceY) - reach);
+		final int minZ = Math.max(0, (int) Math.floor(sourceZ) - reach);
+		final int maxX = Math.min(SPAN - 1, (int) Math.floor(sourceX) + reach);
+		final int maxY = Math.min(SPAN - 1, (int) Math.floor(sourceY) + reach);
+		final int maxZ = Math.min(SPAN - 1, (int) Math.floor(sourceZ) + reach);
+
+		for (int y = minY; y <= maxY; y++) {
+			for (int z = minZ; z <= maxZ; z++) {
+				for (int x = minX; x <= maxX; x++) {
+					final int level = GlowtoneDynamicLights.levelAt(
+						x - sourceX + 0.5D, y - sourceY + 0.5D, z - sourceZ + 0.5D, luminance
+					);
+					if (level <= 0) continue;
+
+					final int packed = GlowtoneChannels.emissionLevels(level, rgb);
+					if (packed == 0) continue;
+					if (!reaches(GlowtoneChannels.level(packed), x, y, z)) continue;
+
+					final int cell = cellIndex(x, y, z);
+					final int merged = GlowtoneChannels.merge(this.levels[cell] & GlowtoneChannels.LEVEL_MASK, packed);
+					this.levels[cell] = (short) (merged & GlowtoneChannels.LEVEL_MASK);
+					this.lit = true;
+				}
+			}
 		}
 	}
 

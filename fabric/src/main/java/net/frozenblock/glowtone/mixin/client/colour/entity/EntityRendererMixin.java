@@ -23,6 +23,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
+import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
+import net.frozenblock.glowtone.light.compat.lambdynamiclights.impl.AbstractDynamicLightsCompat;
 import net.frozenblock.glowtone.light.entity.SmoothEntityLightingHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -32,6 +34,7 @@ import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -51,13 +54,19 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
 
 	@Unique
 	protected int glowtone$getOriginalBlockLightLevel(Entity entity, BlockPos blockPos) {
-		return entity.level().getBrightness(LightLayer.BLOCK, blockPos);
+		if (entity.isOnFire()) return LightEngine.MAX_LEVEL;
+
+		final AbstractDynamicLightsCompat dynamicLights = GlowtoneDynamicLights.get();
+		return Math.max(
+			entity.level().getBrightness(LightLayer.BLOCK, blockPos),
+			Math.max(dynamicLights.luminanceOf(entity), dynamicLights.dynamicLightLevelAt(blockPos))
+		);
 	}
 
 	@Unique
 	public final int glowtone$getOriginalSmoothPackedLightCoords(Entity entity, double x, double y, double z, float partialTickTime) {
 		final BlockPos blockPos = BlockPos.containing(entity.getLightProbePosition(partialTickTime));
-		final int packed = LightCoordsUtil.pack(this.glowtone$getOriginalSkyLightLevel(entity, blockPos), this.glowtone$getOriginalBlockLightLevel(entity, blockPos));
+		final int packed = LightCoordsUtil.pack(this.glowtone$getOriginalBlockLightLevel(entity, blockPos), this.glowtone$getOriginalSkyLightLevel(entity, blockPos));
 		return SmoothEntityLightingHelper.smooth(x, y, z, packed);
 	}
 
@@ -116,7 +125,7 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
 		final double holderY = Mth.lerp(partialTicks, original.yOld, original.getY());
 		final double holderZ = Mth.lerp(partialTicks, original.zOld, original.getZ());
 		final float holderEyeHeight = original.getEyeHeight();
-		final int smoothHolderLightCoords = this.glowtone$getOriginalSmoothPackedLightCoords(entity, holderX, holderY + holderEyeHeight * 0.5F, holderZ, partialTicks);
+		final int smoothHolderLightCoords = this.glowtone$getOriginalSmoothPackedLightCoords(original, holderX, holderY + holderEyeHeight * 0.5F, holderZ, partialTicks);
 		leashStateEndBlockTint.set(ChromaFold.resolveEntityBlockTint(holderX, holderY, holderZ, holderEyeHeight, smoothHolderLightCoords));
 
 		return original;

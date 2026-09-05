@@ -698,6 +698,8 @@ public final class EmissiveShaderPatcher {
 			+ "    glowtone_GameTime = float(u_CurrentTime % 1200000) / 1200000.0;";
 
 	private static final String SODIUM_MATERIAL_FRAGMENT = """
+		#define Sampler0 u_BlockTex
+
 		flat in int glowtone_Material;
 		in vec3 glowtone_WorldPos;
 		in vec3 glowtone_AbsPos;

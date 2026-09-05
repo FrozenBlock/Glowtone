@@ -157,6 +157,9 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 				packed[count + 2] = (int) Math.floor(z);
 				packed[count + 3] = luminance;
 				packed[count + 4] = colorOf(source);
+				packed[count + 5] = Float.floatToRawIntBits((float) x);
+				packed[count + 6] = Float.floatToRawIntBits((float) y);
+				packed[count + 7] = Float.floatToRawIntBits((float) z);
 				count += GlowtoneDynamicLights.STRIDE;
 			}
 

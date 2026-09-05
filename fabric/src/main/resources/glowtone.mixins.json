@@ -134,6 +134,7 @@
     "client.sodium.BlockRenderContextMixin",
     "client.sodium.sprite.ModelManagerMixin",
     "client.sodium.sprite.TextureAtlasSpriteMixin",
+    "client.sodium.vertex.BufferBuilderIntrinsicsMixin",
     "client.sodium.vertex.CompactChunkVertexMixin",
     "client.vertex.DefaultVertexFormatMixin"
   ]

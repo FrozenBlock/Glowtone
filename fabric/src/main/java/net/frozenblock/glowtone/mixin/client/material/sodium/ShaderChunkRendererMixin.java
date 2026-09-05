@@ -21,6 +21,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.caffeinemc.mods.sodium.client.render.chunk.ShaderChunkRenderer;
+import net.frozenblock.glowtone.material.MaterialBlockTextures;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.minecraft.client.renderer.BindGroupLayouts;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -42,6 +43,7 @@ public class ShaderChunkRendererMixin {
 	)
 	private RenderPipeline glowtone$declareMaterialSamplers(RenderPipeline.Builder instance, Operation<RenderPipeline> original) {
 		instance.withBindGroupLayout(MaterialSamplers.LAYOUT);
+		instance.withBindGroupLayout(MaterialBlockTextures.LAYOUT);
 		instance.withBindGroupLayout(BindGroupLayouts.GLOBALS);
 		return original.call(instance);
 	}
