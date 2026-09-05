@@ -36,6 +36,18 @@ val pridelib_version: String by project
 val run_lambdynamiclights: String by project
 val shouldRunLambDynamicLights = run_lambdynamiclights == "true"
 
+val voxy_version: String by project
+val run_voxy: String by project
+val shouldRunVoxy = run_voxy == "true"
+
+val nvidium_version: String by project
+val run_nvidium: String by project
+val shouldRunNvidium = run_nvidium == "true"
+
+val asyncparticles_version: String by project
+val run_asyncparticles: String by project
+val shouldRunAsyncParticles = run_asyncparticles == "true"
+
 base {
     archivesName = archives_base_name
 }
@@ -135,6 +147,10 @@ dependencies {
 
         compileOnly("io.github.queerbric:pridelib:${pridelib_version}")
     }
+
+    if (shouldRunVoxy) implementation("maven.modrinth:voxy:${voxy_version}")
+    if (shouldRunNvidium) implementation("maven.modrinth:nvidium:${nvidium_version}")
+    if (shouldRunAsyncParticles) implementation("maven.modrinth:asyncparticles:${asyncparticles_version}")
 }
 
 tasks {

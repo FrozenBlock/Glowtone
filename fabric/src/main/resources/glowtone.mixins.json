@@ -32,6 +32,7 @@
     "client.bloom.LevelRendererMixin",
     "client.bloom.PreparedRenderTypeMixin",
     "client.bloom.QuadParticleFeatureRendererMixin",
+    "client.bloom.RenderPassMixin",
     "client.bloom.ShaderManagerMixin",
     "client.bloom.ShaderManagerPrepareMixin",
     "client.bloom.SingleQuadParticleMixin",

@@ -27,7 +27,6 @@ import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @ClientOnly
@@ -37,8 +36,7 @@ public class BufferBuilderIntrinsicsMixin {
 	@Final
 	private VertexFormat format;
 
-	@Unique
-	public boolean glowtone$canUseIntrinsics() {
+	public boolean canUseIntrinsics() {
 		return this.format != DefaultVertexFormat.ENTITY && this.format != DefaultVertexFormat.BLOCK;
 	}
 
@@ -62,7 +60,8 @@ public class BufferBuilderIntrinsicsMixin {
 			value = "FIELD",
 			target = "Lcom/mojang/blaze3d/vertex/BufferBuilder;entityFormat:Z",
 			opcode = Opcodes.GETFIELD
-		)
+		),
+		require = 0
 	)
 	private boolean glowtone$skipEntityBakedQuadIntrinsic(boolean original) {
 		return false;
