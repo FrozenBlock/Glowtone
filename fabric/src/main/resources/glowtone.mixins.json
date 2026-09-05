@@ -9,6 +9,7 @@
   },
   "mixins": [
     "block.BlockStateBaseMixin",
+    "client.ao_edge.BlockStateBaseMixin",
     "client.ao_edge.fabric.AltModelBlockRendererImplMixin"
   ],
   "client": [

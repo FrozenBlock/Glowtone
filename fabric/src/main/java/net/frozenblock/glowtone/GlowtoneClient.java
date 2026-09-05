@@ -19,6 +19,7 @@ package net.frozenblock.glowtone;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.frozenblock.glowtone.light.occlusion.impl.AmbientOcclusionCacheLoader;
 import net.minecraft.network.chat.Component;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -48,6 +49,7 @@ public final class GlowtoneClient implements ClientModInitializer {
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("block_light"), new BlockStateLightPropertiesLoader());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("block_material"), new BlockMaterialOverrideLoader());
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("settings"), new GlowtonePackSettingsLoader());
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GlowtoneConstants.id("ambient_occlusion_cache"), new AmbientOcclusionCacheLoader());
 		RenderTypeTextureValidityCache.init();
 
 		FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID).ifPresent(container ->

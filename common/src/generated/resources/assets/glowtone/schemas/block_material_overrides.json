@@ -15,6 +15,7 @@
           },
           {
             "type": "object",
+            "additionalProperties": false,
             "description": "A material plus parameter values that override the material's own.",
             "properties": {
               "material": {
@@ -32,8 +33,7 @@
             },
             "required": [
               "material"
-            ],
-            "additionalProperties": false
+            ]
           }
         ]
       },

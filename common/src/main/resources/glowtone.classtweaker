@@ -15,6 +15,7 @@ transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRen
 transitive-inject-interface net/minecraft/client/renderer/feature/BlockModelFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
 transitive-inject-interface net/minecraft/client/renderer/feature/ModelFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
 transitive-inject-interface net/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit net/frozenblock/glowtone/light/color/render/impl/BlockLightTinted
+transitive-inject-interface net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase net/frozenblock/glowtone/light/occlusion/impl/BlockStateAmbientOcclusionCache
 
 # Animated Sprite
 accessible class net/minecraft/client/renderer/texture/SpriteContents$AnimatedTexture

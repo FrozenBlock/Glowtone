@@ -3,7 +3,6 @@ package net.frozenblock.glowtone.data.tag;
 import java.util.concurrent.CompletableFuture;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
-import net.frozenblock.glowtone.tag.GlowtoneBlockTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -18,8 +17,6 @@ public final class GTBlockTagsProvider extends FabricTagsProvider.BlockTagsProvi
 
 	@Override
 	protected void addTags(HolderLookup.Provider arg) {
-		this.builder(GlowtoneBlockTags.CASTER_SHAPE_USES_DEFAULT);
-
 	}
 
 	private TagKey<Block> getTag(String id) {

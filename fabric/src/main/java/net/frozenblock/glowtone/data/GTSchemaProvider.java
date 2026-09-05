@@ -68,79 +68,134 @@ public final class GTSchemaProvider implements DataProvider {
 	}
 
 	private static JsonObject blockMaterial() {
+		// CULL
+		final Property cullSelf = entry(
+			"self",
+			enumOf(
+				"Whether this block draws its own faces.",
+				CullMode.values()
+			)
+		);
+		final Property cullCast = entry(
+			"cast",
+			enumOf(
+				"Whether this block hides the faces of its neighbours.",
+				CullMode.values()
+			)
+		);
+
 		final JsonObject cull = object("How this material culls faces against its neighbours.");
-		cull.add("properties", properties(
-			entry("self", enumOf("Whether this block draws its own faces.", CullMode.values())),
-			entry("cast", enumOf("Whether this block hides the faces of its neighbours.", CullMode.values()))
-		));
+		cull.add("properties", properties(cullSelf, cullCast));
 		cull.addProperty("additionalProperties", false);
 
+		// SHADER
+		final Property shaderFragment = entry(
+			"fragment",
+			identifier("Fragment source under " + MaterialShader.RESOURCE_PACK_DIRECTORY + ". Returns the vec4 fragment colour.")
+		);
+		final Property shaderVertex = entry(
+			"vertex",
+			identifier("Vertex source under " + MaterialShader.RESOURCE_PACK_DIRECTORY + ". Returns a vec3 displacement.")
+		);
+		final Property shaderTextures = entry(
+			"textures",
+			map(
+				"Sampler name to texture path. At most " + MaterialSamplers.SLOTS + " distinct textures across every loaded material.",
+				string(null)
+			)
+		);
+		final Property shaderBlockTextures = entry(
+			"block_textures",
+			list(
+				"Texture slot names declared on the block's own model, sampled off the block atlas. Each arrives in the snippet as a vec4 atlas rectangle.",
+				string(null)
+			)
+		);
+		final Property shaderConstants = entry(
+			"constants",
+			map(
+				"Name to GLSL expression, emitted as a #define around the stage. Use for values that must be compile time, such as loop bounds.",
+				string(null)
+			)
+		);
+		final Property shaderParameters = entry(
+			"parameters",
+			map(
+				"Name to GLSL float expression, passed to the snippet as an argument. Two materials whose snippets match share one compiled program even when their parameter values differ.",
+				string(null)
+			)
+		);
+
 		final JsonObject shader = object("Shader stages applied to this material.");
-		shader.add("properties", properties(
-			entry("fragment", identifier("Fragment source under " + MaterialShader.RESOURCE_PACK_DIRECTORY
-				+ ". Returns the vec4 fragment colour.")),
-			entry("vertex", identifier("Vertex source under " + MaterialShader.RESOURCE_PACK_DIRECTORY
-				+ ". Returns a vec3 displacement.")),
-			entry("textures", map("Sampler name to texture path. At most " + MaterialSamplers.SLOTS
-				+ " distinct textures across every loaded material.", string(null))),
-			entry("block_textures", list("Texture slot names declared on the block's own model, sampled off the block atlas. Each arrives in the snippet as a vec4 atlas rectangle.", string(null))),
-			entry("constants", map("Name to GLSL expression, emitted as a #define around the stage. Use for values that must be compile time, such as loop bounds.", string(null))),
-			entry("parameters", map("Name to GLSL float expression, passed to the snippet as an argument. Two materials whose snippets match share one compiled program even when their parameter values differ.", string(null)))
-		));
+		shader.add("properties", properties(shaderFragment, shaderVertex, shaderTextures, shaderBlockTextures, shaderConstants, shaderParameters));
 		shader.addProperty("additionalProperties", false);
+
+		// MATERIAL
+		final Property materialParent = entry("parent", identifier("Another material to inherit every unset field from."));
+		final Property materialLayer = entry("layer", layer());
+		final Property materialRenderShape = entry("render_shape", enumOf("Replaces the render shape of the block.", MaterialRenderShape.values()));
+		final Property materialBlockEntityRender = entry("block_entity_render", bool("Set false to suppress the block entity renderer for this block."));
+		final Property materialCull = entry("cull", cull);
+		final Property materialTarget = entry(
+			"target",
+			list(
+				"Model texture slot names this material applies to. When set, only quads baked from those slots are affected, so an overlay element can be shaded while the rest of the block is left alone.",
+				string(null)
+			)
+		);
+		final Property materialShader = entry("shader", shader);
 
 		final JsonObject root = object("A Glowtone block material.");
 		root.addProperty("$schema", SCHEMA);
 		root.addProperty("title", "Glowtone block material");
-		root.add("properties", properties(
-			entry("parent", identifier("Another material to inherit every unset field from.")),
-			entry("layer", layer()),
-			entry("render_shape", enumOf("Replaces the render shape of the block.", MaterialRenderShape.values())),
-			entry("block_entity_render", bool("Set false to suppress the block entity renderer for this block.")),
-			entry("cull", cull),
-			entry("target", list("Model texture slot names this material applies to. When set, only quads baked from those slots are affected, so an overlay element can be shaded while the rest of the block is left alone.", string(null))),
-			entry("shader", shader)
-		));
+		root.add("properties", properties(materialParent, materialLayer, materialRenderShape, materialBlockEntityRender, materialCull, materialTarget, materialShader));
 		root.addProperty("additionalProperties", false);
 		return root;
 	}
 
 	private static JsonObject lightProperties() {
+		// AMBIENT OCCLUSION
+		final Property occlusionSelf = entry("self", bool("Whether this block receives ambient occlusion."));
+		final Property occlusionCast = entry("cast", bool("Whether this block casts ambient occlusion onto its neighbours."));
+
 		final JsonObject occlusion = object("Ambient occlusion overrides.");
-		occlusion.add("properties", properties(
-			entry("self", bool("Whether this block receives ambient occlusion.")),
-			entry("cast", bool("Whether this block casts ambient occlusion onto its neighbours."))
-		));
+		occlusion.add("properties", properties(occlusionSelf, occlusionCast));
 		occlusion.addProperty("additionalProperties", false);
 
+		// EMISSIVEN
+		final Property emissiveBrightness = entry("brightness", integer("Emissive brightness.", 0, LightEngine.MAX_LEVEL));
+		final Property emissiveBloom = entry("bloom", bool("Whether this block contributes to bloom."));
+
 		final JsonObject emissive = object("Emissive and bloom overrides.");
-		emissive.add("properties", properties(
-			entry("brightness", integer("Emissive brightness.", 0, LightEngine.MAX_LEVEL)),
-			entry("bloom", bool("Whether this block contributes to bloom."))
-		));
+		emissive.add("properties", properties(emissiveBrightness, emissiveBloom));
 		emissive.addProperty("additionalProperties", false);
 
+		// LIGHT PROPERTIES
+		final Property lightPropertiesLightColor = entry("light_color", integer("Packed RGB colour of the light this block emits.", null, null));
+		final Property lightPropertiesLightColorFilter = entry(
+			"light_filter_color",
+			integer("Packed RGB colour this block tints light passing through it.", null, null)
+		);
+		final Property lightPropertiesAmbientOcclusion = entry("ambient_occlusion", occlusion);
+		final Property lightPropertiesEmissive = entry("emissive", emissive);
+
 		final JsonObject root = object("Light properties for one blockstate.");
-		root.add("properties", properties(
-			entry("light_color", integer("Packed RGB colour of the light this block emits.", null, null)),
-			entry("light_filter_color",
-				integer("Packed RGB colour this block tints light passing through it.", null, null)),
-			entry("ambient_occlusion", occlusion),
-			entry("emissive", emissive)
-		));
+		root.add("properties", properties(lightPropertiesLightColor, lightPropertiesLightColorFilter, lightPropertiesAmbientOcclusion, lightPropertiesEmissive));
 		root.addProperty("additionalProperties", false);
 		return root;
 	}
 
 	private static JsonObject assignment() {
+		// FULL
+		final Property fullMaterial = entry("material", identifier("Material id, as defined under " + BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY + "."));
+		final Property fullParameters = entry("parameters", map("Name to GLSL float expression, overriding a parameter the material declares.", string(null)));
+
 		final JsonObject full = object("A material plus parameter values that override the material's own.");
-		full.add("properties", properties(
-			entry("material", identifier("Material id, as defined under " + BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY + ".")),
-			entry("parameters", map("Name to GLSL float expression, overriding a parameter the material declares.", string(null)))
-		));
+		full.add("properties", properties(fullMaterial, fullParameters));
 		full.add("required", array("material"));
 		full.addProperty("additionalProperties", false);
 
+		// FORMS
 		final JsonArray forms = new JsonArray();
 		forms.add(identifier("Material id, as defined under " + BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY + "."));
 		forms.add(full);

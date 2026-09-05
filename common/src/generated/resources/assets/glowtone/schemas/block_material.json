@@ -4,6 +4,11 @@
   "additionalProperties": false,
   "description": "A Glowtone block material.",
   "properties": {
+    "parent": {
+      "type": "string",
+      "description": "Another material to inherit every unset field from.",
+      "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
+    },
     "block_entity_render": {
       "type": "boolean",
       "description": "Set false to suppress the block entity renderer for this block."
@@ -46,11 +51,6 @@
         "translucent"
       ]
     },
-    "parent": {
-      "type": "string",
-      "description": "Another material to inherit every unset field from.",
-      "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
-    },
     "render_shape": {
       "type": "string",
       "description": "Replaces the render shape of the block.",
@@ -76,7 +76,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Name to GLSL expression, emitted as a #define around the stage."
+          "description": "Name to GLSL expression, emitted as a #define around the stage. Use for values that must be compile time, such as loop bounds."
         },
         "fragment": {
           "type": "string",
@@ -95,7 +95,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Sampler name to texture path. At most 4 distinct textures across every loaded material."
+          "description": "Sampler name to texture path. At most 10 distinct textures across every loaded material."
         },
         "vertex": {
           "type": "string",
@@ -106,7 +106,7 @@
     },
     "target": {
       "type": "array",
-      "description": "Model texture slot names this material applies to. When set, only quads baked from those slots are affected, so an overlay element can be shaded while the rest of the block is left alone. The reserved name 'emissive' targets the overlay quads baked from _glowtone_emissive textures.",
+      "description": "Model texture slot names this material applies to. When set, only quads baked from those slots are affected, so an overlay element can be shaded while the rest of the block is left alone.",
       "items": {
         "type": "string"
       }

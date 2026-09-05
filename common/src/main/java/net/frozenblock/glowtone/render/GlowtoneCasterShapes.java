@@ -18,7 +18,6 @@
 package net.frozenblock.glowtone.render;
 
 import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
-import net.frozenblock.glowtone.tag.GlowtoneBlockTags;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
@@ -49,15 +48,14 @@ public final class GlowtoneCasterShapes {
 			if (!occlusionShape.isEmpty()) return occlusionShape;
 		}
 
-		if (!state.canOcclude()) return null;
-
-		// TODO: attachment if needed
-		if (state.is(GlowtoneBlockTags.CASTER_SHAPE_USES_DEFAULT)) return state.getShape(level, pos);
+		if (!state.glowtone$hasAmbientOcclusion()) return null;
 
 		// Unfortunately we cannot safely simplify this using .hasCollision, as someone could extend getCollisionShape and ignore the property.
 		final VoxelShape collision = state.getCollisionShape(level, pos);
 		// I decided to make this return null instead of Shapes.empty() because using the .isEmpty check is a lot more taxing!
-		if (collision.isEmpty() || fullBlock(collision)) return null;
+		if (collision.isEmpty()) return null;
+		// TODO: What's the intent here? Do we need to look through everything and see if something was missed?
+		//if (collision.isEmpty() || fullBlock(collision)) return null;
 
 		return collision;
 	}
