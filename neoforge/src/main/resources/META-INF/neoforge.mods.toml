@@ -3,16 +3,25 @@ loaderVersion="[4,)"
 license="FrozenBlock Modding Oasis License v1.0"
 issueTrackerURL="https://github.com/FrozenBlock/Glowtone/issues"
 
+[[mixins]]
+    config="glowtone.mixins.json"
+
+[[mixins]]
+    config="glowtone.neoforge.mixins.json"
+
 [[mods]]
     modId="glowtone"
     version="${mod_version}"
     displayName="Glowtone"
     displayURL="https://modrinth.com/mod/Glowtone"
-    logoFile="assets/glowtone/icon.png"
+    iconFile="assets/glowtone/icon.png"
     authors="Luna/AViewFromTheTop"
     description='''
 Allows for emissive textures to be quickly added as an overlay on both Block and Item models, as well as changing the render layers of blocks.
     '''
+
+[modproperties.glowtone]
+    "sodium:config_api_user"="net.frozenblock.glowtone.config.sodium.GlowtoneSodiumConfig"
 
 [[ dependencies.glowtone ]]
     modId="neoforge"

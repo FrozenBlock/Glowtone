@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "net.frozenblock.glowtone.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "net.frozenblock.glowtone.mixin.GlowtoneMixinPlugin",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [],
+  "client": [
+    "client.ao_edge.neoforge.ModelBlockRendererMixin",
+    "client.color.block.SectionCompilerMixin",
+    "client.color.engine.LevelChunkMixin",
+    "client.emissive.ItemLayerKeyMixin",
+    "client.material.SectionCompilerMaterialMixin",
+    "client.color.neoforge.EnhancedBlockModelLighterMixin"
+  ]
+}

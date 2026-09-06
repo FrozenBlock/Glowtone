@@ -228,21 +228,21 @@ public final class EmissiveShaderPatcher {
 			return 1.0 - smoothstep(glowtone_max * 0.75, glowtone_max, %s);
 		}
 
-		vec3 glowtone_edgeHighlight(vec3 glowtone_colour, float glowtone_strength) {
+		vec3 glowtone_edgeHighlight(vec3 glowtone_color, float glowtone_strength) {
 			vec4 glowtone_lit = glowtone_edgeLit();
 			float glowtone_rim = glowtone_edgeRim(glowtone_lit);
 		%s
 		}
 
-		vec4 glowtone_liquidHighlight(vec4 glowtone_colour, float glowtone_strength) {
+		vec4 glowtone_liquidHighlight(vec4 glowtone_color, float glowtone_strength) {
 			float glowtone_rim = min(1.0, glowtone_strength * glowtone_liquidFacing() * glowtone_fade(%s));
-			float glowtone_level = dot(glowtone_colour.rgb, vec3(0.2126, 0.7152, 0.0722));
+			float glowtone_level = dot(glowtone_color.rgb, vec3(0.2126, 0.7152, 0.0722));
 			vec3 glowtone_foam =
-				mix(glowtone_colour.rgb, vec3(max(glowtone_level, %s)), %s) * %s;
+				mix(glowtone_color.rgb, vec3(max(glowtone_level, %s)), %s) * %s;
 
 			return vec4(
-				mix(glowtone_colour.rgb, glowtone_foam, glowtone_rim),
-				mix(glowtone_colour.a, max(glowtone_colour.a, %s), glowtone_rim)
+				mix(glowtone_color.rgb, glowtone_foam, glowtone_rim),
+				mix(glowtone_color.a, max(glowtone_color.a, %s), glowtone_rim)
 			);
 		}
 
@@ -250,26 +250,26 @@ public final class EmissiveShaderPatcher {
 
 	private static final String EDGE_RETURN_NORMAL = """
 			const vec3 glowtone_luma = vec3(0.2126, 0.7152, 0.0722);
-			float glowtone_level = dot(glowtone_colour, glowtone_luma);
+			float glowtone_level = dot(glowtone_color, glowtone_luma);
 			float glowtone_peak = max(max(vertexColor.r, vertexColor.g), vertexColor.b);
 			float glowtone_light = min(1.0, glowtone_peak);
 			vec3 glowtone_tint = vertexColor.rgb / max(glowtone_peak, 1e-4);
 
 			float glowtone_anchor = max(glowtone_level, %s * glowtone_light);
 			float glowtone_target = mix(glowtone_level, glowtone_anchor, %s);
-			vec3 glowtone_scaled = glowtone_colour * (glowtone_target / max(glowtone_level, 1e-4));
+			vec3 glowtone_scaled = glowtone_color * (glowtone_target / max(glowtone_level, 1e-4));
 			vec3 glowtone_paled = mix(glowtone_scaled, glowtone_tint * glowtone_target, %s);
 			vec3 glowtone_band = glowtone_paled
 				/ max(max(max(glowtone_paled.r, glowtone_paled.g), glowtone_paled.b), 1.0);
 
-			return mix(glowtone_colour, glowtone_band, glowtone_rim * glowtone_strength);""";
+			return mix(glowtone_color, glowtone_band, glowtone_rim * glowtone_strength);""";
 
 	private static final String EDGE_RETURN_DEBUG = """
 			vec3 glowtone_dbg = glowtone_lit.r * vec3(1.0, 0.0, 0.0)
 				+ glowtone_lit.g * vec3(0.0, 1.0, 0.0)
 				+ glowtone_lit.b * vec3(0.0, 0.4, 1.0)
 				+ glowtone_lit.a * vec3(1.0, 1.0, 0.0);
-			return mix(glowtone_colour, clamp(glowtone_dbg, 0.0, 1.0), glowtone_rim);""";
+			return mix(glowtone_color, clamp(glowtone_dbg, 0.0, 1.0), glowtone_rim);""";
 
 	private static final String EMISSIVE_WRITE =
 		"glowtone_EmissiveColor = vec4(fragColor.rgb * glowtone_Emissive, fragColor.a);";
@@ -294,7 +294,7 @@ public final class EmissiveShaderPatcher {
 		vec3 glowtone_FogTint = vec3(0.0);
 
 		vec4 glowtone_deferFog(
-			vec4 glowtone_colour, float glowtone_spherical, float glowtone_cylindrical,
+			vec4 glowtone_color, float glowtone_spherical, float glowtone_cylindrical,
 			float glowtone_environmentalStart, float glowtone_environmentalEnd,
 			float glowtone_distanceStart, float glowtone_distanceEnd, vec4 glowtone_fog
 		) {
@@ -303,7 +303,7 @@ public final class EmissiveShaderPatcher {
 				glowtone_environmentalStart, glowtone_environmentalEnd,
 				glowtone_distanceStart, glowtone_distanceEnd) * glowtone_fog.a;
 			glowtone_FogTint = glowtone_fog.rgb;
-			return glowtone_colour;
+			return glowtone_color;
 		}
 
 		""";

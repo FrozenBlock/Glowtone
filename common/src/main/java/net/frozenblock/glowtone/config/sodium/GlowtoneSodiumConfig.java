@@ -45,10 +45,10 @@ public final class GlowtoneSodiumConfig implements ConfigEntryPoint {
 	@Override
 	public void registerConfigLate(ConfigBuilder builder) {
 		final OptionGroupBuilder lighting = builder.createOptionGroup()
-			.setName(caption("coloured_lighting"))
-			.addOption(builder.createEnumOption(id("coloured_lighting"), ColoredLightingMode.class)
-				.setName(caption("coloured_lighting"))
-				.setTooltip(tooltip("coloured_lighting"))
+			.setName(caption("colored_lighting"))
+			.addOption(builder.createEnumOption(id("colored_lighting"), ColoredLightingMode.class)
+				.setName(caption("colored_lighting"))
+				.setTooltip(tooltip("colored_lighting"))
 				.setElementNameProvider(mode -> Component.translatable(mode.translationKey()))
 				.setDefaultValue(ColoredLightingMode.SUBTLE)
 				.setBinding(

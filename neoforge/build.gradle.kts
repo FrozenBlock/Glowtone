@@ -22,6 +22,10 @@ val sodium_version: String by project
 val run_sodium: String by project
 val shouldRunSodium = run_sodium == "true"
 
+val lambdynamiclights_version: String by project
+val yumi_mc_foundation_version: String by project
+val asyncparticles_version: String by project
+
 val neoforgeSnapshotMaven = findProperty("neoforge_snapshot_maven") as String?
 
 base {
@@ -106,6 +110,10 @@ sourceSets.configureEach {
 }
 
 dependencies {
+	compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${lambdynamiclights_version}")
+	compileOnly("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+	compileOnly("maven.modrinth:asyncparticles:${asyncparticles_version}")
+
     // Sodium
     if (shouldRunSodium) {
         implementation("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")

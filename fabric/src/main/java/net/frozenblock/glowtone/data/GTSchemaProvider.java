@@ -88,7 +88,7 @@ public final class GTSchemaProvider implements DataProvider {
 		// SHADER
 		final Property shaderFragment = entry(
 			"fragment",
-			identifier("Fragment source under " + net.frozenblock.glowtone.data.MaterialShader.RESOURCE_PACK_DIRECTORY + ". Returns the vec4 fragment colour.")
+			identifier("Fragment source under " + net.frozenblock.glowtone.data.MaterialShader.RESOURCE_PACK_DIRECTORY + ". Returns the vec4 fragment color.")
 		);
 		final Property shaderVertex = entry(
 			"vertex",
@@ -168,10 +168,10 @@ public final class GTSchemaProvider implements DataProvider {
 		emissive.addProperty("additionalProperties", false);
 
 		// LIGHT PROPERTIES
-		final Property lightPropertiesLightColor = entry("light_color", integer("Packed RGB colour of the light this block emits.", null, null));
+		final Property lightPropertiesLightColor = entry("light_color", integer("Packed RGB color of the light this block emits.", null, null));
 		final Property lightPropertiesLightColorFilter = entry(
 			"light_filter_color",
-			integer("Packed RGB colour this block tints light passing through it.", null, null)
+			integer("Packed RGB color this block tints light passing through it.", null, null)
 		);
 		final Property lightPropertiesAmbientOcclusion = entry("ambient_occlusion", occlusion);
 		final Property lightPropertiesEmissive = entry("emissive", emissive);

@@ -45,11 +45,11 @@
           },
           "light_color": {
             "type": "integer",
-            "description": "Packed RGB colour of the light this block emits."
+            "description": "Packed RGB color of the light this block emits."
           },
           "light_filter_color": {
             "type": "integer",
-            "description": "Packed RGB colour this block tints light passing through it."
+            "description": "Packed RGB color this block tints light passing through it."
           }
         }
       },

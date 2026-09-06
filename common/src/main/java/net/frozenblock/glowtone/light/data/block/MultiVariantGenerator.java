@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import net.frozenblock.glowtone.mixin.client.colour.data.PropertyDispatchAccessor;
+import net.frozenblock.glowtone.mixin.client.color.data.PropertyDispatchAccessor;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.blockstates.PropertyValueList;

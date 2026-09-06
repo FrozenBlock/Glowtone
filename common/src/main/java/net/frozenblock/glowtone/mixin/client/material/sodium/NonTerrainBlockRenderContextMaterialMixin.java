@@ -17,7 +17,6 @@
 
 package net.frozenblock.glowtone.mixin.client.material.sodium;
 
-import net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -29,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
 @ClientOnly
-@Mixin(NonTerrainBlockRenderContext.class)
+@Mixin(targets = "net.caffeinemc.mods.sodium.client.render.frapi.render.NonTerrainBlockRenderContext")
 public class NonTerrainBlockRenderContextMaterialMixin {
 
 	@Inject(method = "processQuad", at = @At("RETURN"))

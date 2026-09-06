@@ -1,0 +1,98 @@
+/*
+ * Copyright 2025-2026 FrozenBlock
+ * This file is part of Glowtone.
+ *
+ * This program is free software; you can modify it under
+ * the terms of version 1 of the FrozenBlock Modding Oasis License
+ * as published by FrozenBlock Modding Oasis.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * FrozenBlock Modding Oasis License for more details.
+ *
+ * You should have received a copy of the FrozenBlock Modding Oasis License
+ * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
+ */
+
+package net.frozenblock.glowtone.mixin.client.emissive;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.glowtone.render.sodium.GlowtoneEmissiveItemRenderTypes;
+import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.renderer.block.dispatch.ModelState;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.lighting.LightEngine;
+import net.neoforged.neoforge.client.model.ExtraFaceData;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+@ClientOnly
+@Mixin(ItemModelGenerator.ItemLayerKey.class)
+public class ItemLayerKeyMixin {
+
+	@WrapOperation(
+		method = "compute(Lnet/minecraft/client/resources/model/ModelBaker;)Lnet/minecraft/client/resources/model/geometry/QuadCollection;",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/resources/model/cuboid/ItemModelGenerator;bakeExtrudedSprite(Lnet/minecraft/client/resources/model/geometry/QuadCollection$Builder;Lnet/minecraft/client/resources/model/ModelBaker$Interner;Lnet/minecraft/client/renderer/block/dispatch/ModelState;Lnet/minecraft/client/resources/model/geometry/BakedQuad$MaterialInfo;Lnet/neoforged/neoforge/client/model/ExtraFaceData;)V"
+		)
+	)
+	public void glowtone$computeWithGlowtone(QuadCollection.Builder builder, ModelBaker.Interner interner, ModelState modelState, BakedQuad.MaterialInfo materialInfo, ExtraFaceData faceData, Operation<Void> original,
+		ModelBaker modelBakery
+	) {
+		original.call(builder, interner, modelState, materialInfo, faceData);
+
+		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return;
+
+		final TextureAtlasSprite sprite = materialInfo.sprite();
+		final Identifier location = sprite.contents().name();
+		final Identifier emissiveLocation = location.withSuffix(GlowtoneConstants.EMISSIVE_SUFFIX);
+
+		final Material.Baked emissiveMaterial = modelBakery.materials().get(new Material(emissiveLocation), () -> "generated item");
+		if (emissiveMaterial == null || emissiveMaterial.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return;
+
+		final int lightEmission = emissiveMaterial.sprite().contents()
+			.getAdditionalMetadata(EmissiveMetadataSection.TYPE)
+			.map(EmissiveMetadataSection::lightEmission)
+			.orElse(LightEngine.MAX_LEVEL);
+
+		final BakedQuad.MaterialInfo emissiveMaterialInfo = interner.materialInfo(
+			glowtone$emissiveMaterialInfo(
+				emissiveMaterial,
+				emissiveMaterial.sprite().transparency(),
+				materialInfo.tintIndex(),
+				materialInfo.shade() && lightEmission != LightEngine.MAX_LEVEL,
+				lightEmission
+			)
+		);
+		original.call(builder, interner, modelState, emissiveMaterialInfo, faceData);
+	}
+
+	private static BakedQuad.MaterialInfo glowtone$emissiveMaterialInfo(
+		Material.Baked material,
+		com.mojang.blaze3d.platform.Transparency transparency,
+		int tintIndex,
+		boolean shade,
+		int lightEmission
+	) {
+		final BakedQuad.MaterialInfo base = BakedQuad.MaterialInfo.of(material, transparency, tintIndex, shade, lightEmission);
+		if (!GlowtonePlatform.INSTANCE.isModLoaded("sodium")) return base;
+		return new BakedQuad.MaterialInfo(
+			base.sprite(), base.layer(),
+			GlowtoneEmissiveItemRenderTypes.get(material.sprite().atlasLocation(), transparency.hasTranslucent()),
+			base.tintIndex(), base.shade(), base.lightEmission(), base.ambientOcclusion()
+		);
+	}
+}

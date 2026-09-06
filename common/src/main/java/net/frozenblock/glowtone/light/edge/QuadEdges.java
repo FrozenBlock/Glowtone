@@ -343,12 +343,12 @@ public final class QuadEdges {
 
 	private static void darken(GlowtoneMutableQuad quad, int vertex, float amount) {
 		final float factor = Math.max(0F, 1F - amount);
-		final int colour = quad.color(vertex);
+		final int color = quad.color(vertex);
 
-		quad.setColor(vertex, (colour & 0xFF000000)
-			| (Math.round(((colour >> 16) & 0xFF) * factor) << 16)
-			| (Math.round(((colour >> 8) & 0xFF) * factor) << 8)
-			| Math.round((colour & 0xFF) * factor));
+		quad.setColor(vertex, (color & 0xFF000000)
+			| (Math.round(((color >> 16) & 0xFF) * factor) << 16)
+			| (Math.round(((color >> 8) & 0xFF) * factor) << 8)
+			| Math.round((color & 0xFF) * factor));
 	}
 
 	private boolean facesPositive(int axis) {

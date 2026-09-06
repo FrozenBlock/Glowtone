@@ -47,7 +47,7 @@ public final class FluidEdges {
 	private float uvSpanV;
 	private final float[] uvs = new float[8];
 	private final float[] rim = new float[12];
-	private int colour;
+	private int color;
 	private int light;
 	// TODO: why cant we use Direction.Axis?
 	private int faceAxis;
@@ -58,7 +58,7 @@ public final class FluidEdges {
 		float x1, float y1, float z1, float u1, float v1,
 		float x2, float y2, float z2, float u2, float v2,
 		float x3, float y3, float z3, float u3, float v3,
-		int colour,
+		int color,
 		int light
 	) {
 		this.rimWidth = width();
@@ -82,7 +82,7 @@ public final class FluidEdges {
 		this.uvs[5] = v2;
 		this.uvs[6] = u3;
 		this.uvs[7] = v3;
-		this.colour = colour;
+		this.color = color;
 		this.light = light;
 	}
 
@@ -450,7 +450,7 @@ public final class FluidEdges {
 
 		consumer.addVertex(
 			this.rim[corner * 3], this.rim[corner * 3 + 1], this.rim[corner * 3 + 2],
-			this.colour, this.rimUvs[corner * 2], this.rimUvs[corner * 2 + 1],
+			this.color, this.rimUvs[corner * 2], this.rimUvs[corner * 2 + 1],
 			OverlayTexture.NO_OVERLAY, this.light,
 			axis == 0 ? sign : 0F, axis == 1 ? sign : 0F, axis == 2 ? sign : 0F
 		);

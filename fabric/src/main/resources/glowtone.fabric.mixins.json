@@ -9,9 +9,13 @@
   },
   "mixins": [],
   "client": [
+    "client.color.block.SectionCompilerMixin",
     "client.ao_edge.fabric.AltModelBlockRendererImplMixin",
     "client.bloom.fabric.AltModelBlockRendererMixin",
-    "client.colour.fabric.AltModelBlockRendererImplMixin",
+    "client.color.engine.LevelChunkMixin",
+    "client.color.fabric.AltModelBlockRendererImplMixin",
+    "client.emissive.ItemLayerKeyMixin",
+    "client.material.SectionCompilerMaterialMixin",
     "client.material.fabric.AltModelBlockRendererMaterialMixin"
   ]
 }

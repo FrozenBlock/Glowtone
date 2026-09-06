@@ -80,7 +80,7 @@
         },
         "fragment": {
           "type": "string",
-          "description": "Fragment source under glowtone/shaders/material. Returns the vec4 fragment colour.",
+          "description": "Fragment source under glowtone/shaders/material. Returns the vec4 fragment color.",
           "pattern": "^([a-z0-9_.-]+:)?[a-z0-9_./-]+$"
         },
         "parameters": {

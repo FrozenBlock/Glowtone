@@ -18,22 +18,23 @@
 package net.frozenblock.glowtone.light.edge;
 
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.client.model.quad.MutableQuad;
+import com.mojang.blaze3d.vertex.QuadInstance;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 
-public record NeoForgeMutableQuad(MutableQuad quad) implements GlowtoneMutableQuad {
+public record NeoForgeMutableQuad(BakedQuad quad, QuadInstance instance) implements GlowtoneMutableQuad {
 	@Override
 	public float x(int vertex) {
-		return this.quad.x(vertex);
+		return this.quad.position(vertex).x();
 	}
 
 	@Override
 	public float y(int vertex) {
-		return this.quad.y(vertex);
+		return this.quad.position(vertex).y();
 	}
 
 	@Override
 	public float z(int vertex) {
-		return this.quad.z(vertex);
+		return this.quad.position(vertex).z();
 	}
 
 	@Override
@@ -43,11 +44,11 @@ public record NeoForgeMutableQuad(MutableQuad quad) implements GlowtoneMutableQu
 
 	@Override
 	public int color(int vertex) {
-		return this.quad.color(vertex);
+		return this.instance.getColor(vertex);
 	}
 
 	@Override
 	public void setColor(int vertex, int color) {
-		this.quad.setColor(vertex, color);
+		this.instance.setColor(vertex, color);
 	}
 }
