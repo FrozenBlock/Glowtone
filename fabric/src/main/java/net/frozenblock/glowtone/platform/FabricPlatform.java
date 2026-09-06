@@ -9,7 +9,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 
