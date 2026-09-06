@@ -21,18 +21,16 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.data.tag.GTBlockTagsProvider;
-import net.frozenblock.lib.feature_flag.api.FeatureFlagApi;
 
 public final class GTDataGenerator implements DataGeneratorEntrypoint {
 
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator dataGenerator) {
-		FeatureFlagApi.rebuild();
 		final FabricDataGenerator.Pack pack = dataGenerator.createPack();
 
 		// ASSETS
 		pack.addProvider((FabricDataGenerator.Pack.Factory<GTLightPropertiesProvider>) GTLightPropertiesProvider::new);
-		pack.addProvider((FabricDataGenerator.Pack.Factory<GTSchemaProvider>) GTSchemaProvider::new);
+		pack.addProvider((FabricDataGenerator.Pack.Factory<net.frozenblock.glowtone.data.GTSchemaProvider>) net.frozenblock.glowtone.data.GTSchemaProvider::new);
 
 		// DATA
 		pack.addProvider(GTBlockTagsProvider::new);

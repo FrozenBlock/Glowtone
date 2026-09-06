@@ -3,7 +3,7 @@ package net.frozenblock.glowtone.light.data.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.frozenblock.lib.block.api.attachment.BlockAttachmentKey;
+import net.frozenblock.glowtone.light.BlockLightPropertiesAttachment;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.ExtraCodecs;
@@ -28,7 +28,6 @@ public record BlockLightProperties(
 		Emissive.AUTOMATIC
 	);
 	public static final Simple EMPTY = new Simple(NONE);
-	static final BlockAttachmentKey<Baked> ATTACHMENT_KEY = BlockAttachmentKey.create(true, () -> "Block Light Properties");
 	public static final MapCodec<BlockLightProperties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		Codec.INT.optionalFieldOf("light_color").forGetter(BlockLightProperties::lightColor),
 		Codec.INT.optionalFieldOf("light_filter_color").forGetter(BlockLightProperties::lightFilterColor),
@@ -52,8 +51,7 @@ public record BlockLightProperties(
 	}
 
 	public static BlockLightProperties forBlockState(BlockState state) {
-		final BlockLightProperties.Baked baked = state.getBlock().frozenLib$getAttachedOrDefault(ATTACHMENT_KEY, EMPTY);
-		return baked == null ? NONE : baked.get(state);
+		return ((BlockLightPropertiesAttachment) state.getBlock()).glowtone$getProperties().get(state);
 	}
 
 	public boolean hasSameColorProperties(BlockLightProperties other) {

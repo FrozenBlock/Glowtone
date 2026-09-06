@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.material;
 
-import net.frozenblock.glowtone.material.data.MaterialShader;
+import net.frozenblock.glowtone.data.MaterialShader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;

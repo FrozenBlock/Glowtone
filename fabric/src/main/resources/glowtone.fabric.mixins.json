@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "net.frozenblock.glowtone.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "net.frozenblock.glowtone.mixin.GlowtoneMixinPlugin",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [],
+  "client": [
+    "client.ao_edge.fabric.AltModelBlockRendererImplMixin",
+    "client.bloom.fabric.AltModelBlockRendererMixin",
+    "client.colour.fabric.AltModelBlockRendererImplMixin",
+    "client.material.fabric.AltModelBlockRendererMaterialMixin"
+  ]
+}

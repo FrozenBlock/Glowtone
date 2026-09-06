@@ -17,8 +17,8 @@
 
 package net.frozenblock.glowtone.material;
 
-import net.frozenblock.glowtone.material.data.BlockMaterial;
-import net.frozenblock.glowtone.material.data.CullMode;
+import net.frozenblock.glowtone.data.BlockMaterial;
+import net.frozenblock.glowtone.data.CullMode;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.state.BlockState;

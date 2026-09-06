@@ -20,11 +20,8 @@ package net.frozenblock.glowtone.data;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
-import net.frozenblock.glowtone.material.data.CullMode;
 import net.frozenblock.glowtone.material.MaterialLayer;
-import net.frozenblock.glowtone.material.data.MaterialRenderShape;
 import net.frozenblock.glowtone.material.MaterialSamplers;
-import net.frozenblock.glowtone.material.data.MaterialShader;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -91,7 +88,7 @@ public final class GTSchemaProvider implements DataProvider {
 		// SHADER
 		final Property shaderFragment = entry(
 			"fragment",
-			identifier("Fragment source under " + MaterialShader.RESOURCE_PACK_DIRECTORY + ". Returns the vec4 fragment colour.")
+			identifier("Fragment source under " + net.frozenblock.glowtone.data.MaterialShader.RESOURCE_PACK_DIRECTORY + ". Returns the vec4 fragment colour.")
 		);
 		final Property shaderVertex = entry(
 			"vertex",

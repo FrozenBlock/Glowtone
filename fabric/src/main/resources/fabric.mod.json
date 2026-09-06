@@ -20,7 +20,7 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "net.frozenblock.glowtone.GlowtoneClient"
+      "net.frozenblock.glowtone.GlowtoneFabricClient"
     ],
     "fabric-datagen": [
       "net.frozenblock.glowtone.data.GTDataGenerator"
@@ -30,7 +30,8 @@
     ]
   },
   "mixins": [
-    "glowtone.mixins.json"
+    "glowtone.mixins.json",
+    "glowtone.fabric.mixins.json"
   ],
   "accessWidener": "glowtone.classtweaker",
   "depends": {

@@ -15,8 +15,6 @@ val minecraft_version: String by project
 val maven_group: String by project
 val archives_base_name: String by project
 
-val frozenlib_version: String by project
-
 val neoforge_version: String by project
 val neoforge_loader_version_range: String by project
 
@@ -108,11 +106,6 @@ sourceSets.configureEach {
 }
 
 dependencies {
-    api("net.frozenblock:frozenlib-neoforge:${frozenlib_version}")?.let {
-        accessTransformers(it)
-        interfaceInjectionData(it)
-    }
-
     // Sodium
     if (shouldRunSodium) {
         implementation("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")

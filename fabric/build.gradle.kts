@@ -22,7 +22,6 @@ val maven_group: String by project
 val archives_base_name: String by project
 
 val fabric_api_version: String by project
-val frozenlib_version: String by project
 
 val sodium_version: String by project
 val run_sodium: String by project
@@ -110,9 +109,6 @@ dependencies {
     implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
     implementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
 
-    // FrozenLib
-    api("net.frozenblock:frozenlib-fabric:${frozenlib_version}")
-
     // Sodium
     if (shouldRunSodium)
         implementation("net.caffeinemc:sodium-fabric:${sodium_version}")
@@ -165,7 +161,6 @@ tasks {
 
             "fabric_loader_version" to ">=$min_fabric_loader_version",
             "fabric_api_version" to ">=$fabric_api_version",
-            "frozenlib_version" to ">=${frozenlib_version.split('-').firstOrNull()}-"
         )
 
         properties.forEach { (a, b) -> inputs.property(a, b) }

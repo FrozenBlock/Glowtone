@@ -9,9 +9,10 @@ checkstyle {
     toolVersion = "10.20.2"
 }
 
-val frozenlib_version: String by project
 val sodium_version: String by project
 val lambdynamiclights_version: String by project
+val asyncparticles_version: String by project
+val yumi_mc_foundation_version: String by project
 
 val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
 val licenseChecks: Boolean = githubActions
@@ -37,17 +38,14 @@ tasks {
 }
 
 dependencies {
-    compileOnly("net.frozenblock:frozenlib-common:${frozenlib_version}")?.let {
-        accessTransformers(it)
-        interfaceInjectionData(it)
-    }
-
     compileOnly("net.fabricmc:sponge-mixin:0.17.3+mixin.0.8.7")
     compileOnly("io.github.llamalad7:mixinextras-common:0.5.3")
     annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.3")
 
     compileOnly("net.caffeinemc:sodium-fabric:${sodium_version}")
     compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${lambdynamiclights_version}")
+    compileOnly("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+    compileOnly("maven.modrinth:asyncparticles:${asyncparticles_version}")
 }
 
 configurations {

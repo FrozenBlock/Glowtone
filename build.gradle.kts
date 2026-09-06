@@ -27,12 +27,10 @@ checkstyle {
 }
 
 val min_fabric_loader_version: String by project
-val frozenlib_version: String by project
 
 mod {
     additional.add("fabric_loader_version", ">=$min_fabric_loader_version")
     additional.add("minecraft_version", "~26.2-")
-    additional.add("frozenlib_version", ">=${frozenlib_version.split('-').firstOrNull()}-")
     additional.add("mod_description")
 }
 
@@ -117,7 +115,6 @@ subprojects {
 
     dependencies {
         compileOnly("net.frozenblock:candlelight:+")
-        compileOnly("net.frozenblock:frozenlib-common:${frozenlib_version}")
     }
 
     repositories {

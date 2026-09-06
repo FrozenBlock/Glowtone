@@ -19,9 +19,10 @@ package net.frozenblock.glowtone.material.render;
 
 import com.mojang.logging.LogUtils;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.material.data.BlockMaterial;
+import net.frozenblock.glowtone.data.BlockMaterial;
 import net.frozenblock.glowtone.material.MaterialLayer;
-import net.frozenblock.glowtone.material.data.MaterialRenderShape;
+import net.frozenblock.glowtone.material.BlockMaterialAttachment;
+import net.frozenblock.glowtone.data.MaterialRenderShape;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -115,8 +116,7 @@ public final class BlockMaterialRenderer {
 	public static BlockMaterial.Assigned assigned(BlockState state) {
 		if (!any) return BlockMaterial.UNASSIGNED;
 
-		final BlockMaterial.Baked baked = state.getBlock().frozenLib$getAttachedOrDefault(BlockMaterial.ATTACHMENT_KEY, BlockMaterial.EMPTY);
-		return baked == null ? BlockMaterial.UNASSIGNED : baked.get(state);
+		return ((BlockMaterialAttachment) state.getBlock()).glowtone$getMaterial().get(state);
 	}
 
 	public static BlockMaterial forBlockState(BlockState state) {
