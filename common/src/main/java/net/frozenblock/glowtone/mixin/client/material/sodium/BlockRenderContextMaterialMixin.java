@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.material.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.AbstractBlockRenderContext;
+import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.MaterialCullHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -30,6 +31,7 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
@@ -42,6 +44,15 @@ public class BlockRenderContextMaterialMixin {
 	protected BlockAndTintGetter level;
 	@Shadow
 	protected BlockPos pos;
+
+	// sodium terrain quads never reach VertexConsumer
+	@Inject(method = "renderQuad", at = @At("HEAD"))
+	private void glowtone$beginMaterialQuad(MutableQuadViewImpl quad, CallbackInfo info) {
+		BlockMaterialRenderer.beginQuadAtlasCoord(
+			(quad.getTexU(0) + quad.getTexU(1) + quad.getTexU(2) + quad.getTexU(3)) * 0.25F,
+			(quad.getTexV(0) + quad.getTexV(1) + quad.getTexV(2) + quad.getTexV(3)) * 0.25F
+		);
+	}
 
 	@Inject(method = "shouldDrawSide", at = @At("HEAD"), cancellable = true)
 	private void glowtone$overrideFaceCulling(Direction facing, CallbackInfoReturnable<Boolean> info) {

@@ -198,6 +198,17 @@ public final class BlockMaterialRenderer {
 		state.quadIndex = matched ? assigned.shaderIndex() : NO_SHADER;
 	}
 
+	// resolve the target from the quad's atlas position.
+	public static void beginQuadAtlasCoord(float u, float v) {
+		if (!anyTargets) return;
+
+		STATE.get().quadIndex = indexForAtlasCoord(u, v);
+	}
+
+	public static int quadShaderIndex() {
+		return anyShaders ? quadIndex(STATE.get()) : NO_SHADER;
+	}
+
 	public static int indexForAtlasCoord(float u, float v) {
 		final BlockMaterial.Assigned assigned = current();
 		final int index = assigned.shaderIndex();

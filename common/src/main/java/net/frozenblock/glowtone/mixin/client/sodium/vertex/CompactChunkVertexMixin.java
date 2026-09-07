@@ -75,7 +75,7 @@ public class CompactChunkVertexMixin {
 		edgesRef.set(state.pendingEdges());
 		fluidRef.set(state.fluidQuad());
 		flagsRef.set((state.emissiveQuad() ? 0x000000FF : 0)
-			| (BlockMaterialRenderer.renderedShaderIndex() << 8));
+			| (BlockMaterialRenderer.quadShaderIndex() << 8));
 	}
 
 	@Inject(
