@@ -51,4 +51,19 @@ public class BlockLightTintedMixin implements BlockLightTinted {
 	public void glowtone$setBlockLightTint(int tint) {
 		this.glowtone$blockLightTint = tint;
 	}
+
+	@Unique
+	private int glowtone$skyLightTint = ChromaFold.NO_TINT;
+
+	@Unique
+	@Override
+	public int glowtone$skyLightTint() {
+		return this.glowtone$skyLightTint;
+	}
+
+	@Unique
+	@Override
+	public void glowtone$setSkyLightTint(int tint) {
+		this.glowtone$skyLightTint = tint;
+	}
 }

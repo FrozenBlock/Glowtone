@@ -123,6 +123,10 @@ final class GlowtoneChannels {
 		return (expand((hue >> 8) & 0xF) << 16) | (expand((hue >> 4) & 0xF) << 8) | expand(hue & 0xF);
 	}
 
+	static int normaliseHue(int red, int green, int blue) {
+		return normalise(red, green, blue);
+	}
+
 	private static int normalise(int red, int green, int blue) {
 		final int brightest = Math.max(red, Math.max(green, blue));
 		if (brightest <= 0) return WHITE_HUE;

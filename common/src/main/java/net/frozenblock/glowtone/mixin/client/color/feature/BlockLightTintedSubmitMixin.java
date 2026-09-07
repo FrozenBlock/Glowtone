@@ -39,5 +39,6 @@ public class BlockLightTintedSubmitMixin {
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void glowtone$captureBlockLightTint(CallbackInfo info) {
 		((BlockLightTinted) this).glowtone$setBlockLightTint(ChromaFold.currentSubmitTint());
+		((BlockLightTinted) this).glowtone$setSkyLightTint(ChromaFold.currentSubmitSkyTint());
 	}
 }

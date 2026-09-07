@@ -93,6 +93,13 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
 			original.lightCoords
 		);
 		original.glowtone$setBlockLightTint(blockLightTint);
+		original.glowtone$setSkyLightTint(ChromaFold.resolveEntitySkyTint(
+			original.x,
+			original.y,
+			original.z,
+			original.eyeHeight,
+			original.lightCoords
+		));
 		if (original.leashStates != null) {
 			for (EntityRenderState.LeashState leashState : original.leashStates) {
 				leashState.glowtone$setBlockLightTintA(blockLightTint);

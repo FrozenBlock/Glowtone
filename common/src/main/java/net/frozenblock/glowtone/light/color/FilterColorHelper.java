@@ -27,13 +27,25 @@ import net.minecraft.world.level.lighting.LightEngine;
 public final class FilterColorHelper {
 	public static final int FULLY_TRANSMISSIVE = 0xFFF;
 	public static final int MAX_CHANNEL = 0xF;
+	private static final int NEUTRAL_TOLERANCE = 2;
 
 	public static int filterFor(BlockState state) {
 		// TODO: see if methods that *call* this can be optimized first-hand
 		if (!BlockLightPropertiesRenderer.anyFilterColors()) return FULLY_TRANSMISSIVE;
 		if (state.isAir()) return FULLY_TRANSMISSIVE;
 		if (state.isSolidRender() && state.getLightDampening() >= LightEngine.MAX_LEVEL) return FULLY_TRANSMISSIVE;
-		return BlockLightProperties.forBlockState(state).lightFilterColor().orElse(FULLY_TRANSMISSIVE);
+		final int filter = BlockLightProperties.forBlockState(state).lightFilterColor().orElse(FULLY_TRANSMISSIVE);
+		return nearNeutral(filter) ? FULLY_TRANSMISSIVE : filter;
+	}
+
+	public static boolean nearNeutral(int packed) {
+		if (packed == FULLY_TRANSMISSIVE) return true;
+
+		final int r = red(packed);
+		final int g = green(packed);
+		final int b = blue(packed);
+		final int spread = Math.max(r, Math.max(g, b)) - Math.min(r, Math.min(g, b));
+		return spread <= NEUTRAL_TOLERANCE;
 	}
 
 	public static int red(int packed) {

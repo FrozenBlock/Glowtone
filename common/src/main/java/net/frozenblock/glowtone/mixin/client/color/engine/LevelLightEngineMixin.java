@@ -62,7 +62,7 @@ public class LevelLightEngineMixin {
 	private void glowtone$invalidateOnLightData(
 		LightLayer layer, SectionPos pos, DataLayer data, CallbackInfo info
 	) {
-		if (layer != LightLayer.BLOCK || !this.glowtone$isClient()) return;
+		if (!this.glowtone$isClient()) return;
 
 		GlowtoneColorWindowCache.invalidateAround(pos.x(), pos.y(), pos.z());
 	}

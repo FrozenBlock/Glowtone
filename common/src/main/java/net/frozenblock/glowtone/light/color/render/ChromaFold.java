@@ -44,10 +44,12 @@ public final class ChromaFold {
 	private static final float LUMA_BLUE = 0.0722F;
 
 	private static int[] tintStack = new int[16];
+	private static int[] skyTintStack = new int[16];
 	private static int tintDepth;
 	private static int blockTint = NO_TINT;
 	private static int movingBlockTint = NO_TINT;
 	private static int modelTint = NO_TINT;
+	private static int modelSkyTint = NO_TINT;
 
 	public static int resolveEntityBlockTint(double x, double y, double z, float eyeHeight, int lightCoords) {
 		final ColorProbe probe = ColorProbe.get();
@@ -128,10 +130,7 @@ public final class ChromaFold {
 		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), sky);
 	}
 
-	private static int skyTint(ColorProbe probe, int x, int y, int z, int lightCoords) {
-		float weight = skyLightShare(lightCoords);
-		if (weight <= 0F) return NO_TINT;
-
+	private static int skyTintHue(ColorProbe probe, int x, int y, int z) {
 		int red = 0;
 		int green = 0;
 		int blue = 0;
@@ -143,8 +142,14 @@ public final class ChromaFold {
 		}
 
 		final int count = SKY_SAMPLES.length / 3;
-		final int averaged = ((red / count) << 16) | ((green / count) << 8) | (blue / count);
-		return fold(ChromaBlender.skyTintArgb(averaged), weight);
+		return ChromaBlender.skyTintArgb(((red / count) << 16) | ((green / count) << 8) | (blue / count));
+	}
+
+	private static int skyTint(ColorProbe probe, int x, int y, int z, int lightCoords) {
+		final float weight = skyLightShare(lightCoords);
+		if (weight <= 0F) return NO_TINT;
+
+		return fold(skyTintHue(probe, x, y, z), weight);
 	}
 
 	private static float skyLightShare(int lightCoords) {
@@ -296,7 +301,15 @@ public final class ChromaFold {
 	}
 
 	public static void pushSubmitTint(int tint) {
-		if (tintDepth == tintStack.length) tintStack = Arrays.copyOf(tintStack, tintDepth * 2);
+		pushSubmitTint(tint, NO_TINT);
+	}
+
+	public static void pushSubmitTint(int tint, int skyTint) {
+		if (tintDepth == tintStack.length) {
+			tintStack = Arrays.copyOf(tintStack, tintDepth * 2);
+			skyTintStack = Arrays.copyOf(skyTintStack, tintDepth * 2);
+		}
+		skyTintStack[tintDepth] = skyTint;
 		tintStack[tintDepth++] = tint;
 	}
 
@@ -311,6 +324,10 @@ public final class ChromaFold {
 
 	public static int currentSubmitTint() {
 		return tintDepth == 0 ? NO_TINT : tintStack[tintDepth - 1];
+	}
+
+	public static int currentSubmitSkyTint() {
+		return tintDepth == 0 ? NO_TINT : skyTintStack[tintDepth - 1];
 	}
 
 	public static void beginBlockQuads(int tint, int lightCoords, RenderType renderType) {
@@ -351,12 +368,28 @@ public final class ChromaFold {
 		modelTint = tint;
 	}
 
+	public static void beginModelQuads(int tint, int skyTint) {
+		modelTint = tint;
+		modelSkyTint = skyTint;
+	}
+
 	public static void endModelQuads() {
 		modelTint = NO_TINT;
+		modelSkyTint = NO_TINT;
 	}
 
 	public static int modelTintColor() {
 		return modelTint;
+	}
+
+	public static int modelSkyTintColor() {
+		return modelSkyTint == NO_TINT ? ChromaBaker.NEUTRAL_SKY_ARGB : modelSkyTint;
+	}
+
+	public static int resolveEntitySkyTint(double x, double y, double z, float eyeHeight, int lightCoords) {
+		if (skyLightShare(lightCoords) <= 0F) return NO_TINT;
+
+		return skyTintHue(ColorProbe.get(), Mth.floor(x), Mth.floor(y + eyeHeight), Mth.floor(z));
 	}
 
 	public static int tintParticleColor(int color, int lightCoords, double x, double y, double z) {

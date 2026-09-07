@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.chunk.RenderSectionRegion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
@@ -64,7 +65,7 @@ public final class ChromaBaker {
 	}
 
 	public static void beginSodiumSection(
-		SectionPos origin, PalettedContainerRO<BlockState>[] grid
+		SectionPos origin, PalettedContainerRO<BlockState>[] grid, DataLayer @Nullable [] skyGrid
 	) {
 		final SectionState state = STATE.get();
 		if (!GlowtoneConfig.coloredLighting().enabled()) {
@@ -72,7 +73,7 @@ public final class ChromaBaker {
 			GlowtoneSectionColorStore.publish(origin.asLong(), null, null);
 			return;
 		}
-		state.beginSodium(origin, grid);
+		state.beginSodium(origin, grid, skyGrid);
 	}
 
 	public static void endSection() {
@@ -219,20 +220,24 @@ public final class ChromaBaker {
 
 			final long section = sectionPos.asLong();
 			final short[] cached = GlowtoneColorWindowCache.get(section);
+			final short[] cachedSky = GlowtoneColorWindowCache.getSky(section);
 			final GlowtoneRegionFlood flood = this.bind(sectionPos);
-			flood.begin(region, sectionPos.x(), sectionPos.y(), sectionPos.z(), cached);
+			flood.begin(region, sectionPos.x(), sectionPos.y(), sectionPos.z(), cached, cachedSky);
 			if (cached == null) GlowtoneColorWindowCache.put(section, flood.extractWindow());
+			if (cachedSky == null) GlowtoneColorWindowCache.putSky(section, flood.extractSkyWindow());
 			this.latch(flood);
 		}
 
-		void beginSodium(SectionPos sectionPos, PalettedContainerRO<BlockState>[] grid) {
+		void beginSodium(SectionPos sectionPos, PalettedContainerRO<BlockState>[] grid, DataLayer @Nullable [] skyGrid) {
 			this.reset();
 
 			final long section = sectionPos.asLong();
 			final short[] cached = GlowtoneColorWindowCache.get(section);
+			final short[] cachedSky = GlowtoneColorWindowCache.getSky(section);
 			final GlowtoneRegionFlood flood = this.bind(sectionPos);
-			flood.begin(grid, sectionPos.x() - 1, sectionPos.y() - 1, sectionPos.z() - 1, cached);
+			flood.begin(grid, skyGrid, sectionPos.x() - 1, sectionPos.y() - 1, sectionPos.z() - 1, cached, cachedSky);
 			if (cached == null) GlowtoneColorWindowCache.put(section, flood.extractWindow());
+			if (cachedSky == null) GlowtoneColorWindowCache.putSky(section, flood.extractSkyWindow());
 			this.latch(flood);
 
 			GlowtoneSectionColorStore.publish(
@@ -465,7 +470,7 @@ public final class ChromaBaker {
 						final int x = cornerX + dx;
 						final int y = cornerY + dy;
 						final int z = cornerZ + dz;
-						if (isOpaque(flood, x, y, z)) continue;
+						if (isOpaque(flood, x, y, z) || discards(flood, x, y, z)) continue;
 
 						final int hue = flood.skyHueAt(x, y, z);
 						red += (hue >> 16) & 0xFF;

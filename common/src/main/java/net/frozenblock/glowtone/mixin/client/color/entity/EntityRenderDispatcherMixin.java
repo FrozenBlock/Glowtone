@@ -40,7 +40,7 @@ public class EntityRenderDispatcherMixin {
 		S renderState, CameraRenderState camera, double x, double y, double z, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CallbackInfo info,
 		@Share("glowtone$pushedTint") LocalBooleanRef pushedTint
 	) {
-		ChromaFold.pushSubmitTint(renderState.glowtone$blockLightTint());
+		ChromaFold.pushSubmitTint(renderState.glowtone$blockLightTint(), renderState.glowtone$skyLightTint());
 		pushedTint.set(true);
 	}
 

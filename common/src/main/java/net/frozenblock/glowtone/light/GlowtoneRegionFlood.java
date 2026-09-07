@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.chunk.SectionCopy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
@@ -61,11 +62,9 @@ public final class GlowtoneRegionFlood {
 	private static final int CELLS = SPAN * SPAN * SPAN;
 
 	private static final int MAX_EXPANSIONS = CELLS;
-	private static final int SKY_SPREAD = 12;
-	private static final boolean SKY_TINT_ENABLED = false;
+	private static final int SKY_BUCKETS = (GlowtoneChannels.MAX_LEVEL + 1) * SPAN;
+	private static volatile boolean skyTintDimension = true;
 	private static final byte SKY_UNKNOWN = -1;
-	private static final short COLUMN_UNKNOWN = Short.MIN_VALUE;
-	private static final short COLUMN_OPEN = -1;
 	private static final int SECTION_GRID = RenderSectionRegion.SIZE;
 
 	private static final Direction[] DIRECTIONS = Direction.values();
@@ -102,8 +101,11 @@ public final class GlowtoneRegionFlood {
 	private boolean dynamicSeeded;
 	private short[] skyHues;
 	private byte[] skyLevels;
-	private short[] columnCover;
-	private byte[] skyReach;
+	private short[] skyOut;
+	private byte[] skyMarked;
+	private int[] skyOrder;
+	private int[] skyOrdered;
+	private final int[] skyBuckets = new int[SKY_BUCKETS];
 	private final IntArrayFIFOQueue skyQueue = new IntArrayFIFOQueue();
 	private @Nullable BlockState[] states;
 
@@ -113,6 +115,7 @@ public final class GlowtoneRegionFlood {
 	private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
 
 	private @Nullable RenderSectionRegion region;
+	private DataLayer @Nullable [] skyLightLayers;
 	private SectionCopy @Nullable [] sections;
 	private final PalettedContainerRO<BlockState>[] containers = newContainerGrid();
 	private boolean containersBound;
@@ -135,8 +138,9 @@ public final class GlowtoneRegionFlood {
 	}
 
 	public boolean begin(
-		PalettedContainerRO<BlockState>[] grid, int minSectionX, int minSectionY, int minSectionZ,
-		short @Nullable [] cachedWindow
+		PalettedContainerRO<BlockState>[] grid, DataLayer @Nullable [] skyGrid,
+		int minSectionX, int minSectionY, int minSectionZ,
+		short @Nullable [] cachedWindow, short @Nullable [] cachedSky
 	) {
 		this.release();
 
@@ -145,8 +149,9 @@ public final class GlowtoneRegionFlood {
 		System.arraycopy(grid, 0, this.containers, 0, grid.length);
 
 		final int emitterMask = emitterMask(this.containers);
+		final int tintMask = skyTintActive() && skyGrid != null ? tintMask(this.containers) : 0;
 		final boolean dynamic = GlowtoneDynamicLights.get().anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN);
-		if (emitterMask == 0 && !dynamic) return false;
+		if (emitterMask == 0 && tintMask == 0 && !dynamic) return false;
 
 		if (this.levels == null) {
 			this.levels = new short[CELLS];
@@ -157,6 +162,7 @@ public final class GlowtoneRegionFlood {
 		}
 
 		this.region = null;
+		this.skyLightLayers = skyGrid;
 		this.sections = null;
 		this.debugRegion = false;
 		this.containersBound = true;
@@ -164,29 +170,39 @@ public final class GlowtoneRegionFlood {
 		this.minBlockY = minSectionY << 4;
 		this.minBlockZ = minSectionZ << 4;
 		this.lit = false;
-		this.skyTinted = false;
+		this.skyTinted = tintMask != 0;
+
+		this.nextStateGeneration();
+		if (this.skyTinted) {
+			if (cachedSky != null) {
+				this.restoreSkyWindow(cachedSky);
+			} else {
+				this.floodSkyTint(this.containers, tintMask);
+			}
+		}
 
 		this.dynamicSeeded = dynamic;
 		if (cachedWindow != null && !dynamic) {
 			this.restoreWindow(cachedWindow);
-			return this.lit;
+			return this.lit || this.skyTinted;
 		}
 
-		java.util.Arrays.fill(this.levels, (short) 0);
-		java.util.Arrays.fill(this.bucketSizes, 0);
-		this.nextStateGeneration();
-		this.levelsBeyondWindow = true;
+		if (emitterMask != 0 || dynamic) {
+			java.util.Arrays.fill(this.levels, (short) 0);
+			java.util.Arrays.fill(this.bucketSizes, 0);
+			this.levelsBeyondWindow = true;
 
-		this.seed(this.containers, emitterMask);
-		this.propagate();
-		this.seedDynamicLights();
+			this.seed(this.containers, emitterMask);
+			this.propagate();
+			this.seedDynamicLights();
+		}
 
-		return this.lit;
+		return this.lit || this.skyTinted;
 	}
 
 	public boolean begin(
 		RenderSectionRegion region, int centreSectionX, int centreSectionY, int centreSectionZ,
-		short @Nullable [] cachedWindow
+		short @Nullable [] cachedWindow, short @Nullable [] cachedSky
 	) {
 		this.release();
 
@@ -210,7 +226,7 @@ public final class GlowtoneRegionFlood {
 		}
 
 		final int emitterMask = emitterMask(this.containers);
-		final int tintMask = SKY_TINT_ENABLED ? tintMask(this.containers) : 0;
+		final int tintMask = skyTintActive() ? tintMask(this.containers) : 0;
 		if (emitterMask == 0
 			&& tintMask == 0
 			&& !GlowtoneDynamicLights.get().anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN)
@@ -234,9 +250,16 @@ public final class GlowtoneRegionFlood {
 		this.minBlockY = minSectionY << 4;
 		this.minBlockZ = minSectionZ << 4;
 		this.lit = false;
-		this.skyTinted = SKY_TINT_ENABLED && tintMask != 0;
+		this.skyTinted = tintMask != 0;
 
-		if (this.skyTinted) this.floodSkyTint(this.containers, tintMask);
+		this.nextStateGeneration();
+		if (this.skyTinted) {
+			if (cachedSky != null) {
+				this.restoreSkyWindow(cachedSky);
+			} else {
+				this.floodSkyTint(this.containers, tintMask);
+			}
+		}
 
 		final boolean anyDynamic = GlowtoneDynamicLights.get().anyWithin(this.minBlockX, this.minBlockY, this.minBlockZ, SPAN);
 		this.dynamicSeeded = anyDynamic;
@@ -248,7 +271,6 @@ public final class GlowtoneRegionFlood {
 		if (emitterMask != 0 || anyDynamic) {
 			Arrays.fill(this.levels, (short) 0);
 			Arrays.fill(this.bucketSizes, 0);
-			this.nextStateGeneration();
 			this.levelsBeyondWindow = true;
 
 			this.seed(this.containers, emitterMask);
@@ -256,6 +278,39 @@ public final class GlowtoneRegionFlood {
 			if (anyDynamic) this.seedDynamicLights();
 		}
 		return this.lit || this.skyTinted;
+	}
+
+	public short @Nullable [] extractSkyWindow() {
+		if (!this.skyTinted || this.skyHues == null) return null;
+
+		final short[] window = new short[WINDOW_CELLS];
+		int at = 0;
+		for (int y = 0; y < WINDOW_SPAN; y++) {
+			for (int z = 0; z < WINDOW_SPAN; z++) {
+				final int row = cellIndex(WINDOW_MIN, WINDOW_MIN + y, WINDOW_MIN + z);
+				for (int x = 0; x < WINDOW_SPAN; x++) {
+					window[at + x] = (short) (this.skyHues[row + x] & GlowtoneChannels.WHITE_HUE);
+				}
+				at += WINDOW_SPAN;
+			}
+		}
+		return window;
+	}
+
+	private void restoreSkyWindow(short[] window) {
+		this.allocateSky();
+		Arrays.fill(this.skyHues, (short) 0);
+
+		int at = 0;
+		for (int y = 0; y < WINDOW_SPAN; y++) {
+			for (int z = 0; z < WINDOW_SPAN; z++) {
+				final int row = cellIndex(WINDOW_MIN, WINDOW_MIN + y, WINDOW_MIN + z);
+				for (int x = 0; x < WINDOW_SPAN; x++) {
+					this.skyHues[row + x] = (short) (window[at + x] & GlowtoneChannels.WHITE_HUE);
+				}
+				at += WINDOW_SPAN;
+			}
+		}
 	}
 
 	public short @Nullable [] extractWindow() {
@@ -302,37 +357,49 @@ public final class GlowtoneRegionFlood {
 		return this.lit;
 	}
 
+	public static void setSkyTintDimension(boolean value) {
+		skyTintDimension = value;
+	}
+
+	private static boolean skyTintActive() {
+		return skyTintDimension;
+	}
+
 	public boolean hasSkyTint() {
 		return this.skyTinted;
 	}
 
 	public int skyHueAt(int worldX, int worldY, int worldZ) {
-		if (!this.skyTinted || this.sections == null) return WHITE_RGB;
+		if (!this.skyTinted || !this.containersBound) return WHITE_RGB;
 
 		final int rx = worldX - this.minBlockX;
 		final int ry = worldY - this.minBlockY;
 		final int rz = worldZ - this.minBlockZ;
 		if (isOutside(rx, ry, rz)) return WHITE_RGB;
 
-		final int hue = this.fadedHue(cellIndex(rx, ry, rz));
+		final int hue = this.incidentHue(cellIndex(rx, ry, rz));
 		if (hue == 0 || hue == GlowtoneChannels.WHITE_HUE) return WHITE_RGB;
 
 		return GlowtoneChannels.toNormalisedRgb(GlowtoneChannels.pack(GlowtoneChannels.MAX_LEVEL, hue));
 	}
 
-	private void floodSkyTint(PalettedContainerRO<BlockState>[] sections, int tintMask) {
-		if (this.skyHues == null) {
-			this.skyHues = new short[CELLS];
-			this.skyLevels = new byte[CELLS];
-			this.skyReach = new byte[CELLS];
-			this.columnCover = new short[SPAN * SPAN];
-		}
+	private void allocateSky() {
+		if (this.skyHues != null) return;
+		this.skyHues = new short[CELLS];
+		this.skyOut = new short[CELLS];
+		this.skyLevels = new byte[CELLS];
+		this.skyMarked = new byte[CELLS];
+		this.skyOrder = new int[CELLS];
+		this.skyOrdered = new int[CELLS];
+	}
 
+	private void floodSkyTint(PalettedContainerRO<BlockState>[] sections, int tintMask) {
+		this.allocateSky();
 		Arrays.fill(this.skyHues, (short) 0);
-		Arrays.fill(this.skyReach, (byte) 0);
 		Arrays.fill(this.skyLevels, SKY_UNKNOWN);
-		Arrays.fill(this.columnCover, COLUMN_UNKNOWN);
+		Arrays.fill(this.skyMarked, (byte) 0);
 		this.skyQueue.clear();
+		int marked = 0;
 
 		for (int index = 0; index < sections.length; index++) {
 			if ((tintMask & (1 << index)) == 0) continue;
@@ -347,23 +414,190 @@ public final class GlowtoneRegionFlood {
 						final int rx = baseX + x;
 						final int ry = baseY + y;
 						final int rz = baseZ + z;
+						if (!withinReach(rx, rz, GlowtoneChannels.MAX_LEVEL)) continue;
+						if (!TINTS_DAYLIGHT.test(this.stateAt(this.minBlockX + rx, this.minBlockY + ry, this.minBlockZ + rz))) continue;
 
-						final BlockState state = this.stateAt(this.minBlockX + rx, this.minBlockY + ry, this.minBlockZ + rz);
-						final int filter = FilterColorHelper.filterFor(state);
-						if (filter == FilterColorHelper.FULLY_TRANSMISSIVE) continue;
-						if (!state.getFluidState().isEmpty()) continue;
-						if (this.skyLevelAt(rx, ry, rz) <= 0) continue;
+						final int level = this.skyLevelAt(rx, ry, rz);
+						if (level <= 0 || !withinReach(rx, rz, level)) continue;
 
 						final int cell = cellIndex(rx, ry, rz);
-						final int existing = this.skyHues[cell] & GlowtoneChannels.WHITE_HUE;
-						final int incoming = existing == 0 ? GlowtoneChannels.WHITE_HUE : existing;
-						this.writeSky(cell, GlowtoneChannels.filterHue(incoming, filter), SKY_SPREAD);
+						if (this.skyMarked[cell] != 0) continue;
+						this.skyMarked[cell] = 1;
+						this.skyOrder[marked++] = cell;
+						this.skyQueue.enqueue(cell);
 					}
 				}
 			}
 		}
 
-		this.drainSkyQueue();
+		while (!this.skyQueue.isEmpty()) {
+			final int cell = this.skyQueue.dequeueInt();
+			final int rx = cell % SPAN;
+			final int rz = (cell / SPAN) % SPAN;
+			final int ry = cell / SPAN_SQ;
+			final int level = this.skyLevels[cell];
+
+			for (Direction direction : DIRECTIONS) {
+				final int nx = rx + direction.getStepX();
+				final int ny = ry + direction.getStepY();
+				final int nz = rz + direction.getStepZ();
+				if (isOutside(nx, ny, nz)) continue;
+
+				final int next = cellIndex(nx, ny, nz);
+				if (this.skyMarked[next] != 0) continue;
+
+				final int dampening = this.stateAt(this.minBlockX + nx, this.minBlockY + ny, this.minBlockZ + nz).getLightDampening();
+				if (dampening >= GlowtoneChannels.MAX_LEVEL) continue;
+
+				final int neighbour = this.skyLevelAt(nx, ny, nz);
+				if (neighbour <= 0 || level - feedCost(direction == Direction.DOWN, level, dampening) != neighbour) continue;
+				if (!withinReach(nx, nz, neighbour)) continue;
+
+				this.skyMarked[next] = 1;
+				this.skyOrder[marked++] = next;
+				this.skyQueue.enqueue(next);
+			}
+		}
+
+		final int core = marked;
+		for (int i = 0; i < core; i++) {
+			final int cell = this.skyOrder[i];
+			final int rx = cell % SPAN;
+			final int rz = (cell / SPAN) % SPAN;
+			final int ry = cell / SPAN_SQ;
+
+			for (Direction direction : DIRECTIONS) {
+				final int nx = rx + direction.getStepX();
+				final int ny = ry + direction.getStepY();
+				final int nz = rz + direction.getStepZ();
+				if (isOutside(nx, ny, nz)) continue;
+
+				final int next = cellIndex(nx, ny, nz);
+				if (this.skyMarked[next] != 0) continue;
+				if (this.stateAt(this.minBlockX + nx, this.minBlockY + ny, this.minBlockZ + nz).getLightDampening() >= GlowtoneChannels.MAX_LEVEL) continue;
+
+				final int neighbour = this.skyLevelAt(nx, ny, nz);
+				if (neighbour <= 0 || !withinReach(nx, nz, neighbour)) continue;
+
+				this.skyMarked[next] = 1;
+				this.skyOrder[marked++] = next;
+			}
+		}
+
+		final int[] buckets = this.skyBuckets;
+		Arrays.fill(buckets, 0);
+		for (int i = 0; i < marked; i++) buckets[this.skyBucket(this.skyOrder[i])]++;
+		for (int i = 1; i < buckets.length; i++) buckets[i] += buckets[i - 1];
+		for (int i = marked - 1; i >= 0; i--) {
+			final int cell = this.skyOrder[i];
+			this.skyOrdered[--buckets[this.skyBucket(cell)]] = cell;
+		}
+
+		for (int i = 0; i < marked; i++) this.resolveSkyCell(this.skyOrdered[i]);
+		for (int i = 0; i < marked; i++) this.blendSkyCell(this.skyOrdered[i]);
+	}
+
+	private static final int[] SKY_PATH_WEIGHT = {100, 80, 64, 51, 41, 33};
+
+	private void blendSkyCell(int cell) {
+		final int rx = cell % SPAN;
+		final int rz = (cell / SPAN) % SPAN;
+		final int ry = cell / SPAN_SQ;
+		final int level = this.skyLevels[cell];
+		final int dampening = this.stateAt(this.minBlockX + rx, this.minBlockY + ry, this.minBlockZ + rz).getLightDampening();
+
+		int red = 0;
+		int green = 0;
+		int blue = 0;
+		int total = 0;
+		for (Direction direction : DIRECTIONS) {
+			final int nx = rx + direction.getStepX();
+			final int ny = ry + direction.getStepY();
+			final int nz = rz + direction.getStepZ();
+			if (isOutside(nx, ny, nz)) continue;
+
+			final int neighbour = this.skyLevelAt(nx, ny, nz);
+			if (neighbour <= 0) continue;
+			if (this.stateAt(this.minBlockX + nx, this.minBlockY + ny, this.minBlockZ + nz).getLightDampening() >= GlowtoneChannels.MAX_LEVEL) continue;
+
+			final int deficit = Math.max(0, level - (neighbour - feedCost(direction == Direction.UP, neighbour, dampening)));
+			if (deficit >= SKY_PATH_WEIGHT.length) continue;
+
+			final int from = cellIndex(nx, ny, nz);
+			if (deficit > 0 && this.skyMarked[from] != 0 && this.skyOut[from] != this.skyHues[from]) continue;
+			int hue = this.skyMarked[from] != 0 ? this.skyOut[from] & GlowtoneChannels.WHITE_HUE : GlowtoneChannels.WHITE_HUE;
+			if (hue == 0) hue = GlowtoneChannels.WHITE_HUE;
+
+			final int weight = SKY_PATH_WEIGHT[deficit];
+			red += ((hue >> 8) & 0xF) * 0x11 * weight;
+			green += ((hue >> 4) & 0xF) * 0x11 * weight;
+			blue += (hue & 0xF) * 0x11 * weight;
+			total += weight;
+		}
+
+		if (total == 0) return;
+		this.skyHues[cell] = (short) GlowtoneChannels.normaliseHue(
+			(red / total) >> 4, (green / total) >> 4, (blue / total) >> 4
+		);
+	}
+
+	private int skyBucket(int cell) {
+		return (GlowtoneChannels.MAX_LEVEL - this.skyLevels[cell]) * SPAN + (SPAN - 1 - cell / SPAN_SQ);
+	}
+
+	private void resolveSkyCell(int cell) {
+		final int rx = cell % SPAN;
+		final int rz = (cell / SPAN) % SPAN;
+		final int ry = cell / SPAN_SQ;
+		final int level = this.skyLevels[cell];
+		final BlockState state = this.stateAt(this.minBlockX + rx, this.minBlockY + ry, this.minBlockZ + rz);
+		final int dampening = state.getLightDampening();
+
+		int red = 0;
+		int green = 0;
+		int blue = 0;
+		int feeders = 0;
+		for (Direction direction : DIRECTIONS) {
+			final int fx = rx + direction.getStepX();
+			final int fy = ry + direction.getStepY();
+			final int fz = rz + direction.getStepZ();
+			if (isOutside(fx, fy, fz)) continue;
+
+			final int feeder = this.skyLevelAt(fx, fy, fz);
+			if (feeder <= 0 || feeder - feedCost(direction == Direction.UP, feeder, dampening) != level) continue;
+			if (this.stateAt(this.minBlockX + fx, this.minBlockY + fy, this.minBlockZ + fz).getLightDampening() >= GlowtoneChannels.MAX_LEVEL) continue;
+
+			final int from = cellIndex(fx, fy, fz);
+			int hue = this.skyMarked[from] != 0 ? this.skyOut[from] & GlowtoneChannels.WHITE_HUE : GlowtoneChannels.WHITE_HUE;
+			if (hue == 0) hue = GlowtoneChannels.WHITE_HUE;
+			red += (hue >> 8) & 0xF;
+			green += (hue >> 4) & 0xF;
+			blue += hue & 0xF;
+			feeders++;
+		}
+
+		final int incident = feeders == 0
+			? GlowtoneChannels.WHITE_HUE
+			: GlowtoneChannels.normaliseHue(red / feeders, green / feeders, blue / feeders);
+		this.skyHues[cell] = (short) incident;
+
+		final int filter = TINTS_DAYLIGHT.test(state) ? FilterColorHelper.filterFor(state) : FilterColorHelper.FULLY_TRANSMISSIVE;
+		this.skyOut[cell] = (short) (filter == FilterColorHelper.FULLY_TRANSMISSIVE ? incident : GlowtoneChannels.filterHue(incident, filter));
+	}
+
+	private static int feedCost(boolean downward, int fromLevel, int enteredDampening) {
+		if (downward && fromLevel == GlowtoneChannels.MAX_LEVEL && enteredDampening == 0) return 0;
+		return Math.max(1, enteredDampening);
+	}
+
+	private static boolean withinReach(int rx, int rz, int level) {
+		final int dx = Math.max(0, Math.max(WINDOW_MIN - rx, rx - WINDOW_MAX));
+		final int dz = Math.max(0, Math.max(WINDOW_MIN - rz, rz - WINDOW_MAX));
+		return dx + dz < level;
+	}
+
+	private int incidentHue(int cell) {
+		return this.skyHues[cell] & GlowtoneChannels.WHITE_HUE;
 	}
 
 	private int skyLevelAt(int rx, int ry, int rz) {
@@ -376,88 +610,16 @@ public final class GlowtoneRegionFlood {
 		if (region != null) {
 			this.scratchPos.set(this.minBlockX + rx, this.minBlockY + ry, this.minBlockZ + rz);
 			level = region.getLightEngine().getLayerListener(LightLayer.SKY).getLightValue(this.scratchPos);
+		} else {
+			final DataLayer[] layers = this.skyLightLayers;
+			if (layers != null) {
+				final DataLayer layer = layers[index27(rx >> 4, ry >> 4, rz >> 4)];
+				if (layer != null) level = layer.get(rx & 15, ry & 15, rz & 15);
+			}
 		}
 
 		this.skyLevels[cell] = (byte) level;
 		return level;
-	}
-
-	private int fadedHue(int cell) {
-		final int hue = this.skyHues[cell] & GlowtoneChannels.WHITE_HUE;
-		if (hue == 0) return 0;
-
-		final int reach = this.skyReach[cell];
-		if (reach >= SKY_SPREAD) return hue;
-
-		return GlowtoneChannels.hue(GlowtoneChannels.blendHues(
-			GlowtoneChannels.pack(GlowtoneChannels.MAX_LEVEL, hue),
-			GlowtoneChannels.pack(GlowtoneChannels.MAX_LEVEL, GlowtoneChannels.WHITE_HUE),
-			reach,
-			SKY_SPREAD - reach
-		));
-	}
-
-	private void drainSkyQueue() {
-		while (!this.skyQueue.isEmpty()) {
-			final int packed = this.skyQueue.dequeueInt();
-			final int cell = packed & 0x3FFFFF;
-			final int budget = packed >>> 22;
-			if (budget <= 0) continue;
-
-			final int rx = cell % SPAN;
-			final int rz = (cell / SPAN) % SPAN;
-			final int ry = cell / SPAN_SQ;
-			final int hue = this.skyHues[cell] & GlowtoneChannels.WHITE_HUE;
-			final int sourceSky = this.skyLevelAt(rx, ry, rz);
-
-			for (Direction direction : DIRECTIONS) {
-				final int nx = rx + direction.getStepX();
-				final int ny = ry + direction.getStepY();
-				final int nz = rz + direction.getStepZ();
-				if (isOutside(nx, ny, nz)) continue;
-
-				final BlockState state = this.stateAt(this.minBlockX + nx, this.minBlockY + ny, this.minBlockZ + nz);
-				if (state.getLightDampening() >= GlowtoneChannels.MAX_LEVEL) continue;
-
-				final int neighbourSky = this.skyLevelAt(nx, ny, nz);
-				if (neighbourSky <= 0 || neighbourSky > sourceSky) continue;
-				if (direction != Direction.DOWN && !this.isUnderCover(nx, ny, nz)) continue;
-
-				final int filter = FilterColorHelper.filterFor(state);
-				final int next = filter == FilterColorHelper.FULLY_TRANSMISSIVE ? hue : GlowtoneChannels.filterHue(hue, filter);
-				this.writeSky(cellIndex(nx, ny, nz), next, budget - 1);
-			}
-		}
-	}
-
-	private boolean isUnderCover(int rx, int ry, int rz) {
-		final int column = rz * SPAN + rx;
-		int top = this.columnCover[column];
-
-		if (top == COLUMN_UNKNOWN) {
-			top = COLUMN_OPEN;
-			for (int y = SPAN - 1; y >= 0; y--) {
-				final BlockState state = this.stateAt(this.minBlockX + rx, this.minBlockY + y, this.minBlockZ + rz);
-				if (state.getLightDampening() >= GlowtoneChannels.MAX_LEVEL
-					|| FilterColorHelper.filterFor(state) != FilterColorHelper.FULLY_TRANSMISSIVE
-				) {
-					top = y;
-					break;
-				}
-			}
-			this.columnCover[column] = (short) top;
-		}
-
-		return ry < top;
-	}
-
-	private void writeSky(int cell, int hue, int budget) {
-		if (budget < 0) return;
-		if ((this.skyHues[cell] & GlowtoneChannels.WHITE_HUE) != 0) return;
-
-		this.skyHues[cell] = (short) (hue & GlowtoneChannels.WHITE_HUE);
-		this.skyReach[cell] = (byte) budget;
-		if (budget > 0) this.skyQueue.enqueue(cell | (budget << 22));
 	}
 
 	private static int tintMask(PalettedContainerRO<BlockState>[] sections) {
@@ -475,6 +637,7 @@ public final class GlowtoneRegionFlood {
 
 	public void release() {
 		this.region = null;
+		this.skyLightLayers = null;
 		this.containersBound = false;
 		Arrays.fill(this.containers, null);
 		this.sections = null;
@@ -596,15 +759,17 @@ public final class GlowtoneRegionFlood {
 					int blue = 0;
 					boolean tinted = false;
 
+					int counted = 0;
 					for (int dy = 0; dy < 2; dy++) {
 						for (int dz = 0; dz < 2; dz++) {
 							for (int dx = 0; dx < 2; dx++) {
-								int hue = this.fadedHue(cellIndex(
-									16 + (cellX << 1) + dx,
-									16 + (cellY << 1) + dy,
-									16 + (cellZ << 1) + dz
-								));
+								final int rx = 16 + (cellX << 1) + dx;
+								final int ry = 16 + (cellY << 1) + dy;
+								final int rz = 16 + (cellZ << 1) + dz;
+								final BlockState state = this.stateAt(this.minBlockX + rx, this.minBlockY + ry, this.minBlockZ + rz);
+								if (state.getLightDampening() >= GlowtoneChannels.MAX_LEVEL || TINTS_DAYLIGHT.test(state)) continue;
 
+								int hue = this.incidentHue(cellIndex(rx, ry, rz));
 								if (hue == 0) {
 									hue = GlowtoneChannels.WHITE_HUE;
 								} else {
@@ -614,13 +779,14 @@ public final class GlowtoneRegionFlood {
 								red += (hue >> 8) & 0xF;
 								green += (hue >> 4) & 0xF;
 								blue += hue & 0xF;
+								counted++;
 							}
 						}
 					}
 
-					if (!tinted) continue;
+					if (!tinted || counted == 0) continue;
 
-					final int hue = ((red >> 3) << 8) | ((green >> 3) << 4) | (blue >> 3);
+					final int hue = GlowtoneChannels.normaliseHue(red / counted, green / counted, blue / counted);
 					if (hue == GlowtoneChannels.WHITE_HUE) continue;
 
 					if (payload == null) payload = new short[ENTITY_CELLS];

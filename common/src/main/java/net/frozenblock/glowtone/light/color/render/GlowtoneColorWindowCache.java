@@ -37,8 +37,29 @@ public final class GlowtoneColorWindowCache {
 		}
 	);
 
+	private static final Map<Long, short[]> SKY_WINDOWS = Collections.synchronizedMap(
+		new LinkedHashMap<>(MAX_ENTRIES * 2, 0.75F, true) {
+			@Override
+			protected boolean removeEldestEntry(Map.Entry<Long, short[]> eldest) {
+				return this.size() > MAX_ENTRIES;
+			}
+		}
+	);
+
 	public static short @Nullable [] get(long section) {
 		return WINDOWS.get(section);
+	}
+
+	public static short @Nullable [] getSky(long section) {
+		return SKY_WINDOWS.get(section);
+	}
+
+	public static void putSky(long section, short @Nullable [] window) {
+		if (window == null) {
+			SKY_WINDOWS.remove(section);
+		} else {
+			SKY_WINDOWS.put(section, window);
+		}
 	}
 
 	public static void put(long section, short @Nullable [] window) {
@@ -51,14 +72,17 @@ public final class GlowtoneColorWindowCache {
 
 	public static void invalidate(long section) {
 		WINDOWS.remove(section);
+		SKY_WINDOWS.remove(section);
 	}
 
 	public static void invalidateAround(int sectionX, int sectionY, int sectionZ) {
-		if (WINDOWS.isEmpty()) return;
+		if (WINDOWS.isEmpty() && SKY_WINDOWS.isEmpty()) return;
 		for (int x = -1; x <= 1; x++) {
 			for (int y = -1; y <= 1; y++) {
 				for (int z = -1; z <= 1; z++) {
-					WINDOWS.remove(SectionPos.asLong(sectionX + x, sectionY + y, sectionZ + z));
+					final long node = SectionPos.asLong(sectionX + x, sectionY + y, sectionZ + z);
+					WINDOWS.remove(node);
+					SKY_WINDOWS.remove(node);
 				}
 			}
 		}
@@ -66,6 +90,7 @@ public final class GlowtoneColorWindowCache {
 
 	public static void clear() {
 		WINDOWS.clear();
+		SKY_WINDOWS.clear();
 	}
 
 	private GlowtoneColorWindowCache() {}

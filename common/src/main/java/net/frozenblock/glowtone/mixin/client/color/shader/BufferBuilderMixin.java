@@ -145,7 +145,7 @@ public class BufferBuilderMixin {
 		}
 
 		glowtone$writeARGB(pointer + GTDefaultVertexFormat.CHROMA_OFFSET_ENTITY, ChromaFold.modelTintColor());
-		glowtone$writeARGB(pointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, ChromaBaker.NEUTRAL_SKY_ARGB);
+		glowtone$writeARGB(pointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_ENTITY, ChromaFold.modelSkyTintColor());
 	}
 
 	@Unique

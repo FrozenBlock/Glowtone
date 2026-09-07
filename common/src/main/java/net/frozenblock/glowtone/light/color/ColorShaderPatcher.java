@@ -56,6 +56,7 @@ public final class ColorShaderPatcher {
 		    vec4 fullLight = sample_lightmap(Sampler2, UV2);
 		    vec4 skyOnlyLight = sample_lightmap(Sampler2, ivec2(0, UV2.y));
 		    vec3 blockLightProperties = max(fullLight.rgb - skyOnlyLight.rgb, vec3(0.0));
+		    float glowtoneNightVision = smoothstep(0.35, 0.7, dot(sample_lightmap(Sampler2, ivec2(0, 0)).rgb, vec3(0.2126, 0.7152, 0.0722)));
 
 		""";
 
@@ -71,7 +72,9 @@ public final class ColorShaderPatcher {
 	// Sky lightColor is tinted by whatever it passed through on the way down (a stained-glass roof), and block lightColor
 	// by the color of the source. GlowtoneSkyChroma only ever ATTENUATES — it is plain white where nothing overhead
 	// colors the daylight — so open sky stays exactly as vanilla renders it.
-	private static final String SAMPLE_LIGHTMAP_REPLACEMENT = "vec4(skyOnlyLight.rgb * GlowtoneSkyChroma.rgb + blockLightProperties * GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, fullLight.a)";
+	private static final String SAMPLE_LIGHTMAP_REPLACEMENT =
+		"vec4(skyOnlyLight.rgb * mix(GlowtoneSkyChroma.rgb, vec3(1.0), glowtoneNightVision)"
+			+ " + blockLightProperties * mix(GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, vec3(1.0), glowtoneNightVision), fullLight.a)";
 
 	private static final String SODIUM_INIT = "_vert_init();";
 	private static final String SODIUM_OUT_COLOR = "out vec4 v_Color;";
@@ -87,10 +90,11 @@ public final class ColorShaderPatcher {
 		    vec4 glowtone_fullLight = texture(u_LightTex, _vert_tex_light_coord);
 		    vec4 glowtone_skyOnlyLight = texture(u_LightTex, vec2(0.0, _vert_tex_light_coord.y));
 		    vec3 glowtone_blockLight = max(glowtone_fullLight.rgb - glowtone_skyOnlyLight.rgb, vec3(0.0));
+		    float glowtone_nightVision = smoothstep(0.35, 0.7, dot(texture(u_LightTex, vec2(0.0, 0.0)).rgb, vec3(0.2126, 0.7152, 0.0722)));
 		    const float GLOWTONE_CHROMA_SCALE = 2.0;
 		    v_Color = _vert_color * vec4(
-		        glowtone_skyOnlyLight.rgb * a_GlowtoneSkyChroma.rgb
-		            + glowtone_blockLight * a_GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE,
+		        glowtone_skyOnlyLight.rgb * mix(a_GlowtoneSkyChroma.rgb, vec3(1.0), glowtone_nightVision)
+		            + glowtone_blockLight * mix(a_GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, vec3(1.0), glowtone_nightVision),
 		        glowtone_fullLight.a);
 		""";
 

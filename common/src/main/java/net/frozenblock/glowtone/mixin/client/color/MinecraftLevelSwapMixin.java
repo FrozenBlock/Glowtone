@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.mixin.client.color;
 
+import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
 import net.frozenblock.glowtone.light.color.render.GlowtoneColorWindowCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -34,10 +35,12 @@ public class MinecraftLevelSwapMixin {
 	@Inject(method = "setLevel", at = @At("HEAD"))
 	private void glowtone$dropWindowsOnLevelSwap(ClientLevel level, CallbackInfo info) {
 		GlowtoneColorWindowCache.clear();
+		GlowtoneRegionFlood.setSkyTintDimension(level != null && level.dimensionType().hasSkyLight());
 	}
 
 	@Inject(method = "disconnectFromWorld", at = @At("HEAD"))
 	private void glowtone$dropWindowsOnDisconnect(@Nullable Component message, CallbackInfo info) {
 		GlowtoneColorWindowCache.clear();
+		GlowtoneRegionFlood.setSkyTintDimension(false);
 	}
 }

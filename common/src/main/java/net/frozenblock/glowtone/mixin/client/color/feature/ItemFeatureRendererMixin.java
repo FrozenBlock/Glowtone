@@ -31,7 +31,7 @@ public class ItemFeatureRendererMixin {
 
 	@Inject(method = "prepareSubmit", at = @At("HEAD"))
 	private void glowtone$beginItemQuads(ItemFeatureRenderer.Submit submit, boolean foil, CallbackInfo info) {
-		ChromaFold.beginModelQuads(submit.glowtone$blockLightTint());
+		ChromaFold.beginModelQuads(submit.glowtone$blockLightTint(), submit.glowtone$skyLightTint());
 	}
 
 	@Inject(method = "prepareSubmit", at = @At("RETURN"))

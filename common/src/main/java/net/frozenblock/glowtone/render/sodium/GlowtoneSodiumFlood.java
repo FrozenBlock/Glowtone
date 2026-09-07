@@ -21,6 +21,8 @@ import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.caffeinemc.mods.sodium.client.world.cloned.ClonedChunkSection;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
 
@@ -34,13 +36,18 @@ public final class GlowtoneSodiumFlood {
 	private static final ThreadLocal<PalettedContainerRO<BlockState>[]> GRIDS =
 		ThreadLocal.withInitial(() -> new PalettedContainerRO[GRID * GRID * GRID]);
 
+	private static final ThreadLocal<DataLayer[]> SKY_GRIDS =
+		ThreadLocal.withInitial(() -> new DataLayer[GRID * GRID * GRID]);
+
 	private GlowtoneSodiumFlood() {
 	}
 
 	public static void begin(ChunkRenderContext context) {
 		final SectionPos origin = context.getOrigin();
 		final PalettedContainerRO<BlockState>[] grid = GRIDS.get();
+		final DataLayer[] skyGrid = SKY_GRIDS.get();
 		Arrays.fill(grid, null);
+		Arrays.fill(skyGrid, null);
 
 		for (final ClonedChunkSection section : context.getSections()) {
 			if (section == null) continue;
@@ -51,10 +58,12 @@ public final class GlowtoneSodiumFlood {
 			final int z = pos.z() - origin.z() + RADIUS;
 			if ((x | y | z) < 0 || x >= GRID || y >= GRID || z >= GRID) continue;
 
-			grid[x + y * GRID + z * GRID * GRID] = section.getBlockData();
+			final int slot = x + y * GRID + z * GRID * GRID;
+			grid[slot] = section.getBlockData();
+			skyGrid[slot] = section.getLightArray(LightLayer.SKY);
 		}
 
-		ChromaBaker.beginSodiumSection(origin, grid);
+		ChromaBaker.beginSodiumSection(origin, grid, skyGrid);
 	}
 
 	public static void end() {

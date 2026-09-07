@@ -39,5 +39,8 @@ public class BlockEntityRenderStateMixin {
 		CallbackInfo info
 	) {
 		state.glowtone$setBlockLightTint(ChromaFold.resolveBlockEntityBlockTint(state.blockPos, state.lightCoords));
+		state.glowtone$setSkyLightTint(ChromaFold.resolveEntitySkyTint(
+			state.blockPos.getX() + 0.5D, state.blockPos.getY(), state.blockPos.getZ() + 0.5D, 0F, state.lightCoords
+		));
 	}
 }

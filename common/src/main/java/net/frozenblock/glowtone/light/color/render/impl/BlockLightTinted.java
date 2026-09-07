@@ -29,4 +29,12 @@ public interface BlockLightTinted {
 	default void glowtone$setBlockLightTint(int tint) {
 		throw new AssertionError();
 	}
+
+	default int glowtone$skyLightTint() {
+		throw new AssertionError();
+	}
+
+	default void glowtone$setSkyLightTint(int tint) {
+		throw new AssertionError();
+	}
 }

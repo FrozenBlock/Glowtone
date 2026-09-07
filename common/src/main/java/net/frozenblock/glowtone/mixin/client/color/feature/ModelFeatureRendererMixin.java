@@ -38,7 +38,9 @@ public class ModelFeatureRendererMixin {
 		)
 	)
 	private <S> void glowtone$beginModelQuads(ModelFeatureRenderer.Submit<S> submit, CallbackInfo info) {
-		if ((Object) submit instanceof BlockLightTinted blockLightTinted) ChromaFold.beginModelQuads(blockLightTinted.glowtone$blockLightTint());
+		if ((Object) submit instanceof BlockLightTinted blockLightTinted) {
+			ChromaFold.beginModelQuads(blockLightTinted.glowtone$blockLightTint(), blockLightTinted.glowtone$skyLightTint());
+		}
 	}
 
 	@Inject(method = "prepareModel", at = @At("RETURN"))

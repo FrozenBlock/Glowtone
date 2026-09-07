@@ -40,7 +40,7 @@ public class BlockEntityRenderDispatcherMixin {
 		S state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo info,
 		@Share("glowtone$pushedTint") LocalBooleanRef pushedTint
 	) {
-		ChromaFold.pushSubmitTint(state.glowtone$blockLightTint());
+		ChromaFold.pushSubmitTint(state.glowtone$blockLightTint(), state.glowtone$skyLightTint());
 		pushedTint.set(true);
 	}
 

@@ -92,10 +92,6 @@ public final class GTLightPropertiesProvider extends LightPropertiesProvider {
 
 		blockLights.createTrivialBlock(filterColor(0x111), Blocks.TINTED_GLASS);
 
-		blockLights.createTrivialBlock(filterColor(0xACF), Blocks.WATER);
-		blockLights.createTrivialBlock(filterColor(0xDEF), Blocks.ICE, Blocks.PACKED_ICE, Blocks.FROSTED_ICE);
-		blockLights.createTrivialBlock(filterColor(0xCDF), Blocks.BLUE_ICE);
-
 		blockLights.createTrivialBlock(filterColor(0xFC6), Blocks.HONEY_BLOCK);
 		blockLights.createTrivialBlock(filterColor(0xBFB), Blocks.SLIME_BLOCK);
 	}

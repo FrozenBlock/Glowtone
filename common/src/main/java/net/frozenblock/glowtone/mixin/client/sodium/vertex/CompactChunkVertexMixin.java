@@ -95,7 +95,7 @@ public class CompactChunkVertexMixin {
 		@Share("glowtone$flags") LocalIntRef flagsRef
 	) {
 		MemoryUtil.memPutInt(ptr + GTSodiumVertexFormat.CHROMA_OFFSET, ARGB.toABGR(stateRef.get().sample(vertex.x, vertex.y, vertex.z)));
-		MemoryUtil.memPutInt(ptr + GTSodiumVertexFormat.SKY_CHROMA_OFFSET, GLOWTONE$SKY_CHROMA_ABGR);
+		MemoryUtil.memPutInt(ptr + GTSodiumVertexFormat.SKY_CHROMA_OFFSET, ARGB.toABGR(stateRef.get().sampleSky(vertex.x, vertex.y, vertex.z)));
 		MemoryUtil.memPutInt(ptr + GTSodiumVertexFormat.FLAGS_OFFSET, flagsRef.get());
 
 		final int edgeIndex = fluidRef.get() ? edgesRef.get().indexOf(vertex.x, vertex.y, vertex.z) : stateRef.get().nextEdgeVertex();
