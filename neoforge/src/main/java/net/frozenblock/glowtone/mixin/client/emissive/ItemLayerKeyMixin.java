@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.frozenblock.glowtone.emissive.resources.metadata.EmissiveMetadataSection;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;

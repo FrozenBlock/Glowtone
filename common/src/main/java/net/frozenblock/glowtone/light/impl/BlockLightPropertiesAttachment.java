@@ -1,4 +1,4 @@
-package net.frozenblock.glowtone.light;
+package net.frozenblock.glowtone.light.impl;
 
 import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
 

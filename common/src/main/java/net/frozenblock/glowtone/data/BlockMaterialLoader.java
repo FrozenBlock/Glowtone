@@ -24,7 +24,7 @@ import com.mojang.serialization.JsonOps;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.frozenblock.glowtone.material.MaterialLayer;
-import net.frozenblock.glowtone.material.BlockMaterialAttachment;
+import net.frozenblock.glowtone.material.impl.BlockMaterialAttachment;
 import net.frozenblock.glowtone.material.MaterialBlockTextures;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.frozenblock.glowtone.material.MaterialShaderNames;

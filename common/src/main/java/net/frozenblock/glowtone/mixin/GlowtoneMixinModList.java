@@ -29,8 +29,10 @@ final class GlowtoneMixinModList {
 		final Boolean neoForge = neoForge(mod);
 		if (neoForge != null) return neoForge;
 
-		System.getLogger("Glowtone").log(System.Logger.Level.WARNING,
-			"Glowtone could not reach a mod list to detect " + mod + "; mixins gated on it will be skipped");
+		System.getLogger("Glowtone").log(
+			System.Logger.Level.WARNING,
+			"Glowtone could not reach a mod list to detect " + mod + "; mixins gated on it will be skipped"
+		);
 		return false;
 	}
 

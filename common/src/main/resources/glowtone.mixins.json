@@ -7,7 +7,9 @@
   "injectors": {
     "defaultRequire": 1
   },
-  "mixins": [],
+  "mixins": [
+    "block.BlockStateBaseMixin"
+  ],
   "client": [
     "client.ModelManagerMixin",
     "client.animation.AnimationStateMixin",
@@ -22,7 +24,6 @@
     "client.ao_edge.sodium.LightDataAccessMixin",
     "client.ao_edge.sodium.SmoothLightPipelineMixin",
     "client.block.BlockMixin",
-    "client.block.BlockStateBaseMixin",
     "client.bloom.ChunkSectionsToRenderMixin",
     "client.bloom.EntityRendererLightMixin",
     "client.bloom.FlameFeatureRendererMixin",

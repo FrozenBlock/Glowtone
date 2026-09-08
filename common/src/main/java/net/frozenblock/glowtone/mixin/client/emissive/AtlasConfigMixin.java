@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 
 import java.util.ArrayList;
 import java.util.Set;
-import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.frozenblock.glowtone.emissive.resources.metadata.EmissiveMetadataSection;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.server.packs.metadata.MetadataSectionType;

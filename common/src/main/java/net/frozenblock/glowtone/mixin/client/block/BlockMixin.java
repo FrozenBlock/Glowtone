@@ -1,9 +1,9 @@
 package net.frozenblock.glowtone.mixin.client.block;
 
-import net.frozenblock.glowtone.light.BlockLightPropertiesAttachment;
+import net.frozenblock.glowtone.light.impl.BlockLightPropertiesAttachment;
 import net.frozenblock.glowtone.light.data.block.BlockLightProperties;
 import net.frozenblock.glowtone.data.BlockMaterial;
-import net.frozenblock.glowtone.material.BlockMaterialAttachment;
+import net.frozenblock.glowtone.material.impl.BlockMaterialAttachment;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.Block;
 import org.spongepowered.asm.mixin.Mixin;

@@ -15,39 +15,20 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.light.edge;
+package net.frozenblock.glowtone.light.edge.impl;
 
-import net.fabricmc.fabric.api.client.renderer.v1.mesh.MutableQuadView;
 import net.minecraft.core.Direction;
 
-public record FabricMutableQuad(MutableQuadView quad) implements GlowtoneMutableQuad {
-	@Override
-	public float x(int vertex) {
-		return this.quad.x(vertex);
-	}
+public interface GlowtoneMutableQuad {
+	float x(int vertex);
 
-	@Override
-	public float y(int vertex) {
-		return this.quad.y(vertex);
-	}
+	float y(int vertex);
 
-	@Override
-	public float z(int vertex) {
-		return this.quad.z(vertex);
-	}
+	float z(int vertex);
 
-	@Override
-	public Direction lightFace() {
-		return this.quad.lightFace();
-	}
+	Direction lightFace();
 
-	@Override
-	public int color(int vertex) {
-		return this.quad.color(vertex);
-	}
+	int color(int vertex);
 
-	@Override
-	public void setColor(int vertex, int color) {
-		this.quad.color(vertex, color);
-	}
+	void setColor(int vertex, int color);
 }

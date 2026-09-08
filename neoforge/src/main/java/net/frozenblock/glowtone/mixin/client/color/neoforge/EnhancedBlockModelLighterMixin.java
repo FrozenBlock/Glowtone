@@ -24,7 +24,7 @@ import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
-import net.frozenblock.glowtone.light.edge.NeoForgeMutableQuad;
+import net.frozenblock.glowtone.light.edge.impl.NeoForgeMutableQuad;
 import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.resources.model.geometry.BakedQuad;

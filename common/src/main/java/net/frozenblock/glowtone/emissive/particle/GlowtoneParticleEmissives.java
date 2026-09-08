@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.frozenblock.glowtone.emissive.resources.metadata.EmissiveMetadataSection;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.SingleQuadParticle;
