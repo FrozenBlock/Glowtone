@@ -2,7 +2,6 @@ package net.frozenblock.glowtone.mixin;
 
 import java.util.List;
 import java.util.Set;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -13,7 +12,7 @@ public final class GlowtoneMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public void onLoad(String mixinPackage) {
-		this.hasSodium = GlowtonePlatform.INSTANCE.isModLoaded("sodium");
+		this.hasSodium = GlowtoneMixinModList.isLoaded("sodium");
 	}
 
 	@Override
