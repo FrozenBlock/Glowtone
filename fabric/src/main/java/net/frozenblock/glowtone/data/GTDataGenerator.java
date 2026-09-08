@@ -30,7 +30,7 @@ public final class GTDataGenerator implements DataGeneratorEntrypoint {
 
 		// ASSETS
 		pack.addProvider((FabricDataGenerator.Pack.Factory<GTLightPropertiesProvider>) GTLightPropertiesProvider::new);
-		pack.addProvider((FabricDataGenerator.Pack.Factory<net.frozenblock.glowtone.data.GTSchemaProvider>) net.frozenblock.glowtone.data.GTSchemaProvider::new);
+		pack.addProvider((FabricDataGenerator.Pack.Factory<GTSchemaProvider>) GTSchemaProvider::new);
 
 		// DATA
 		pack.addProvider(GTBlockTagsProvider::new);

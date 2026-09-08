@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
-import net.frozenblock.glowtone.light.impl.BlockLightPropertiesAttachment;
 import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
 import net.frozenblock.glowtone.light.color.render.GlowtoneColorWindowCache;
 import net.frozenblock.glowtone.light.color.render.GlowtoneSectionColorStore;
@@ -144,8 +143,7 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 				});
 
 				BuiltInRegistries.BLOCK.forEach(block ->
-					((BlockLightPropertiesAttachment) block)
-						.glowtone$setProperties(bakedMap.getOrDefault(block, BlockLightProperties.EMPTY))
+					block.glowtone$setLightProperties(bakedMap.getOrDefault(block, BlockLightProperties.EMPTY))
 				);
 
 				BlockLightPropertiesRenderer.setLoadedFeatures(occlusion, emissive, filterColors, lightColors);

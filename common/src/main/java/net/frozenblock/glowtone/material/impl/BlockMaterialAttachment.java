@@ -5,7 +5,12 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 @ClientOnly
 public interface BlockMaterialAttachment {
-	BlockMaterial.Baked glowtone$getMaterial();
 
-	void glowtone$setMaterial(BlockMaterial.Baked material);
+	default BlockMaterial.Baked glowtone$getMaterial() {
+		throw new AssertionError();
+	}
+
+	default void glowtone$setMaterial(BlockMaterial.Baked material) {
+		throw new AssertionError();
+	}
 }

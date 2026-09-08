@@ -3,7 +3,6 @@ package net.frozenblock.glowtone.light.data.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.frozenblock.glowtone.light.impl.BlockLightPropertiesAttachment;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.ExtraCodecs;
@@ -51,7 +50,7 @@ public record BlockLightProperties(
 	}
 
 	public static BlockLightProperties forBlockState(BlockState state) {
-		return ((BlockLightPropertiesAttachment) state.getBlock()).glowtone$getProperties().get(state);
+		return state.getBlock().glowtone$getLightProperties().get(state);
 	}
 
 	public boolean hasSameColorProperties(BlockLightProperties other) {

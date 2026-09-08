@@ -24,7 +24,6 @@ import com.mojang.serialization.JsonOps;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.frozenblock.glowtone.material.MaterialLayer;
-import net.frozenblock.glowtone.material.impl.BlockMaterialAttachment;
 import net.frozenblock.glowtone.material.MaterialBlockTextures;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.frozenblock.glowtone.material.MaterialShaderNames;
@@ -211,9 +210,7 @@ public final class BlockMaterialLoader {
 
 	public static void apply(Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, Definitions definitions) {
 		final Map<Identifier, BlockMaterial> registry = definitions.materials();
-		BuiltInRegistries.BLOCK.forEach(block ->
-			((BlockMaterialAttachment) block).glowtone$setMaterial(BlockMaterial.EMPTY)
-		);
+		BuiltInRegistries.BLOCK.forEach(block -> block.glowtone$setMaterial(BlockMaterial.EMPTY));
 
 		final Map<Block, Map<BlockState, BlockMaterial.Assigned>> perBlock = new IdentityHashMap<>();
 		final Set<Identifier> missing = new HashSet<>();
@@ -319,7 +316,7 @@ public final class BlockMaterialLoader {
 				baked = new BlockMaterial.MultiVariant(materials);
 			}
 
-			((BlockMaterialAttachment) block).glowtone$setMaterial(baked);
+			block.glowtone$setMaterial(baked);
 		});
 
 		unresolved.forEach((slot, count) -> LOGGER.warn(

@@ -14,26 +14,30 @@ import org.spongepowered.asm.mixin.Unique;
 public abstract class BlockMixin implements BlockLightPropertiesAttachment, BlockMaterialAttachment {
 
 	@Unique
-	private volatile BlockLightProperties.Baked glowtone$properties = BlockLightProperties.EMPTY;
+	private volatile BlockLightProperties.Baked glowtone$lightProperties = BlockLightProperties.EMPTY;
 
 	@Unique
 	private volatile BlockMaterial.Baked glowtone$material = BlockMaterial.EMPTY;
 
+	@Unique
 	@Override
-	public BlockLightProperties.Baked glowtone$getProperties() {
-		return this.glowtone$properties;
+	public BlockLightProperties.Baked glowtone$getLightProperties() {
+		return this.glowtone$lightProperties;
 	}
 
+	@Unique
 	@Override
-	public void glowtone$setProperties(BlockLightProperties.Baked properties) {
-		this.glowtone$properties = properties;
+	public void glowtone$setLightProperties(BlockLightProperties.Baked properties) {
+		this.glowtone$lightProperties = properties;
 	}
 
+	@Unique
 	@Override
 	public BlockMaterial.Baked glowtone$getMaterial() {
 		return this.glowtone$material;
 	}
 
+	@Unique
 	@Override
 	public void glowtone$setMaterial(BlockMaterial.Baked material) {
 		this.glowtone$material = material;

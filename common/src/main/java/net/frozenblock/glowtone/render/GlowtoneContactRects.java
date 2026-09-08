@@ -102,7 +102,6 @@ public final class GlowtoneContactRects {
 	private final long[] cacheKeys = new long[CACHE_SLOTS];
 	private final boolean[] cacheUsed = new boolean[CACHE_SLOTS];
 	private final int[] cacheWords = new int[CACHE_SLOTS * WORDS];
-	private int neighbourGeneration = -1;
 
 	public int[] build(
 		EdgeNeighbours neighbours,
@@ -140,12 +139,6 @@ public final class GlowtoneContactRects {
 			}
 		}
 
-		final int generation = neighbours.boxGeneration();
-		if (generation != this.neighbourGeneration) {
-			this.neighbourGeneration = generation;
-			Arrays.fill(this.cacheUsed, false);
-		}
-
 		final int slot = (int) (signature ^ (signature >>> 32)) & CACHE_MASK;
 		if (cacheable && this.cacheUsed[slot] && this.cacheKeys[slot] == signature) {
 			System.arraycopy(this.cacheWords, slot * WORDS, this.packed, 0, WORDS);
@@ -174,7 +167,7 @@ public final class GlowtoneContactRects {
 
 		if (this.count > TRIM) keepNearest(spanU, spanV);
 
-		merge();
+		this.merge();
 
 		final int[] words = this.count <= MAX_RECTS ? pack() : packGrid(spanU, spanV);
 
@@ -201,7 +194,7 @@ public final class GlowtoneContactRects {
 		final float highV = Math.min(COORD_MAX, v1);
 
 		for (int i = 0; i < this.count; i++) {
-			if (contains(i, lowU, highU, lowV, highV)) return;
+			if (this.contains(i, lowU, highU, lowV, highV)) return;
 		}
 
 		final int at = this.count++ * 4;
@@ -221,7 +214,7 @@ public final class GlowtoneContactRects {
 		for (int i = 0; i < this.count; i++) {
 			int j = i + 1;
 			while (j < this.count) {
-				if (!joins(i, j)) {
+				if (!this.joins(i, j)) {
 					j++;
 					continue;
 				}
@@ -233,7 +226,7 @@ public final class GlowtoneContactRects {
 				this.rects[a + 2] = Math.min(this.rects[a + 2], this.rects[b + 2]);
 				this.rects[a + 3] = Math.max(this.rects[a + 3], this.rects[b + 3]);
 
-				remove(j);
+				this.remove(j);
 				j = i + 1;
 			}
 		}
@@ -368,6 +361,9 @@ public final class GlowtoneContactRects {
 	}
 
 	private static int cellOn(int axis, int axisA, int cellA, int axisB, int cellB, int axisC, int cellC) {
-		return axis == axisA ? cellA : axis == axisB ? cellB : axis == axisC ? cellC : 0;
+		return axis == axisA ? cellA
+			: axis == axisB ? cellB
+			: axis == axisC ? cellC
+			: 0;
 	}
 }
