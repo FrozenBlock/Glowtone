@@ -24,14 +24,9 @@ import net.frozenblock.glowtone.material.MaterialLayer;
 import net.frozenblock.glowtone.material.BlockMaterialAttachment;
 import net.frozenblock.glowtone.data.MaterialRenderShape;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.slf4j.Logger;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.level.block.RenderShape;
@@ -40,7 +35,6 @@ import org.jspecify.annotations.Nullable;
 
 @ClientOnly
 public final class BlockMaterialRenderer {
-	private static final Logger LOGGER = LogUtils.getLogger();
 	public static final String RESOURCE_PACK_DIRECTORY = "glowtone/block_materials";
 	public static final String OVERRIDE_DIRECTORY = "glowtone/block_material_overrides";
 	public static final int NO_SHADER = 0;
@@ -192,8 +186,7 @@ public final class BlockMaterialRenderer {
 		}
 
 		final TextureAtlasSprite sprite = quad.materialInfo().sprite();
-		final boolean matched = targetSprites(assigned).contains(sprite)
-			|| (assigned.targetSlots().contains(EMISSIVE_TARGET) && isEmissiveOverlay(sprite));
+		final boolean matched = assigned.targets(sprite) || (assigned.targetsEmissive() && isEmissiveOverlay(sprite));
 
 		state.quadIndex = matched ? assigned.shaderIndex() : NO_SHADER;
 	}
@@ -213,19 +206,9 @@ public final class BlockMaterialRenderer {
 		final BlockMaterial.Assigned assigned = current();
 		final int index = assigned.shaderIndex();
 		if (index == NO_SHADER || !anyTargets || !assigned.targeted()) return index;
+		if (assigned.targetsEmissive() && BlockTextureSlots.withinEmissiveOverlay(u, v)) return index;
 
-		for (String slot : assigned.targetSlots()) {
-			if (slot.equals(EMISSIVE_TARGET)) {
-				if (BlockTextureSlots.withinEmissiveOverlay(u, v)) return index;
-
-				continue;
-			}
-
-			final BlockTextureSlots.Slot resolved = BlockTextureSlots.get(slot);
-			if (resolved != null && resolved.contains(u, v)) return index;
-		}
-
-		return NO_SHADER;
+		return assigned.targets(u, v) ? index : NO_SHADER;
 	}
 
 	public static final String EMISSIVE_TARGET = "emissive";
@@ -236,25 +219,6 @@ public final class BlockMaterialRenderer {
 		return EMISSIVE_SPRITES.computeIfAbsent(
 			sprite, key -> key.contents().name().getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)
 		);
-	}
-
-	private static final Map<List<String>, Set<TextureAtlasSprite>> RESOLVED_TARGETS = new ConcurrentHashMap<>();
-
-	private static Set<TextureAtlasSprite> targetSprites(BlockMaterial.Assigned assigned) {
-		return RESOLVED_TARGETS.computeIfAbsent(assigned.targetSlots(), slots -> {
-			final Set<TextureAtlasSprite> sprites = Collections.newSetFromMap(new IdentityHashMap<>());
-			for (String slot : slots) {
-				final BlockTextureSlots.Slot resolved = BlockTextureSlots.get(slot);
-				if (resolved != null) sprites.add(resolved.sprite());
-			}
-
-			if (sprites.isEmpty() && !slots.contains(EMISSIVE_TARGET)) {
-				LOGGER.warn("Block material {} targets slots {}, but no block model declares them, so it draws nothing",
-					assigned.id(), slots);
-			}
-
-			return sprites;
-		});
 	}
 
 	public static void beginGui(boolean gui) {
@@ -338,7 +302,6 @@ public final class BlockMaterialRenderer {
 		anyCastCulling = castCulling;
 		anyShaders = shaders;
 		anyTargets = targets;
-		RESOLVED_TARGETS.clear();
 		EMISSIVE_SPRITES.clear();
 		anyRenderShape = renderShape;
 		anyBlockEntity = blockEntity;

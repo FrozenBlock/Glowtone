@@ -37,6 +37,7 @@ public final class MaterialShaderPatcher {
 	public static final String BLOCK_POS = "glowtone_BlockPos";
 	public static final String LOCAL_POS = "glowtone_LocalPos";
 	public static final String NORMAL = "glowtone_Normal";
+	public static final String CAMERA_POS = "glowtone_CameraPos";
 	public static final String SCREEN_PROJ = "glowtone_ScreenProj";
 	public static final String LIGHT = "glowtone_Light";
 	public static final String GAME_TIME = "glowtone_GameTime";
@@ -52,11 +53,16 @@ public final class MaterialShaderPatcher {
 		.formatted(COLOR, UV, WORLD_POS, BLOCK_POS, LOCAL_POS, NORMAL, SCREEN_PROJ, LIGHT, GAME_TIME, CONTEXT);
 
 	// No normal: terrain carries no normal attribute.
-	private static final String VERTEX_PARAMS = "vec3 %s, vec3 %s, vec3 %s, vec2 %s, float %s, int %s"
-		.formatted(POSITION, BLOCK_POS, LOCAL_POS, LIGHT, GAME_TIME, CONTEXT);
+	private static final String VERTEX_PARAMS = "vec3 %s, vec3 %s, vec3 %s, vec3 %s, vec2 %s, vec2 %s, float %s, int %s"
+		.formatted(POSITION, BLOCK_POS, LOCAL_POS, CAMERA_POS, UV, LIGHT, GAME_TIME, CONTEXT);
 
-	private static final String VERTEX_ARGS = "%s, %s, %s, %s, %s, %s"
-		.formatted(POSITION, BLOCK_POS, LOCAL_POS, LIGHT, GAME_TIME, CONTEXT);
+	private static final String VERTEX_ARGS = "%s, %s, %s, %s, %s, %s, %s, %s"
+		.formatted(POSITION, BLOCK_POS, LOCAL_POS, CAMERA_POS, UV, LIGHT, GAME_TIME, CONTEXT);
+
+	private static final String VARIANT_LOOKUP =
+		"\tvec4 glowtone_variant = " + MaterialBlockTextures.fetch("glowtone_index") + ";\n"
+			+ "\tint glowtone_base = int(glowtone_variant.y);\n"
+			+ "\tswitch (int(glowtone_variant.x)) {\n";
 
 	private static volatile List<Loaded> loaded = List.of();
 	private static volatile boolean anyFragment;
@@ -120,14 +126,11 @@ public final class MaterialShaderPatcher {
 		entry.shader().parameters().entrySet().stream()
 			.sorted(Map.Entry.comparingByKey())
 			.forEach(parameter -> text.append(", float(").append(parameter.getValue()).append(')'));
-		entry.blockTextures().stream().sorted().forEach(name -> {
-			final int index = MaterialBlockTextures.indexOf(name);
-			if (index < 0) {
-				text.append(", vec4(0.0)");
-			} else {
-				text.append(", ").append(MaterialBlockTextures.ARRAY).append('[').append(index).append(']');
-			}
-		});
+
+		final int blockTextures = entry.blockTextures().size();
+		for (int ordinal = 0; ordinal < blockTextures; ordinal++) {
+			text.append(", ").append(MaterialBlockTextures.fetch("glowtone_base + " + ordinal));
+		}
 
 		return text.toString();
 	}
@@ -182,6 +185,10 @@ public final class MaterialShaderPatcher {
 				line.append("; textures ").append(entry.slots().keySet())
 					.append(" in slots ").append(entry.slots().values());
 			}
+			if (!entry.blockTextures().isEmpty()) {
+				line.append("; block textures ").append(entry.blockTextures().stream().sorted().toList())
+					.append(" in ").append(MaterialBlockTextures.variantCount(index)).append(" variants");
+			}
 
 			lines.add(line.toString());
 		}
@@ -228,7 +235,7 @@ public final class MaterialShaderPatcher {
 
 		builder.append("\nvec4 ").append(DISPATCH)
 			.append("(sampler2D ").append(ATLAS).append(", int glowtone_index, ").append(FRAGMENT_PARAMS).append(") {\n")
-			.append("\tswitch (glowtone_index) {\n");
+			.append(VARIANT_LOOKUP);
 
 		for (int i = 0; i < loaded.size(); i++) {
 			if (loaded.get(i).fragmentSource() == null) continue;
@@ -271,7 +278,7 @@ public final class MaterialShaderPatcher {
 		}
 
 		builder.append("\nvec3 ").append(VERTEX_DISPATCH).append("(int glowtone_index, ").append(VERTEX_PARAMS).append(") {\n")
-			.append("\tswitch (glowtone_index) {\n");
+			.append(VARIANT_LOOKUP);
 
 		for (int i = 0; i < loaded.size(); i++) {
 			if (loaded.get(i).vertexSource() == null) continue;

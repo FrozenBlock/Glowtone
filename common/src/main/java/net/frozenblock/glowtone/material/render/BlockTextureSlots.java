@@ -17,35 +17,29 @@
 
 package net.frozenblock.glowtone.material.render;
 
-import com.mojang.logging.LogUtils;
-import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import net.frozenblock.glowtone.mixin.client.material.TextureSlotsAccessor;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.resources.model.sprite.MaterialBaker;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 @ClientOnly
 public final class BlockTextureSlots {
-	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final Map<String, Slot> SLOTS = new ConcurrentHashMap<>();
-	private static final Set<String> CONFLICTS = java.util.concurrent.ConcurrentHashMap.newKeySet();
-	private static volatile java.util.Set<String> wanted = java.util.Set.of();
-
-	public static void setWanted(java.util.Set<String> names) {
-		wanted = java.util.Set.copyOf(names);
-		if (!names.isEmpty()) LOGGER.info("Glowtone will resolve block texture slots {} from block models", wanted);
-	}
-
-	public static boolean wanted() {
-		return !wanted.isEmpty();
-	}
-
-	public static java.util.Set<String> wantedNames() {
-		return wanted;
-	}
+	private static volatile Map<BlockState, List<Map<String, Slot>>> models = Map.of();
+	private static final Set<Slot> EMISSIVE_OVERLAYS = ConcurrentHashMap.newKeySet();
 
 	public record Slot(TextureAtlasSprite sprite, float u0, float u1, float v0, float v1) {
 		public static Slot of(TextureAtlasSprite sprite) {
@@ -57,7 +51,60 @@ public final class BlockTextureSlots {
 		}
 	}
 
-	private static final Set<Slot> EMISSIVE_OVERLAYS = java.util.concurrent.ConcurrentHashMap.newKeySet();
+	public static void record(
+		Map<BlockState, BlockStateModel.UnbakedRoot> roots,
+		Map<Identifier, ResolvedModel> resolved,
+		MaterialBaker materials
+	) {
+		final Map<Identifier, Map<String, Slot>> byModel = new HashMap<>();
+		final Map<BlockStateModel.UnbakedRoot, List<Map<String, Slot>>> byRoot = new IdentityHashMap<>();
+		final Map<BlockState, List<Map<String, Slot>>> recorded = new IdentityHashMap<>(roots.size());
+
+		roots.forEach((state, root) -> recorded.put(state, byRoot.computeIfAbsent(root, unbaked -> {
+			final List<Identifier> locations = new ArrayList<>();
+			unbaked.resolveDependencies(locations::add);
+
+			final List<Map<String, Slot>> slots = new ArrayList<>(locations.size());
+			for (Identifier location : locations) {
+				final ResolvedModel model = resolved.get(location);
+				if (model == null) continue;
+
+				slots.add(byModel.computeIfAbsent(location, key -> slotsOf(model, materials)));
+			}
+
+			return List.copyOf(slots);
+		})));
+
+		models = recorded;
+	}
+
+	private static Map<String, Slot> slotsOf(ResolvedModel model, MaterialBaker materials) {
+		final Map<String, Material> declared = ((TextureSlotsAccessor) (Object) model.getTopTextureSlots()).glowtone$resolvedValues();
+		if (declared.isEmpty()) return Map.of();
+
+		final Map<String, Slot> slots = new HashMap<>(declared.size());
+		declared.forEach((name, material) -> {
+			final Material.Baked baked = materials.get(material, model);
+			if (baked == null || baked.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return;
+
+			slots.put(name, Slot.of(baked.sprite()));
+		});
+
+		return Map.copyOf(slots);
+	}
+
+	@Nullable
+	public static Slot resolve(BlockState state, String name) {
+		final List<Map<String, Slot>> candidates = models.get(state);
+		if (candidates == null) return null;
+
+		for (Map<String, Slot> slots : candidates) {
+			final Slot slot = slots.get(name);
+			if (slot != null) return slot;
+		}
+
+		return null;
+	}
 
 	public static void recordEmissiveOverlay(TextureAtlasSprite sprite) {
 		EMISSIVE_OVERLAYS.add(Slot.of(sprite));
@@ -71,41 +118,8 @@ public final class BlockTextureSlots {
 		return false;
 	}
 
-	public static void record(String slot, TextureAtlasSprite sprite) {
-		final Slot existing = SLOTS.put(slot, Slot.of(sprite));
-		if (existing != null) {
-			if (!existing.sprite().contents().name().equals(sprite.contents().name()) && CONFLICTS.add(slot)) {
-				LOGGER.warn("Block texture slot '{}' is declared as both {} and {}; a material bakes one rectangle, so the last wins",
-					slot, existing.sprite().contents().name(), sprite.contents().name());
-			}
-
-			return;
-		}
-
-		LOGGER.info("Glowtone resolved block texture slot '{}' -> {}", slot, sprite.contents().name());
-	}
-
-	@Nullable
-	public static Slot get(String slot) {
-		return SLOTS.get(slot);
-	}
-
-	@Nullable
-	public static Map<String, Slot> resolve(Iterable<String> wanted) {
-		final Map<String, Slot> resolved = new LinkedHashMap<>();
-		for (String slot : wanted) {
-			final Slot found = SLOTS.get(slot);
-			if (found == null) return null;
-
-			resolved.put(slot, found);
-		}
-
-		return resolved;
-	}
-
 	public static void clear() {
-		SLOTS.clear();
-		CONFLICTS.clear();
+		models = Map.of();
 		EMISSIVE_OVERLAYS.clear();
 	}
 

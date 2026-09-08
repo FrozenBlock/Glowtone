@@ -17,54 +17,56 @@
 
 package net.frozenblock.glowtone.material;
 
+import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.Std140Builder;
-import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPassBackend;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.nio.ByteBuffer;
 import java.util.List;
+import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 @ClientOnly
 public final class MaterialBlockTextures {
-	public static final int SLOTS = 16;
-	public static final String BLOCK = "GlowtoneBlockTextures";
-	public static final String ARRAY = "GlowtoneBlockTex";
+	public static final String TABLE = "GlowtoneBlockTexTable";
+	public static final int HEADER = BlockMaterialRenderer.MAX_SHADER_INDEX + 1;
+	private static final int TEXEL_BYTES = 16;
 
 	public static final BindGroupLayout LAYOUT = BindGroupLayout.builder()
-		.withUniform(BLOCK, UniformType.UNIFORM_BUFFER)
+		.withUniform(TABLE, UniformType.TEXEL_BUFFER, GpuFormat.RGBA32_FLOAT)
 		.build();
 
-	private static final int SIZE = size();
+	public record Variant(int materialCase, List<BlockTextureSlots.Slot> rectangles) {}
 
-	private static volatile List<String> names = List.of();
+	private static volatile List<Variant> variants = List.of();
 	private static volatile @Nullable GpuBuffer buffer;
 
-	private static int size() {
-		final Std140SizeCalculator calculator = new Std140SizeCalculator();
-		for (int slot = 0; slot < SLOTS; slot++) calculator.putVec4();
-		return calculator.get();
-	}
-
-	public static void apply(List<String> assigned) {
-		names = assigned.stream().distinct().sorted().limit(SLOTS).toList();
+	public static void apply(List<Variant> assigned) {
+		variants = List.copyOf(assigned);
 		invalidate();
 	}
 
-	public static int indexOf(String name) {
-		return names.indexOf(name);
+	public static int variantCount(int materialCase) {
+		int count = 0;
+		for (Variant variant : variants) {
+			if (variant.materialCase() == materialCase) count++;
+		}
+
+		return count;
 	}
 
 	public static String declarations() {
-		return "layout(std140) uniform " + BLOCK + " {" + System.lineSeparator()
-			+ "    vec4 " + ARRAY + "[" + SLOTS + "];" + System.lineSeparator()
-			+ "};" + System.lineSeparator() + System.lineSeparator();
+		return "uniform samplerBuffer " + TABLE + ";" + System.lineSeparator() + System.lineSeparator();
+	}
+
+	public static String fetch(String texel) {
+		return "texelFetch(" + TABLE + ", " + texel + ")";
 	}
 
 	public static void invalidate() {
@@ -83,7 +85,7 @@ public final class MaterialBlockTextures {
 
 	public static void bind(RenderPassBackend pass) {
 		final GpuBuffer bound = buffer();
-		if (bound != null) pass.setUniform(BLOCK, bound);
+		if (bound != null) pass.setUniform(TABLE, bound);
 	}
 
 	private static @Nullable GpuBuffer buffer() {
@@ -91,21 +93,45 @@ public final class MaterialBlockTextures {
 		if (cached != null) return cached;
 		if (RenderSystem.getDevice() == null) return null;
 
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			final Std140Builder data = Std140Builder.onStack(stack, SIZE);
-			for (int slot = 0; slot < SLOTS; slot++) {
-				final BlockTextureSlots.Slot bounds = slot < names.size() ? BlockTextureSlots.get(names.get(slot)) : null;
-				if (bounds == null) {
-					data.putVec4(0F, 0F, 0F, 0F);
-				} else {
-					data.putVec4(bounds.u0(), bounds.u1(), bounds.v0(), bounds.v1());
+		final List<Variant> table = variants;
+		int rectangles = 0;
+		for (Variant variant : table) rectangles += variant.rectangles().size();
+
+		final ByteBuffer data = MemoryUtil.memAlloc((HEADER + rectangles) * TEXEL_BYTES);
+		try {
+			int base = HEADER;
+			for (int index = 0; index < HEADER; index++) {
+				if (index < 1 || index > table.size()) {
+					putTexel(data, 0F, 0F, 0F, 0F);
+					continue;
+				}
+
+				final Variant variant = table.get(index - 1);
+				putTexel(data, variant.materialCase(), base, variant.rectangles().size(), 0F);
+				base += variant.rectangles().size();
+			}
+
+			for (Variant variant : table) {
+				for (BlockTextureSlots.Slot slot : variant.rectangles()) {
+					if (slot == null) {
+						putTexel(data, 0F, 0F, 0F, 0F);
+					} else {
+						putTexel(data, slot.u0(), slot.u1(), slot.v0(), slot.v1());
+					}
 				}
 			}
 
-			buffer = RenderSystem.getDevice().createBuffer(() -> "Glowtone block textures", GpuBuffer.USAGE_UNIFORM, data.get());
+			data.flip();
+			buffer = RenderSystem.getDevice().createBuffer(() -> "Glowtone block texture table", GpuBuffer.USAGE_UNIFORM_TEXEL_BUFFER, data);
+		} finally {
+			MemoryUtil.memFree(data);
 		}
 
 		return buffer;
+	}
+
+	private static void putTexel(ByteBuffer data, float x, float y, float z, float w) {
+		data.putFloat(x).putFloat(y).putFloat(z).putFloat(w);
 	}
 
 	private MaterialBlockTextures() {}

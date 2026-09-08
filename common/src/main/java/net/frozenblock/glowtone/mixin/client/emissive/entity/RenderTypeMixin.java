@@ -27,6 +27,7 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void glowtone$initRenderTypeWithEmissive(String name, RenderSetup state, CallbackInfo info) {
+		if (name.equals("eyes")) return;
 		if (!EmissiveShaderPatcher.isEntityShader(((RenderType) (Object) this).pipeline().getFragmentShader())) return;
 
 		state.textures.values().stream()
@@ -36,12 +37,6 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 			.ifPresent(texture -> {
 				this.glowtone$emissiveTexture = texture.withPath(path -> path.replace(".png", "_glowtone_emissive.png"));
 			});
-
-		if (this.glowtone$emissiveTexture != null) {
-			final RenderType emissiveRenderType = RenderTypes.eyes(this.glowtone$emissiveTexture);
-			emissiveRenderType.glowtone$markEmissive();
-			this.glowtone$emissiveRenderType = Optional.of(emissiveRenderType);
-		}
 	}
 
 	@Override
@@ -62,8 +57,17 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 		return RenderTypeTextureValidityCache.getOrComputeValidity(this.glowtone$emissiveTexture);
 	}
 
+	// constructor re-enters the same map while that memoization is still computing.
 	@Override
 	public Optional<RenderType> glowtone$emissiveRenderType() {
+		if (this.glowtone$emissiveTexture == null) return Optional.empty();
+
+		if (this.glowtone$emissiveRenderType.isEmpty()) {
+			final RenderType emissiveRenderType = RenderTypes.eyes(this.glowtone$emissiveTexture);
+			emissiveRenderType.glowtone$markEmissive();
+			this.glowtone$emissiveRenderType = Optional.of(emissiveRenderType);
+		}
+
 		return this.glowtone$emissiveRenderType;
 	}
 }

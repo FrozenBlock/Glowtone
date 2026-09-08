@@ -22,7 +22,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.frozenblock.glowtone.material.MaterialLayer;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
+import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
@@ -128,14 +130,32 @@ public record BlockMaterial(
 		@Nullable Identifier id,
 		BlockMaterial material,
 		int shaderIndex,
-		@Nullable List<String> targetSlots
+		@Nullable List<String> targetSlots,
+		List<BlockTextureSlots.Slot> targets,
+		boolean targetsEmissive
 	) {
 		public Assigned(@Nullable Identifier id, BlockMaterial material, int shaderIndex) {
-			this(id, material, shaderIndex, null);
+			this(id, material, shaderIndex, null, List.of(), false);
 		}
 
 		public boolean targeted() {
 			return this.targetSlots != null;
+		}
+
+		public boolean targets(TextureAtlasSprite sprite) {
+			for (BlockTextureSlots.Slot slot : this.targets) {
+				if (slot.sprite() == sprite) return true;
+			}
+
+			return false;
+		}
+
+		public boolean targets(float u, float v) {
+			for (BlockTextureSlots.Slot slot : this.targets) {
+				if (slot.contains(u, v)) return true;
+			}
+
+			return false;
 		}
 	}
 

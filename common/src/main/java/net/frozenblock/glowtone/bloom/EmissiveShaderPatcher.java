@@ -454,41 +454,78 @@ public final class EmissiveShaderPatcher {
 		}
 		""";
 
-	private static String vertexHeader(String source) {
+	private static String vertexHeader(String source, boolean terrain) {
 		if (!MaterialShaderPatcher.anyFragment() && !MaterialShaderPatcher.anyVertex()) return VERTEX_HEADER_PLAIN;
 		if (!MaterialShaderPatcher.anyVertex()) return vertexDeclarations() + VERTEX_HEADER;
 
 		// Only terrain imports the globals block, and displacement needs its game time everywhere.
 		final String globals = source.contains(GAME_TIME_UNIFORM) ? "" : GLOBALS_BLOCK;
-		return vertexDeclarations() + globals + MaterialShaderPatcher.generateVertexFunctions()
-			+ vertexDisplaceFunction() + VERTEX_HEADER;
+		final String rectangles = MaterialBlockTextures.declarations();
+		return vertexDeclarations() + globals + rectangles + MaterialShaderPatcher.generateVertexFunctions()
+			+ vertexDisplaceFunction(terrain) + VERTEX_HEADER;
 	}
 
-	private static String vertexDisplaceFunction() {
-		return VERTEX_DISPLACE_FUNCTION.formatted(
+	private static String vertexDisplaceFunction(boolean terrain) {
+		final String displace = VERTEX_DISPLACE_FUNCTION.formatted(
 			BlockMaterialRenderer.MAX_SHADER_INDEX,
 			MaterialShaderPatcher.VERTEX_DISPATCH,
-			BloomHelper.LIGHT_COORDS_CHANNEL_MASK
+			BloomHelper.LIGHT_COORDS_CHANNEL_MASK,
+			BlockMaterialRenderer.GUI_MARKER,
+			GUI_CONTEXT
 		);
+
+		// terrain reads the camera straight off globals
+		return terrain ? displace : modelCameraFunction() + displace;
+	}
+
+	private static final String MODEL_CAMERA = "glowtone_modelCamera()";
+
+	private static final String MODEL_CAMERA_FUNCTION = """
+		vec3 glowtone_modelCamera() {
+			return (inverse(ModelViewMat) * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+		}
+
+		""";
+
+	private static final String MODEL_CAMERA_UNUSED = """
+		vec3 glowtone_modelCamera() {
+			return vec3(0.0);
+		}
+
+		""";
+
+	private static String modelCameraFunction() {
+		return usesCameraPos() ? MODEL_CAMERA_FUNCTION : MODEL_CAMERA_UNUSED;
+	}
+
+	private static boolean usesCameraPos() {
+		return MaterialShaderPatcher.usesInput(MaterialShaderPatcher.CAMERA_POS);
 	}
 
 	private static final String TERRAIN_POSITION_ANCHOR =
 		"vec3 pos = Position + (ChunkPosition - CameraBlockPos) + CameraOffset;";
 
+	private static final String CAMERA_WORLD_POS = "(vec3(CameraBlockPos) - CameraOffset)";
+
 	private static final String TERRAIN_POSITION_DISPLACED =
-		"vec3 pos = (Position + glowtone_displace(Position, Position + vec3(ChunkPosition), UV2, GameTime))"
+		"vec3 pos = (Position + glowtone_displace(Position, Position + vec3(ChunkPosition), "
+			+ CAMERA_WORLD_POS + ", UV0, UV2, GameTime, 0))"
 			+ " + (ChunkPosition - CameraBlockPos) + CameraOffset;";
 
 	// block.vsh offsets the model before projecting; the others project the raw attribute.
 	private static final String MODEL_OFFSET_ANCHOR = "vec3 pos = Position + ModelOffset;";
 
-	private static final String MODEL_OFFSET_DISPLACED =
-		"vec3 pos = (Position + glowtone_displace(Position, Position, UV2, GameTime)) + ModelOffset;";
+	private static String modelOffsetDisplaced(Identifier id) {
+		return "vec3 pos = (Position + glowtone_displace(Position, Position, " + MODEL_CAMERA
+			+ ", UV0, UV2, GameTime, " + contextBase(id) + ")) + ModelOffset;";
+	}
 
 	private static final String GENERIC_POSITION_ANCHOR = "vec4(Position, 1.0)";
 
-	private static final String GENERIC_POSITION_DISPLACED =
-		"vec4(Position + glowtone_displace(Position, Position, UV2, GameTime), 1.0)";
+	private static String genericPositionDisplaced(Identifier id) {
+		return "vec4(Position + glowtone_displace(Position, Position, " + MODEL_CAMERA
+			+ ", UV0, UV2, GameTime, " + contextBase(id) + "), 1.0)";
+	}
 
 	private static String vertexFooter() {
 		if (!MaterialShaderPatcher.anyFragment() && !MaterialShaderPatcher.anyVertex()) return VERTEX_FOOTER;
@@ -499,15 +536,16 @@ public final class EmissiveShaderPatcher {
 		);
 	}
 
-	// Reads the index off the light coords directly - the varying is not assigned until the lightmap is sampled after the position is used.
+	// reads the index and the gui flag off the light coords directly - varyings not assigned until the lightmap is sampled
 	private static final String VERTEX_DISPLACE_FUNCTION = """
-		vec3 glowtone_displace(vec3 glowtone_pos, vec3 glowtone_world, ivec2 glowtone_coords, float glowtone_time) {
+		vec3 glowtone_displace(vec3 glowtone_pos, vec3 glowtone_world, vec3 glowtone_camera, vec2 glowtone_uv, ivec2 glowtone_coords, float glowtone_time, int glowtone_context) {
 			int glowtone_index = (glowtone_coords.y >> 8) & %d;
 			if (glowtone_index == 0) return vec3(0.0);
 
 			vec3 glowtone_block = floor(glowtone_world);
-			return %s(glowtone_index, glowtone_pos, glowtone_block, glowtone_world - glowtone_block,
-				vec2(glowtone_coords & ivec2(%d)) / 240.0, glowtone_time, 0);
+			return %s(glowtone_index, glowtone_pos, glowtone_block, glowtone_world - glowtone_block, glowtone_camera, glowtone_uv,
+				vec2(glowtone_coords & ivec2(%d)) / 240.0, glowtone_time,
+				(glowtone_coords.x & %d) != 0 ? %d : glowtone_context);
 		}
 
 		""";
@@ -601,7 +639,7 @@ public final class EmissiveShaderPatcher {
 
 		if (LIT_SHADERS.contains(id)) {
 			if (type == ShaderType.VERTEX) {
-				final String vertex = patchVertex(source);
+				final String vertex = patchVertex(id, source);
 				final String finalVertex = id.equals(TERRAIN)
 					? patchTerrainVertex(vertex)
 					: unshadeEmissiveFaces(vertex);
@@ -774,7 +812,8 @@ public final class EmissiveShaderPatcher {
 			+ "        vec3 glowtone_vAbs = position + vec3(CameraBlockPos) - CameraOffset;" + System.lineSeparator()
 			+ "        vec3 glowtone_vBlock = floor(glowtone_vAbs);" + System.lineSeparator()
 			+ "        position += " + MaterialShaderPatcher.VERTEX_DISPATCH
-			+ "(glowtone_vIndex, position, glowtone_vBlock, glowtone_vAbs - glowtone_vBlock, vec2(0.0), GameTime, 0);"
+			+ "(glowtone_vIndex, position, glowtone_vBlock, glowtone_vAbs - glowtone_vBlock, "
+			+ CAMERA_WORLD_POS + ", _vert_tex_diffuse_coord, vec2(0.0), GameTime, 0);"
 			+ System.lineSeparator() + "    }";
 
 		return source.substring(0, end + 1) + displace + source.substring(end + 1);
@@ -796,8 +835,9 @@ public final class EmissiveShaderPatcher {
 		}
 
 		if (MaterialShaderPatcher.anyVertex()) {
+			final String rectangles = MaterialBlockTextures.declarations();
 			source = sodiumDisplace(
-				source.replace(SODIUM_COLOR_OUT, MaterialShaderPatcher.generateVertexFunctions() + SODIUM_COLOR_OUT)
+				source.replace(SODIUM_COLOR_OUT, rectangles + MaterialShaderPatcher.generateVertexFunctions() + SODIUM_COLOR_OUT)
 			);
 		}
 
@@ -811,7 +851,7 @@ public final class EmissiveShaderPatcher {
 	}
 
 	private static String patchSodiumMaterialFragment(String source) {
-		if (!source.contains(SODIUM_FOG_CALL) || source.contains("GlowtoneMaterialTex0")) return source;
+		if (!source.contains(SODIUM_FOG_CALL) || source.contains("GlowtoneMaterialTex0") || source.contains(MaterialBlockTextures.TABLE)) return source;
 
 		final String keep = MaterialShaderPatcher.anySamplers()
 			? "color.r += glowtone_keepSamplers();" + System.lineSeparator() + "    "
@@ -1091,26 +1131,27 @@ public final class EmissiveShaderPatcher {
 			+ System.lineSeparator() + "	";
 	}
 
+	private static final int GUI_CONTEXT = 5;
+
+	private static int contextBase(Identifier id) {
+		if (id.equals(TERRAIN)) return 0;
+		if (id.equals(Identifier.withDefaultNamespace("core/block"))) return 1;
+		if (id.equals(Identifier.withDefaultNamespace("core/entity"))) return 2;
+		if (id.equals(Identifier.withDefaultNamespace("core/item"))) return 3;
+
+		return 4;
+	}
+
 	private static String contextFor(Identifier id) {
-		if (id.equals(TERRAIN)) return "0";
+		final int base = contextBase(id);
+		if (base == 0) return "0";
 
-		final String base;
-		if (id.equals(Identifier.withDefaultNamespace("core/block"))) {
-			base = "1";
-		} else if (id.equals(Identifier.withDefaultNamespace("core/entity"))) {
-			base = "2";
-		} else if (id.equals(Identifier.withDefaultNamespace("core/item"))) {
-			base = "3";
-		} else {
-			base = "4";
-		}
-
-		return "(glowtone_Gui != 0 ? 5 : " + base + ")";
+		return "(glowtone_Gui != 0 ? " + GUI_CONTEXT + " : " + base + ")";
 	}
 
 	private static String samplerDeclarations() {
-		if (!MaterialShaderPatcher.anySamplers()) return "";
-		return MaterialSamplers.declarations() + MaterialBlockTextures.declarations();
+		final String samplers = MaterialShaderPatcher.anySamplers() ? MaterialSamplers.declarations() : "";
+		return samplers + (MaterialShaderPatcher.anyFragment() ? MaterialBlockTextures.declarations() : "");
 	}
 
 	private static String keepSamplers() {
@@ -1193,18 +1234,18 @@ public final class EmissiveShaderPatcher {
 			.replace(TERRAIN_WRITE_ANCHOR, TERRAIN_WRITE_ANCHOR + System.lineSeparator() + writes);
 	}
 
-	private static String patchVertex(String source) {
+	private static String patchVertex(Identifier id, String source) {
 		if (!source.contains(SAMPLE_LIGHTMAP)) return source;
 
-		final String displaced = MaterialShaderPatcher.anyVertex() ? displaceGeneric(source) : source;
+		final String displaced = MaterialShaderPatcher.anyVertex() ? displaceGeneric(id, source) : source;
 
 		return displaced.replace(SAMPLE_LIGHTMAP, GLOWTONE_SAMPLE_LIGHTMAP)
-			.replace(MAIN, vertexHeader(source) + GLOWTONE_MAIN) + vertexFooter();
+			.replace(MAIN, vertexHeader(source, id.equals(TERRAIN)) + GLOWTONE_MAIN) + vertexFooter();
 	}
 
-	private static String displaceGeneric(String source) {
-		if (source.contains(MODEL_OFFSET_ANCHOR)) return source.replace(MODEL_OFFSET_ANCHOR, MODEL_OFFSET_DISPLACED);
-		if (source.contains(GENERIC_POSITION_ANCHOR)) return source.replace(GENERIC_POSITION_ANCHOR, GENERIC_POSITION_DISPLACED);
+	private static String displaceGeneric(Identifier id, String source) {
+		if (source.contains(MODEL_OFFSET_ANCHOR)) return source.replace(MODEL_OFFSET_ANCHOR, modelOffsetDisplaced(id));
+		if (source.contains(GENERIC_POSITION_ANCHOR)) return source.replace(GENERIC_POSITION_ANCHOR, genericPositionDisplaced(id));
 
 		return source;
 	}
