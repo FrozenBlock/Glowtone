@@ -19,8 +19,8 @@ package net.frozenblock.glowtone.render;
 
 import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 @ClientOnly
 public final class GlowtoneCasterShapes {
 
-	public static VoxelShape of(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+	public static VoxelShape of(BlockGetter level, BlockPos pos, BlockState state) {
 		if (state.isAir()) return Shapes.empty();
 
 		final @Nullable VoxelShape automatic = automatic(level, pos, state);
@@ -42,7 +42,7 @@ public final class GlowtoneCasterShapes {
 	}
 
 	@Nullable
-	private static VoxelShape automatic(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+	private static VoxelShape automatic(BlockGetter level, BlockPos pos, BlockState state) {
 		if (state.canOcclude()) {
 			final VoxelShape occlusionShape = state.getOcclusionShape();
 			if (!occlusionShape.isEmpty()) return occlusionShape;

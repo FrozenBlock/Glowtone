@@ -28,6 +28,7 @@ import net.frozenblock.glowtone.data.BlockMaterialOverrideLoader;
 import net.frozenblock.glowtone.entity.RenderTypeTextureValidityCache;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.frozenblock.glowtone.light.data.block.BlockStateLightPropertiesLoader;
+import net.frozenblock.glowtone.light.edge.impl.CasterBoxCacheReloader;
 import net.frozenblock.glowtone.light.occlusion.impl.AmbientOcclusionCacheLoader;
 import net.frozenblock.glowtone.platform.GlowtonePlatform;
 
@@ -44,6 +45,7 @@ public final class GlowtoneClient {
 		GlowtonePlatform.INSTANCE.registerResourceListener("block_material", new BlockMaterialOverrideLoader());
 		GlowtonePlatform.INSTANCE.registerResourceListener("settings", new GlowtonePackSettingsLoader());
 		GlowtonePlatform.INSTANCE.registerResourceListener("ambient_occlusion_cache", new AmbientOcclusionCacheLoader());
+		GlowtonePlatform.INSTANCE.registerResourceListener("caster_box_cache_reloader", new CasterBoxCacheReloader());
 		RenderTypeTextureValidityCache.init();
 
 		GlowtonePlatform.INSTANCE.registerResourcePack("builtin_materials", false);
