@@ -31,17 +31,15 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 			|| name.equals(GTRenderTypes.ENTITY_EMISSIVE_OVERLAY_NAME)
 		) return;
 
-		Optional.ofNullable(state.textures.get("Sampler0"))
-			.map(RenderSetup.TextureBinding::location)
-			.filter(texture -> !texture.getPath().contains("glowtone_emissive"))
-			.ifPresent(texture -> {
+		final RenderSetup.TextureBinding sampler0Binding = state.textures.get("Sampler0");
+		if (sampler0Binding != null) {
+			final Identifier texture = sampler0Binding.location();
+			if (!texture.getPath().contains("glowtone_emissive")) {
 				this.glowtone$emissiveTexture = texture.withPath(path -> path.replace(".png", "_glowtone_emissive.png"));
-			});
-
-		if (this.glowtone$emissiveTexture != null) {
-			final RenderType emissiveRenderType = GTRenderTypes.entityEmissiveOverlay(this.glowtone$emissiveTexture);
-			emissiveRenderType.glowtone$markEmissive();
-			this.glowtone$emissiveRenderType = Optional.of(emissiveRenderType);
+				final RenderType emissiveRenderType = GTRenderTypes.entityEmissiveOverlay(this.glowtone$emissiveTexture);
+				emissiveRenderType.glowtone$markEmissive();
+				this.glowtone$emissiveRenderType = Optional.of(emissiveRenderType);
+			}
 		}
 	}
 
