@@ -29,7 +29,11 @@ public final class BloomHelper {
 
 	public static boolean isEmissiveQuad(BakedQuad quad) {
 		final BakedQuad.MaterialInfo materialInfo = quad.materialInfo();
-		return BlockLightPropertiesRenderer.bloom(isEmissiveLevel(BlockLightPropertiesRenderer.renderBrightness(materialInfo.lightEmission())));
+		return isEmissiveEmission(materialInfo.lightEmission());
+	}
+
+	public static boolean isEmissiveEmission(int lightEmission) {
+		return BlockLightPropertiesRenderer.bloom(isEmissiveLevel(BlockLightPropertiesRenderer.renderBrightness(lightEmission)));
 	}
 
 	public static boolean isEmissiveLevel(int lightEmission) {

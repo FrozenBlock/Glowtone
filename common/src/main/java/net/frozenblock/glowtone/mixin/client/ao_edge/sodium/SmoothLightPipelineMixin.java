@@ -54,7 +54,7 @@ public class SmoothLightPipelineMixin {
 		GlowtoneSodiumOcclusion.beginQuad(this.lightCache.getLevel(), pos);
 	}
 
-	@Inject(method = "applyAmbientLighting", at = @At("HEAD"), require = 0)
+	@Inject(method = "applyAmbientLighting", at = @At("HEAD"), require = 0, expect = 1)
 	private void glowtone$scaleSelfOcclusion(
 		float[] brightness, Direction face, boolean shade, CallbackInfo info
 	) {
@@ -67,7 +67,8 @@ public class SmoothLightPipelineMixin {
 			value = "INVOKE",
 			target = "Lnet/caffeinemc/mods/sodium/client/model/light/smooth/AoFaceData;getBlendedShade([F)F"
 		),
-		require = 0
+		require = 0,
+		expect = 1
 	)
 	private float glowtone$scaleIrregularSelfOcclusion(float ambientOcclusion) {
 		return GlowtoneSodiumOcclusion.scaleSelf(ambientOcclusion);

@@ -34,7 +34,8 @@ public class ItemFeatureRendererLightMixin {
 			value = "INVOKE",
 			target = "Lnet/minecraft/client/renderer/feature/ItemFeatureRenderer$Submit;lightCoords()I"
 		),
-		require = 0
+		require = 0,
+		expect = 1
 	)
 	private int glowtone$dropInheritedEmissiveMarker(int lightCoords) {
 		return BloomHelper.unmark(lightCoords);

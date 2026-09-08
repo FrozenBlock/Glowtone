@@ -6,7 +6,10 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import net.frozenblock.glowtone.light.BlockLightPropertiesAttachment;
 import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
+import net.frozenblock.glowtone.light.color.render.GlowtoneColorWindowCache;
+import net.frozenblock.glowtone.light.color.render.GlowtoneSectionColorStore;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BlockStateDefinitions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
@@ -108,10 +111,6 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 		return blockStateLights
 			.thenCompose(preparationBarrier::wait)
 			.thenAcceptAsync(lights -> {
-				BuiltInRegistries.BLOCK.forEach(block ->
-					((BlockLightPropertiesAttachment) block).glowtone$setProperties(BlockLightProperties.EMPTY)
-				);
-
 				boolean occlusion = false;
 				boolean emissive = false;
 				boolean filterColors = false;
@@ -122,7 +121,6 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 					filterColors |= light.lightFilterColor().isPresent();
 					lightColors |= light.lightColor().isPresent();
 				}
-				BlockLightPropertiesRenderer.setLoadedFeatures(occlusion, emissive, filterColors, lightColors);
 
 				final Map<Block, Map<BlockState, BlockLightProperties>> fullMap = new IdentityHashMap<>();
 				lights.lights().forEach((blockState, light) -> {
@@ -145,11 +143,26 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 					}
 				});
 
-				bakedMap.forEach((block, blockLight) ->
-					((BlockLightPropertiesAttachment) block).glowtone$setProperties(blockLight)
+				BuiltInRegistries.BLOCK.forEach(block ->
+					((BlockLightPropertiesAttachment) block)
+						.glowtone$setProperties(bakedMap.getOrDefault(block, BlockLightProperties.EMPTY))
 				);
 
+				BlockLightPropertiesRenderer.setLoadedFeatures(occlusion, emissive, filterColors, lightColors);
+
+				GlowtoneColorWindowCache.clear();
+				GlowtoneSectionColorStore.clear();
+				rebuildChunks();
 			}, reloadExecutor);
+	}
+
+	private static void rebuildChunks() {
+		final Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft == null) return;
+
+		minecraft.execute(() -> {
+			if (minecraft.level != null) minecraft.levelExtractor.allChanged();
+		});
 	}
 
 	private record LoadedBlockStateLightDispatcher(String source, BlockLightPropertiesDispatcher contents) {}

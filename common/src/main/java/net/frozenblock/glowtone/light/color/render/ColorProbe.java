@@ -60,6 +60,10 @@ public final class ColorProbe {
 		return colors[GlowtoneRegionFlood.entityCellIndex(worldX, worldY, worldZ)] & 0xFFFF;
 	}
 
+	public boolean hasSkyHues(int worldX, int worldY, int worldZ) {
+		return this.cachedSkyHues[this.cache(worldX, worldY, worldZ)] != null;
+	}
+
 	public int getSkyRgb(int worldX, int worldY, int worldZ) {
 		final int slot = this.cache(worldX, worldY, worldZ);
 		final short[] hues = this.cachedSkyHues[slot];

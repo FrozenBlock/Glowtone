@@ -54,6 +54,7 @@ public final class GlowtoneConfig {
 	private static final String AMBIENT_OCCLUSION_KEY = "ambient_occlusion";
 	private static final String OCCLUSION_SCALE_KEY = "occlusion_scale";
 	private static final String LEGACY_OCCLUSION_DEPTH_KEY = "occlusion_strength";
+	private static final String SMOOTH_ANIMATION_KEY = "smooth_animation";
 	private static int bloom = DEFAULT_BLOOM;
 	private static int edgeHighlight = DEFAULT_EDGE_HIGHLIGHT;
 	private static boolean bloomEnabled = true;
@@ -70,11 +71,12 @@ public final class GlowtoneConfig {
 	}
 
 	public static boolean bloomEnabled() {
+		if (!loaded) load();
 		return bloomEnabled;
 	}
 
 	private static ShadingMode parseShadingMode(JsonObject json) {
-		if (json.has(SHADING_KEY)) return ShadingMode.CODEC.byName(GsonHelper.getAsString(json, SHADING_KEY, ShadingMode.DEFAULT.getSerializedName()));
+		if (json.has(SHADING_KEY)) return ShadingMode.CODEC.byName(GsonHelper.getAsString(json, SHADING_KEY, ShadingMode.DEFAULT.getSerializedName()), ShadingMode.DEFAULT);
 
 		if (json.has(LEGACY_EMISSIVES_KEY)) {
 			return "shaded".equals(GsonHelper.getAsString(json, LEGACY_EMISSIVES_KEY, ""))
@@ -203,10 +205,11 @@ public final class GlowtoneConfig {
 			bloom = Mth.clamp(GsonHelper.getAsInt(json, BLOOM_KEY, DEFAULT_BLOOM), BloomOption.MIN, BloomOption.MAX);
 			edgeHighlight = Mth.clamp(GsonHelper.getAsInt(json, EDGE_HIGHLIGHT_KEY, DEFAULT_EDGE_HIGHLIGHT), EdgeHighlightOption.MIN, EdgeHighlightOption.MAX);
 			occlusionStrength = parseOcclusionStrength(json);
-			ambientOcclusion = AmbientOcclusionMode.CODEC.byName(GsonHelper.getAsString(json, AMBIENT_OCCLUSION_KEY, AmbientOcclusionMode.DEFAULT.getSerializedName()));
+			ambientOcclusion = AmbientOcclusionMode.CODEC.byName(GsonHelper.getAsString(json, AMBIENT_OCCLUSION_KEY, AmbientOcclusionMode.DEFAULT.getSerializedName()), AmbientOcclusionMode.DEFAULT);
 			bloomEnabled = bloom > 0;
 			shading = parseShadingMode(json);
 			coloredLighting = parseColoredLightingMode(json);
+			smoothAnimation = GsonHelper.getAsBoolean(json, SMOOTH_ANIMATION_KEY, SmoothAnimationOption.DEFAULT);
 		} catch (IOException | RuntimeException exception) {
 			LOGGER.error("Failed to read {}", path, exception);
 		}
@@ -249,6 +252,7 @@ public final class GlowtoneConfig {
 				json.addProperty(AMBIENT_OCCLUSION_KEY, ambientOcclusion.getSerializedName());
 				json.addProperty(SHADING_KEY, shading.id());
 				json.addProperty(COLORED_LIGHTING_KEY, coloredLighting.name().toLowerCase(java.util.Locale.ROOT));
+				json.addProperty(SMOOTH_ANIMATION_KEY, smoothAnimation);
 				writer.write(json.toString());
 			}
 		} catch (IOException exception) {

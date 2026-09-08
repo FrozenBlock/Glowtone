@@ -20,8 +20,6 @@ package net.frozenblock.glowtone.mixin.client.emissive;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
-import net.frozenblock.glowtone.render.sodium.GlowtoneEmissiveItemRenderTypes;
 import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
@@ -87,12 +85,6 @@ public class ItemLayerKeyMixin {
 		boolean shade,
 		int lightEmission
 	) {
-		final BakedQuad.MaterialInfo base = BakedQuad.MaterialInfo.of(material, transparency, tintIndex, shade, lightEmission);
-		if (!GlowtonePlatform.INSTANCE.isModLoaded("sodium")) return base;
-		return new BakedQuad.MaterialInfo(
-			base.sprite(), base.layer(),
-			GlowtoneEmissiveItemRenderTypes.get(material.sprite().atlasLocation(), transparency.hasTranslucent()),
-			base.tintIndex(), base.shade(), base.lightEmission(), base.ambientOcclusion()
-		);
+		return BakedQuad.MaterialInfo.of(material, transparency, tintIndex, shade, lightEmission);
 	}
 }

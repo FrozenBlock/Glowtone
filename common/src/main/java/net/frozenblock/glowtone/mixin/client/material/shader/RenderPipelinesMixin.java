@@ -17,8 +17,6 @@
 
 package net.frozenblock.glowtone.mixin.client.material.shader;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import java.util.List;
@@ -28,33 +26,30 @@ import net.frozenblock.glowtone.material.MaterialBlockTextures;
 import net.frozenblock.glowtone.material.MaterialSamplers;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.BindGroupLayouts;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @ClientOnly
-@Mixin(RenderPipelines.class)
+@Mixin(RenderPipeline.Builder.class)
 public class RenderPipelinesMixin {
 
-	@WrapOperation(
-		method = "<clinit>",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/mojang/blaze3d/pipeline/RenderPipeline$Builder;build()Lcom/mojang/blaze3d/pipeline/RenderPipeline;"
-		)
-	)
-	private static RenderPipeline glowtone$declareMaterialSamplers(RenderPipeline.Builder instance, Operation<RenderPipeline> original) {
+	@Inject(method = "build", at = @At("HEAD"))
+	private void glowtone$declareMaterialSamplers(CallbackInfoReturnable<RenderPipeline> info) {
+		final RenderPipeline.Builder instance = RenderPipeline.Builder.class.cast(this);
 		final Optional<Identifier> fragment = instance.fragmentShader;
-		if (fragment != null && fragment.isPresent() && EmissiveShaderPatcher.usesMaterialSamplers(fragment.get())) {
-			instance.withBindGroupLayout(MaterialSamplers.LAYOUT);
-			instance.withBindGroupLayout(MaterialBlockTextures.LAYOUT);
-			final Optional<List<BindGroupLayout>> layouts = instance.bindGroupLayouts;
-			if (layouts == null || layouts.isEmpty() || !layouts.get().contains(BindGroupLayouts.GLOBALS)) {
-				instance.withBindGroupLayout(BindGroupLayouts.GLOBALS);
-			}
-		}
+		if (fragment == null || fragment.isEmpty() || !EmissiveShaderPatcher.usesMaterialSamplers(fragment.get())) return;
 
-		return original.call(instance);
+		final Optional<List<BindGroupLayout>> declared = instance.bindGroupLayouts;
+		if (declared != null && declared.isPresent() && declared.get().contains(MaterialSamplers.LAYOUT)) return;
+
+		instance.withBindGroupLayout(MaterialSamplers.LAYOUT);
+		instance.withBindGroupLayout(MaterialBlockTextures.LAYOUT);
+		final Optional<List<BindGroupLayout>> layouts = instance.bindGroupLayouts;
+		if (layouts == null || layouts.isEmpty() || !layouts.get().contains(BindGroupLayouts.GLOBALS)) {
+			instance.withBindGroupLayout(BindGroupLayouts.GLOBALS);
+		}
 	}
 }

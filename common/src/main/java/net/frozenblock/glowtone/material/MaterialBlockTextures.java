@@ -27,6 +27,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.Minecraft;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 
@@ -43,7 +44,7 @@ public final class MaterialBlockTextures {
 	private static final int SIZE = size();
 
 	private static volatile List<String> names = List.of();
-	private static @Nullable GpuBuffer buffer;
+	private static volatile @Nullable GpuBuffer buffer;
 
 	private static int size() {
 		final Std140SizeCalculator calculator = new Std140SizeCalculator();
@@ -69,7 +70,15 @@ public final class MaterialBlockTextures {
 	public static void invalidate() {
 		final GpuBuffer stale = buffer;
 		buffer = null;
-		if (stale != null) stale.close();
+		if (stale == null) return;
+
+		if (RenderSystem.isOnRenderThread()) {
+			stale.close();
+			return;
+		}
+
+		final Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft != null) minecraft.execute(stale::close);
 	}
 
 	public static void bind(RenderPassBackend pass) {

@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.config;
 
+import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +33,14 @@ import net.minecraft.client.gui.components.debug.DebugScreenEntryList;
 import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 
 @ClientOnly
 public final class GlowtoneDebugEntries {
 	public static final Identifier EDGE_HIGHLIGHT = GlowtoneConstants.id("edge_highlight");
 	public static final Identifier AMBIENT_OCCLUSION = GlowtoneConstants.id("ambient_occlusion");
 	public static final Identifier EMISSIVE_BUFFER = GlowtoneConstants.id("emissive_buffer");
+	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final List<Identifier> ENTRIES = List.of(EDGE_HIGHLIGHT, AMBIENT_OCCLUSION, EMISSIVE_BUFFER);
 	private static final Set<Identifier> NEEDS_RELOAD = Set.of(EDGE_HIGHLIGHT, AMBIENT_OCCLUSION);
 	private static final Set<Identifier> ENABLED = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -53,6 +56,7 @@ public final class GlowtoneDebugEntries {
 			seedProfiles();
 		} catch (Throwable failure) {
 			registered = false;
+			LOGGER.warn("Failed to register Glowtone debug entries", failure);
 		}
 	}
 

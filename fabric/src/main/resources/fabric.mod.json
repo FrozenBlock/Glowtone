@@ -17,7 +17,7 @@
   },
   "license": "FrozenBlock Modding Oasis License v1.0",
   "icon": "assets/glowtone/icon.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "client": [
       "net.frozenblock.glowtone.GlowtoneFabricClient"
@@ -36,6 +36,7 @@
   "accessWidener": "glowtone.classtweaker",
   "depends": {
     "fabric-api": "*",
+    "fabricloader": "${fabric_loader_version}",
     "minecraft": "${minecraft_version}"
   },
   "suggests": {

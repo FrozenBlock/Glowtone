@@ -75,7 +75,11 @@ tasks {
     }
 
     processResources {
-        val properties = mapOf("mod_version" to getModVersion())
+        val properties = mapOf(
+            "mod_version" to getModVersion(),
+            "minecraft_version" to minecraft_version,
+            "neoforge_version" to neoforge_version
+        )
         inputs.properties(properties)
         filesMatching("META-INF/neoforge.mods.toml") {
             expand(properties)
@@ -145,7 +149,6 @@ upload {
 
     modrinth {
         dependencies {
-            required("frozenlib")
             optional("wilder-wild")
             optional("trailier-tales")
             optional("the-copperier-age")

@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.light;
 
+import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import java.util.Arrays;
 import java.util.function.Predicate;
@@ -36,9 +37,11 @@ import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 
 @ClientOnly
 public final class GlowtoneRegionFlood {
+	private static final Logger LOGGER = LogUtils.getLogger();
 	public static final int SPAN = 48;
 	public static final int WHITE_RGB = 0xFFFFFF;
 	private static final Predicate<BlockState> TINTS_DAYLIGHT = state ->
@@ -62,6 +65,7 @@ public final class GlowtoneRegionFlood {
 	private static final int CELLS = SPAN * SPAN * SPAN;
 
 	private static final int MAX_EXPANSIONS = CELLS;
+	private static int expansionTrips;
 	private static final int SKY_BUCKETS = (GlowtoneChannels.MAX_LEVEL + 1) * SPAN;
 	private static volatile boolean skyTintDimension = true;
 	private static final byte SKY_UNKNOWN = -1;
@@ -227,12 +231,9 @@ public final class GlowtoneRegionFlood {
 
 		final int emitterMask = emitterMask(this.containers);
 		final int tintMask = skyTintActive() ? tintMask(this.containers) : 0;
-		if (emitterMask == 0
-			&& tintMask == 0
-			&& !GlowtoneDynamicLights.get().anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN)
-		) {
-			return false;
-		}
+		final boolean anyDynamic = GlowtoneDynamicLights.get()
+			.anyWithin(minSectionX << 4, minSectionY << 4, minSectionZ << 4, SPAN);
+		if (emitterMask == 0 && tintMask == 0 && !anyDynamic) return false;
 
 		if (this.levels == null) {
 			this.levels = new short[CELLS];
@@ -261,7 +262,6 @@ public final class GlowtoneRegionFlood {
 			}
 		}
 
-		final boolean anyDynamic = GlowtoneDynamicLights.get().anyWithin(this.minBlockX, this.minBlockY, this.minBlockZ, SPAN);
 		this.dynamicSeeded = anyDynamic;
 		if (cachedWindow != null && !anyDynamic) {
 			this.restoreWindow(cachedWindow);
@@ -932,7 +932,12 @@ public final class GlowtoneRegionFlood {
 				final int packed = this.levels[cell] & GlowtoneChannels.LEVEL_MASK;
 				if (GlowtoneChannels.level(packed) != level) continue;
 
-				if (++expansions > MAX_EXPANSIONS) return;
+				if (++expansions > MAX_EXPANSIONS) {
+					if (expansionTrips++ == 0) {
+						LOGGER.debug("Glowtone colored light flood hit its expansion cap of {}, truncating propagation", MAX_EXPANSIONS);
+					}
+					return;
+				}
 
 				this.propagateFrom(
 					cell, rx, ry, rz, packed,

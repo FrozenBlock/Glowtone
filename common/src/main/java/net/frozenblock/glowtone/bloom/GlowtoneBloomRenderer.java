@@ -64,6 +64,7 @@ public final class GlowtoneBloomRenderer {
 	private static final int BLUR_DOWNSAMPLE = 2;
 	private static final GpuFormat DEPTH_FORMAT = GpuFormat.R16_FLOAT;
 	private static final int MAX_DEPTH_TARGETS = 8;
+	private static final int DEFERRED_IDLE_FRAMES = 60;
 
 	private static final BindGroupLayout BLUR_BIND_GROUP = BindGroupLayout.builder()
 		.withSampler("InSampler")
@@ -160,6 +161,7 @@ public final class GlowtoneBloomRenderer {
 	private static final List<GpuTextureView> sceneDepthViews = new ArrayList<>(MAX_DEPTH_TARGETS);
 	private static @Nullable GpuTextureView deferredDepthView;
 	private static boolean deferredWanted;
+	private static int deferredIdleFrames;
 	private static int uniformWidth;
 	private static int uniformHeight;
 	private static float uniformStrength = -1F;
@@ -252,7 +254,9 @@ public final class GlowtoneBloomRenderer {
 
 		final int blurWidth = blurSize(width);
 		final int blurHeight = blurSize(height);
+		final boolean wanted = deferredWanted;
 
+		deferredWanted = false;
 		deferredDepthView = null;
 		sceneDepthViews.clear();
 
@@ -269,10 +273,17 @@ public final class GlowtoneBloomRenderer {
 			depthTarget.resize(blurWidth, blurHeight);
 		}
 
-		if (deferredWanted && deferredEmissiveTarget == null) {
+		deferredIdleFrames = wanted ? 0 : deferredIdleFrames + 1;
+
+		if (wanted && deferredEmissiveTarget == null) {
 			deferredEmissiveTarget = new TextureTarget("Glowtone Deferred Emissive", width, height, false, GpuFormat.RGBA8_UNORM);
-		} else if (deferredEmissiveTarget != null && (deferredEmissiveTarget.width != width || deferredEmissiveTarget.height != height)) {
-			deferredEmissiveTarget.resize(width, height);
+		} else if (deferredEmissiveTarget != null) {
+			if (deferredIdleFrames >= DEFERRED_IDLE_FRAMES) {
+				deferredEmissiveTarget.destroyBuffers();
+				deferredEmissiveTarget = null;
+			} else if (deferredEmissiveTarget.width != width || deferredEmissiveTarget.height != height) {
+				deferredEmissiveTarget.resize(width, height);
+			}
 		}
 
 		final CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
@@ -324,6 +335,11 @@ public final class GlowtoneBloomRenderer {
 	}
 
 	public static void render(RenderTarget mainTarget) {
+		renderBloom(mainTarget);
+		emissiveAttached = false;
+	}
+
+	private static void renderBloom(RenderTarget mainTarget) {
 		if (!isEnabled()) return;
 
 		final TextureTarget emissive = emissiveTarget;
@@ -490,6 +506,7 @@ public final class GlowtoneBloomRenderer {
 			deferredEmissiveTarget.destroyBuffers();
 			deferredEmissiveTarget = null;
 		}
+		deferredIdleFrames = 0;
 		deferredDepthView = null;
 		sceneDepthViews.clear();
 		if (blurTargetA != null) {
@@ -506,6 +523,8 @@ public final class GlowtoneBloomRenderer {
 		}
 		lastBasePipeline = null;
 		lastTwinPipeline = null;
+		emissiveAttached = false;
+		GlowtoneEmissivePipeline.clear();
 		closeUniforms();
 		uniformWidth = 0;
 		uniformHeight = 0;

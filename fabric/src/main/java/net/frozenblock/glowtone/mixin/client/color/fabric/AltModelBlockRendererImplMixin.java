@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(AltModelBlockRendererImpl.class)
 public class AltModelBlockRendererImplMixin {
 
-	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0)
+	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0, expect = 1)
 	private boolean glowtone$pinFlatQuadColor(boolean original, MutableQuadView quad) {
 		if (!original) return original;
 

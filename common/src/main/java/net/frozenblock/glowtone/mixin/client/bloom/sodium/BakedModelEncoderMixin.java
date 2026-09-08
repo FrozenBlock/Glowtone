@@ -43,7 +43,7 @@ public class BakedModelEncoderMixin {
 		int lightCoords,
 		@Local(argsOnly = true) BakedQuadView quad
 	) {
-		return BloomHelper.isEmissiveLevel(quad.getLightEmission())
+		return BloomHelper.isEmissiveEmission(quad.getLightEmission())
 			? BloomHelper.mark(lightCoords)
 			: lightCoords;
 	}

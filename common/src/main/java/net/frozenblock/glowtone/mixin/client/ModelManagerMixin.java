@@ -21,6 +21,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.emissive.particle.GlowtoneParticleEmissives;
+import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.frozenblock.glowtone.render.sodium.sprite.GlowtoneSpecialSprites;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.ModelManager;
@@ -44,6 +45,7 @@ public class ModelManagerMixin {
 
 		GlowtoneSpecialSprites.clear();
 		GlowtoneParticleEmissives.clear();
+		BlockTextureSlots.clear();
 
 		return resourceManager;
 	}

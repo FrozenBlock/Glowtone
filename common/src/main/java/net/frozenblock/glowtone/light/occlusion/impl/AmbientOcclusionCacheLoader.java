@@ -1,6 +1,7 @@
 package net.frozenblock.glowtone.light.occlusion.impl;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
@@ -16,6 +17,8 @@ public final class AmbientOcclusionCacheLoader implements ResourceManagerReloadL
 
 	@Override
 	public void onResourceManagerReload(ResourceManager resourceManager) {
+		GlowtoneModelBoxes.clear();
+
 		final RandomSource random = RandomSource.createThreadLocalInstance(0L);
 		final List<BlockStateModelPart> parts = new ObjectArrayList<>();
 		final BlockStateModelSet modelSet = Minecraft.getInstance().getModelManager().getBlockStateModelSet();

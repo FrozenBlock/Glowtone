@@ -37,6 +37,7 @@ import org.jspecify.annotations.Nullable;
 @ClientOnly
 public final class ChromaFold {
 	public static final int NO_TINT = 0;
+	private static final int WHITE_RGB = 0xFFFFFF;
 	private static final float PACKED_LIGHT_SCALE = LightCoordsUtil.MAX_SMOOTH_LIGHT_LEVEL;
 	private static final String EMISSIVE_DEFINITION = "EMISSIVE";
 	private static final float LUMA_RED = 0.2126F;
@@ -58,7 +59,7 @@ public final class ChromaFold {
 		final int eyeY = Mth.floor(y + eyeHeight);
 
 		final float weight = blockLightShare(lightCoords);
-		if (weight <= 0F) return NO_TINT;
+		if (weight <= 0F) return ChromaBlender.NEUTRAL_ARGB;
 
 		long samples = smoothLighting()
 			? sampleTrilinear(probe, x, y + eyeHeight, z)
@@ -93,7 +94,7 @@ public final class ChromaFold {
 		final int blockZ = pos.getZ();
 
 		final float weight = blockLightShare(lightCoords);
-		if (weight <= 0F) return NO_TINT;
+		if (weight <= 0F) return ChromaBlender.NEUTRAL_ARGB;
 
 		long samples = ChromaBlender.add(ChromaBlender.EMPTY, probe.getPackedLevels(blockX, blockY, blockZ));
 		if (ChromaBlender.isEmpty(samples)) samples = addNeighbours(probe, samples, blockX, blockY, blockZ);
@@ -131,6 +132,10 @@ public final class ChromaFold {
 	}
 
 	private static int skyTintHue(ColorProbe probe, int x, int y, int z) {
+		if (sectionInterior(x) && sectionInterior(y) && sectionInterior(z) && !probe.hasSkyHues(x, y, z)) {
+			return ChromaBlender.skyTintArgb(WHITE_RGB);
+		}
+
 		int red = 0;
 		int green = 0;
 		int blue = 0;
@@ -143,6 +148,11 @@ public final class ChromaFold {
 
 		final int count = SKY_SAMPLES.length / 3;
 		return ChromaBlender.skyTintArgb(((red / count) << 16) | ((green / count) << 8) | (blue / count));
+	}
+
+	private static boolean sectionInterior(int coord) {
+		final int local = coord & 15;
+		return local > 0 && local < 15;
 	}
 
 	private static int skyTint(ColorProbe probe, int x, int y, int z, int lightCoords) {
@@ -357,11 +367,10 @@ public final class ChromaFold {
 
 	public static int tintBlockQuadColor(int quadColor, int selfEmission) {
 		if (selfEmission >= LightEngine.MAX_LEVEL || blockTint == NO_TINT) return quadColor;
-		if (selfEmission > 0) {
-			final float selfEmissionStrength = (float) LightEngine.MAX_LEVEL / selfEmission;
-			return ARGB.multiply(quadColor, ARGB.addRgb(blockTint, ARGB.scaleRGB(ARGB.white(0F), selfEmissionStrength)));
-		}
-		return ARGB.multiply(quadColor, blockTint);
+		if (selfEmission <= 0) return ARGB.multiply(quadColor, blockTint);
+
+		final float selfEmissionStrength = selfEmission / (float) LightEngine.MAX_LEVEL;
+		return ARGB.multiply(quadColor, ARGB.srgbLerp(selfEmissionStrength, blockTint, ARGB.white(1F)));
 	}
 
 	public static void beginModelQuads(int tint) {
@@ -379,11 +388,28 @@ public final class ChromaFold {
 	}
 
 	public static int modelTintColor() {
-		return modelTint;
+		return shaderChroma(modelTint);
 	}
 
 	public static int modelSkyTintColor() {
 		return modelSkyTint == NO_TINT ? ChromaBaker.NEUTRAL_SKY_ARGB : modelSkyTint;
+	}
+
+	public static int blockTintOrNeutral(int tint) {
+		return tint == NO_TINT ? ChromaBlender.NEUTRAL_ARGB : tint;
+	}
+
+	public static int shaderChroma(int tint) {
+		if (tint == NO_TINT) return ChromaBaker.NEUTRAL_ARGB;
+
+		return 0xFF000000
+			| (halfChannel(tint >> 16) << 16)
+			| (halfChannel(tint >> 8) << 8)
+			| halfChannel(tint);
+	}
+
+	private static int halfChannel(int shifted) {
+		return ((shifted & 0xFF) + 1) >> 1;
 	}
 
 	public static int resolveEntitySkyTint(double x, double y, double z, float eyeHeight, int lightCoords) {

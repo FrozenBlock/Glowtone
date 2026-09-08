@@ -19,6 +19,7 @@ package net.frozenblock.glowtone.mixin.client.ao_edge;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
+import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockModelLighter;
@@ -39,11 +40,15 @@ public class BlockModelLighterMixin {
 			target = "Lnet/minecraft/util/ARGB;gray(F)I"
 		),
 		index = 0,
-		require = 0
+		require = 0,
+		expect = 1
 	)
 	private static float glowtone$clampCorner(float occlusion, @Local(argsOnly = true) BlockState state) {
 		final float clamped = Mth.clamp(occlusion, 0F, 1F);
-		if (!AmbientOcclusionOption.vanillaActive()) return clamped;
+		final boolean vanilla = ChromaBaker.buildingSection()
+			? ChromaBaker.vanillaOcclusionActive()
+			: AmbientOcclusionOption.vanillaActive();
+		if (!vanilla) return clamped;
 
 		return OcclusionOverrideHelper.receives(state, true) ? clamped : 1F;
 	}

@@ -102,6 +102,7 @@ public final class GlowtoneContactRects {
 	private final long[] cacheKeys = new long[CACHE_SLOTS];
 	private final boolean[] cacheUsed = new boolean[CACHE_SLOTS];
 	private final int[] cacheWords = new int[CACHE_SLOTS * WORDS];
+	private int neighbourGeneration = -1;
 
 	public int[] build(
 		EdgeNeighbours neighbours,
@@ -137,6 +138,12 @@ public final class GlowtoneContactRects {
 				this.cells[cell++] = boxes;
 				signature = signature * 1099511628211L + System.identityHashCode(boxes);
 			}
+		}
+
+		final int generation = neighbours.boxGeneration();
+		if (generation != this.neighbourGeneration) {
+			this.neighbourGeneration = generation;
+			Arrays.fill(this.cacheUsed, false);
 		}
 
 		final int slot = (int) (signature ^ (signature >>> 32)) & CACHE_MASK;

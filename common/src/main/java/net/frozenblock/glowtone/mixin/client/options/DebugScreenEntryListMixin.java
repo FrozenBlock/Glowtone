@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(DebugScreenEntryList.class)
 public class DebugScreenEntryListMixin {
 
-	@Inject(method = "setStatus", at = @At("TAIL"), require = 0)
+	@Inject(method = "setStatus", at = @At("TAIL"), require = 0, expect = 1)
 	private void glowtone$rebuildOnToggle(Identifier location, DebugScreenEntryStatus status, CallbackInfo info) {
 		GlowtoneDebugEntries.statusChanged(location);
 	}

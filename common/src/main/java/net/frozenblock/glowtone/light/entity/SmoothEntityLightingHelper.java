@@ -24,6 +24,9 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.lighting.LightEngine;
 
 @ClientOnly
@@ -61,6 +64,11 @@ public final class SmoothEntityLightingHelper {
 		final float fracY = (float) (gridY - baseY);
 		final float fracZ = (float) (gridZ - baseZ);
 
+		final boolean oneChunk = (baseX >> 4) == ((baseX + 1) >> 4) && (baseZ >> 4) == ((baseZ + 1) >> 4);
+		final LevelChunk chunk = oneChunk
+			? level.getChunkSource().getChunk(baseX >> 4, baseZ >> 4, ChunkStatus.FULL, false)
+			: null;
+
 		float blockLight = 0F;
 		float skyLight = 0F;
 		float lightWeight = 0F;
@@ -77,8 +85,15 @@ public final class SmoothEntityLightingHelper {
 
 			SCRATCH_POS.set(baseX + offsetX, baseY + offsetY, baseZ + offsetZ);
 
-			final int sampled = level.hasChunkAt(SCRATCH_POS) && !level.getBlockState(SCRATCH_POS).canOcclude()
-				? LightCoordsUtil.getLightCoords(level, SCRATCH_POS)
+			final BlockState state;
+			if (chunk != null) {
+				state = chunk.getBlockState(SCRATCH_POS);
+			} else {
+				state = level.hasChunkAt(SCRATCH_POS) ? level.getBlockState(SCRATCH_POS) : null;
+			}
+
+			final int sampled = state != null && !state.canOcclude()
+				? LightCoordsUtil.getLightCoords(LightCoordsUtil.BrightnessGetter.DEFAULT, level, state, SCRATCH_POS)
 				: lightCoords;
 
 			blockLight += LightCoordsUtil.block(sampled) * weight;

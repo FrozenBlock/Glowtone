@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.render;
 
+import com.mojang.logging.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,25 +31,36 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 
 @ClientOnly
 public final class GlowtoneModelBoxes {
 	public static final float EPSILON = 1.0E-4F;
+	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final int STRIDE = 6;
+	private static final int HEADER = 3;
 	private static final int MAX_FACES = 512;
 	private static final float[] NONE = new float[0];
 	private static final Map<BlockState, float[]> CACHE = new ConcurrentHashMap<>();
+	private static volatile boolean warnedBuildFailure;
+
+	public static void clear() {
+		CACHE.clear();
+	}
 
 	public static float[] forState(BlockStateModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, long seed) {
 		final float[] cached = CACHE.get(state);
 		if (cached != null) return cached;
 
 		final float[] built = build(model, level, pos, state, seed);
+		if (built == null) return NONE;
+
 		CACHE.put(state, built);
 		return built;
 	}
 
-	private static float[] build(BlockStateModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, long seed) {
+	private static float @Nullable [] build(BlockStateModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, long seed) {
 		final List<float[]> faces = new ArrayList<>();
 
 		try {
@@ -59,17 +71,39 @@ public final class GlowtoneModelBoxes {
 				collect(part.getQuads(null), faces);
 				for (Direction direction : Direction.values()) collect(part.getQuads(direction), faces);
 			}
-		} catch (Exception ignored) {
-			return NONE;
+		} catch (Exception e) {
+			if (!warnedBuildFailure) {
+				warnedBuildFailure = true;
+				LOGGER.warn("Failed to collect model boxes for {}, ignoring further failures", state, e);
+			}
+			return null;
 		}
 
 		if (faces.isEmpty()) return NONE;
 
-		final float[] packed = new float[faces.size() * STRIDE];
-		for (int i = 0; i < faces.size(); i++) {
-			System.arraycopy(faces.get(i), 0, packed, i * STRIDE, STRIDE);
+		int total = 0;
+		for (float[] face : faces) {
+			for (int axis = 0; axis < 3; axis++) {
+				if (flatOn(face, axis)) total++;
+			}
+		}
+
+		final float[] packed = new float[HEADER + total * STRIDE];
+		int at = HEADER;
+		for (int axis = 0; axis < 3; axis++) {
+			for (float[] face : faces) {
+				if (!flatOn(face, axis)) continue;
+
+				System.arraycopy(face, 0, packed, at, STRIDE);
+				at += STRIDE;
+			}
+			packed[axis] = at;
 		}
 		return packed;
+	}
+
+	private static boolean flatOn(float[] face, int axis) {
+		return Math.abs(face[axis] - face[axis + 3]) <= EPSILON;
 	}
 
 	private static void collect(List<BakedQuad> quads, List<float[]> faces) {
@@ -103,11 +137,9 @@ public final class GlowtoneModelBoxes {
 	public static boolean continuesPast(float[] packed, int normalAxis, float plane, int alongAxis, float along, int edgeAxis, float across) {
 		if (packed.length == 0) return false;
 
-		for (int base = 0; base < packed.length; base += STRIDE) {
-			final float minN = packed[base + normalAxis];
-			final float maxN = packed[base + normalAxis + 3];
-			if (Math.abs(minN - maxN) > EPSILON) continue;
-			if (Math.abs(minN - plane) > EPSILON) continue;
+		final int end = (int) packed[normalAxis];
+		for (int base = normalAxis == 0 ? HEADER : (int) packed[normalAxis - 1]; base < end; base += STRIDE) {
+			if (Math.abs(packed[base + normalAxis] - plane) > EPSILON) continue;
 
 			if (along < packed[base + alongAxis] - EPSILON) continue;
 			if (along > packed[base + alongAxis + 3] + EPSILON) continue;

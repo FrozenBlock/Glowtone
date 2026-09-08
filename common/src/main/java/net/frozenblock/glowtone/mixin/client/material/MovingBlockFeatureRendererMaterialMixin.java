@@ -20,7 +20,6 @@ package net.frozenblock.glowtone.mixin.client.material;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import com.mojang.blaze3d.vertex.QuadInstance;
 import net.minecraft.client.renderer.feature.FeatureFrameContext;
 import net.minecraft.client.renderer.feature.MovingBlockFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,20 +50,6 @@ public class MovingBlockFeatureRendererMaterialMixin {
 		@Local(name = "submit") MovingBlockFeatureRenderer.Submit submit
 	) {
 		BlockMaterialRenderer.setShaderIndex(BlockMaterialRenderer.shaderIndexFor(submit.movingBlockRenderState().blockState));
-	}
-
-	@Inject(
-		method = "putBakedQuad",
-		at = @At(
-			value = "INVOKE",
-			target = "Lcom/mojang/blaze3d/vertex/VertexConsumer;putBakedQuad(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lnet/minecraft/client/resources/model/geometry/BakedQuad;Lcom/mojang/blaze3d/vertex/QuadInstance;)V"
-		)
-	)
-	private void glowtone$traceMovingBlockQuad(
-		CallbackInfo info,
-		@Local(argsOnly = true) QuadInstance instance
-	) {
-		// TODO: luth didn't have any code here
 	}
 
 	@Inject(method = "buildGroup", at = @At("RETURN"))

@@ -43,6 +43,7 @@ public final class EdgeNeighbours {
 	private final Map<VoxelShape, AABB[]> boxCache = new IdentityHashMap<>();
 	private final Map<BlockState, AABB[]> stateCache = new IdentityHashMap<>();
 	private int cacheGeneration = -1;
+	private int boxGeneration;
 	private final AABB[][] cells = new AABB[27][];
 	private int resolved;
 	private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
@@ -55,6 +56,14 @@ public final class EdgeNeighbours {
 
 	public void markDirty() {
 		this.dirty = true;
+	}
+
+	public boolean isGathered() {
+		return !this.dirty;
+	}
+
+	public int boxGeneration() {
+		return this.boxGeneration;
 	}
 
 	public void gather(BlockAndTintGetter level, BlockPos pos) {
@@ -110,12 +119,16 @@ public final class EdgeNeighbours {
 		final int generation = BlockLightPropertiesRenderer.generation();
 		if (generation != this.cacheGeneration) {
 			this.stateCache.clear();
+			this.boxGeneration++;
 			this.cacheGeneration = generation;
 		}
 
 		AABB[] cached = this.stateCache.get(state);
 		if (cached == null) {
-			if (this.stateCache.size() >= CACHE_LIMIT) this.stateCache.clear();
+			if (this.stateCache.size() >= CACHE_LIMIT) {
+				this.stateCache.clear();
+				this.boxGeneration++;
+			}
 			cached = boxesOf(GlowtoneCasterShapes.of(level, pos, state));
 			this.stateCache.put(state, cached);
 		}
@@ -128,7 +141,10 @@ public final class EdgeNeighbours {
 
 		AABB[] cached = this.boxCache.get(shape);
 		if (cached == null) {
-			if (this.boxCache.size() >= CACHE_LIMIT) this.boxCache.clear();
+			if (this.boxCache.size() >= CACHE_LIMIT) {
+				this.boxCache.clear();
+				this.boxGeneration++;
+			}
 			cached = shape.toAabbs().toArray(new AABB[0]);
 			this.boxCache.put(shape, cached);
 		}

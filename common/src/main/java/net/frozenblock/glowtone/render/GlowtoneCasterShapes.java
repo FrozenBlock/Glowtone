@@ -38,7 +38,7 @@ public final class GlowtoneCasterShapes {
 		if (!OcclusionOverrideHelper.any()) return automatic != null ? automatic : Shapes.empty();
 
 		if (!OcclusionOverrideHelper.casts(state, automatic != null)) return Shapes.empty();
-		return automatic == null ? state.getShape(level, pos) : Shapes.empty();
+		return automatic != null ? automatic : state.getShape(level, pos);
 	}
 
 	@Nullable

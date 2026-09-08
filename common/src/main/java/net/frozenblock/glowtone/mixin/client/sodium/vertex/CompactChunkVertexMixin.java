@@ -36,9 +36,7 @@ public class CompactChunkVertexMixin {
 	public static int STRIDE;
 
 	@Unique
-	private static final int GLOWTONE$GLOWTONE_STRIDE = 56;
-	@Unique
-	private static final int GLOWTONE$ADDITIONAL_STRIDE = GLOWTONE$GLOWTONE_STRIDE - STRIDE;
+	private static int glowtone$additionalStride;
 	@Unique
 	private static final int GLOWTONE$CONTACTS = 4;
 	@Unique
@@ -58,6 +56,14 @@ public class CompactChunkVertexMixin {
 	)
 	private static VertexFormat glowtone$modifyBlockVertexFormat(VertexFormat.Builder instance, Operation<VertexFormat> original) {
 		final VertexFormat format = original.call(GTSodiumVertexFormat.appendTerrainAttributes(instance));
+		final int vertexSize = format.getVertexSize();
+		if (vertexSize <= STRIDE) {
+			throw new IllegalStateException(
+				"Glowtone terrain vertex format is " + vertexSize + " bytes, which does not exceed Sodium's stride of " + STRIDE
+			);
+		}
+
+		glowtone$additionalStride = vertexSize - STRIDE;
 		GTSodiumVertexFormat.setupOffsets(format);
 		return format;
 	}
@@ -106,11 +112,19 @@ public class CompactChunkVertexMixin {
 		method = "lambda$getEncoder$0",
 		at = @At(
 			value = "CONSTANT",
-			args = "longValue=20"
+			args = "longValue=20",
+			ordinal = 0
 		)
 	)
-	private static long glowtone$additionalStride(long original) {
-		return original + GLOWTONE$ADDITIONAL_STRIDE;
+	private static long glowtone$widenStrideAdvance(long original) {
+		if (original != STRIDE || glowtone$additionalStride <= 0) {
+			throw new IllegalStateException(
+				"Glowtone patched a " + original + " byte stride advance, expected Sodium's " + STRIDE
+					+ " plus " + glowtone$additionalStride + " appended bytes"
+			);
+		}
+
+		return original + glowtone$additionalStride;
 	}
 
 	@Unique

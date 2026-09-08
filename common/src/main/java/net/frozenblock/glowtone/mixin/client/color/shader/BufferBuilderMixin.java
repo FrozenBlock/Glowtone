@@ -68,8 +68,7 @@ public class BufferBuilderMixin {
 		float nx, float ny, float nz
 	) {
 		if (this.blockFormat) {
-			glowtone$writeBlockChromaExtension(original, x, y, z);
-			glowtone$writeBlockEdgesExtension(original, x, y, z);
+			glowtone$writeBlockExtensions(original, x, y, z);
 		} else if (this.entityFormat) {
 			glowtone$writeEntityChromaExtension(original);
 		}
@@ -90,8 +89,7 @@ public class BufferBuilderMixin {
 		float x, float y, float z
 	) {
 		if (this.format == DefaultVertexFormat.BLOCK) {
-			glowtone$writeBlockChromaExtension(original, x, y, z);
-			glowtone$writeBlockEdgesExtension(original, x, y, z);
+			glowtone$writeBlockExtensions(original, x, y, z);
 		} else if (this.format == DefaultVertexFormat.ENTITY) {
 			glowtone$writeEntityChromaExtension(original);
 		} else if (this.format == GTDefaultVertexFormat.POSITION_COLOR_LIGHTMAP_TINTED) {
@@ -101,27 +99,25 @@ public class BufferBuilderMixin {
 	}
 
 	@Unique
-	private static void glowtone$writeBlockChromaExtension(long pointer, float x, float y, float z) {
+	private static void glowtone$writeBlockExtensions(long pointer, float x, float y, float z) {
 		//if (pointer == -1L) return;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
-		state.rotateFlatPins();
 
-		if (!ChromaBlender.isEnabled()) {
+		if (state.building() && ChromaBlender.isEnabled()) {
+			state.rotateFlatPins();
+			glowtone$writeARGB(pointer + GTDefaultVertexFormat.CHROMA_OFFSET_BLOCK, state.sample(x, y, z));
+			glowtone$writeARGB(pointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_BLOCK, state.sampleSky(x, y, z));
+		} else {
 			glowtone$writeARGB(pointer + GTDefaultVertexFormat.CHROMA_OFFSET_BLOCK, ChromaBaker.NEUTRAL_ARGB);
 			glowtone$writeARGB(pointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_BLOCK, ChromaBaker.NEUTRAL_SKY_ARGB);
-			return;
 		}
 
-		glowtone$writeARGB(pointer + GTDefaultVertexFormat.CHROMA_OFFSET_BLOCK, state.sample(x, y, z));
-		glowtone$writeARGB(pointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_BLOCK, state.sampleSky(x, y, z));
+		glowtone$writeBlockEdgesExtension(pointer, state, x, y, z);
 	}
 
 	@Unique
-	private static void glowtone$writeBlockEdgesExtension(long pointer, float x, float y, float z) {
-		//if (pointer == -1L) return;
-
-		final ChromaBaker.SectionState state = ChromaBaker.state();
+	private static void glowtone$writeBlockEdgesExtension(long pointer, ChromaBaker.SectionState state, float x, float y, float z) {
 		final QuadEdges edges = state.pendingEdges();
 		final boolean fluid = state.fluidQuad();
 		final int index = fluid ? edges.indexOf(x, y, z) : state.nextEdgeVertex();
@@ -158,7 +154,7 @@ public class BufferBuilderMixin {
 			return;
 		}
 
-		glowtone$writeARGB(pointer + GTDefaultVertexFormat.CHROMA_OFFSET_POSITION_COLOR_LIGHTMAP_TINTED, ChromaFold.currentSubmitTint());
+		glowtone$writeARGB(pointer + GTDefaultVertexFormat.CHROMA_OFFSET_POSITION_COLOR_LIGHTMAP_TINTED, ChromaFold.shaderChroma(ChromaFold.currentSubmitTint()));
 		glowtone$writeARGB(pointer + GTDefaultVertexFormat.SKY_CHROMA_OFFSET_POSITION_COLOR_LIGHTMAP_TINTED, ChromaBaker.NEUTRAL_SKY_ARGB);
 	}
 

@@ -1,5 +1,6 @@
 package net.frozenblock.glowtone.light.compat.lambdynamiclights.impl;
 
+import com.mojang.logging.LogUtils;
 import dev.lambdaurora.lambdynlights.LambDynLights;
 import dev.lambdaurora.lambdynlights.engine.source.DynamicLightSource;
 import dev.lambdaurora.lambdynlights.engine.source.EntityDynamicLightSource;
@@ -13,16 +14,21 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
 
 @ClientOnly
 public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
+	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final int[] NONE = new int[0];
 	private volatile int[] sources = NONE;
 	private int[] scratch = NONE;
 	private DynamicLightSource[] handles = new DynamicLightSource[0];
+	private @Nullable Field sourcesField;
+	private boolean failed;
 
 	@Override
 	public void init() {
@@ -119,9 +125,15 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 	}
 
 	private void tick() throws NoSuchFieldException, IllegalAccessException {
+		if (this.failed) return;
+
 		try {
-			final Field dynamicLightSources = LambDynLights.class.getDeclaredField("dynamicLightSources");
-			dynamicLightSources.setAccessible(true);
+			Field dynamicLightSources = this.sourcesField;
+			if (dynamicLightSources == null) {
+				dynamicLightSources = LambDynLights.class.getDeclaredField("dynamicLightSources");
+				dynamicLightSources.setAccessible(true);
+				this.sourcesField = dynamicLightSources;
+			}
 			final Set<DynamicLightSource> currentLightSources = (Set<DynamicLightSource>) dynamicLightSources.get(LambDynLights.get());
 
 			if (currentLightSources == null || currentLightSources.isEmpty()) {
@@ -164,6 +176,9 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 
 			if (!matches(this.sources, packed, count)) this.sources = Arrays.copyOf(packed, count);
 		} catch (Exception e) {
+			this.failed = true;
+			this.sources = NONE;
+			LOGGER.warn("Glowtone could not read LambDynamicLights sources, disabling dynamic light tinting: {}", e.toString());
 			if (GlowtonePlatform.INSTANCE.isDevelopmentEnvironment()) throw e;
 		}
 	}

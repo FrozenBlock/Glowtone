@@ -17,14 +17,6 @@
     {
       "type": "minecraft:single",
       "resource": "minecraft:entity/enchantment/enchanting_table_book"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "minecraft:environment/end_sky"
-    },
-    {
-      "type": "minecraft:single",
-      "resource": "minecraft:entity/end_portal/end_portal"
     }
   ]
 }

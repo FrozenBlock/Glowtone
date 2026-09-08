@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.color.particle;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.mojang.blaze3d.systems.RenderSystem;
 import fun.qu_an.minecraft.asyncparticles.client.addon.GpuParticleAddon;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -36,6 +37,7 @@ public class AsyncParticlesQuadMixin {
 	@Dynamic
 	@ModifyReturnValue(method = "asyncparticles$getColor", at = @At("RETURN"), require = 0)
 	private int glowtone$tintAsyncParticle(int color) {
+		if (!RenderSystem.isOnRenderThread()) return color;
 		if (!(this instanceof GpuParticleAddon particle)) return color;
 
 		final int light = particle.asyncparticles$getGpuLightCoords(0F);

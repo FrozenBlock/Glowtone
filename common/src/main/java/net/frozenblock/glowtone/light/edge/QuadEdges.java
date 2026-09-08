@@ -181,6 +181,11 @@ public final class QuadEdges {
 		boolean bake,
 		boolean rim
 	) {
+		if (!neighbours.isGathered()) {
+			clear();
+			return;
+		}
+
 		float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
 		float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
 		float minZ = Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;

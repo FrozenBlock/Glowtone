@@ -142,6 +142,30 @@ public final class MaterialShaderNames {
 		return null;
 	}
 
+	@Nullable
+	public static String valueRejection(String value) {
+		if (value.isEmpty()) return "it is empty";
+		if (value.length() > 256) return "it is longer than 256 characters";
+
+		int parens = 0;
+		for (int index = 0; index < value.length(); index++) {
+			switch (value.charAt(index)) {
+				case ';', '{', '}', '#', '\n', '\r' -> {
+					return "a pasted value cannot contain a statement separator, a brace, a preprocessor directive or a newline";
+				}
+				case '(' -> parens++;
+				case ')' -> parens--;
+				default -> { }
+			}
+
+			if (parens < 0) return "it closes a parenthesis it never opened";
+		}
+
+		if (parens != 0) return "it leaves " + parens + " parenthesis/es unclosed";
+
+		return null;
+	}
+
 	private static boolean isLetter(char character) {
 		return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z');
 	}

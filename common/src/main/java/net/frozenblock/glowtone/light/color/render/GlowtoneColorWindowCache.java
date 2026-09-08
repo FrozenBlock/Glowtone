@@ -17,9 +17,7 @@
 
 package net.frozenblock.glowtone.light.color.render;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.SectionPos;
 import org.jspecify.annotations.Nullable;
@@ -28,69 +26,71 @@ import org.jspecify.annotations.Nullable;
 public final class GlowtoneColorWindowCache {
 	private static final int MAX_ENTRIES = 512;
 
-	private static final Map<Long, short[]> WINDOWS = Collections.synchronizedMap(
-		new LinkedHashMap<>(MAX_ENTRIES * 2, 0.75F, true) {
-			@Override
-			protected boolean removeEldestEntry(Map.Entry<Long, short[]> eldest) {
-				return this.size() > MAX_ENTRIES;
-			}
-		}
-	);
-
-	private static final Map<Long, short[]> SKY_WINDOWS = Collections.synchronizedMap(
-		new LinkedHashMap<>(MAX_ENTRIES * 2, 0.75F, true) {
-			@Override
-			protected boolean removeEldestEntry(Map.Entry<Long, short[]> eldest) {
-				return this.size() > MAX_ENTRIES;
-			}
-		}
-	);
+	private static final Object LOCK = new Object();
+	private static final Long2ObjectLinkedOpenHashMap<short[]> WINDOWS = new Long2ObjectLinkedOpenHashMap<>(MAX_ENTRIES * 2);
+	private static final Long2ObjectLinkedOpenHashMap<short[]> SKY_WINDOWS = new Long2ObjectLinkedOpenHashMap<>(MAX_ENTRIES * 2);
 
 	public static short @Nullable [] get(long section) {
-		return WINDOWS.get(section);
+		synchronized (LOCK) {
+			return WINDOWS.getAndMoveToLast(section);
+		}
 	}
 
 	public static short @Nullable [] getSky(long section) {
-		return SKY_WINDOWS.get(section);
+		synchronized (LOCK) {
+			return SKY_WINDOWS.getAndMoveToLast(section);
+		}
 	}
 
 	public static void putSky(long section, short @Nullable [] window) {
-		if (window == null) {
-			SKY_WINDOWS.remove(section);
-		} else {
-			SKY_WINDOWS.put(section, window);
+		synchronized (LOCK) {
+			store(SKY_WINDOWS, section, window);
 		}
 	}
 
 	public static void put(long section, short @Nullable [] window) {
-		if (window == null) {
-			WINDOWS.remove(section);
-		} else {
-			WINDOWS.put(section, window);
+		synchronized (LOCK) {
+			store(WINDOWS, section, window);
 		}
 	}
 
+	private static void store(Long2ObjectLinkedOpenHashMap<short[]> windows, long section, short @Nullable [] window) {
+		if (window == null) {
+			windows.remove(section);
+			return;
+		}
+
+		windows.putAndMoveToLast(section, window);
+		while (windows.size() > MAX_ENTRIES) windows.removeFirst();
+	}
+
 	public static void invalidate(long section) {
-		WINDOWS.remove(section);
-		SKY_WINDOWS.remove(section);
+		synchronized (LOCK) {
+			WINDOWS.remove(section);
+			SKY_WINDOWS.remove(section);
+		}
 	}
 
 	public static void invalidateAround(int sectionX, int sectionY, int sectionZ) {
-		if (WINDOWS.isEmpty() && SKY_WINDOWS.isEmpty()) return;
-		for (int x = -1; x <= 1; x++) {
-			for (int y = -1; y <= 1; y++) {
-				for (int z = -1; z <= 1; z++) {
-					final long node = SectionPos.asLong(sectionX + x, sectionY + y, sectionZ + z);
-					WINDOWS.remove(node);
-					SKY_WINDOWS.remove(node);
+		synchronized (LOCK) {
+			if (WINDOWS.isEmpty() && SKY_WINDOWS.isEmpty()) return;
+			for (int x = -1; x <= 1; x++) {
+				for (int y = -1; y <= 1; y++) {
+					for (int z = -1; z <= 1; z++) {
+						final long node = SectionPos.asLong(sectionX + x, sectionY + y, sectionZ + z);
+						WINDOWS.remove(node);
+						SKY_WINDOWS.remove(node);
+					}
 				}
 			}
 		}
 	}
 
 	public static void clear() {
-		WINDOWS.clear();
-		SKY_WINDOWS.clear();
+		synchronized (LOCK) {
+			WINDOWS.clear();
+			SKY_WINDOWS.clear();
+		}
 	}
 
 	private GlowtoneColorWindowCache() {}

@@ -63,9 +63,17 @@ public class EnhancedBlockModelLighterMixin {
 		QuadInstance outputInstance,
 		CallbackInfo info
 	) {
-		final Direction direction = quad.direction();
-		final BlockPos lit = lightCoords == -1 && EnhancedBlockModelLighter.class.cast(this).faceCubic ? pos.relative(direction) : pos;
-		ChromaBaker.beginFlatQuad(lit.getX(), lit.getY(), lit.getZ());
+		final boolean relative = lightCoords == -1 && EnhancedBlockModelLighter.class.cast(this).faceCubic;
+		final Direction direction = relative ? quad.direction() : null;
+		if (direction == null) {
+			ChromaBaker.beginFlatQuad(pos.getX(), pos.getY(), pos.getZ());
+		} else {
+			ChromaBaker.beginFlatQuad(
+				pos.getX() + direction.getStepX(),
+				pos.getY() + direction.getStepY(),
+				pos.getZ() + direction.getStepZ()
+			);
+		}
 		glowtone$buildEdges(level, state, pos, quad, outputInstance, quad.materialInfo().ambientOcclusion());
 	}
 
@@ -77,14 +85,16 @@ public class EnhancedBlockModelLighterMixin {
 		QuadInstance outputInstance,
 		boolean ambientOcclusion
 	) {
-		final boolean highlight = EdgeHighlightOption.enabled() && ambientOcclusion;
-		final boolean glowtoneAo = AmbientOcclusionOption.glowtoneActive();
-		final boolean shade = (glowtoneAo && AmbientOcclusionOption.SHADER_CONTACT_SHADING)
-			|| GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
-		final boolean bake = glowtoneAo && AmbientOcclusionOption.BAKED_CONTACT_SHADING && !shade;
+		final ChromaBaker.SectionState section = ChromaBaker.state();
+		final boolean building = ChromaBaker.buildingSection();
+		final boolean highlight = (building ? section.highlightEnabled() : EdgeHighlightOption.enabled()) && ambientOcclusion;
+		final boolean shade = building
+			? section.contactShading()
+			: (AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING)
+				|| GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
+		final boolean bake = AmbientOcclusionOption.BAKED_CONTACT_SHADING && !shade && AmbientOcclusionOption.glowtoneActive();
 		if (!highlight && !shade && !bake) return;
 
-		final ChromaBaker.SectionState section = ChromaBaker.state();
 		final EdgeNeighbours neighbours = section.edgeNeighbours();
 		neighbours.gather(level, pos);
 		section.pendingEdges().set(new NeoForgeMutableQuad(quad, outputInstance), neighbours, highlight, shade, bake);
@@ -101,7 +111,10 @@ public class EnhancedBlockModelLighterMixin {
 	)
 	private float glowtone$clampCorner(float occlusion, @Local(argsOnly = true, name = "state") BlockState state) {
 		final float clamped = Mth.clamp(occlusion, 0F, 1F);
-		if (!AmbientOcclusionOption.vanillaActive()) return clamped;
+		final boolean vanilla = ChromaBaker.buildingSection()
+			? ChromaBaker.vanillaOcclusionActive()
+			: AmbientOcclusionOption.vanillaActive();
+		if (!vanilla) return clamped;
 
 		return OcclusionOverrideHelper.receives(state, true) ? clamped : 1F;
 	}

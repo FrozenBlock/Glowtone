@@ -17,6 +17,10 @@ in vec2 texCoord;
 out vec4 fragColor;
 
 const int SAMPLES = 8;
+const float WEIGHTS[9] = float[9](
+    1.0, 0.96923323, 0.88249690, 0.75483960, 0.60653066,
+    0.45783336, 0.32465247, 0.21626517, 0.13533528
+);
 const float OCCLUSION_MARGIN = 0.15;
 const float OCCLUSION_RELATIVE = 0.01;
 const float OCCLUSION_SLOPE = 2.0;
@@ -42,13 +46,12 @@ void main() {
     vec4 blurred = vec4(0.0);
     float total = 0.0;
     float stepSize = Radius / float(SAMPLES);
-    float sigma = max(Radius * 0.5, 0.0001);
 
     for (int i = -SAMPLES; i <= SAMPLES; i++) {
         float offset = float(i) * stepSize;
         vec2 uv = texCoord + BlurDir * offset;
         float tolerance = min(base + slope * abs(offset) * OCCLUSION_SLOPE, limit);
-        float weight = exp(-(offset * offset) / (2.0 * sigma * sigma)) * visibility(uv, centre, tolerance);
+        float weight = WEIGHTS[abs(i)] * visibility(uv, centre, tolerance);
         blurred += texture(InSampler, uv) * weight;
         total += weight;
     }

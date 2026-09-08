@@ -35,7 +35,8 @@ public class FlameFeatureRendererMixin {
 			value = "INVOKE",
 			target = "Lnet/minecraft/util/LightCoordsUtil;withBlock(II)I"
 		),
-		require = 0
+		require = 0,
+		expect = 1
 	)
 	private static int glowtone$markEntityFlame(int lightCoords) {
 		if (!GlowtoneConstants.GLOWTONE_EMISSIVES) return lightCoords;

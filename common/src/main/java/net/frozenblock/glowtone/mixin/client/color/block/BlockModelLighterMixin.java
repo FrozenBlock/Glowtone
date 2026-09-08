@@ -46,7 +46,15 @@ public class BlockModelLighterMixin {
 		CallbackInfo info
 	) {
 		final Direction direction = quad.direction();
-		final BlockPos lit = direction == null ? pos : pos.relative(direction);
-		ChromaBaker.beginFlatQuad(lit.getX(), lit.getY(), lit.getZ());
+		if (direction == null) {
+			ChromaBaker.beginFlatQuad(pos.getX(), pos.getY(), pos.getZ());
+			return;
+		}
+
+		ChromaBaker.beginFlatQuad(
+			pos.getX() + direction.getStepX(),
+			pos.getY() + direction.getStepY(),
+			pos.getZ() + direction.getStepZ()
+		);
 	}
 }

@@ -41,7 +41,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.lighting.LightEngine;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.system.MemoryUtil;
 
 @ClientOnly
 public final class ChromaBaker {
@@ -175,13 +174,13 @@ public final class ChromaBaker {
 		private boolean highlightEnabled;
 		private boolean contactShading;
 		private boolean emissiveQuad;
-		private long scratch;
+		private boolean sodiumPublished;
 		private final float[] quadPositions = new float[12];
 		private int originX;
 		private int originY;
 		private int originZ;
 
-		boolean building() {
+		public boolean building() {
 			return this.building;
 		}
 
@@ -193,6 +192,8 @@ public final class ChromaBaker {
 			this.fluidQuad = false;
 			this.bound = false;
 			this.lit = false;
+			this.sodiumPublished = false;
+			this.edgeNeighbours.markDirty();
 			this.flatVerticesLeft = 0;
 			this.flatSkyVerticesLeft = 0;
 			this.latchedChroma = NO_PIN;
@@ -245,6 +246,7 @@ public final class ChromaBaker {
 				this.lit ? flood.downsampleCentre() : null,
 				flood.downsampleCentreSky()
 			);
+			this.sodiumPublished = true;
 		}
 
 		private GlowtoneRegionFlood bind(SectionPos sectionPos) {
@@ -270,7 +272,7 @@ public final class ChromaBaker {
 			this.building = false;
 			final GlowtoneRegionFlood flood = this.flood;
 			if (flood != null) {
-				if (this.bound) {
+				if (this.bound && !this.sodiumPublished) {
 					if (this.lit) this.pendingColors = flood.downsampleCentre();
 					this.pendingSkyColors = flood.downsampleCentreSky();
 				}
@@ -310,11 +312,6 @@ public final class ChromaBaker {
 
 		public float[] quadPositions() {
 			return this.quadPositions;
-		}
-
-		public long scratch(int bytes) {
-			if (this.scratch == 0L) this.scratch = MemoryUtil.nmemAlloc(bytes);
-			return this.scratch;
 		}
 
 		public boolean smoothLighting() {

@@ -34,12 +34,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(OptionInstance.OptionInstanceSliderButton.class)
 public class AbstractSliderButtonMixin {
 
-	@Inject(method = "onRelease", at = @At("TAIL"), require = 0)
+	@Inject(method = "onRelease", at = @At("TAIL"), require = 0, expect = 1)
 	private void glowtone$flushOnRelease(MouseButtonEvent event, CallbackInfo info) {
 		glowtone$flush();
 	}
 
-	@Inject(method = "keyPressed", at = @At("RETURN"), require = 0)
+	@Inject(method = "keyPressed", at = @At("RETURN"), require = 0, expect = 1)
 	private void glowtone$flushOnKey(KeyEvent event, CallbackInfoReturnable<Boolean> info) {
 		glowtone$flush();
 	}

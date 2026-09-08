@@ -31,6 +31,7 @@ import net.minecraft.client.resources.model.cuboid.ItemModelGenerator;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -50,18 +51,24 @@ public class ItemModelGeneratorMixin {
 		Operation<Void> original
 	) {
 		final TextureAtlasSprite sprite = materialInfo.sprite();
-		if (!sprite.contents().name().getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)) {
+		final Identifier name = sprite.contents().name();
+		if (!name.getPath().endsWith(GlowtoneConstants.EMISSIVE_SUFFIX)) {
 			glowtone$captureBaseRim(builder, interner, modelState, materialInfo, original, sprite);
 			return;
 		}
 
+		final Identifier baseName = name.withPath(path -> path.substring(0, path.length() - GlowtoneConstants.EMISSIVE_SUFFIX.length()));
 		final List<BakedQuad> rim = glowtone$baseRim.get();
 		final List<Direction> facing = glowtone$baseRimFacing.get();
 		final TextureAtlasSprite base = glowtone$baseSprite.get();
-		if (rim == null || facing == null || base == null) {
+		if (rim == null || facing == null || base == null || !base.contents().name().equals(baseName)) {
 			original.call(builder, interner, modelState, materialInfo);
 			return;
 		}
+
+		glowtone$baseSprite.remove();
+		glowtone$baseRim.remove();
+		glowtone$baseRimFacing.remove();
 
 		for (int index = 0; index < rim.size(); index++) {
 			final BakedQuad quad = glowtone$retexture(rim.get(index), base, sprite, materialInfo);

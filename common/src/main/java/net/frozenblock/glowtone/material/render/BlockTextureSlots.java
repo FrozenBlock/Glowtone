@@ -72,10 +72,10 @@ public final class BlockTextureSlots {
 	}
 
 	public static void record(String slot, TextureAtlasSprite sprite) {
-		final Slot existing = SLOTS.putIfAbsent(slot, Slot.of(sprite));
+		final Slot existing = SLOTS.put(slot, Slot.of(sprite));
 		if (existing != null) {
-			if (existing.sprite() != sprite && CONFLICTS.add(slot)) {
-				LOGGER.warn("Block texture slot '{}' is declared as both {} and {}; a material bakes one rectangle, so the first wins",
+			if (!existing.sprite().contents().name().equals(sprite.contents().name()) && CONFLICTS.add(slot)) {
+				LOGGER.warn("Block texture slot '{}' is declared as both {} and {}; a material bakes one rectangle, so the last wins",
 					slot, existing.sprite().contents().name(), sprite.contents().name());
 			}
 

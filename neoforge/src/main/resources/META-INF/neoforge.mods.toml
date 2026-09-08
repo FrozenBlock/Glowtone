@@ -26,13 +26,13 @@ Allows for emissive textures to be quickly added as an overlay on both Block and
 [[ dependencies.glowtone ]]
     modId="neoforge"
     type="required"
-    versionRange="[~26.2-,)"
+    versionRange="[${neoforge_version},)"
     ordering="NONE"
     side="BOTH"
 
 [[ dependencies.glowtone ]]
     modId="minecraft"
     type="required"
-    versionRange="[~26.2-,)"
+    versionRange="[${minecraft_version},)"
     ordering="NONE"
     side="BOTH"

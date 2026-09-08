@@ -50,7 +50,7 @@ public class AltModelBlockRendererImplMixin {
 	@Shadow
 	private BlockPos pos;
 
-	@Inject(method = "tesselateBlock", at = @At("HEAD"), require = 0)
+	@Inject(method = "tesselateBlock", at = @At("HEAD"), require = 0, expect = 1)
 	private void glowtone$captureModelBoxes(
 		QuadEmitter output,
 		float x, float y, float z,
@@ -74,15 +74,19 @@ public class AltModelBlockRendererImplMixin {
 		state.setModelFaces(GlowtoneModelBoxes.forState(model, level, pos, blockState, seed));
 	}
 
-	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0)
+	@ModifyReturnValue(method = "transform", at = @At("RETURN"), require = 0, expect = 1)
 	private boolean glowtone$captureNeighbors(boolean original, MutableQuadView quad) {
 		if (!original) return original;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
-		final boolean highlight = EdgeHighlightOption.enabled() && quad.ambientOcclusion().orElse(true);
-		final boolean glowtoneAo = AmbientOcclusionOption.glowtoneActive();
-		final boolean shade = (glowtoneAo && AmbientOcclusionOption.SHADER_CONTACT_SHADING) || GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
-		final boolean bake = glowtoneAo && AmbientOcclusionOption.BAKED_CONTACT_SHADING && !shade;
+		final boolean building = ChromaBaker.buildingSection();
+		final boolean highlight = (building ? state.highlightEnabled() : EdgeHighlightOption.enabled())
+			&& quad.ambientOcclusion().orElse(true);
+		final boolean shade = building
+			? state.contactShading()
+			: (AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING)
+				|| GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
+		final boolean bake = AmbientOcclusionOption.BAKED_CONTACT_SHADING && !shade && AmbientOcclusionOption.glowtoneActive();
 
 		if (highlight || shade || bake) {
 			final EdgeNeighbours neighbours = state.edgeNeighbours();

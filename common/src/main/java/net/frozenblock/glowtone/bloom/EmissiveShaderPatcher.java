@@ -53,6 +53,12 @@ public final class EmissiveShaderPatcher {
 		Identifier.withDefaultNamespace("core/rendertype_lightning"),
 		Identifier.withDefaultNamespace("core/rendertype_end_portal")
 	);
+	private static final Set<Identifier> STRIPPED_LIGHTMAP_SHADERS = Set.of(
+		Identifier.withDefaultNamespace("core/text"),
+		Identifier.withDefaultNamespace("core/text_background"),
+		Identifier.withDefaultNamespace("core/rendertype_leash")
+	);
+	private static final Identifier ENTITY = Identifier.withDefaultNamespace("core/entity");
 	private static final Identifier TERRAIN = Identifier.withDefaultNamespace("core/terrain");
 	public static final Identifier TERRAIN_SHADER = TERRAIN;
 	public static final String OPAQUE_TERRAIN_DEFINE = "GLOWTONE_OPAQUE_TERRAIN";
@@ -317,6 +323,8 @@ public final class EmissiveShaderPatcher {
 	private static final String GLOWTONE_MAIN = "void glowtone_main()";
 	private static final String SAMPLE_LIGHTMAP = "sample_lightmap(Sampler2, UV2)";
 	private static final String GLOWTONE_SAMPLE_LIGHTMAP = "glowtone_sampleLightmap(Sampler2, UV2)";
+	private static final String STRIPPED_SAMPLE_LIGHTMAP =
+		"sample_lightmap(Sampler2, UV2 & ivec2(" + BloomHelper.LIGHT_COORDS_CHANNEL_MASK + "))";
 	private static final String FRAG_COLOR_OUT = "out vec4 fragColor;";
 	private static final String GLOWTONE_FRAG_COLOR_OUT = "layout(location = 0) out vec4 fragColor;";
 
@@ -544,6 +552,10 @@ public final class EmissiveShaderPatcher {
 		return LIT_SHADERS.contains(id) || SODIUM_TERRAIN_FRAGMENT.equals(id);
 	}
 
+	public static boolean isEntityShader(Identifier id) {
+		return ENTITY.equals(id);
+	}
+
 	private static final String MIX_LIGHT =
 		"vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color);";
 	private static final String MIX_LIGHT_BACK =
@@ -604,6 +616,9 @@ public final class EmissiveShaderPatcher {
 		if (SELF_LIT_SHADERS.contains(id) && type == ShaderType.FRAGMENT) {
 			return patchSelfLitFragment(source);
 		}
+		if (STRIPPED_LIGHTMAP_SHADERS.contains(id) && type == ShaderType.VERTEX) {
+			return source.replace(SAMPLE_LIGHTMAP, STRIPPED_SAMPLE_LIGHTMAP);
+		}
 		return source;
 	}
 
@@ -612,6 +627,11 @@ public final class EmissiveShaderPatcher {
 	private static final String SODIUM_VERTEX_TAIL = "v_TexCoord = (_vert_tex_diffuse_coord_bias * u_TexCoordShrink) + _vert_tex_diffuse_coord;";
 	private static final String SODIUM_FRAG_OUT = "out vec4 fragColor;";
 	private static final String SODIUM_FOG_CALL = "fragColor = _linearFog(color,";
+	private static final String SODIUM_FOG_STATEMENT =
+		"fragColor = _linearFog(color, v_FragDistance, u_FogColor, u_EnvironmentFog, u_RenderFog, fadeFactor);";
+	private static final Set<String> SODIUM_FOG_SYMBOLS = Set.of(
+		"total_fog_value", "fadeFactor", "v_FragDistance", "u_EnvironmentFog", "u_RenderFog", "u_FogColor"
+	);
 	private static final String SODIUM_TARGET = "color";
 
 	private static final String SODIUM_EMISSIVE_ATTRIBUTES = """
@@ -771,9 +791,13 @@ public final class EmissiveShaderPatcher {
 
 		final boolean hasLight = source.contains(SODIUM_LIGHT_COORD);
 
+		if ((MaterialShaderPatcher.anyVertex() || usesBlockPos()) && !source.contains(GAME_TIME_UNIFORM)) {
+			source = source.replace(SODIUM_COLOR_OUT, GLOBALS_BLOCK + SODIUM_COLOR_OUT);
+		}
+
 		if (MaterialShaderPatcher.anyVertex()) {
 			source = sodiumDisplace(
-				source.replace(SODIUM_COLOR_OUT, GLOBALS_BLOCK + MaterialShaderPatcher.generateVertexFunctions() + SODIUM_COLOR_OUT)
+				source.replace(SODIUM_COLOR_OUT, MaterialShaderPatcher.generateVertexFunctions() + SODIUM_COLOR_OUT)
 			);
 		}
 
@@ -839,6 +863,8 @@ public final class EmissiveShaderPatcher {
 			.replace(SODIUM_VERTEX_TAIL, SODIUM_VERTEX_TAIL + SODIUM_EMISSIVE_WRITE_VERTEX);
 	}
 
+	private static boolean reportedSodiumFog;
+
 	private static String patchSodiumEmissiveFragment(String source) {
 		if (!source.contains(SODIUM_FRAG_OUT)
 			|| !source.contains(SODIUM_FOG_CALL)
@@ -847,17 +873,34 @@ public final class EmissiveShaderPatcher {
 			return source;
 		}
 
+		if (!hasSodiumFogSymbols(source)) {
+			if (!reportedSodiumFog) {
+				reportedSodiumFog = true;
+				MATERIAL_LOGGER.error("Glowtone could not write emissives from Sodium's terrain fragment shader: its fog statement no longer matches");
+			}
+
+			return source;
+		}
+
 		final String newline = System.lineSeparator();
 		return source
 			.replace(SODIUM_FRAG_OUT, SODIUM_FRAG_OUT_RELOCATED + newline + newline + SODIUM_EMISSIVE_FRAGMENT)
-			.replace(SODIUM_FOG_CALL, SODIUM_FOG_CALL)
 			.replace(MAIN, SODIUM_FOG_SURVIVAL + MAIN)
 			.replace(
-				"fadeFactor);",
-				"fadeFactor);" + newline
+				SODIUM_FOG_STATEMENT,
+				SODIUM_FOG_STATEMENT + newline
 					+ "    glowtone_EmissiveColor = vec4("
 					+ "color.rgb * glowtone_Emissive * glowtone_fogSurvival(), fragColor.a);"
 			);
+	}
+
+	private static boolean hasSodiumFogSymbols(String source) {
+		if (!source.contains(SODIUM_FOG_STATEMENT)) return false;
+		for (String symbol : SODIUM_FOG_SYMBOLS) {
+			if (!source.contains(symbol)) return false;
+		}
+
+		return true;
 	}
 
 	private static String patchSodiumVertex(String source) {

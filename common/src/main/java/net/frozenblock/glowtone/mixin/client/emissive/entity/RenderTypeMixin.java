@@ -1,6 +1,7 @@
 package net.frozenblock.glowtone.mixin.client.emissive.entity;
 
 import java.util.Optional;
+import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.entity.RenderTypeTextureValidityCache;
 import net.frozenblock.glowtone.entity.impl.GTEmissiveRenderType;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -26,8 +27,7 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void glowtone$initRenderTypeWithEmissive(String name, RenderSetup state, CallbackInfo info) {
-		if (!name.contains("entity")) return;
-		if (name.equals("entity_shadow") || name.contains("_glint")) return;
+		if (!EmissiveShaderPatcher.isEntityShader(((RenderType) (Object) this).pipeline().getFragmentShader())) return;
 
 		state.textures.values().stream()
 			.map(RenderSetup.TextureBinding::location)

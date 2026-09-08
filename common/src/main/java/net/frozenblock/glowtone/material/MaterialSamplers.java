@@ -26,6 +26,7 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
@@ -41,7 +42,7 @@ public final class MaterialSamplers {
 	private static volatile List<Identifier> textures = List.of();
 
 	// Rebuilt only by apply(), which every resource reload runs, restitched atlas cannot go stale.
-	private static @Nullable GpuTextureView[] resolved;
+	private static volatile @Nullable GpuTextureView[] resolved;
 
 	private static BindGroupLayout layout() {
 		final BindGroupLayout.Builder builder = BindGroupLayout.builder();
@@ -91,7 +92,8 @@ public final class MaterialSamplers {
 		final GpuTextureView[] cached = resolved;
 		if (cached != null) return cached;
 
-		final GpuTextureView fallback = view(TextureAtlas.LOCATION_BLOCKS);
+		final GpuTextureView atlas = view(TextureAtlas.LOCATION_BLOCKS);
+		final GpuTextureView fallback = atlas != null ? atlas : view(MissingTextureAtlasSprite.getLocation());
 		if (fallback == null) return null;
 
 		final List<Identifier> assigned = textures;
@@ -101,7 +103,7 @@ public final class MaterialSamplers {
 			views[slot] = view != null ? view : fallback;
 		}
 
-		resolved = views;
+		if (atlas != null) resolved = views;
 		return views;
 	}
 

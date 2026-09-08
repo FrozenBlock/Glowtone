@@ -56,6 +56,10 @@ public final class GlowtoneEmissivePipeline extends RenderPipeline {
 		);
 	}
 
+	public static void clear() {
+		TWINS.clear();
+	}
+
 	public static RenderPipeline of(RenderPipeline base) {
 		if (base instanceof GlowtoneEmissivePipeline) return base;
 		return TWINS.computeIfAbsent(base, GlowtoneEmissivePipeline::create);

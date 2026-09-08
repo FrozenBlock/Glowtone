@@ -419,6 +419,22 @@ public final class BlockMaterialLoader {
 			legal = false;
 		}
 
+		for (Map.Entry<String, String> constant : shader.constants().entrySet()) {
+			final String rejection = MaterialShaderNames.valueRejection(constant.getValue());
+			if (rejection == null) continue;
+
+			LOGGER.error("Block material {} gives constant '{}' a value that cannot be pasted into GLSL because {}", materialId, constant.getKey(), rejection);
+			legal = false;
+		}
+
+		for (Map.Entry<String, String> parameter : shader.parameters().entrySet()) {
+			final String rejection = MaterialShaderNames.valueRejection(parameter.getValue());
+			if (rejection == null) continue;
+
+			LOGGER.error("Block material {} gives parameter '{}' a value that cannot be pasted into GLSL because {}", materialId, parameter.getKey(), rejection);
+			legal = false;
+		}
+
 		for (String clash : shader.parameters().keySet()) {
 			if (!shader.constants().containsKey(clash)) continue;
 

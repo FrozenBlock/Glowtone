@@ -36,10 +36,14 @@ public class BlockModelLighterCacheMixin {
 
 	@ModifyReturnValue(method = "getShadeBrightness", at = @At("RETURN"))
 	private float glowtone$scaleVanillaOcclusion(float brightness, @Local(argsOnly = true) BlockState state) {
+		if (ChromaBaker.buildingSection()) {
+			return ChromaBaker.vanillaOcclusionActive() ? ChromaBaker.occlusionShade(brightness, state) : 1F;
+		}
+
 		if (AmbientOcclusionOption.vanillaActive()) {
 			return OcclusionStrengthOption.brightness(glowtone$applyCast(brightness, state));
 		}
-		return ChromaBaker.buildingSection() ? 1F : brightness;
+		return brightness;
 	}
 
 	@Unique

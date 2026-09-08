@@ -239,7 +239,6 @@ upload {
     modrinth {
         dependencies {
             required("fabric-api")
-            required("frozenlib")
             optional("wilder-wild")
             optional("trailier-tales")
             optional("the-copperier-age")
