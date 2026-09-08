@@ -106,7 +106,8 @@ public final class EdgeNeighbours {
 
 	private AABB[] casterBoxes(BlockAndTintGetter level, BlockPos pos, BlockState state) {
 		if (state.getBlock().hasDynamicShape() || state.hasOffsetFunction()) return BlockStateCasterBoxCache.glowtone$boxesFromShape(
-			GlowtoneCasterShapes.of(level, pos, state, false)
+			GlowtoneCasterShapes.of(level, pos, state),
+			false
 		);
 		return state.glowtone$getOrCreateCasterBoxes(level, pos);
 	}
