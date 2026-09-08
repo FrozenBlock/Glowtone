@@ -33,12 +33,7 @@ import org.jspecify.annotations.Nullable;
 public final class EdgeNeighbours {
 	private static final double SPAN_SLACK = 1D / 256D;
 	private static final float CONTAINS_SLACK = 1.0E-4F;
-	private static final int CACHE_LIMIT = 512;
 	private static final int CENTRE = 13;
-	private static final AABB[] NONE = {};
-	private static final AABB[] FULL = {Shapes.block().bounds()};
-
-	private int cacheGeneration = -1;
 	private final AABB[][] cells = new AABB[27][];
 	private int resolved;
 	private final BlockPos.MutableBlockPos scratchPos = new BlockPos.MutableBlockPos();
@@ -82,7 +77,7 @@ public final class EdgeNeighbours {
 			cellOn(2, axisA, cellA, axisB, cellB, axisC, cellC)
 		);
 		if (boxes == null || boxes.length == 0) return false;
-		if (boxes == FULL) return true;
+		if (boxes == BlockStateCasterBoxCache.GLOWTONE$FULL_BOX) return true;
 
 		final float x = axisA == 0 ? localA : axisB == 0 ? localB : localC;
 		final float y = axisA == 1 ? localA : axisB == 1 ? localB : localC;
@@ -105,6 +100,7 @@ public final class EdgeNeighbours {
 	}
 
 	private AABB[] casterBoxes(BlockAndTintGetter level, BlockPos pos, BlockState state) {
+		if (state.isAir()) return BlockStateCasterBoxCache.GLOWTONE$NO_BOXES;
 		if (state.getBlock().hasDynamicShape() || state.hasOffsetFunction()) return BlockStateCasterBoxCache.glowtone$boxesFromShape(
 			GlowtoneCasterShapes.of(level, pos, state),
 			false
