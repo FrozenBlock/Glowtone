@@ -4,10 +4,10 @@ import java.util.Optional;
 import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.entity.RenderTypeTextureValidityCache;
 import net.frozenblock.glowtone.entity.impl.GTEmissiveRenderType;
+import net.frozenblock.glowtone.render.rendertype.GTRenderTypes;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -27,7 +27,9 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void glowtone$initRenderTypeWithEmissive(String name, RenderSetup state, CallbackInfo info) {
-		if (!EmissiveShaderPatcher.isEntityShader(RenderType.class.cast(this).pipeline().getFragmentShader())) return;
+		if (!EmissiveShaderPatcher.isEntityShader(RenderType.class.cast(this).pipeline().getFragmentShader())
+			|| name.equals(GTRenderTypes.ENTITY_EMISSIVE_OVERLAY_NAME)
+		) return;
 
 		Optional.ofNullable(state.textures.get("Sampler0"))
 			.map(RenderSetup.TextureBinding::location)
@@ -37,7 +39,7 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 			});
 
 		if (this.glowtone$emissiveTexture != null) {
-			final RenderType emissiveRenderType = RenderTypes.eyes(this.glowtone$emissiveTexture);
+			final RenderType emissiveRenderType = GTRenderTypes.entityEmissiveOverlay(this.glowtone$emissiveTexture);
 			emissiveRenderType.glowtone$markEmissive();
 			this.glowtone$emissiveRenderType = Optional.of(emissiveRenderType);
 		}
@@ -51,10 +53,11 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 
 	@Unique
 	@Override
-	public void glowtone$markEmissive() {
+	public RenderType glowtone$markEmissive() {
 		this.glowtone$isEmissive = true;
 		this.glowtone$emissiveTexture = null;
 		this.glowtone$emissiveRenderType = Optional.empty();
+		return RenderType.class.cast(this);
 	}
 
 	@Unique

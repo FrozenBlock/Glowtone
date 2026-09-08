@@ -11,7 +11,7 @@ public interface GTEmissiveRenderType {
 		throw new AssertionError();
 	}
 
-	default void glowtone$markEmissive() {
+	default RenderType glowtone$markEmissive() {
 		throw new AssertionError();
 	}
 
