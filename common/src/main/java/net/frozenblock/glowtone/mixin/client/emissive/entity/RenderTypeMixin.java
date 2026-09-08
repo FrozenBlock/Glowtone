@@ -29,10 +29,9 @@ public class RenderTypeMixin implements GTEmissiveRenderType {
 	private void glowtone$initRenderTypeWithEmissive(String name, RenderSetup state, CallbackInfo info) {
 		if (!EmissiveShaderPatcher.isEntityShader(RenderType.class.cast(this).pipeline().getFragmentShader())) return;
 
-		state.textures.values().stream()
+		Optional.ofNullable(state.textures.get("Sampler0"))
 			.map(RenderSetup.TextureBinding::location)
 			.filter(texture -> !texture.getPath().contains("glowtone_emissive"))
-			.findFirst()
 			.ifPresent(texture -> {
 				this.glowtone$emissiveTexture = texture.withPath(path -> path.replace(".png", "_glowtone_emissive.png"));
 			});
