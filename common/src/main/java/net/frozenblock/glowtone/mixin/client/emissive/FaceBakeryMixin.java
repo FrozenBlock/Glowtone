@@ -21,7 +21,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import java.util.Optional;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.resources.metadata.EmissiveMetadataSection;
+import net.frozenblock.glowtone.emissive.resources.metadata.EmissiveMetadataSection;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.resources.model.cuboid.FaceBakery;

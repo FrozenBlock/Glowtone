@@ -21,7 +21,7 @@ import com.mojang.logging.LogUtils;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.data.BlockMaterial;
 import net.frozenblock.glowtone.material.MaterialLayer;
-import net.frozenblock.glowtone.material.BlockMaterialAttachment;
+import net.frozenblock.glowtone.material.impl.BlockMaterialAttachment;
 import net.frozenblock.glowtone.data.MaterialRenderShape;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import java.util.Collections;

@@ -3,7 +3,7 @@ package net.frozenblock.glowtone.light.data.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.frozenblock.glowtone.light.BlockLightPropertiesAttachment;
+import net.frozenblock.glowtone.light.impl.BlockLightPropertiesAttachment;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.ExtraCodecs;

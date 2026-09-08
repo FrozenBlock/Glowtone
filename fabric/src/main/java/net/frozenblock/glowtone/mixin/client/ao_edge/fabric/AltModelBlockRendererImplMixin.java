@@ -26,7 +26,7 @@ import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
-import net.frozenblock.glowtone.light.edge.FabricMutableQuad;
+import net.frozenblock.glowtone.light.edge.impl.FabricMutableQuad;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;

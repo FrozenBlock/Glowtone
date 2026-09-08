@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// Hook the compiler, not ModelBlockRenderer since Indigo replaces it.
+// NeoForge modifies the compile method
 @ClientOnly
 @Mixin(SectionCompiler.class)
 public class SectionCompilerMaterialMixin {
@@ -40,7 +40,10 @@ public class SectionCompilerMaterialMixin {
 			target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;tesselateBlock(Lnet/minecraft/client/renderer/block/BlockQuadOutput;FFFLnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;J)V"
 		)
 	)
-	private void glowtone$beginBlockMaterial(CallbackInfoReturnable<?> info, @Local BlockState blockState) {
+	private void glowtone$beginBlockMaterial(
+		CallbackInfoReturnable<?> info,
+		@Local(name = "blockState") BlockState blockState
+	) {
 		BlockLightPropertiesRenderer.beginBlock(blockState);
 		BlockMaterialRenderer.beginBlock(blockState);
 	}

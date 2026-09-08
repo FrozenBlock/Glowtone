@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.light.edge;
+package net.frozenblock.glowtone.light.edge.impl;
 
 import net.minecraft.core.Direction;
 import com.mojang.blaze3d.vertex.QuadInstance;

@@ -15,17 +15,15 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.block;
+package net.frozenblock.glowtone.mixin.block;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.world.level.block.RedStoneOreBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@ClientOnly
 @Mixin(BlockBehaviour.BlockStateBase.class)
 public class BlockStateBaseMixin {
 

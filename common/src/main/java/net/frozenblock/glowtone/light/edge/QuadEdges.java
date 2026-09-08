@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.light.edge;
 
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
+import net.frozenblock.glowtone.light.edge.impl.GlowtoneMutableQuad;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
