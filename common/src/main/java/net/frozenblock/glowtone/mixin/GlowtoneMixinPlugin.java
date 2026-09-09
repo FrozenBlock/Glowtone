@@ -23,6 +23,7 @@ public final class GlowtoneMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if (!GlowtoneMixinOptions.enabled(mixinClassName)) return false;
 		if (mixinClassName.contains(".sodium.")) return this.hasSodium;
 		return true;
 	}
