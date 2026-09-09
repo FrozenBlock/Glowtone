@@ -28,6 +28,7 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import net.frozenblock.glowtone.material.render.BlockModelChains;
 
 @ClientOnly
 @Mixin(ModelManager.class)
@@ -46,6 +47,7 @@ public class ModelManagerMixin {
 		GlowtoneSpecialSprites.clear();
 		GlowtoneParticleEmissives.clear();
 		BlockTextureSlots.clear();
+		BlockModelChains.clear();
 
 		return resourceManager;
 	}

@@ -53,6 +53,8 @@ public final class ChromaFold {
 	private static int modelSkyTint = NO_TINT;
 
 	public static int resolveEntityBlockTint(double x, double y, double z, float eyeHeight, int lightCoords) {
+		if (!ChromaBlender.isEnabled()) return ChromaBlender.NEUTRAL_ARGB;
+
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = Mth.floor(x);
 		final int blockZ = Mth.floor(z);
@@ -73,6 +75,8 @@ public final class ChromaFold {
 	}
 
 	public static int resolveBlockEntity(BlockPos pos, int lightCoords) {
+		if (!ChromaBlender.isEnabled()) return NO_TINT;
+
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = pos.getX();
 		final int blockY = pos.getY();
@@ -88,6 +92,8 @@ public final class ChromaFold {
 	}
 
 	public static int resolveBlockEntityBlockTint(BlockPos pos, int lightCoords) {
+		if (!ChromaBlender.isEnabled()) return ChromaBlender.NEUTRAL_ARGB;
+
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = pos.getX();
 		final int blockY = pos.getY();
@@ -102,6 +108,8 @@ public final class ChromaFold {
 	}
 
 	public static int resolveParticle(double x, double y, double z, int lightCoords) {
+		if (!ChromaBlender.isEnabled()) return NO_TINT;
+
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = Mth.floor(x);
 		final int blockY = Mth.floor(y);
@@ -116,6 +124,8 @@ public final class ChromaFold {
 	}
 
 	public static int resolveHand(double x, double y, double z, int lightCoords) {
+		if (!ChromaBlender.isEnabled()) return NO_TINT;
+
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = Mth.floor(x);
 		final int blockY = Mth.floor(y);
@@ -413,6 +423,8 @@ public final class ChromaFold {
 	}
 
 	public static int resolveEntitySkyTint(double x, double y, double z, float eyeHeight, int lightCoords) {
+		if (!ChromaBlender.isEnabled()) return NO_TINT;
+
 		if (skyLightShare(lightCoords) <= 0F) return NO_TINT;
 
 		return skyTintHue(ColorProbe.get(), Mth.floor(x), Mth.floor(y + eyeHeight), Mth.floor(z));

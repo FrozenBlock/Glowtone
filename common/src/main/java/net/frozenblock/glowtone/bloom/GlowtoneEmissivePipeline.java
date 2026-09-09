@@ -21,6 +21,7 @@ import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import java.util.Map;
 import java.util.Set;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFormats;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,6 +55,8 @@ public final class GlowtoneEmissivePipeline extends RenderPipeline {
 			base.getPrimitiveTopology(),
 			base.getSortKey()
 		);
+
+		GlowtoneVertexFormats.track(this);
 	}
 
 	public static void clear() {

@@ -1,0 +1,15 @@
+{
+  "shader": {
+    "vertex": "glowtone_plants:plant_screen",
+    "block_textures": [
+      "cross"
+    ],
+    "constants": {
+      "PLANT_AXIS_X": "0.70710678",
+      "PLANT_AXIS_Z": "-0.70710678",
+      "PLANT_V_CENTRE": "0.5",
+      "PLANT_HEIGHT": "1.0",
+      "PLANT_STRENGTH": "1.0"
+    }
+  }
+}

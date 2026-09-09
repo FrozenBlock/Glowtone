@@ -39,6 +39,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.frozenblock.glowtone.material.MaterialShaderPatcher;
 
 @Pseudo
 @ClientOnly
@@ -79,6 +80,17 @@ public class AltModelBlockRendererImplMixin {
 		if (!original) return original;
 
 		final ChromaBaker.SectionState state = ChromaBaker.state();
+		if (MaterialShaderPatcher.anyQuadOffset()) {
+			final float[] positions = state.quadPositions();
+			for (int vertex = 0; vertex < 4; vertex++) {
+				positions[vertex * 3] = quad.x(vertex);
+				positions[vertex * 3 + 1] = quad.y(vertex);
+				positions[vertex * 3 + 2] = quad.z(vertex);
+			}
+
+			state.beginQuadOffsets(positions);
+		}
+
 		final boolean building = ChromaBaker.buildingSection();
 		final boolean highlight = (building ? state.highlightEnabled() : EdgeHighlightOption.enabled())
 			&& quad.ambientOcclusion().orElse(true);

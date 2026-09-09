@@ -51,7 +51,7 @@ public final class AmbientOcclusionOption {
 
 	public static boolean smoothLightingEnabled() {
 		final Minecraft minecraft = Minecraft.getInstance();
-		return minecraft != null && minecraft.options.ambientOcclusion().get();
+		return minecraft != null && minecraft.options != null && minecraft.options.ambientOcclusion().get();
 	}
 
 	public static boolean available() {

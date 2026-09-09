@@ -48,6 +48,31 @@ import java.util.function.Function;
 public final class BlockMaterialOverrideLoader implements PreparableReloadListener {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final FileToIdConverter OVERRIDE_LISTER = FileToIdConverter.json(BlockMaterialRenderer.OVERRIDE_DIRECTORY);
+	private static final FileToIdConverter MODEL_RULE_LISTER = FileToIdConverter.json(BlockMaterialModelRule.RESOURCE_PACK_DIRECTORY);
+
+	private static CompletableFuture<List<BlockMaterialModelRule>> loadModelRules(ResourceManager manager, Executor executor) {
+		return CompletableFuture.supplyAsync(() -> {
+			final Map<Identifier, List<Resource>> resources = MODEL_RULE_LISTER.listMatchingResourceStacks(manager);
+			final List<BlockMaterialModelRule> rules = new ArrayList<>(resources.size());
+
+			resources.forEach((file, stack) -> {
+				final Identifier ruleId = MODEL_RULE_LISTER.fileToId(file);
+				for (Resource resource : stack) {
+					try (Reader reader = resource.openAsReader()) {
+						rules.add(BlockMaterialModelRule.CODEC
+							.parse(JsonOps.INSTANCE, StrictJsonParser.parse(reader))
+							.getOrThrow(JsonParseException::new));
+					} catch (Exception e) {
+						LOGGER.error("Failed to load block material model rule {} from pack {}", ruleId, resource.sourcePackId(), e);
+					}
+				}
+			});
+
+			if (!rules.isEmpty()) LOGGER.info("Glowtone found {} block material model rules", rules.size());
+			rules.sort(java.util.Comparator.comparing(BlockMaterialModelRule::sortOrder));
+			return rules;
+		}, executor);
+	}
 
 	private static CompletableFuture<Map<BlockState, BlockMaterialOverrideDispatcher.Assignment>> loadOverrides(ResourceManager manager, Executor executor) {
 		final Function<Identifier, StateDefinition<Block, BlockState>> definitionToBlockState = BlockStateDefinitions.definitionLocationToBlockStateMapper();
@@ -98,6 +123,7 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 		try {
 			BlockMaterialLoader.applyShaderSource(
 				loadOverrides(manager, Runnable::run).join(),
+				loadModelRules(manager, Runnable::run).join(),
 				BlockMaterialLoader.load(manager, Runnable::run).join()
 			);
 		} catch (Throwable failure) {
@@ -110,6 +136,7 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 		final ResourceManager manager = currentReload.resourceManager();
 		final CompletableFuture<BlockMaterialLoader.Definitions> definitions = BlockMaterialLoader.load(manager, taskExecutor);
 		final CompletableFuture<Map<BlockState, BlockMaterialOverrideDispatcher.Assignment>> overrides = loadOverrides(manager, taskExecutor);
+		final CompletableFuture<List<BlockMaterialModelRule>> modelRules = loadModelRules(manager, taskExecutor);
 
 		return definitions
 			.exceptionally(failure -> {
@@ -123,15 +150,34 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 				}),
 				Loaded::new
 			)
+			.thenCombine(
+				modelRules.exceptionally(failure -> {
+					LOGGER.error("Glowtone failed to read block material model rules", failure);
+					return List.of();
+				}),
+				Loaded::withRules
+			)
 			.thenCompose(preparationBarrier::wait)
 			.thenAcceptAsync(loaded -> {
 				try {
-					BlockMaterialLoader.apply(loaded.overrides(), loaded.definitions());
+					BlockMaterialLoader.apply(loaded.overrides(), loaded.modelRules(), loaded.definitions());
 				} catch (Throwable failure) {
 					LOGGER.error("Glowtone failed to apply block materials", failure);
 				}
 			}, reloadExecutor);
 	}
 
-	private record Loaded(BlockMaterialLoader.Definitions definitions, Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides) {}
+	private record Loaded(
+		BlockMaterialLoader.Definitions definitions,
+		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides,
+		List<BlockMaterialModelRule> modelRules
+	) {
+		Loaded(BlockMaterialLoader.Definitions definitions, Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides) {
+			this(definitions, overrides, List.of());
+		}
+
+		Loaded withRules(List<BlockMaterialModelRule> rules) {
+			return new Loaded(this.definitions, this.overrides, rules);
+		}
+	}
 }

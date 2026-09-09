@@ -32,6 +32,7 @@ import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
 import org.slf4j.Logger;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
@@ -465,13 +466,36 @@ public final class EmissiveShaderPatcher {
 			+ vertexDisplaceFunction(terrain) + VERTEX_HEADER;
 	}
 
+	private static final String QUAD_OFFSET_DECODE =
+		"vec2(GlowtoneChroma.a - 0.5, GlowtoneSkyChroma.a - 0.5)";
+
+	private static final String SODIUM_QUAD_OFFSET_DECODE =
+		"vec2(a_GlowtoneChroma.a - 0.5, a_GlowtoneSkyChroma.a - 0.5)";
+
+	private static String quadOffsetArgument(boolean declared, String decode) {
+		return declared && MaterialShaderPatcher.anyQuadOffset() ? decode : "vec2(0.0)";
+	}
+
+	private static final String MODEL_VIEW_MATRIX = "ModelViewMat";
+
+	private static final String SODIUM_MODEL_VIEW_MATRIX = "u_ModelViewMatrix";
+
+	private static String cameraAxisArgument(String matrix, int axis) {
+		if (!MaterialShaderPatcher.anyCameraBasis()) return "vec3(0.0)";
+
+		return "vec3(%s[0][%d], %s[1][%d], %s[2][%d])".formatted(matrix, axis, matrix, axis, matrix, axis);
+	}
+
 	private static String vertexDisplaceFunction(boolean terrain) {
 		final String displace = VERTEX_DISPLACE_FUNCTION.formatted(
 			BlockMaterialRenderer.MAX_SHADER_INDEX,
 			MaterialShaderPatcher.VERTEX_DISPATCH,
 			BloomHelper.LIGHT_COORDS_CHANNEL_MASK,
 			BlockMaterialRenderer.GUI_MARKER,
-			GUI_CONTEXT
+			GUI_CONTEXT,
+			quadOffsetArgument(terrain, QUAD_OFFSET_DECODE),
+			cameraAxisArgument(MODEL_VIEW_MATRIX, 0),
+			cameraAxisArgument(MODEL_VIEW_MATRIX, 1)
 		);
 
 		// terrain reads the camera straight off globals
@@ -545,7 +569,7 @@ public final class EmissiveShaderPatcher {
 			vec3 glowtone_block = floor(glowtone_world);
 			return %s(glowtone_index, glowtone_pos, glowtone_block, glowtone_world - glowtone_block, glowtone_camera, glowtone_uv,
 				vec2(glowtone_coords & ivec2(%d)) / 240.0, glowtone_time,
-				(glowtone_coords.x & %d) != 0 ? %d : glowtone_context);
+				(glowtone_coords.x & %d) != 0 ? %d : glowtone_context, %s, %s, %s);
 		}
 
 		""";
@@ -813,7 +837,10 @@ public final class EmissiveShaderPatcher {
 			+ "        vec3 glowtone_vBlock = floor(glowtone_vAbs);" + System.lineSeparator()
 			+ "        position += " + MaterialShaderPatcher.VERTEX_DISPATCH
 			+ "(glowtone_vIndex, position, glowtone_vBlock, glowtone_vAbs - glowtone_vBlock, "
-			+ CAMERA_WORLD_POS + ", _vert_tex_diffuse_coord, vec2(0.0), GameTime, 0);"
+			+ CAMERA_WORLD_POS + ", _vert_tex_diffuse_coord, vec2(0.0), GameTime, 0, "
+			+ quadOffsetArgument(true, SODIUM_QUAD_OFFSET_DECODE) + ", "
+			+ cameraAxisArgument(SODIUM_MODEL_VIEW_MATRIX, 0) + ", "
+			+ cameraAxisArgument(SODIUM_MODEL_VIEW_MATRIX, 1) + ");"
 			+ System.lineSeparator() + "    }";
 
 		return source.substring(0, end + 1) + displace + source.substring(end + 1);
@@ -868,6 +895,12 @@ public final class EmissiveShaderPatcher {
 			.replace(SODIUM_FOG_CALL, sodiumMaterialCall() + SODIUM_FOG_CALL);
 	}
 
+	public static boolean edgeDataWanted() {
+		final float shade = AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING ? OcclusionStrengthOption.strength() : 0F;
+		final float option = EdgeHighlightOption.strength();
+		return shade > 0F || blockHighlight(option) > 0F || option * GlowtonePackSettings.waterStrength() > 0F || aoDebug();
+	}
+
 	private static String patchSodium(ShaderType type, String source) {
 		final float shade = AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING ? OcclusionStrengthOption.strength() : 0F;
 		final float option = EdgeHighlightOption.strength();
@@ -883,6 +916,7 @@ public final class EmissiveShaderPatcher {
 			? patchSodiumMaterialVertex(emissive)
 			: patchSodiumMaterialFragment(emissive);
 
+		if (!GlowtoneVertexFeatures.shaders().edges()) return material;
 		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) return material;
 
 		return type == ShaderType.VERTEX
@@ -891,7 +925,8 @@ public final class EmissiveShaderPatcher {
 	}
 
 	private static String patchSodiumEmissiveVertex(String source) {
-		if (!source.contains(SODIUM_COLOR_OUT)
+		if (!GlowtoneVertexFeatures.shaders().flags()
+			|| !source.contains(SODIUM_COLOR_OUT)
 			|| !source.contains(SODIUM_VERTEX_TAIL)
 			|| source.contains("a_GlowtoneFlags")
 		) {
@@ -906,7 +941,8 @@ public final class EmissiveShaderPatcher {
 	private static boolean reportedSodiumFog;
 
 	private static String patchSodiumEmissiveFragment(String source) {
-		if (!source.contains(SODIUM_FRAG_OUT)
+		if (!GlowtoneVertexFeatures.shaders().flags()
+			|| !source.contains(SODIUM_FRAG_OUT)
 			|| !source.contains(SODIUM_FOG_CALL)
 			|| source.contains("glowtone_EmissiveColor")
 		) {
@@ -1216,9 +1252,12 @@ public final class EmissiveShaderPatcher {
 			return source;
 		}
 
-		final String varyings = TERRAIN_VARYINGS;
+		final boolean edges = GlowtoneVertexFeatures.shaders().edges();
+		final String attributes = edges ? TERRAIN_ATTRIBUTES : "";
+		final String varyings = edges ? TERRAIN_VARYINGS : "";
 		final boolean materials = MaterialShaderPatcher.anyFragment() || MaterialShaderPatcher.anyVertex();
-		final String writes = materials ? TERRAIN_WRITES + withoutUnusedWrites(MATERIAL_WRITES) : TERRAIN_WRITES;
+		final String edgeWrites = edges ? TERRAIN_WRITES : "";
+		final String writes = materials ? edgeWrites + withoutUnusedWrites(MATERIAL_WRITES) : edgeWrites;
 
 		if (MaterialShaderPatcher.anyVertex()) {
 			if (source.contains(TERRAIN_POSITION_ANCHOR)) {
@@ -1229,7 +1268,7 @@ public final class EmissiveShaderPatcher {
 		}
 
 		return source
-			.replace(TERRAIN_IN_ANCHOR, TERRAIN_IN_ANCHOR + System.lineSeparator() + TERRAIN_ATTRIBUTES)
+			.replace(TERRAIN_IN_ANCHOR, TERRAIN_IN_ANCHOR + System.lineSeparator() + attributes)
 			.replace(TERRAIN_OUT_ANCHOR, TERRAIN_OUT_ANCHOR + System.lineSeparator() + varyings)
 			.replace(TERRAIN_WRITE_ANCHOR, TERRAIN_WRITE_ANCHOR + System.lineSeparator() + writes);
 	}
@@ -1265,7 +1304,7 @@ public final class EmissiveShaderPatcher {
 		final float highlight = blockHighlight(option);
 		final float liquid = option * GlowtonePackSettings.waterStrength();
 		final boolean occlusionView = aoDebug();
-		if (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView) {
+		if (!GlowtoneVertexFeatures.shaders().edges() || (shade <= 0F && highlight <= 0F && liquid <= 0F && !occlusionView)) {
 			return MaterialShaderPatcher.anyFragment() ? deferFog(patchMaterialFragment(source)) : source;
 		}
 

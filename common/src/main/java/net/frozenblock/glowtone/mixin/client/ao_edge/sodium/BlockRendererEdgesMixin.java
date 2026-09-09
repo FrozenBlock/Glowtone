@@ -31,11 +31,15 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.joml.Vector3f;
+import org.spongepowered.asm.mixin.Shadow;
 
 @Pseudo
 @ClientOnly
 @Mixin(BlockRenderer.class)
 public class BlockRendererEdgesMixin {
+	@Shadow
+	private Vector3f posOffset;
 
 	@Inject(method = "renderModel", at = @At("HEAD"))
 	private void glowtone$captureModelBoxes(BlockStateModel model, BlockState state, BlockPos pos, BlockPos origin, CallbackInfo info) {
@@ -45,6 +49,6 @@ public class BlockRendererEdgesMixin {
 	@Inject(method = "bufferQuad", at = @At("HEAD"))
 	private void glowtone$buildEdges(MutableQuadViewImpl quad, float[] brightnesses, Material material, CallbackInfo info) {
 		final GlowtoneSodiumContext context = (GlowtoneSodiumContext) this;
-		SodiumEdges.beginQuad(quad, context.glowtone$level(), context.glowtone$pos());
+		SodiumEdges.beginQuad(quad, context.glowtone$level(), context.glowtone$pos(), this.posOffset.x, this.posOffset.z);
 	}
 }

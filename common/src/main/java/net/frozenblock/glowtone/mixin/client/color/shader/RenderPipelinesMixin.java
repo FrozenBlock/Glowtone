@@ -113,6 +113,6 @@ public class RenderPipelinesMixin {
 		)
 	)
 	private static VertexFormat glowtone$patchLeash(Operation<VertexFormat> original) {
-		return GTDefaultVertexFormat.POSITION_COLOR_LIGHTMAP_TINTED;
+		return GTDefaultVertexFormat.tinted();
 	}
 }

@@ -18,6 +18,8 @@
 package net.frozenblock.glowtone.config.option.bloom;
 
 import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.config.GlowtoneReload;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFormats;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
@@ -31,6 +33,7 @@ public final class BloomOption {
 	public static final int PRESET_DEFAULT = GlowtoneConfig.DEFAULT_BLOOM;
 	private static final String CAPTION = "options.glowtone.bloom";
 	private static @Nullable OptionInstance<Integer> instance;
+	private static boolean pendingReload;
 
 	public static synchronized OptionInstance<Integer> get() {
 		if (instance == null) {
@@ -58,6 +61,13 @@ public final class BloomOption {
 
 	private static void apply(int value) {
 		GlowtoneConfig.setBloom(value);
+		pendingReload = true;
+	}
+
+	public static void flush() {
+		if (!pendingReload) return;
+		pendingReload = false;
+		if (GlowtoneVertexFormats.reloadNeeded()) GlowtoneReload.request();
 	}
 
 	private BloomOption() {}

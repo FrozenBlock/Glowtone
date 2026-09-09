@@ -38,10 +38,13 @@ public final class MaterialShaderPatcher {
 	public static final String LOCAL_POS = "glowtone_LocalPos";
 	public static final String NORMAL = "glowtone_Normal";
 	public static final String CAMERA_POS = "glowtone_CameraPos";
+	public static final String CAMERA_RIGHT = "glowtone_CameraRight";
+	public static final String CAMERA_UP = "glowtone_CameraUp";
 	public static final String SCREEN_PROJ = "glowtone_ScreenProj";
 	public static final String LIGHT = "glowtone_Light";
 	public static final String GAME_TIME = "glowtone_GameTime";
 	public static final String CONTEXT = "glowtone_Context";
+	public static final String QUAD_OFFSET = "glowtone_QuadOffset";
 	public static final String POSITION = "glowtone_Position";
 	public static final String DISPATCH = "glowtone_materialShader";
 	public static final String VERTEX_DISPATCH = "glowtone_materialVertex";
@@ -53,11 +56,15 @@ public final class MaterialShaderPatcher {
 		.formatted(COLOR, UV, WORLD_POS, BLOCK_POS, LOCAL_POS, NORMAL, SCREEN_PROJ, LIGHT, GAME_TIME, CONTEXT);
 
 	// No normal: terrain carries no normal attribute.
-	private static final String VERTEX_PARAMS = "vec3 %s, vec3 %s, vec3 %s, vec3 %s, vec2 %s, vec2 %s, float %s, int %s"
-		.formatted(POSITION, BLOCK_POS, LOCAL_POS, CAMERA_POS, UV, LIGHT, GAME_TIME, CONTEXT);
+	private static final String VERTEX_PARAMS = "vec3 %s, vec3 %s, vec3 %s, vec3 %s, vec2 %s, vec2 %s, float %s, int %s, vec2 %s, vec3 %s, vec3 %s"
+		.formatted(POSITION, BLOCK_POS, LOCAL_POS, CAMERA_POS, UV, LIGHT, GAME_TIME, CONTEXT, QUAD_OFFSET, CAMERA_RIGHT, CAMERA_UP);
 
-	private static final String VERTEX_ARGS = "%s, %s, %s, %s, %s, %s, %s, %s"
-		.formatted(POSITION, BLOCK_POS, LOCAL_POS, CAMERA_POS, UV, LIGHT, GAME_TIME, CONTEXT);
+	private static final String VERTEX_ARGS = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
+		.formatted(POSITION, BLOCK_POS, LOCAL_POS, CAMERA_POS, UV, LIGHT, GAME_TIME, CONTEXT, QUAD_OFFSET, CAMERA_RIGHT, CAMERA_UP);
+
+	public static boolean anyCameraBasis() {
+		return usesInput(CAMERA_RIGHT) || usesInput(CAMERA_UP);
+	}
 
 	private static final String VARIANT_LOOKUP =
 		"\tvec4 glowtone_variant = " + MaterialBlockTextures.fetch("glowtone_index") + ";\n"
@@ -67,6 +74,7 @@ public final class MaterialShaderPatcher {
 	private static volatile List<Loaded> loaded = List.of();
 	private static volatile boolean anyFragment;
 	private static volatile boolean anyVertex;
+	private static volatile boolean anyQuadOffset;
 	private static volatile boolean anySamplers;
 	private static volatile String sampledFunctions = "";
 	private static volatile String atlasFunctions = "";
@@ -76,6 +84,9 @@ public final class MaterialShaderPatcher {
 		loaded = List.copyOf(shaders);
 		anyFragment = loaded.stream().anyMatch(entry -> entry.fragmentSource() != null);
 		anyVertex = loaded.stream().anyMatch(entry -> entry.vertexSource() != null);
+		anyQuadOffset = loaded.stream().anyMatch(
+			entry -> entry.vertexSource() != null && entry.vertexSource().contains(QUAD_OFFSET)
+		);
 		anySamplers = loaded.stream().anyMatch(entry -> !entry.slots().isEmpty());
 		sampledFunctions = buildFunctions(true);
 		atlasFunctions = buildFunctions(false);
@@ -96,6 +107,14 @@ public final class MaterialShaderPatcher {
 
 	public static boolean anyVertex() {
 		return anyVertex;
+	}
+
+	public static boolean anyQuadOffset() {
+		return anyQuadOffset;
+	}
+
+	public static byte encodeQuadOffset(float offset) {
+		return (byte) Math.round(Math.max(0F, Math.min(1F, offset + 0.5F)) * 255F);
 	}
 
 	public static boolean anySamplers() {

@@ -19,6 +19,7 @@ package net.frozenblock.glowtone.mixin.client.bloom;
 
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettingsLoader;
 import net.frozenblock.glowtone.data.BlockMaterialOverrideLoader;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.ShaderManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -36,5 +37,6 @@ public class ShaderManagerPrepareMixin {
 	private void glowtone$loadShaderInputs(ResourceManager manager, ProfilerFiller profiler, CallbackInfoReturnable<Object> info) {
 		GlowtonePackSettingsLoader.applyFrom(manager);
 		BlockMaterialOverrideLoader.applyShaderSource(manager);
+		GlowtoneVertexFeatures.beginReload();
 	}
 }

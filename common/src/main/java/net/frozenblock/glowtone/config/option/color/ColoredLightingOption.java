@@ -19,7 +19,9 @@ package net.frozenblock.glowtone.config.option.color;
 
 import java.util.List;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
+import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFormats;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
@@ -54,6 +56,11 @@ public final class ColoredLightingOption {
 
 		GlowtoneConfig.setColoredLighting(mode);
 		applyMode(mode);
+
+		if (GlowtoneVertexFormats.reloadNeeded()) {
+			GlowtoneReload.request();
+			return;
+		}
 
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft.level != null) minecraft.levelExtractor.allChanged();

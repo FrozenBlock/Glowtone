@@ -17,6 +17,9 @@ import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.sodium.vertex.GTSodiumVertexFormat;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFormats;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexLayout;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.util.ARGB;
 import org.lwjgl.system.MemoryUtil;
@@ -27,6 +30,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import net.frozenblock.glowtone.material.MaterialShaderPatcher;
 
 @ClientOnly
 @Mixin(CompactChunkVertex.class)
@@ -35,8 +39,6 @@ public class CompactChunkVertexMixin {
 	@Final
 	public static int STRIDE;
 
-	@Unique
-	private static int glowtone$additionalStride;
 	@Unique
 	private static final int GLOWTONE$CONTACTS = 4;
 	@Unique
@@ -55,16 +57,17 @@ public class CompactChunkVertexMixin {
 		)
 	)
 	private static VertexFormat glowtone$modifyBlockVertexFormat(VertexFormat.Builder instance, Operation<VertexFormat> original) {
-		final VertexFormat format = original.call(GTSodiumVertexFormat.appendTerrainAttributes(instance));
+		final GlowtoneVertexFeatures features = GlowtoneVertexFeatures.startup();
+		final VertexFormat format = original.call(GTSodiumVertexFormat.appendTerrainAttributes(instance, features));
 		final int vertexSize = format.getVertexSize();
-		if (vertexSize <= STRIDE) {
+		if (vertexSize < STRIDE) {
 			throw new IllegalStateException(
-				"Glowtone terrain vertex format is " + vertexSize + " bytes, which does not exceed Sodium's stride of " + STRIDE
+				"Glowtone terrain vertex format is " + vertexSize + " bytes, which is smaller than Sodium's stride of " + STRIDE
 			);
 		}
 
-		glowtone$additionalStride = vertexSize - STRIDE;
-		GTSodiumVertexFormat.setupOffsets(format);
+		GTSodiumVertexFormat.setup(format);
+		GlowtoneVertexFormats.reportStartup("sodium terrain", format, features);
 		return format;
 	}
 
@@ -72,12 +75,14 @@ public class CompactChunkVertexMixin {
 	private static void glowtone$preWrite(
 		long ptr, int materialBits, ChunkVertexEncoder.Vertex[] vertices, int section, CallbackInfoReturnable<Long> info,
 		@Share("glowtone$state") LocalRef<ChromaBaker.SectionState> stateRef,
+		@Share("glowtone$layout") LocalRef<GlowtoneVertexLayout> layoutRef,
 		@Share("glowtone$edges") LocalRef<QuadEdges> edgesRef,
 		@Share("glowtone$fluid") LocalBooleanRef fluidRef,
 		@Share("glowtone$flags") LocalIntRef flagsRef
 	) {
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		stateRef.set(state);
+		layoutRef.set(state.sodiumLayout());
 		edgesRef.set(state.pendingEdges());
 		fluidRef.set(state.fluidQuad());
 		flagsRef.set((state.emissiveQuad() ? 0x000000FF : 0)
@@ -96,16 +101,30 @@ public class CompactChunkVertexMixin {
 		long ptr, int materialBits, ChunkVertexEncoder.Vertex[] vertices, int section, CallbackInfoReturnable<Long> info,
 		@Local(name = "vertex") ChunkVertexEncoder.Vertex vertex,
 		@Share("glowtone$state") LocalRef<ChromaBaker.SectionState> stateRef,
+		@Share("glowtone$layout") LocalRef<GlowtoneVertexLayout> layoutRef,
 		@Share("glowtone$edges") LocalRef<QuadEdges> edgesRef,
 		@Share("glowtone$fluid") LocalBooleanRef fluidRef,
 		@Share("glowtone$flags") LocalIntRef flagsRef
 	) {
-		MemoryUtil.memPutInt(ptr + GTSodiumVertexFormat.CHROMA_OFFSET, ARGB.toABGR(stateRef.get().sample(vertex.x, vertex.y, vertex.z)));
-		MemoryUtil.memPutInt(ptr + GTSodiumVertexFormat.SKY_CHROMA_OFFSET, ARGB.toABGR(stateRef.get().sampleSky(vertex.x, vertex.y, vertex.z)));
-		MemoryUtil.memPutInt(ptr + GTSodiumVertexFormat.FLAGS_OFFSET, flagsRef.get());
+		final GlowtoneVertexLayout layout = layoutRef.get();
+		final ChromaBaker.SectionState state = stateRef.get();
 
-		final int edgeIndex = fluidRef.get() ? edgesRef.get().indexOf(vertex.x, vertex.y, vertex.z) : stateRef.get().nextEdgeVertex();
-		glowtone$writeEdges(ptr, edgesRef.get(), edgeIndex);
+		if (layout.hasChroma()) {
+			MemoryUtil.memPutInt(ptr + layout.chroma(), ARGB.toABGR(state.sample(vertex.x, vertex.y, vertex.z)));
+			MemoryUtil.memPutInt(ptr + layout.skyChroma(), ARGB.toABGR(state.sampleSky(vertex.x, vertex.y, vertex.z)));
+
+			if (MaterialShaderPatcher.anyQuadOffset()) {
+				MemoryUtil.memPutByte(ptr + layout.chroma() + 3L, MaterialShaderPatcher.encodeQuadOffset(vertex.x - state.quadCentreX()));
+				MemoryUtil.memPutByte(ptr + layout.skyChroma() + 3L, MaterialShaderPatcher.encodeQuadOffset(vertex.z - state.quadCentreZ()));
+			}
+		}
+
+		if (layout.hasFlags()) MemoryUtil.memPutInt(ptr + layout.flags(), flagsRef.get());
+
+		if (layout.hasEdges()) {
+			final int edgeIndex = fluidRef.get() ? edgesRef.get().indexOf(vertex.x, vertex.y, vertex.z) : state.nextEdgeVertex();
+			glowtone$writeEdges(ptr, layout, edgesRef.get(), edgeIndex);
+		}
 	}
 
 	@ModifyExpressionValue(
@@ -116,15 +135,16 @@ public class CompactChunkVertexMixin {
 			ordinal = 0
 		)
 	)
-	private static long glowtone$widenStrideAdvance(long original) {
-		if (original != STRIDE || glowtone$additionalStride <= 0) {
+	private static long glowtone$widenStrideAdvance(long original, @Share("glowtone$layout") LocalRef<GlowtoneVertexLayout> layoutRef) {
+		final int vertexSize = layoutRef.get().vertexSize();
+		if (original != STRIDE || vertexSize < STRIDE) {
 			throw new IllegalStateException(
 				"Glowtone patched a " + original + " byte stride advance, expected Sodium's " + STRIDE
-					+ " plus " + glowtone$additionalStride + " appended bytes"
+					+ " widened to " + vertexSize
 			);
 		}
 
-		return original + glowtone$additionalStride;
+		return vertexSize;
 	}
 
 	@Unique
@@ -137,20 +157,20 @@ public class CompactChunkVertexMixin {
 	}
 
 	@Unique
-	private static void glowtone$writeEdges(long pointer, QuadEdges edges, int index) {
+	private static void glowtone$writeEdges(long pointer, GlowtoneVertexLayout layout, QuadEdges edges, int index) {
 		if (index < 0) {
-			MemoryUtil.memPutInt(pointer + GTSodiumVertexFormat.EDGE_OFFSET, GLOWTONE$NO_EDGES_LE);
-			MemoryUtil.memPutInt(pointer + GTSodiumVertexFormat.EDGE_MASK_OFFSET, 0);
+			MemoryUtil.memPutInt(pointer + layout.edge(), GLOWTONE$NO_EDGES_LE);
+			MemoryUtil.memPutInt(pointer + layout.edgeMask(), 0);
 			for (int contact = 0; contact < GLOWTONE$CONTACTS; contact++) {
-				MemoryUtil.memPutInt(pointer + GTSodiumVertexFormat.CONTACT0_OFFSET + contact * 4L, GLOWTONE$NO_CONTACT_LE[contact]);
+				MemoryUtil.memPutInt(pointer + layout.contact(contact), GLOWTONE$NO_CONTACT_LE[contact]);
 			}
 			return;
 		}
 
-		MemoryUtil.memPutInt(pointer + GTSodiumVertexFormat.EDGE_OFFSET, Integer.reverseBytes(edges.get(index)));
-		MemoryUtil.memPutInt(pointer + GTSodiumVertexFormat.EDGE_MASK_OFFSET, Integer.reverseBytes(edges.mask(index)));
+		MemoryUtil.memPutInt(pointer + layout.edge(), Integer.reverseBytes(edges.get(index)));
+		MemoryUtil.memPutInt(pointer + layout.edgeMask(), Integer.reverseBytes(edges.mask(index)));
 		for (int contact = 0; contact < GLOWTONE$CONTACTS; contact++) {
-			MemoryUtil.memPutInt(pointer + GTSodiumVertexFormat.CONTACT0_OFFSET + contact * 4L, Integer.reverseBytes(edges.contact(contact)));
+			MemoryUtil.memPutInt(pointer + layout.contact(contact), Integer.reverseBytes(edges.contact(contact)));
 		}
 	}
 }

@@ -22,6 +22,7 @@ import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
+import net.frozenblock.glowtone.material.render.BlockModelChains;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.frozenblock.glowtone.material.MaterialLayer;
 import net.frozenblock.glowtone.material.MaterialBlockTextures;
@@ -176,14 +177,14 @@ public final class BlockMaterialLoader {
 	}
 
 	private static void allocateShaders(
-		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides,
+		java.util.Collection<BlockMaterialOverrideDispatcher.Assignment> assignments,
 		Definitions definitions,
 		Map<ShaderKey, Integer> shaderIndices,
 		List<MaterialShaderPatcher.Loaded> shaders,
 		List<Identifier> samplerSlots
 	) {
 		final Map<Identifier, BlockMaterial> registry = definitions.materials();
-		overrides.values().stream()
+		assignments.stream()
 			.map(assignment -> new ShaderKey(assignment.material(), assignment.parameters()))
 			.distinct()
 			.sorted(Comparator.comparing(ShaderKey::sortOrder))
@@ -197,18 +198,61 @@ public final class BlockMaterialLoader {
 			});
 	}
 
+	private static List<BlockMaterialOverrideDispatcher.Assignment> shaderCandidates(
+		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, List<BlockMaterialModelRule> modelRules
+	) {
+		final List<BlockMaterialOverrideDispatcher.Assignment> candidates = new ArrayList<>(overrides.values());
+		for (BlockMaterialModelRule rule : modelRules) candidates.add(rule.assignment());
+		return candidates;
+	}
+
 	public static void applyShaderSource(
-		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, Definitions definitions
+		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides,
+		List<BlockMaterialModelRule> modelRules,
+		Definitions definitions
 	) {
 		final List<MaterialShaderPatcher.Loaded> shaders = new ArrayList<>();
 		final List<Identifier> samplerSlots = new ArrayList<>();
-		allocateShaders(overrides, definitions, new HashMap<>(), shaders, samplerSlots);
+		allocateShaders(shaderCandidates(overrides, modelRules), definitions, new HashMap<>(), shaders, samplerSlots);
 
 		MaterialSamplers.apply(samplerSlots);
 		MaterialShaderPatcher.apply(shaders);
 	}
 
-	public static void apply(Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, Definitions definitions) {
+	private static Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> withModelRules(
+		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, List<BlockMaterialModelRule> modelRules
+	) {
+		if (modelRules.isEmpty()) return overrides;
+
+		final Set<Block> claimed = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
+		overrides.keySet().forEach(state -> claimed.add(state.getBlock()));
+
+		final Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> merged = new IdentityHashMap<>(overrides);
+		int matched = 0;
+		for (Map.Entry<BlockState, Set<Identifier>> entry : BlockModelChains.chains().entrySet()) {
+			final BlockState state = entry.getKey();
+			if (claimed.contains(state.getBlock())) continue;
+
+			for (BlockMaterialModelRule rule : modelRules) {
+				if (!rule.matches(entry.getValue())) continue;
+
+				merged.put(state, rule.assignment());
+				matched++;
+				break;
+			}
+		}
+
+		LOGGER.info("Glowtone model rules claimed {} blockstates", matched);
+		return merged;
+	}
+
+	public static void apply(
+		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides,
+		List<BlockMaterialModelRule> modelRules,
+		Definitions definitions
+	) {
+		final List<BlockMaterialOverrideDispatcher.Assignment> candidates = shaderCandidates(overrides, modelRules);
+		overrides = withModelRules(overrides, modelRules);
 		final Map<Identifier, BlockMaterial> registry = definitions.materials();
 		BuiltInRegistries.BLOCK.forEach(block -> block.glowtone$setMaterial(BlockMaterial.EMPTY));
 
@@ -229,7 +273,7 @@ public final class BlockMaterialLoader {
 		boolean blockEntity = false;
 		boolean targets = false;
 
-		allocateShaders(overrides, definitions, shaderIndices, shaders, samplerSlots);
+		allocateShaders(candidates, definitions, shaderIndices, shaders, samplerSlots);
 
 		final List<Map.Entry<BlockState, BlockMaterialOverrideDispatcher.Assignment>> ordered = new ArrayList<>(overrides.entrySet());
 		ordered.sort(Comparator.comparing(entry -> entry.getKey().toString()));

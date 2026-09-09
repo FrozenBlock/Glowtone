@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.light.color;
 
 import com.mojang.blaze3d.shaders.ShaderType;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 
@@ -113,6 +114,7 @@ public final class ColorShaderPatcher {
 	}
 
 	public static String patchEntityShader(Identifier id, ShaderType type, String source) {
+		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
 		// TODO: sodium entity
 		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
@@ -151,6 +153,7 @@ public final class ColorShaderPatcher {
 	}
 
 	public static String patchItemShader(Identifier id, ShaderType type, String source) {
+		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
 		// TODO: sodium item
 		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
@@ -189,6 +192,7 @@ public final class ColorShaderPatcher {
 	}
 
 	public static String patchLeashShader(Identifier id, ShaderType type, String source) {
+		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
 		// TODO: sodium leash
 		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
@@ -227,6 +231,7 @@ public final class ColorShaderPatcher {
 	}
 
 	public static String patchTerrainShader(Identifier id, ShaderType type, String source) {
+		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
 		if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
 		if (!id.equals(TERRAIN_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR_TERRAIN)) return source;

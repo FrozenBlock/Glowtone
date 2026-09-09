@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=up": "glowtone_plants:plant_gaze",
+    "facing=down": "glowtone_plants:plant_gaze",
+    "facing=north": "glowtone_plants:plant_gaze_wall_z",
+    "facing=south": "glowtone_plants:plant_gaze_wall_z",
+    "facing=east": "glowtone_plants:plant_gaze_wall_x",
+    "facing=west": "glowtone_plants:plant_gaze_wall_x"
+  }
+}

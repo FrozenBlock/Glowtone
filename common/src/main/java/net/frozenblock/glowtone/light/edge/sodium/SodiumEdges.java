@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
+import net.frozenblock.glowtone.material.MaterialShaderPatcher;
 
 @ClientOnly
 public final class SodiumEdges {
@@ -43,9 +44,16 @@ public final class SodiumEdges {
 		state.setModelFaces(GlowtoneModelBoxes.forState(model, level, pos, blockState, blockState.getSeed(pos)));
 	}
 
-	public static void beginQuad(MutableQuadViewImpl quad, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos) {
+	public static void beginQuad(MutableQuadViewImpl quad, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, float offsetX, float offsetZ) {
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setEmissiveQuad(((GlowtoneSodiumQuad) quad).glowtone$emissive());
+
+		if (MaterialShaderPatcher.anyQuadOffset()) {
+			state.beginQuadCentre(
+				(quad.getX(0) + quad.getX(1) + quad.getX(2) + quad.getX(3)) * 0.25F + offsetX,
+				(quad.getZ(0) + quad.getZ(1) + quad.getZ(2) + quad.getZ(3)) * 0.25F + offsetZ
+			);
+		}
 
 		final boolean shade = state.contactShading();
 		final boolean highlight = state.highlightEnabled() && quad.ambientOcclusion().toBoolean(true);

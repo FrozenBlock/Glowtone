@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.options;
 
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
+import net.frozenblock.glowtone.config.option.bloom.BloomOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.OptionInstance;
@@ -48,5 +49,6 @@ public class AbstractSliderButtonMixin {
 	private static void glowtone$flush() {
 		EdgeHighlightOption.flush();
 		OcclusionStrengthOption.flush();
+		BloomOption.flush();
 	}
 }

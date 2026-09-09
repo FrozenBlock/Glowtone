@@ -1,0 +1,18 @@
+{
+  "shader": {
+    "vertex": "glowtone_test:eyeblossom_gaze",
+    "block_textures": [
+      "eyeblossom_eye",
+      "eyeblossom_eye_bloom"
+    ],
+    "constants": {
+      "EYE_HEIGHT": "1.0",
+      "EYE_V_CENTRE": "0.34375",
+      "EYE_AXIS_X": "0.70710678",
+      "EYE_AXIS_Z": "-0.70710678",
+      "EYE_PITCH": "0.0",
+      "EYE_STEADY_NEAR": "0.1",
+      "EYE_STEADY_FAR": "0.35"
+    }
+  }
+}

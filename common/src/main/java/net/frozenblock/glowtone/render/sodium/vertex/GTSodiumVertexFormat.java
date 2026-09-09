@@ -17,8 +17,14 @@
 
 package net.frozenblock.glowtone.render.sodium.vertex;
 
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import java.util.Map;
+import java.util.Set;
+import net.frozenblock.glowtone.mixin.client.sodium.vertex.CompactChunkVertexAccessor;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFormats;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexLayout;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 // TODO: self emission to offset tint with
@@ -34,41 +40,61 @@ public final class GTSodiumVertexFormat {
 	public static final String CONTACT3_SEMANTIC_NAME = "a_GlowtoneContact3";
 	public static final String FLAGS_SEMANTIC_NAME = "a_GlowtoneFlags";
 
-	public static long POSITION_OFFSET;
-	public static long CHROMA_OFFSET;
-	public static long SKY_CHROMA_OFFSET;
-	public static long EDGE_OFFSET;
-	public static long EDGE_MASK_OFFSET;
-	public static long CONTACT0_OFFSET;
-	public static long CONTACT1_OFFSET;
-	public static long CONTACT2_OFFSET;
-	public static long CONTACT3_OFFSET;
-	public static long FLAGS_OFFSET;
+	public static final GlowtoneVertexLayout.Names NAMES = new GlowtoneVertexLayout.Names(
+		CHROMA_SEMANTIC_NAME, SKY_CHROMA_SEMANTIC_NAME,
+		EDGE_SEMANTIC_NAME, EDGE_MASK_SEMANTIC_NAME,
+		CONTACT0_SEMANTIC_NAME, CONTACT1_SEMANTIC_NAME, CONTACT2_SEMANTIC_NAME, CONTACT3_SEMANTIC_NAME,
+		FLAGS_SEMANTIC_NAME
+	);
+	private static final Set<String> GLOWTONE_NAMES = Set.of(
+		CHROMA_SEMANTIC_NAME, SKY_CHROMA_SEMANTIC_NAME,
+		EDGE_SEMANTIC_NAME, EDGE_MASK_SEMANTIC_NAME,
+		CONTACT0_SEMANTIC_NAME, CONTACT1_SEMANTIC_NAME, CONTACT2_SEMANTIC_NAME, CONTACT3_SEMANTIC_NAME,
+		FLAGS_SEMANTIC_NAME
+	);
 
-	public static VertexFormat.Builder appendTerrainAttributes(VertexFormat.Builder builder) {
-		builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(SKY_CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(EDGE_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(EDGE_MASK_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(CONTACT0_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(CONTACT1_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(CONTACT2_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(CONTACT3_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
-		builder.addAttribute(FLAGS_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+	private static volatile GlowtoneVertexLayout layout = GlowtoneVertexLayout.NONE;
+
+	public static VertexFormat.Builder appendTerrainAttributes(VertexFormat.Builder builder, GlowtoneVertexFeatures features) {
+		if (features.chroma()) {
+			builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+			builder.addAttribute(SKY_CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+		}
+		if (features.edges()) {
+			builder.addAttribute(EDGE_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+			builder.addAttribute(EDGE_MASK_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+			builder.addAttribute(CONTACT0_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+			builder.addAttribute(CONTACT1_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+			builder.addAttribute(CONTACT2_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+			builder.addAttribute(CONTACT3_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
+		}
+		if (features.flags()) builder.addAttribute(FLAGS_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		return builder;
 	}
 
-	public static void setupOffsets(VertexFormat format) {
-		POSITION_OFFSET = format.getElement("a_Position").offset();
-		CHROMA_OFFSET = format.getElement(CHROMA_SEMANTIC_NAME).offset();
-		SKY_CHROMA_OFFSET = format.getElement(SKY_CHROMA_SEMANTIC_NAME).offset();
-		EDGE_OFFSET = format.getElement(EDGE_SEMANTIC_NAME).offset();
-		EDGE_MASK_OFFSET = format.getElement(EDGE_MASK_SEMANTIC_NAME).offset();
-		CONTACT0_OFFSET = format.getElement(CONTACT0_SEMANTIC_NAME).offset();
-		CONTACT1_OFFSET = format.getElement(CONTACT1_SEMANTIC_NAME).offset();
-		CONTACT2_OFFSET = format.getElement(CONTACT2_SEMANTIC_NAME).offset();
-		CONTACT3_OFFSET = format.getElement(CONTACT3_SEMANTIC_NAME).offset();
-		FLAGS_OFFSET = format.getElement(FLAGS_SEMANTIC_NAME).offset();
+	public static void setup(VertexFormat format) {
+		layout = layoutOf(format);
+	}
+
+	public static GlowtoneVertexLayout currentLayout() {
+		return layout;
+	}
+
+	public static GlowtoneVertexLayout layoutOf(VertexFormat format) {
+		return GlowtoneVertexLayout.of(format, NAMES);
+	}
+
+	public static VertexFormat rebuild(GlowtoneVertexFeatures features, Map<VertexFormat, VertexFormat> replaced) {
+		final VertexFormat current = CompactChunkVertexAccessor.glowtone$vertexFormat();
+		final VertexFormat rebuilt = GlowtoneVertexFormats.verified(
+			current,
+			appendTerrainAttributes(GlowtoneVertexFormats.base(current, GLOWTONE_NAMES), features).build(),
+			GLOWTONE_NAMES
+		);
+		CompactChunkVertexAccessor.glowtone$setVertexFormat(rebuilt);
+		setup(rebuilt);
+		replaced.put(current, rebuilt);
+		return current;
 	}
 
 	private GTSodiumVertexFormat() {}

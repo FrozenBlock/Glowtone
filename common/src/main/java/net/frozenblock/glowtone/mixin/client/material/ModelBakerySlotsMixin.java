@@ -34,6 +34,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import net.frozenblock.glowtone.material.render.BlockModelChains;
 
 @ClientOnly
 @Mixin(ModelBakery.class)
@@ -50,5 +51,6 @@ public class ModelBakerySlotsMixin {
 		MaterialBaker materials, Executor executor, CallbackInfoReturnable<CompletableFuture<ModelBakery.BakingResult>> info
 	) {
 		BlockTextureSlots.record(this.unbakedBlockStateModels, this.resolvedModels, materials);
+		BlockModelChains.record(this.unbakedBlockStateModels, this.resolvedModels);
 	}
 }

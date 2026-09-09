@@ -49,6 +49,7 @@ public final class GlowtoneClient {
 		RenderTypeTextureValidityCache.init();
 
 		GlowtonePlatform.INSTANCE.registerResourcePack("builtin_materials", false);
+		GlowtonePlatform.INSTANCE.registerResourcePack("plant_billboards", false);
 
 		// MOD COMPAT
 		GlowtoneDynamicLights.init();

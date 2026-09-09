@@ -132,7 +132,14 @@
     "client.sodium.BlockRenderContextMixin",
     "client.sodium.sprite.TextureAtlasSpriteMixin",
     "client.sodium.vertex.BufferBuilderIntrinsicsMixin",
+    "client.sodium.vertex.ChunkMeshBufferBuilderMixin",
+    "client.sodium.vertex.CompactChunkVertexAccessor",
     "client.sodium.vertex.CompactChunkVertexMixin",
-    "client.vertex.DefaultVertexFormatMixin"
+    "client.sodium.vertex.ShaderChunkRendererProgramsMixin",
+    "client.vertex.DefaultVertexFormatAccessor",
+    "client.vertex.DefaultVertexFormatMixin",
+    "client.vertex.LevelRendererAccessor",
+    "client.vertex.RenderPipelineBuilderMixin",
+    "client.vertex.ShaderManagerFormatMixin"
   ]
 }

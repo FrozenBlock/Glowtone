@@ -29,6 +29,8 @@ import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.frozenblock.glowtone.render.sodium.vertex.GTSodiumVertexFormat;
+import net.frozenblock.glowtone.render.vertex.GlowtoneVertexLayout;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -175,7 +177,12 @@ public final class ChromaBaker {
 		private boolean contactShading;
 		private boolean emissiveQuad;
 		private boolean sodiumPublished;
+		private @Nullable GlowtoneVertexLayout sodiumLayout;
 		private final float[] quadPositions = new float[12];
+		private float quadCentreX;
+		private float quadCentreZ;
+		private final float[] quadOffsets = new float[8];
+		private int quadOffsetVertex = 4;
 		private int originX;
 		private int originY;
 		private int originZ;
@@ -193,6 +200,9 @@ public final class ChromaBaker {
 			this.bound = false;
 			this.lit = false;
 			this.sodiumPublished = false;
+			this.quadCentreX = 0F;
+			this.quadCentreZ = 0F;
+			this.quadOffsetVertex = 4;
 			this.edgeNeighbours.markDirty();
 			this.flatVerticesLeft = 0;
 			this.flatSkyVerticesLeft = 0;
@@ -302,6 +312,15 @@ public final class ChromaBaker {
 			return this.contactShading;
 		}
 
+		public void setSodiumLayout(GlowtoneVertexLayout layout) {
+			this.sodiumLayout = layout;
+		}
+
+		public GlowtoneVertexLayout sodiumLayout() {
+			final GlowtoneVertexLayout layout = this.sodiumLayout;
+			return layout != null ? layout : GTSodiumVertexFormat.currentLayout();
+		}
+
 		public boolean emissiveQuad() {
 			return this.emissiveQuad;
 		}
@@ -312,6 +331,49 @@ public final class ChromaBaker {
 
 		public float[] quadPositions() {
 			return this.quadPositions;
+		}
+
+		public void beginQuadCentre(float x, float z) {
+			this.quadCentreX = x;
+			this.quadCentreZ = z;
+		}
+
+		public float quadCentreX() {
+			return this.quadCentreX;
+		}
+
+		public float quadCentreZ() {
+			return this.quadCentreZ;
+		}
+
+		public void beginQuadOffsets(float[] positions) {
+			float centreX = 0F;
+			float centreZ = 0F;
+			for (int vertex = 0; vertex < 4; vertex++) {
+				centreX += positions[vertex * 3];
+				centreZ += positions[vertex * 3 + 2];
+			}
+
+			centreX *= 0.25F;
+			centreZ *= 0.25F;
+			for (int vertex = 0; vertex < 4; vertex++) {
+				this.quadOffsets[vertex * 2] = positions[vertex * 3] - centreX;
+				this.quadOffsets[vertex * 2 + 1] = positions[vertex * 3 + 2] - centreZ;
+			}
+
+			this.quadOffsetVertex = 0;
+		}
+
+		public int nextQuadOffset() {
+			return this.quadOffsetVertex < 4 ? this.quadOffsetVertex++ : -1;
+		}
+
+		public float quadOffsetX(int vertex) {
+			return this.quadOffsets[vertex * 2];
+		}
+
+		public float quadOffsetZ(int vertex) {
+			return this.quadOffsets[vertex * 2 + 1];
 		}
 
 		public boolean smoothLighting() {

@@ -136,6 +136,7 @@ public class GraphicsPresetMixin {
 
 		option.set(bloom);
 		screen.resetOption(option);
+		BloomOption.flush();
 	}
 
 	@Inject(method = "apply", at = @At("TAIL"))
