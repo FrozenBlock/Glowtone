@@ -18,7 +18,6 @@
 package net.frozenblock.glowtone.mixin.client.color.shader;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -27,6 +26,7 @@ import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.frozenblock.glowtone.material.MaterialShaderPatcher;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.vertex.GTDefaultVertexFormat;
 import net.frozenblock.glowtone.render.vertex.GlowtoneBufferBuilder;
@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.frozenblock.glowtone.material.MaterialShaderPatcher;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 // TODO: self emission to offset tint with
 @ClientOnly
@@ -190,8 +190,8 @@ public class BufferBuilderMixin implements GlowtoneBufferBuilder {
 			return;
 		}
 
-		glowtone$writeARGB(pointer + layout.chroma(), ChromaFold.shaderChroma(ChromaFold.currentSubmitTint()));
-		glowtone$writeARGB(pointer + layout.skyChroma(), ChromaBaker.NEUTRAL_SKY_ARGB);
+		glowtone$writeARGB(pointer + layout.chroma(), ChromaFold.shaderChroma(ChromaFold.blockTint()));
+		glowtone$writeARGB(pointer + layout.skyChroma(), ChromaFold.shaderChroma(ChromaFold.skyTint()));
 	}
 
 	@Unique

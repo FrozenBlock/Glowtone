@@ -44,7 +44,7 @@ public final class ChromaFold {
 	private static final float LUMA_GREEN = 0.7152F;
 	private static final float LUMA_BLUE = 0.0722F;
 
-	private static int[] tintStack = new int[16];
+	private static int[] blockTintStack = new int[16];
 	private static int[] skyTintStack = new int[16];
 	private static int tintDepth;
 	private static int blockTint = NO_TINT;
@@ -52,13 +52,18 @@ public final class ChromaFold {
 	private static int modelTint = NO_TINT;
 	private static int modelSkyTint = NO_TINT;
 
-	public static int resolveEntityBlockTint(double x, double y, double z, float eyeHeight, int lightCoords) {
+	public static int resolveEntityTint(double x, double y, double z, float eyeHeight, int lightCoords, boolean sky) {
 		if (!ChromaBlender.isEnabled()) return ChromaBlender.NEUTRAL_ARGB;
 
 		final ColorProbe probe = ColorProbe.get();
 		final int blockX = Mth.floor(x);
-		final int blockZ = Mth.floor(z);
 		final int eyeY = Mth.floor(y + eyeHeight);
+		final int blockZ = Mth.floor(z);
+
+		if (sky) {
+			if (skyLightShare(lightCoords) <= 0F) return NO_TINT;
+			return skyTintHue(probe, blockX, eyeY, blockZ);
+		}
 
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return ChromaBlender.NEUTRAL_ARGB;
@@ -74,7 +79,8 @@ public final class ChromaFold {
 		return ChromaBlender.toEntityArgb(samples);
 	}
 
-	public static int resolveBlockEntity(BlockPos pos, int lightCoords) {
+	// TODO: sky
+	public static int resolveMovingBlockTint(BlockPos pos, int lightCoords) {
 		if (!ChromaBlender.isEnabled()) return NO_TINT;
 
 		final ColorProbe probe = ColorProbe.get();
@@ -91,6 +97,7 @@ public final class ChromaFold {
 		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), sky);
 	}
 
+	// TODO: sky
 	public static int resolveBlockEntityBlockTint(BlockPos pos, int lightCoords) {
 		if (!ChromaBlender.isEnabled()) return ChromaBlender.NEUTRAL_ARGB;
 
@@ -123,7 +130,7 @@ public final class ChromaFold {
 		return combine(fold(ChromaBlender.toEntityArgb(ChromaBlender.add(ChromaBlender.EMPTY, levels)), weight), sky);
 	}
 
-	public static int resolveHand(double x, double y, double z, int lightCoords) {
+	public static int resolveHandTint(double x, double y, double z, int lightCoords, boolean sky) {
 		if (!ChromaBlender.isEnabled()) return NO_TINT;
 
 		final ColorProbe probe = ColorProbe.get();
@@ -131,14 +138,19 @@ public final class ChromaFold {
 		final int blockY = Mth.floor(y);
 		final int blockZ = Mth.floor(z);
 
-		final int sky = skyTint(probe, blockX, blockY, blockZ, lightCoords);
+		if (sky) {
+			if (skyLightShare(lightCoords) <= 0F) return NO_TINT;
+			return skyTintHue(ColorProbe.get(), blockX, blockY, blockZ);
+		}
+
+		final int skyTint = skyTint(probe, blockX, blockY, blockZ, lightCoords);
 		final float weight = blockLightShare(lightCoords);
-		if (weight <= 0F) return sky;
+		if (weight <= 0F) return skyTint;
 
 		final long samples = smoothLighting()
 			? sampleTrilinear(probe, x, y, z)
 			: sampleNearest(probe, blockX, blockY, blockZ);
-		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), sky);
+		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), skyTint);
 	}
 
 	private static int skyTintHue(ColorProbe probe, int x, int y, int z) {
@@ -320,17 +332,13 @@ public final class ChromaFold {
 		return minecraft.gameRenderer.gameRenderState().lightmapRenderState;
 	}
 
-	public static void pushSubmitTint(int tint) {
-		pushSubmitTint(tint, NO_TINT);
-	}
-
 	public static void pushSubmitTint(int tint, int skyTint) {
-		if (tintDepth == tintStack.length) {
-			tintStack = Arrays.copyOf(tintStack, tintDepth * 2);
+		if (tintDepth == blockTintStack.length) {
+			blockTintStack = Arrays.copyOf(blockTintStack, tintDepth * 2);
 			skyTintStack = Arrays.copyOf(skyTintStack, tintDepth * 2);
 		}
 		skyTintStack[tintDepth] = skyTint;
-		tintStack[tintDepth++] = tint;
+		blockTintStack[tintDepth++] = tint;
 	}
 
 	public static void popSubmitTint() {
@@ -342,11 +350,11 @@ public final class ChromaFold {
 		ColorProbe.get().invalidate();
 	}
 
-	public static int currentSubmitTint() {
-		return tintDepth == 0 ? NO_TINT : tintStack[tintDepth - 1];
+	public static int blockTint() {
+		return tintDepth == 0 ? NO_TINT : blockTintStack[tintDepth - 1];
 	}
 
-	public static int currentSubmitSkyTint() {
+	public static int skyTint() {
 		return tintDepth == 0 ? NO_TINT : skyTintStack[tintDepth - 1];
 	}
 
@@ -420,14 +428,6 @@ public final class ChromaFold {
 
 	private static int halfChannel(int shifted) {
 		return ((shifted & 0xFF) + 1) >> 1;
-	}
-
-	public static int resolveEntitySkyTint(double x, double y, double z, float eyeHeight, int lightCoords) {
-		if (!ChromaBlender.isEnabled()) return NO_TINT;
-
-		if (skyLightShare(lightCoords) <= 0F) return NO_TINT;
-
-		return skyTintHue(ColorProbe.get(), Mth.floor(x), Mth.floor(y + eyeHeight), Mth.floor(z));
 	}
 
 	public static int tintParticleColor(int color, int lightCoords, double x, double y, double z) {

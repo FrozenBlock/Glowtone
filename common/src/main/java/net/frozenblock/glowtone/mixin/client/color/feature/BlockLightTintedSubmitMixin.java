@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.color.feature;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
+import net.frozenblock.glowtone.light.color.render.impl.LightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.BlockModelFeatureRenderer;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
@@ -38,7 +38,7 @@ public class BlockLightTintedSubmitMixin {
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void glowtone$captureBlockLightTint(CallbackInfo info) {
-		((BlockLightTinted) this).glowtone$setBlockLightTint(ChromaFold.currentSubmitTint());
-		((BlockLightTinted) this).glowtone$setSkyLightTint(ChromaFold.currentSubmitSkyTint());
+		((LightTinted) this).glowtone$setBlockLightTint(ChromaFold.blockTint());
+		((LightTinted) this).glowtone$setSkyLightTint(ChromaFold.skyTint());
 	}
 }

@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.color.feature;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
+import net.frozenblock.glowtone.light.color.render.impl.LightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,8 +38,8 @@ public class ModelFeatureRendererMixin {
 		)
 	)
 	private <S> void glowtone$beginModelQuads(ModelFeatureRenderer.Submit<S> submit, CallbackInfo info) {
-		if ((Object) submit instanceof BlockLightTinted blockLightTinted) {
-			ChromaFold.beginModelQuads(blockLightTinted.glowtone$blockLightTint(), blockLightTinted.glowtone$skyLightTint());
+		if ((Object) submit instanceof LightTinted lightTinted) {
+			ChromaFold.beginModelQuads(lightTinted.glowtone$blockLightTint(), lightTinted.glowtone$skyLightTint());
 		}
 	}
 

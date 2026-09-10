@@ -85,24 +85,30 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
 	) {
 		original.lightCoords = SmoothEntityLightingHelper.smooth(original.x, original.y + original.eyeHeight * 0.5F, original.z, original.lightCoords);
 
-		final int blockLightTint = ChromaFold.resolveEntityBlockTint(
+		final int blockLightTint = ChromaFold.resolveEntityTint(
 			original.x,
 			original.y,
 			original.z,
 			original.eyeHeight,
-			original.lightCoords
+			original.lightCoords,
+			false
 		);
 		original.glowtone$setBlockLightTint(blockLightTint);
-		original.glowtone$setSkyLightTint(ChromaFold.resolveEntitySkyTint(
+
+		final int skyLightTint = ChromaFold.resolveEntityTint(
 			original.x,
 			original.y,
 			original.z,
 			original.eyeHeight,
-			original.lightCoords
-		));
+			original.lightCoords,
+			true
+		);
+		original.glowtone$setSkyLightTint(skyLightTint);
+
 		if (original.leashStates != null) {
 			for (EntityRenderState.LeashState leashState : original.leashStates) {
 				leashState.glowtone$setBlockLightTintA(blockLightTint);
+				leashState.glowtone$setSkyLightTintA(skyLightTint);
 			}
 		}
 		return original;
@@ -126,14 +132,16 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
 	private Entity glowtone$captureRopeEndBlockTint(
 		Entity original,
 		T entity, final S state, final float partialTicks,
-		@Share("glowtone$leashStateEndBlockTint") LocalIntRef leashStateEndBlockTint
+		@Share("glowtone$leashStateEndBlockTint") LocalIntRef leashStateEndBlockTint,
+		@Share("glowtone$leashStateEndSkyTint") LocalIntRef leashStateEndSkyTint
 	) {
 		final double holderX = Mth.lerp(partialTicks, original.xOld, original.getX());
 		final double holderY = Mth.lerp(partialTicks, original.yOld, original.getY());
 		final double holderZ = Mth.lerp(partialTicks, original.zOld, original.getZ());
 		final float holderEyeHeight = original.getEyeHeight();
 		final int smoothHolderLightCoords = this.glowtone$getOriginalSmoothPackedLightCoords(original, holderX, holderY + holderEyeHeight * 0.5F, holderZ, partialTicks);
-		leashStateEndBlockTint.set(ChromaFold.resolveEntityBlockTint(holderX, holderY, holderZ, holderEyeHeight, smoothHolderLightCoords));
+		leashStateEndBlockTint.set(ChromaFold.resolveEntityTint(holderX, holderY, holderZ, holderEyeHeight, smoothHolderLightCoords, false));
+		leashStateEndSkyTint.set(ChromaFold.resolveEntityTint(holderX, holderY, holderZ, holderEyeHeight, smoothHolderLightCoords, true));
 
 		return original;
 	}
@@ -156,8 +164,10 @@ public class EntityRendererMixin<T extends Entity, S extends EntityRenderState> 
 	private void glowtone$setRopeEndBlockTint(
 		T entity, S state, float partialTicks, CallbackInfo info,
 		@Local(name = "leashState") EntityRenderState.LeashState leashState,
-		@Share("glowtone$leashStateEndBlockTint") LocalIntRef leashStateEndBlockTint
+		@Share("glowtone$leashStateEndBlockTint") LocalIntRef leashStateEndBlockTint,
+		@Share("glowtone$leashStateEndSkyTint") LocalIntRef leashStateEndSkyTint
 	) {
 		leashState.glowtone$setBlockLightTintB(leashStateEndBlockTint.get());
+		leashState.glowtone$setSkyLightTintB(leashStateEndSkyTint.get());
 	}
 }
