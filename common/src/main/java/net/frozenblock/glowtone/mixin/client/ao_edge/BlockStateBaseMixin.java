@@ -56,7 +56,7 @@ public class BlockStateBaseMixin implements BlockStateAmbientOcclusionCache, Blo
 		if (this.glowtone$casterBoxes != null) return this.glowtone$casterBoxes;
 		if (!((Object)this instanceof BlockState blockState)) return null;
 
-		this.glowtone$casterBoxes = BlockStateCasterBoxCache.glowtone$boxesFromShape(GlowtoneCasterShapes.of(level, pos, blockState));
+		this.glowtone$casterBoxes = BlockStateCasterBoxCache.glowtone$boxesFromShape(GlowtoneCasterShapes.of(level, pos, blockState), true);
 		return this.glowtone$casterBoxes;
 	}
 

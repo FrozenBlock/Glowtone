@@ -40,9 +40,10 @@ public interface BlockStateCasterBoxCache {
 		throw new AssertionError();
 	}
 
-	static AABB[] glowtone$boxesFromShape(VoxelShape shape) {
+	static AABB[] glowtone$boxesFromShape(VoxelShape shape, boolean cache) {
 		if (shape.isEmpty()) return GLOWTONE$NO_BOXES;
 		if (shape == Shapes.block()) return GLOWTONE$FULL_BOX;
+		if (!cache) return shape.toAabbs().toArray(new AABB[0]);
 
 		AABB[] cached = SHAPE_TO_BOXES_CACHE.get(shape);
 		if (cached == null) {

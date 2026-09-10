@@ -50,12 +50,11 @@ public final class GlowtoneCasterShapes {
 
 		if (!state.glowtone$hasAmbientOcclusion()) return null;
 
-		// Unfortunately we cannot safely simplify this using .hasCollision, as someone could extend getCollisionShape and ignore the property.
+		final Block block = state.getBlock();
+		if (!block.hasCollision && !block.hasDynamicShape()) return null;
 		final VoxelShape collision = state.getCollisionShape(level, pos);
 		// I decided to make this return null instead of Shapes.empty() because using the .isEmpty check is a lot more taxing!
 		if (collision.isEmpty()) return null;
-		// TODO: What's the intent here? Do we need to look through everything and see if something was missed?
-		//if (collision.isEmpty() || fullBlock(collision)) return null;
 
 		return collision;
 	}

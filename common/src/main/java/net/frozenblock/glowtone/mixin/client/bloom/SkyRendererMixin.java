@@ -44,7 +44,7 @@ public class SkyRendererMixin {
 			target = "Lcom/mojang/blaze3d/systems/CommandEncoder;createRenderPass(Ljava/util/function/Supplier;Lcom/mojang/blaze3d/textures/GpuTextureView;Ljava/util/Optional;Lcom/mojang/blaze3d/textures/GpuTextureView;Ljava/util/OptionalDouble;)Lcom/mojang/blaze3d/systems/RenderPass;"
 		),
 		require = 0,
-		expect = 1
+		expect = 8
 	)
 	private RenderPass glowtone$attachEmissiveTarget(
 		CommandEncoder encoder,
@@ -66,7 +66,7 @@ public class SkyRendererMixin {
 			target = "Lcom/mojang/blaze3d/systems/RenderPass;setPipeline(Lcom/mojang/blaze3d/pipeline/RenderPipeline;)V"
 		),
 		require = 0,
-		expect = 1
+		expect = 8
 	)
 	private void glowtone$useEmissivePipeline(RenderPass instance, RenderPipeline pipeline, Operation<Void> original) {
 		original.call(instance, GlowtoneBloomRenderer.pipelineFor(pipeline));
