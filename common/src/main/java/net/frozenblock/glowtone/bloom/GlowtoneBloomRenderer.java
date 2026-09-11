@@ -17,7 +17,6 @@
 
 package net.frozenblock.glowtone.bloom;
 
-import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
@@ -42,11 +41,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
-import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
 import net.frozenblock.glowtone.GlowtoneConstants;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
+import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
 import net.frozenblock.glowtone.render.SceneDepth;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -54,6 +53,7 @@ import org.joml.Vector4f;
 import org.joml.Vector4fc;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
+import com.mojang.blaze3d.GpuFormat;
 
 @ClientOnly
 public final class GlowtoneBloomRenderer {
@@ -168,8 +168,6 @@ public final class GlowtoneBloomRenderer {
 	private static float uniformRadius = -1F;
 	private static float uniformIntensity = -1F;
 	private static float uniformFar = -1F;
-
-	private GlowtoneBloomRenderer() {}
 
 	public static boolean isEnabled() {
 		return GlowtoneConfig.bloomEnabled();
@@ -533,4 +531,6 @@ public final class GlowtoneBloomRenderer {
 		uniformIntensity = -1F;
 		uniformFar = -1F;
 	}
+
+	private GlowtoneBloomRenderer() {}
 }
