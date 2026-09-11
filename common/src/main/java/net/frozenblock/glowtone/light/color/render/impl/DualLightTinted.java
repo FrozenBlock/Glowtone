@@ -20,21 +20,37 @@ package net.frozenblock.glowtone.light.color.render.impl;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 @ClientOnly
-public interface BlockLightTinted {
+public interface DualLightTinted {
 
-	default int glowtone$blockLightTint() {
+	default int glowtone$blockLightTintA() {
 		throw new AssertionError();
 	}
 
-	default void glowtone$setBlockLightTint(int tint) {
+	default void glowtone$setBlockLightTintA(int tint) {
 		throw new AssertionError();
 	}
 
-	default int glowtone$skyLightTint() {
+	default int glowtone$skyLightTintA() {
 		throw new AssertionError();
 	}
 
-	default void glowtone$setSkyLightTint(int tint) {
+	default void glowtone$setSkyLightTintA(int tint) {
+		throw new AssertionError();
+	}
+
+	default int glowtone$blockLightTintB() {
+		throw new AssertionError();
+	}
+
+	default void glowtone$setBlockLightTintB(int tint) {
+		throw new AssertionError();
+	}
+
+	default int glowtone$skyLightTintB() {
+		throw new AssertionError();
+	}
+
+	default void glowtone$setSkyLightTintB(int tint) {
 		throw new AssertionError();
 	}
 }

@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.color;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.BlockLightTinted;
+import net.frozenblock.glowtone.light.color.render.impl.LightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.Unique;
 	ModelFeatureRenderer.Submit.class,
 	ItemFeatureRenderer.Submit.class
 })
-public class BlockLightTintedMixin implements BlockLightTinted {
+public class LightTintedMixin implements LightTinted {
 	@Unique
 	private int glowtone$blockLightTint = ChromaFold.NO_TINT;
 

@@ -23,6 +23,7 @@ import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.light.smooth.SmoothLightPipeline;
 import net.caffeinemc.mods.sodium.client.model.quad.ModelQuadView;
 import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumOcclusion;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.spongepowered.asm.mixin.Final;
@@ -34,7 +35,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Mixin(value = SmoothLightPipeline.class, remap = false)
+@ClientOnly
+@Mixin(SmoothLightPipeline.class)
 public class SmoothLightPipelineMixin {
 	@Shadow
 	@Final

@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.color;
 
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
-import net.frozenblock.glowtone.light.color.render.impl.DualBlockLightTinted;
+import net.frozenblock.glowtone.light.color.render.impl.DualLightTinted;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,11 +26,15 @@ import org.spongepowered.asm.mixin.Unique;
 
 @ClientOnly
 @Mixin(EntityRenderState.LeashState.class)
-public class DualBlockLightTintedMixin implements DualBlockLightTinted {
+public class DualLightTintedMixin implements DualLightTinted {
 	@Unique
 	private int glowtone$blockLightTintA = ChromaFold.NO_TINT;
 	@Unique
+	private int glowtone$skyLightTintA = ChromaFold.NO_TINT;
+	@Unique
 	private int glowtone$blockLightTintB = ChromaFold.NO_TINT;
+	@Unique
+	private int glowtone$skyLightTintB = ChromaFold.NO_TINT;
 
 	@Unique
 	@Override
@@ -46,6 +50,18 @@ public class DualBlockLightTintedMixin implements DualBlockLightTinted {
 
 	@Unique
 	@Override
+	public int glowtone$skyLightTintA() {
+		return this.glowtone$skyLightTintA;
+	}
+
+	@Unique
+	@Override
+	public void glowtone$setSkyLightTintA(int tint) {
+		this.glowtone$skyLightTintA = tint;
+	}
+
+	@Unique
+	@Override
 	public int glowtone$blockLightTintB() {
 		return this.glowtone$blockLightTintB;
 	}
@@ -54,5 +70,17 @@ public class DualBlockLightTintedMixin implements DualBlockLightTinted {
 	@Override
 	public void glowtone$setBlockLightTintB(int tint) {
 		this.glowtone$blockLightTintB = tint;
+	}
+
+	@Unique
+	@Override
+	public int glowtone$skyLightTintB() {
+		return this.glowtone$skyLightTintB;
+	}
+
+	@Unique
+	@Override
+	public void glowtone$setSkyLightTintB(int tint) {
+		this.glowtone$skyLightTintB = tint;
 	}
 }

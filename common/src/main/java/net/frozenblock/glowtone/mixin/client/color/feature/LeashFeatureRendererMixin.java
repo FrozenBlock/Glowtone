@@ -59,10 +59,15 @@ public class LeashFeatureRendererMixin {
 		@Local(name = "progress") float progress,
 		@Share("glowtone$pushedTint") LocalBooleanRef pushedTint
 	) {
-		final int startTint = ChromaFold.blockTintOrNeutral(state.glowtone$blockLightTintA());
-		final int endTint = ChromaFold.blockTintOrNeutral(state.glowtone$blockLightTintB());
-		final int color = ARGB.srgbLerp(progress, startTint, endTint);
-		ChromaFold.pushSubmitTint(color);
+		final int startBlockTint = ChromaFold.blockTintOrNeutral(state.glowtone$blockLightTintA());
+		final int endBlockTint = ChromaFold.blockTintOrNeutral(state.glowtone$blockLightTintB());
+		final int blockTint = ARGB.srgbLerp(progress, startBlockTint, endBlockTint);
+
+		final int startSkyTint = ChromaFold.blockTintOrNeutral(state.glowtone$skyLightTintA());
+		final int endSkyTint = ChromaFold.blockTintOrNeutral(state.glowtone$skyLightTintB());
+		final int skyTint = ARGB.srgbLerp(progress, startSkyTint, endSkyTint);
+
+		ChromaFold.pushSubmitTint(blockTint, skyTint);
 		pushedTint.set(true);
 	}
 

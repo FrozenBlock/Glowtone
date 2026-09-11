@@ -46,7 +46,10 @@ public class ItemInHandRendererMixin {
 	) {
 		final Vec3 probe = player.getLightProbePosition(frameInterp);
 		lightCoordsRef.set(SmoothEntityLightingHelper.smooth(probe.x, probe.y, probe.z, lightCoords));
-		ChromaFold.pushSubmitTint(ChromaFold.resolveHand(probe.x, probe.y, probe.z, lightCoordsRef.get()));
+		ChromaFold.pushSubmitTint(
+			ChromaFold.resolveHandTint(probe.x, probe.y, probe.z, lightCoordsRef.get(), false),
+			ChromaFold.resolveHandTint(probe.x, probe.y, probe.z, lightCoordsRef.get(), true)
+		);
 		pushedTint.set(true);
 	}
 
