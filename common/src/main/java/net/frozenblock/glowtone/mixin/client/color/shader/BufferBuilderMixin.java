@@ -26,7 +26,7 @@ import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.light.color.render.ChromaFold;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
-import net.frozenblock.glowtone.material.MaterialShaderPatcher;
+import net.frozenblock.glowtone.material.shader.MaterialShaderPatcher;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.vertex.GTDefaultVertexFormat;
 import net.frozenblock.glowtone.render.vertex.GlowtoneBufferBuilder;

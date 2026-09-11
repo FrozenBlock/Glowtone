@@ -1,7 +1,7 @@
 package net.frozenblock.glowtone.mixin.client.emissive.entity;
 
 import java.util.Optional;
-import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
+import net.frozenblock.glowtone.bloom.shader.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.entity.RenderTypeTextureValidityCache;
 import net.frozenblock.glowtone.entity.impl.GTEmissiveRenderType;
 import net.frozenblock.glowtone.render.rendertype.GTRenderTypes;

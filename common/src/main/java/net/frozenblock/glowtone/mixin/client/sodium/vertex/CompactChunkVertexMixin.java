@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import net.frozenblock.glowtone.material.MaterialShaderPatcher;
+import net.frozenblock.glowtone.material.shader.MaterialShaderPatcher;
 
 @ClientOnly
 @Mixin(CompactChunkVertex.class)

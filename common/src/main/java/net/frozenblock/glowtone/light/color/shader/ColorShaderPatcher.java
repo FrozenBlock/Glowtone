@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.light.color;
+package net.frozenblock.glowtone.light.color.shader;
 
 import com.mojang.blaze3d.shaders.ShaderType;
 import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
@@ -77,59 +77,15 @@ public final class ColorShaderPatcher {
 		"vec4(skyOnlyLight.rgb * mix(GlowtoneSkyChroma.rgb, vec3(1.0), glowtoneNightVision)"
 			+ " + blockLightProperties * mix(GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, vec3(1.0), glowtoneNightVision), fullLight.a)";
 
-	private static final String SODIUM_INIT = "_vert_init();";
-	private static final String SODIUM_OUT_COLOR = "out vec4 v_Color;";
-	private static final String SODIUM_SET_COLOR = "v_Color = _vert_color * texture(u_LightTex, _vert_tex_light_coord);";
-
-	private static final String SODIUM_IN_CHROMA = """
-		in vec4 a_GlowtoneChroma;
-		in vec4 a_GlowtoneSkyChroma;
-
-		""";
-
 	private static String chromaInputs() {
 		return GlowtoneVertexFeatures.shaders().pivot()
 			? IN_GLOWTONE_CHROMA + "in vec4 GlowtonePivot;" + System.lineSeparator() + System.lineSeparator()
 			: IN_GLOWTONE_CHROMA;
 	}
 
-	private static String sodiumChromaInputs() {
-		return GlowtoneVertexFeatures.shaders().pivot()
-			? SODIUM_IN_CHROMA + "in vec4 a_GlowtonePivot;" + System.lineSeparator() + System.lineSeparator()
-			: SODIUM_IN_CHROMA;
-	}
-
-	private static final String SODIUM_SPLIT = """
-		    vec4 glowtone_fullLight = texture(u_LightTex, _vert_tex_light_coord);
-		    vec4 glowtone_skyOnlyLight = texture(u_LightTex, vec2(0.0, _vert_tex_light_coord.y));
-		    vec3 glowtone_blockLight = max(glowtone_fullLight.rgb - glowtone_skyOnlyLight.rgb, vec3(0.0));
-		    float glowtone_nightVision = smoothstep(0.35, 0.7, dot(texture(u_LightTex, vec2(0.0, 0.0)).rgb, vec3(0.2126, 0.7152, 0.0722)));
-		    const float GLOWTONE_CHROMA_SCALE = 2.0;
-		    v_Color = _vert_color * vec4(
-		        glowtone_skyOnlyLight.rgb * mix(a_GlowtoneSkyChroma.rgb, vec3(1.0), glowtone_nightVision)
-		            + glowtone_blockLight * mix(a_GlowtoneChroma.rgb * GLOWTONE_CHROMA_SCALE, vec3(1.0), glowtone_nightVision),
-		        glowtone_fullLight.a);
-		""";
-
-	private static String patchSodiumTerrain(String source) {
-		if (!source.contains(SODIUM_INIT)
-			|| !source.contains(SODIUM_SET_COLOR)
-			|| !source.contains(SODIUM_OUT_COLOR)
-			|| source.contains("a_GlowtoneChroma")
-		) {
-			return source;
-		}
-
-		return source
-			.replace(SODIUM_OUT_COLOR, sodiumChromaInputs() + SODIUM_OUT_COLOR)
-			.replace(SODIUM_SET_COLOR, SODIUM_SPLIT);
-	}
-
 	public static String patchEntityShader(Identifier id, ShaderType type, String source) {
 		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
-		// TODO: sodium entity
-		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
 		if (!id.equals(ENTITY_ID) || !source.contains(IN_NORMAL) || !source.contains(LIGHTMAP_COLOR_EQUALS)) return source;
 
 		final String preEntitySource = source.substring(0, source.lastIndexOf("#version"));
@@ -167,8 +123,6 @@ public final class ColorShaderPatcher {
 	public static String patchItemShader(Identifier id, ShaderType type, String source) {
 		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
-		// TODO: sodium item
-		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
 		if (!id.equals(ITEM_ID) || !source.contains(IN_NORMAL) || !source.contains(LIGHTMAP_COLOR_EQUALS)) return source;
 
 		final String preItemSource = source.substring(0, source.lastIndexOf("#version"));
@@ -206,8 +160,6 @@ public final class ColorShaderPatcher {
 	public static String patchLeashShader(Identifier id, ShaderType type, String source) {
 		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
-		// TODO: sodium leash
-		//if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
 		if (!id.equals(LEASH_ID) || !source.contains(IN_UV2) || !source.contains(SET_VERTEX_COLOR_LEASH)) return source;
 
 		final String preLeashSource = source.substring(0, source.lastIndexOf("#version"));
@@ -245,7 +197,7 @@ public final class ColorShaderPatcher {
 	public static String patchTerrainShader(Identifier id, ShaderType type, String source) {
 		if (!GlowtoneVertexFeatures.shaders().chroma()) return source;
 		if (type != ShaderType.VERTEX || !source.contains(MAIN)) return source;
-		if (source.contains(SODIUM_SET_COLOR)) return patchSodiumTerrain(source);
+		if (source.contains(SodiumColorShaderPatcher.SET_COLOR)) return SodiumColorShaderPatcher.patchTerrain(source);
 		if (!id.equals(TERRAIN_ID) || !source.contains(UNIFORM) || !source.contains(SET_VERTEX_COLOR_TERRAIN)) return source;
 
 		final String preTerrainSource = source.substring(0, source.lastIndexOf("#version"));

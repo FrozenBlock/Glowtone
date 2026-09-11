@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.color.shader;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.shaders.ShaderType;
-import net.frozenblock.glowtone.light.color.ColorShaderPatcher;
+import net.frozenblock.glowtone.light.color.shader.ColorShaderPatcher;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.ShaderManager;
 import net.minecraft.resources.Identifier;

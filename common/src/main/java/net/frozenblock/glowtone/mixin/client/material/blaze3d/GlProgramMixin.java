@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.mixin.client.material.blaze3d;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.material.MaterialSamplers;
+import net.frozenblock.glowtone.material.shader.MaterialSamplers;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
