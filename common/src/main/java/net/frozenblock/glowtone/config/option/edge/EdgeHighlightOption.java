@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
 public final class EdgeHighlightOption {
 	public static final int MIN = 0;
 	public static final int MAX = 100;
-	public static final int DEFAULT = 50;
+	public static final int DEFAULT = 25;
 	private static final int STRENGTH_REFERENCE = 25;
 	private static final float STRENGTH_AT_REFERENCE = 0.08F;
 	private static final String CAPTION = "options.glowtone.edge_highlight";

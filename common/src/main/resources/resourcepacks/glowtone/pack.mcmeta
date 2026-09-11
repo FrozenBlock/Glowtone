@@ -66,7 +66,7 @@
             "type": "button",
             "name": "pack.glowtone.glowtone.copper_grate",
             "tooltip": "pack.glowtone.glowtone.copper_grate.tooltip",
-            "default": false,
+            "default": true,
             "impact": "low"
           },
           "eyeblossom": {
