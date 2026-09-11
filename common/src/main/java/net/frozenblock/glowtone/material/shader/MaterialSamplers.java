@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.material;
+package net.frozenblock.glowtone.material.shader;
 
 import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.systems.RenderPassBackend;

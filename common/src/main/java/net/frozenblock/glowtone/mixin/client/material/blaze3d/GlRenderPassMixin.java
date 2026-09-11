@@ -19,8 +19,8 @@ package net.frozenblock.glowtone.mixin.client.material.blaze3d;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPassBackend;
-import net.frozenblock.glowtone.material.MaterialBlockTextures;
-import net.frozenblock.glowtone.material.MaterialSamplers;
+import net.frozenblock.glowtone.material.shader.MaterialBlockTextures;
+import net.frozenblock.glowtone.material.shader.MaterialSamplers;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

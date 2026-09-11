@@ -17,9 +17,9 @@
 
 package net.frozenblock.glowtone.render.vertex;
 
-import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
+import net.frozenblock.glowtone.bloom.shader.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
-import net.frozenblock.glowtone.material.MaterialShaderPatcher;
+import net.frozenblock.glowtone.material.shader.MaterialShaderPatcher;
 import net.frozenblock.glowtone.platform.GlowtonePlatform;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.jspecify.annotations.Nullable;

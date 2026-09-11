@@ -21,6 +21,7 @@ import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import java.util.Map;
 import java.util.Set;
+import net.frozenblock.glowtone.bloom.shader.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFormats;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;

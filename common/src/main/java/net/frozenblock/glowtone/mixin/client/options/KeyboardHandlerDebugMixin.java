@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.options;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import net.frozenblock.glowtone.bloom.EmissiveShaderPatcher;
+import net.frozenblock.glowtone.bloom.shader.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
 import net.frozenblock.glowtone.platform.GlowtonePlatform;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;

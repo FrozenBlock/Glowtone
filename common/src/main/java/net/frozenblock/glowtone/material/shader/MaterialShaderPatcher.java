@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.material;
+package net.frozenblock.glowtone.material.shader;
 
 import net.frozenblock.glowtone.data.MaterialShader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;

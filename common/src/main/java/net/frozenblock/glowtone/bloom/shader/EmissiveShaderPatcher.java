@@ -15,16 +15,17 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.bloom;
+package net.frozenblock.glowtone.bloom.shader;
 
 import com.mojang.blaze3d.shaders.ShaderType;
 import java.util.Set;
 import com.mojang.logging.LogUtils;
 import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.bloom.BloomHelper;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
-import net.frozenblock.glowtone.material.MaterialBlockTextures;
-import net.frozenblock.glowtone.material.MaterialSamplers;
-import net.frozenblock.glowtone.material.MaterialShaderPatcher;
+import net.frozenblock.glowtone.material.shader.MaterialBlockTextures;
+import net.frozenblock.glowtone.material.shader.MaterialSamplers;
+import net.frozenblock.glowtone.material.shader.MaterialShaderPatcher;
 import net.frozenblock.glowtone.config.GlowtoneShaderDump;
 import net.frozenblock.glowtone.config.option.ao.AmbientOcclusionOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;

@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.light.color;
+package net.frozenblock.glowtone.light.color.shader;
 
 import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;

@@ -15,9 +15,8 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.material;
+package net.frozenblock.glowtone.material.shader;
 
-import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.shaders.UniformType;
@@ -30,6 +29,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
+import com.mojang.blaze3d.GpuFormat;
 
 @ClientOnly
 public final class MaterialBlockTextures {
