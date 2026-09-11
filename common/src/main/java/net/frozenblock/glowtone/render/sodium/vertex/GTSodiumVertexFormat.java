@@ -31,6 +31,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 @ClientOnly
 public final class GTSodiumVertexFormat {
 	public static final String CHROMA_SEMANTIC_NAME = "a_GlowtoneChroma";
+	public static final String PIVOT_SEMANTIC_NAME = "a_GlowtonePivot";
 	public static final String SKY_CHROMA_SEMANTIC_NAME = "a_GlowtoneSkyChroma";
 	public static final String EDGE_SEMANTIC_NAME = "a_GlowtoneEdge";
 	public static final String EDGE_MASK_SEMANTIC_NAME = "a_GlowtoneEdgeMask";
@@ -44,13 +45,15 @@ public final class GTSodiumVertexFormat {
 		CHROMA_SEMANTIC_NAME, SKY_CHROMA_SEMANTIC_NAME,
 		EDGE_SEMANTIC_NAME, EDGE_MASK_SEMANTIC_NAME,
 		CONTACT0_SEMANTIC_NAME, CONTACT1_SEMANTIC_NAME, CONTACT2_SEMANTIC_NAME, CONTACT3_SEMANTIC_NAME,
-		FLAGS_SEMANTIC_NAME
+		FLAGS_SEMANTIC_NAME,
+		PIVOT_SEMANTIC_NAME
 	);
 	private static final Set<String> GLOWTONE_NAMES = Set.of(
 		CHROMA_SEMANTIC_NAME, SKY_CHROMA_SEMANTIC_NAME,
 		EDGE_SEMANTIC_NAME, EDGE_MASK_SEMANTIC_NAME,
 		CONTACT0_SEMANTIC_NAME, CONTACT1_SEMANTIC_NAME, CONTACT2_SEMANTIC_NAME, CONTACT3_SEMANTIC_NAME,
-		FLAGS_SEMANTIC_NAME
+		FLAGS_SEMANTIC_NAME,
+		PIVOT_SEMANTIC_NAME
 	);
 
 	private static volatile GlowtoneVertexLayout layout = GlowtoneVertexLayout.NONE;
@@ -60,6 +63,7 @@ public final class GTSodiumVertexFormat {
 			builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 			builder.addAttribute(SKY_CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		}
+		if (features.pivot()) builder.addAttribute(PIVOT_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		if (features.edges()) {
 			builder.addAttribute(EDGE_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 			builder.addAttribute(EDGE_MASK_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);

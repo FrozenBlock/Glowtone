@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=up": "glowtone:billboard",
+    "facing=down": "glowtone:billboard",
+    "facing=north": { "material": "glowtone:billboard", "parameters": { "AXIS_Y": "0.0", "AXIS_Z": "1.0" } },
+    "facing=south": { "material": "glowtone:billboard", "parameters": { "AXIS_Y": "0.0", "AXIS_Z": "1.0" } },
+    "facing=east": { "material": "glowtone:billboard", "parameters": { "AXIS_X": "1.0", "AXIS_Y": "0.0" } },
+    "facing=west": { "material": "glowtone:billboard", "parameters": { "AXIS_X": "1.0", "AXIS_Y": "0.0" } }
+  }
+}

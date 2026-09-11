@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
+import net.frozenblock.glowtone.config.pack.GlowtonePackApi;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.render.BlockModelChains;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
@@ -45,6 +46,7 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -55,12 +57,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 @ClientOnly
 public final class BlockMaterialLoader {
 	private static final Logger LOGGER = LogUtils.getLogger();
+	private static final boolean GLOWTONE_TRACE_TARGETS = Boolean.getBoolean("glowtone.traceTargets");
 	private static final FileToIdConverter MATERIAL_LISTER = FileToIdConverter.json(BlockMaterialRenderer.RESOURCE_PACK_DIRECTORY);
 
 	private static final FileToIdConverter SHADER_LISTER = new FileToIdConverter(MaterialShader.RESOURCE_PACK_DIRECTORY, MaterialShader.FILE_SUFFIX);
@@ -110,6 +114,26 @@ public final class BlockMaterialLoader {
 		return builder.toString();
 	}
 
+	private static BlockMaterialDefinition withPackSettings(BlockMaterialDefinition definition, String packId) {
+		final Optional<MaterialShader> shader = definition.material().shader();
+		if (shader.isEmpty()) return definition;
+
+		final MaterialShader source = shader.get();
+		final Map<String, String> constants = GlowtonePackApi.resolve(packId, source.constants());
+		final Map<String, String> parameters = GlowtonePackApi.resolve(packId, source.parameters());
+		if (constants == source.constants() && parameters == source.parameters()) return definition;
+
+		final MaterialShader patched = new MaterialShader(
+			source.fragment(), source.vertex(), source.textures(), constants,
+			parameters, source.blockTextures()
+		);
+		final BlockMaterial material = definition.material();
+		return new BlockMaterialDefinition(definition.parent(), new BlockMaterial(
+			material.layer(), material.cull(), material.renderShape(),
+			material.blockEntityRender(), Optional.of(patched), material.target()
+		));
+	}
+
 	private static Map<Identifier, BlockMaterialDefinition> read(ResourceManager manager) {
 		final Map<Identifier, BlockMaterialDefinition> definitions = new HashMap<>();
 
@@ -123,7 +147,7 @@ public final class BlockMaterialLoader {
 						.parse(JsonOps.INSTANCE, element)
 						.getOrThrow(JsonParseException::new);
 
-					definitions.merge(materialId, definition, BlockMaterialLoader::mergedOver);
+					definitions.merge(materialId, withPackSettings(definition, resource.sourcePackId()), BlockMaterialLoader::mergedOver);
 				} catch (Exception e) {
 					LOGGER.error("Failed to load block material {} from pack {}", materialId, resource.sourcePackId(), e);
 				}
@@ -177,23 +201,23 @@ public final class BlockMaterialLoader {
 	}
 
 	private static void allocateShaders(
-		java.util.Collection<BlockMaterialOverrideDispatcher.Assignment> assignments,
+		Collection<BlockMaterialOverrideDispatcher.Assignment> assignments,
 		Definitions definitions,
-		Map<ShaderKey, Integer> shaderIndices,
+		Map<Identifier, Integer> shaderIndices,
 		List<MaterialShaderPatcher.Loaded> shaders,
 		List<Identifier> samplerSlots
 	) {
 		final Map<Identifier, BlockMaterial> registry = definitions.materials();
 		assignments.stream()
-			.map(assignment -> new ShaderKey(assignment.material(), assignment.parameters()))
+			.map(BlockMaterialOverrideDispatcher.Assignment::material)
 			.distinct()
-			.sorted(Comparator.comparing(ShaderKey::sortOrder))
-			.forEach(key -> {
-				final BlockMaterial material = registry.get(key.material());
+			.sorted(Comparator.comparing(Identifier::toString))
+			.forEach(materialId -> {
+				final BlockMaterial material = registry.get(materialId);
 				if (material == null || material.isNone()) return;
 
 				shaderIndices.computeIfAbsent(
-					key, entry -> allocateShader(entry, material, definitions.shaderSources(), shaders, samplerSlots)
+					materialId, id -> allocateShader(id, material, definitions.shaderSources(), shaders, samplerSlots)
 				);
 			});
 	}
@@ -219,15 +243,17 @@ public final class BlockMaterialLoader {
 		MaterialShaderPatcher.apply(shaders);
 	}
 
-	private static Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> withModelRules(
+	private static Map<BlockState, List<BlockMaterialOverrideDispatcher.Assignment>> withModelRules(
 		Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> overrides, List<BlockMaterialModelRule> modelRules
 	) {
-		if (modelRules.isEmpty()) return overrides;
+		final Map<BlockState, List<BlockMaterialOverrideDispatcher.Assignment>> merged = new IdentityHashMap<>(overrides.size());
+		final Set<Block> claimed = Collections.newSetFromMap(new IdentityHashMap<>());
+		overrides.forEach((state, assignment) -> {
+			merged.put(state, new ArrayList<>(List.of(assignment)));
+			if (assignment.target().isEmpty()) claimed.add(state.getBlock());
+		});
+		if (modelRules.isEmpty()) return merged;
 
-		final Set<Block> claimed = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
-		overrides.keySet().forEach(state -> claimed.add(state.getBlock()));
-
-		final Map<BlockState, BlockMaterialOverrideDispatcher.Assignment> merged = new IdentityHashMap<>(overrides);
 		int matched = 0;
 		for (Map.Entry<BlockState, Set<Identifier>> entry : BlockModelChains.chains().entrySet()) {
 			final BlockState state = entry.getKey();
@@ -236,7 +262,7 @@ public final class BlockMaterialLoader {
 			for (BlockMaterialModelRule rule : modelRules) {
 				if (!rule.matches(entry.getValue())) continue;
 
-				merged.put(state, rule.assignment());
+				merged.computeIfAbsent(state, key -> new ArrayList<>(1)).add(rule.assignment());
 				matched++;
 				break;
 			}
@@ -252,7 +278,7 @@ public final class BlockMaterialLoader {
 		Definitions definitions
 	) {
 		final List<BlockMaterialOverrideDispatcher.Assignment> candidates = shaderCandidates(overrides, modelRules);
-		overrides = withModelRules(overrides, modelRules);
+		final Map<BlockState, List<BlockMaterialOverrideDispatcher.Assignment>> assigned = withModelRules(overrides, modelRules);
 		final Map<Identifier, BlockMaterial> registry = definitions.materials();
 		BuiltInRegistries.BLOCK.forEach(block -> block.glowtone$setMaterial(BlockMaterial.EMPTY));
 
@@ -260,8 +286,9 @@ public final class BlockMaterialLoader {
 		final Set<Identifier> missing = new HashSet<>();
 		final Set<Identifier> unsupportedLayers = new HashSet<>();
 		final Set<Identifier> exhausted = new HashSet<>();
+		final Set<String> badParameters = new HashSet<>();
 		final Map<UnresolvedSlot, Integer> unresolved = new LinkedHashMap<>();
-		final Map<ShaderKey, Integer> shaderIndices = new HashMap<>();
+		final Map<Identifier, Integer> shaderIndices = new HashMap<>();
 		final List<MaterialShaderPatcher.Loaded> shaders = new ArrayList<>();
 		final List<Identifier> samplerSlots = new ArrayList<>();
 		final Map<VariantKey, Integer> variantIndices = new HashMap<>();
@@ -275,57 +302,81 @@ public final class BlockMaterialLoader {
 
 		allocateShaders(candidates, definitions, shaderIndices, shaders, samplerSlots);
 
-		final List<Map.Entry<BlockState, BlockMaterialOverrideDispatcher.Assignment>> ordered = new ArrayList<>(overrides.entrySet());
-		ordered.sort(Comparator.comparing(entry -> entry.getKey().toString()));
+		final List<Ordered> ordered = new ArrayList<>(assigned.size());
+		assigned.forEach((state, assignments) -> ordered.add(new Ordered(state.toString(), state, assignments)));
+		ordered.sort(Comparator.comparing(Ordered::key));
 
-		for (Map.Entry<BlockState, BlockMaterialOverrideDispatcher.Assignment> entry : ordered) {
-			final Identifier materialId = entry.getValue().material();
-			final BlockMaterial material = registry.get(materialId);
-			if (material == null) {
-				if (missing.add(materialId)) LOGGER.warn("Block material {} was assigned but never defined, ignoring it", materialId);
-				continue;
-			}
-			if (material.isNone()) continue;
+		for (Ordered entry : ordered) {
+			final BlockState state = entry.state();
+			BlockMaterial.Assigned primary = null;
+			final List<BlockMaterial.Assigned> extras = new ArrayList<>(0);
 
-			final BlockState state = entry.getKey();
-			final int materialCase = shaderIndices.getOrDefault(
-				new ShaderKey(materialId, entry.getValue().parameters()), BlockMaterialRenderer.NO_SHADER);
-
-			int shaderIndex = BlockMaterialRenderer.NO_SHADER;
-			if (materialCase != BlockMaterialRenderer.NO_SHADER) {
-				final List<BlockTextureSlots.Slot> rectangles =
-					resolveSlots(state, materialId, shaders.get(materialCase - 1).blockTextures(), unresolved);
-				final VariantKey variantKey = new VariantKey(materialCase, rectangles);
-				final Integer existing = variantIndices.get(variantKey);
-				if (existing != null) {
-					shaderIndex = existing;
-				} else if (variants.size() >= BlockMaterialRenderer.MAX_SHADER_INDEX) {
-					if (exhausted.add(materialId)) {
-						LOGGER.error("Block material {} pushes the loaded materials past {} texture variants; its remaining blockstates render without a shader",
-							materialId, BlockMaterialRenderer.MAX_SHADER_INDEX);
-					}
-				} else {
-					variants.add(new MaterialBlockTextures.Variant(materialCase, rectangles));
-					shaderIndex = variants.size();
-					variantIndices.put(variantKey, shaderIndex);
+			for (BlockMaterialOverrideDispatcher.Assignment assignment : entry.assignments()) {
+				final Identifier materialId = assignment.material();
+				final BlockMaterial material = registry.get(materialId);
+				if (material == null) {
+					if (missing.add(materialId)) LOGGER.warn("Block material {} was assigned but never defined, ignoring it", materialId);
+					continue;
 				}
-			}
+				if (material.isNone()) continue;
 
-			final List<String> targetSlots = material.target();
-			final List<BlockTextureSlots.Slot> targetRectangles = targetSlots.isEmpty()
-				? List.of()
-				: resolveTargets(state, materialId, targetSlots, unresolved);
-			perBlock.computeIfAbsent(state.getBlock(), block -> new IdentityHashMap<>())
-				.put(state, new BlockMaterial.Assigned(
+				final int materialCase = shaderIndices.getOrDefault(materialId, BlockMaterialRenderer.NO_SHADER);
+				int shaderIndex = BlockMaterialRenderer.NO_SHADER;
+				if (materialCase != BlockMaterialRenderer.NO_SHADER) {
+					final MaterialShaderPatcher.Loaded loaded = shaders.get(materialCase - 1);
+					final List<BlockTextureSlots.Slot> rectangles = resolveSlots(state, materialId, loaded.blockTextures(), unresolved);
+					final List<Float> parameters = parameterValues(materialId, loaded.shader(), assignment.parameters(), badParameters);
+					final VariantKey variantKey = new VariantKey(materialCase, rectangles, parameters);
+					final Integer existing = variantIndices.get(variantKey);
+					if (existing != null) {
+						shaderIndex = existing;
+					} else if (variants.size() >= BlockMaterialRenderer.MAX_SHADER_INDEX) {
+						if (exhausted.add(materialId)) {
+							LOGGER.error("Block material {} pushes the loaded materials past {} variants; its remaining blockstates render without a shader",
+								materialId, BlockMaterialRenderer.MAX_SHADER_INDEX);
+						}
+					} else {
+						variants.add(new MaterialBlockTextures.Variant(materialCase, rectangles, toArray(parameters)));
+						shaderIndex = variants.size();
+						variantIndices.put(variantKey, shaderIndex);
+					}
+				}
+
+				final List<String> targetSlots = assignment.target().isEmpty() ? material.target() : assignment.target();
+				final List<BlockTextureSlots.Slot> targetRectangles = targetSlots.isEmpty()
+					? List.of()
+					: resolveTargets(state, materialId, targetSlots, unresolved);
+				if (GLOWTONE_TRACE_TARGETS) {
+					LOGGER.info("Glowtone target trace: {} -> {} shader={} slots={} rects={}",
+						state, materialId, shaderIndex, targetSlots,
+						targetRectangles.stream().map(slot -> String.valueOf(slot.sprite().contents().name())).toList());
+				}
+
+				final BlockMaterial.Assigned built = new BlockMaterial.Assigned(
 					materialId, material, shaderIndex,
 					targetSlots.isEmpty() ? null : targetSlots,
 					targetRectangles,
 					targetSlots.contains(BlockMaterialRenderer.EMISSIVE_TARGET)
-				));
+				);
+				if (primary == null && !built.targeted()) {
+					primary = built;
+				} else {
+					extras.add(built);
+				}
+				targets |= !targetSlots.isEmpty();
+			}
 
+			if (primary == null) {
+				if (extras.isEmpty()) continue;
+				primary = extras.removeFirst();
+			}
+			for (BlockMaterial.Assigned extra : extras) primary = primary.withExtra(extra);
+
+			final BlockMaterial material = primary.material();
+			final Identifier chosen = primary.id();
 			material.layer().filter(MaterialLayer::custom).ifPresent(layer -> {
 				if (!unsupportedLayers.add(layer.id())) return;
-				LOGGER.warn("Block material {} asks for layer {}, but only solid, cutout and translucent render; leaving it on its model's layer", materialId, layer.id());
+				LOGGER.warn("Block material {} asks for layer {}, but only solid, cutout and translucent render; leaving it on its model's layer", chosen, layer.id());
 			});
 
 			layers |= material.overridesLayer();
@@ -333,14 +384,18 @@ public final class BlockMaterialLoader {
 			castCulling |= material.cull().castMode().decides();
 			renderShape |= material.overridesRenderShape();
 			blockEntity |= material.overridesBlockEntityRender();
-			targets |= !targetSlots.isEmpty();
+
+			perBlock.computeIfAbsent(state.getBlock(), block -> new IdentityHashMap<>()).put(state, primary);
 		}
 
 		BlockMaterialRenderer.setLoadedFeatures(layers, selfCulling, castCulling, !shaders.isEmpty(), renderShape, blockEntity, targets);
 
 		final Map<Integer, BlockMaterial.Assigned> byIndex = new HashMap<>();
-		perBlock.values().forEach(states -> states.values().forEach(assigned -> {
-			if (assigned.shaderIndex() != BlockMaterialRenderer.NO_SHADER) byIndex.putIfAbsent(assigned.shaderIndex(), assigned);
+		perBlock.values().forEach(states -> states.values().forEach(assigned1 -> {
+			if (assigned1.shaderIndex() != BlockMaterialRenderer.NO_SHADER) byIndex.putIfAbsent(assigned1.shaderIndex(), assigned1);
+			for (BlockMaterial.Assigned extra : assigned1.extra()) {
+				if (extra.shaderIndex() != BlockMaterialRenderer.NO_SHADER) byIndex.putIfAbsent(extra.shaderIndex(), extra);
+			}
 		}));
 		BlockMaterialRenderer.setAssignedByIndex(byIndex);
 
@@ -372,8 +427,8 @@ public final class BlockMaterialLoader {
 		rebuildChunks();
 
 		LOGGER.info("Glowtone feature flags: shaders={} targets={}", !shaders.isEmpty(), targets);
-		LOGGER.info("Glowtone applied block materials: {} blockstates across {} blocks, {} shader materials in {} texture variants",
-			overrides.size(), perBlock.size(), shaders.size(), variants.size());
+		LOGGER.info("Glowtone applied block materials: {} blockstates across {} blocks, {} shader materials in {} variants",
+			assigned.size(), perBlock.size(), shaders.size(), variants.size());
 	}
 
 	private static List<BlockTextureSlots.Slot> resolveSlots(
@@ -403,6 +458,8 @@ public final class BlockMaterialLoader {
 			}
 
 			slots.add(slot);
+			final BlockTextureSlots.Slot overlay = BlockTextureSlots.overlayOf(slot);
+			if (overlay != null) slots.add(overlay);
 		}
 
 		return List.copyOf(slots);
@@ -418,54 +475,72 @@ public final class BlockMaterialLoader {
 		});
 	}
 
-	private static MaterialShader withParameterOverrides(Identifier materialId, MaterialShader shader, Map<String, String> overrides) {
-		if (overrides.isEmpty()) return shader;
+	private static List<Float> parameterValues(
+		Identifier materialId, MaterialShader shader, Map<String, String> overrides, Set<String> reported
+	) {
+		final List<Float> values = new ArrayList<>(shader.parameters().size());
+		for (Map.Entry<String, String> parameter : new TreeMap<>(shader.parameters()).entrySet()) {
+			final String value = overrides.getOrDefault(parameter.getKey(), parameter.getValue());
+			values.add(parseParameter(materialId, parameter.getKey(), value, reported));
+		}
 
-		final Map<String, String> merged = new LinkedHashMap<>(shader.parameters());
-		overrides.forEach((name, value) -> {
-			if (merged.containsKey(name)) {
-				merged.put(name, value);
-				return;
-			}
+		for (String name : overrides.keySet()) {
+			if (shader.parameters().containsKey(name) || !reported.add(materialId + " " + name)) continue;
 
-			LOGGER.error("A block assigns parameter '{}' to block material {}, which does not declare it; ignoring that value",
-				name, materialId);
-		});
+			LOGGER.error("A block assigns parameter '{}' to block material {}, which does not declare it; ignoring that value", name, materialId);
+		}
 
-		return new MaterialShader(
-			shader.fragment(), shader.vertex(), shader.textures(), shader.constants(), merged, shader.blockTextures()
-		);
+		return List.copyOf(values);
 	}
 
-	private record ShaderKey(Identifier material, Map<String, String> parameters) {
-		String sortOrder() {
-			return this.material + " " + new java.util.TreeMap<>(this.parameters);
+	private static float parseParameter(Identifier materialId, String name, String value, Set<String> reported) {
+		final Float number = parseNumber(value);
+		if (number != null) return number;
+
+		if (reported.add(materialId + " " + name + "=" + value)) {
+			LOGGER.error("Block material {} gives parameter '{}' the value '{}', which is not a number; reading it as 0", materialId, name, value);
+		}
+		return 0F;
+	}
+
+	@Nullable
+	private static Float parseNumber(String value) {
+		try {
+			final float number = Float.parseFloat(value.trim());
+			return Float.isFinite(number) ? number : null;
+		} catch (NumberFormatException notANumber) {
+			return null;
 		}
 	}
 
-	private record VariantKey(int materialCase, List<BlockTextureSlots.Slot> rectangles) {}
+	private static float[] toArray(List<Float> values) {
+		final float[] array = new float[values.size()];
+		for (int index = 0; index < array.length; index++) array[index] = values.get(index);
+		return array;
+	}
+
+	private record Ordered(String key, BlockState state, List<BlockMaterialOverrideDispatcher.Assignment> assignments) {}
+
+	private record VariantKey(int materialCase, List<BlockTextureSlots.Slot> rectangles, List<Float> parameters) {}
 
 	private record UnresolvedSlot(Identifier material, String slot) {}
 
 	private static int allocateShader(
-		ShaderKey key,
+		Identifier materialId,
 		BlockMaterial material,
 		Map<Identifier, String> sources,
 		List<MaterialShaderPatcher.Loaded> shaders,
 		List<Identifier> samplerSlots
 	) {
-		final Identifier materialId = key.material();
-		final MaterialShader declared = material.shader().orElse(null);
-		if (declared == null || declared.isEmpty()) return BlockMaterialRenderer.NO_SHADER;
-
-		final MaterialShader shader = withParameterOverrides(materialId, declared, key.parameters());
+		final MaterialShader shader = material.shader().orElse(null);
+		if (shader == null || shader.isEmpty()) return BlockMaterialRenderer.NO_SHADER;
 
 		final String fragmentSource = checkedStage(materialId, "fragment", shader.fragment(), sources);
 		final String vertexSource = checkedStage(materialId, "vertex", shader.vertex(), sources);
 		if (fragmentSource == null && vertexSource == null) return BlockMaterialRenderer.NO_SHADER;
 
-		if (shaders.size() >= BlockMaterialRenderer.MAX_SHADER_INDEX) {
-			LOGGER.error("Block material {} exceeds the limit of {} shader materials, ignoring its shader", materialId, BlockMaterialRenderer.MAX_SHADER_INDEX);
+		if (shaders.size() >= BlockMaterialRenderer.MAX_MATERIALS) {
+			LOGGER.error("Block material {} exceeds the limit of {} shader materials, ignoring its shader", materialId, BlockMaterialRenderer.MAX_MATERIALS);
 			return BlockMaterialRenderer.NO_SHADER;
 		}
 
@@ -544,10 +619,9 @@ public final class BlockMaterialLoader {
 		}
 
 		for (Map.Entry<String, String> parameter : shader.parameters().entrySet()) {
-			final String rejection = MaterialShaderNames.valueRejection(parameter.getValue());
-			if (rejection == null) continue;
+			if (parseNumber(parameter.getValue()) != null) continue;
 
-			LOGGER.error("Block material {} gives parameter '{}' a value that cannot be pasted into GLSL because {}", materialId, parameter.getKey(), rejection);
+			LOGGER.error("Block material {} gives parameter '{}' the default '{}', which is not a number", materialId, parameter.getKey(), parameter.getValue());
 			legal = false;
 		}
 

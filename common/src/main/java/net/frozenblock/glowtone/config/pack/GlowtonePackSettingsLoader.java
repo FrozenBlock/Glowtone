@@ -61,6 +61,7 @@ public final class GlowtonePackSettingsLoader implements PreparableReloadListene
 			.supplyAsync(() -> load(manager), taskExecutor)
 			.thenCompose(preparationBarrier::wait)
 			.thenAcceptAsync(settings -> {
+				GlowtonePackOptions.afterReload();
 				if (GlowtonePackSettings.apply(settings)) GlowtoneReload.request();
 			}, reloadExecutor);
 	}

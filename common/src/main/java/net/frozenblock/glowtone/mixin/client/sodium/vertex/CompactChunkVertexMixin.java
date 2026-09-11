@@ -85,8 +85,7 @@ public class CompactChunkVertexMixin {
 		layoutRef.set(state.sodiumLayout());
 		edgesRef.set(state.pendingEdges());
 		fluidRef.set(state.fluidQuad());
-		flagsRef.set((state.emissiveQuad() ? 0x000000FF : 0)
-			| (BlockMaterialRenderer.quadShaderIndex() << 8));
+		flagsRef.set(BlockMaterialRenderer.sodiumFlags(state.emissiveQuad(), BlockMaterialRenderer.quadShaderIndex()));
 	}
 
 	@Inject(
@@ -116,6 +115,9 @@ public class CompactChunkVertexMixin {
 			if (MaterialShaderPatcher.anyQuadOffset()) {
 				MemoryUtil.memPutByte(ptr + layout.chroma() + 3L, MaterialShaderPatcher.encodeQuadOffset(vertex.x - state.quadCentreX()));
 				MemoryUtil.memPutByte(ptr + layout.skyChroma() + 3L, MaterialShaderPatcher.encodeQuadOffset(vertex.z - state.quadCentreZ()));
+				if (layout.hasPivot()) {
+					MemoryUtil.memPutByte(ptr + layout.pivot(), MaterialShaderPatcher.encodeQuadOffset(vertex.y - state.quadCentreY()));
+				}
 			}
 		}
 

@@ -27,7 +27,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
 
 @ClientOnly
-public record BlockMaterialModelRule(List<Identifier> models, Identifier material, Map<String, String> parameters) {
+public record BlockMaterialModelRule(List<Identifier> models, Identifier material, Map<String, String> parameters, List<String> target) {
 	public static final String RESOURCE_PACK_DIRECTORY = "glowtone/block_material_models";
 
 	private static final Codec<List<Identifier>> MODELS = Codec.either(Identifier.CODEC, Identifier.CODEC.listOf())
@@ -39,7 +39,8 @@ public record BlockMaterialModelRule(List<Identifier> models, Identifier materia
 	public static final Codec<BlockMaterialModelRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		MODELS.fieldOf("model").forGetter(BlockMaterialModelRule::models),
 		Identifier.CODEC.fieldOf("material").forGetter(BlockMaterialModelRule::material),
-		Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("parameters", Map.of()).forGetter(BlockMaterialModelRule::parameters)
+		Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("parameters", Map.of()).forGetter(BlockMaterialModelRule::parameters),
+		Codec.STRING.listOf().optionalFieldOf("target", List.of()).forGetter(BlockMaterialModelRule::target)
 	).apply(instance, BlockMaterialModelRule::new));
 
 	public boolean matches(Set<Identifier> chain) {
@@ -51,7 +52,7 @@ public record BlockMaterialModelRule(List<Identifier> models, Identifier materia
 	}
 
 	public BlockMaterialOverrideDispatcher.Assignment assignment() {
-		return new BlockMaterialOverrideDispatcher.Assignment(this.material, this.parameters);
+		return new BlockMaterialOverrideDispatcher.Assignment(this.material, this.parameters, this.target);
 	}
 
 	public String sortOrder() {

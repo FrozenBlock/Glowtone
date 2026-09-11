@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "material": "glowtone:billboard", "parameters": { "ALIGN": "1.0" } }
+  }
+}

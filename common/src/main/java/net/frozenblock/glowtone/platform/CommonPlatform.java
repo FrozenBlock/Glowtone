@@ -19,7 +19,7 @@ public interface CommonPlatform {
 
 	void registerResourceListener(String path, PreparableReloadListener listener);
 
-	void registerResourcePack(String path, boolean required);
+	void registerResourcePack(String path, GlowtonePackActivation activation);
 
 	void registerOnTickStart(Consumer<Minecraft> listener);
 

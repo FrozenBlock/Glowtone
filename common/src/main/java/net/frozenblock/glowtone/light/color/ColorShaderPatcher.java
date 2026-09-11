@@ -87,6 +87,18 @@ public final class ColorShaderPatcher {
 
 		""";
 
+	private static String chromaInputs() {
+		return GlowtoneVertexFeatures.shaders().pivot()
+			? IN_GLOWTONE_CHROMA + "in vec4 GlowtonePivot;" + System.lineSeparator() + System.lineSeparator()
+			: IN_GLOWTONE_CHROMA;
+	}
+
+	private static String sodiumChromaInputs() {
+		return GlowtoneVertexFeatures.shaders().pivot()
+			? SODIUM_IN_CHROMA + "in vec4 a_GlowtonePivot;" + System.lineSeparator() + System.lineSeparator()
+			: SODIUM_IN_CHROMA;
+	}
+
 	private static final String SODIUM_SPLIT = """
 		    vec4 glowtone_fullLight = texture(u_LightTex, _vert_tex_light_coord);
 		    vec4 glowtone_skyOnlyLight = texture(u_LightTex, vec2(0.0, _vert_tex_light_coord.y));
@@ -109,7 +121,7 @@ public final class ColorShaderPatcher {
 		}
 
 		return source
-			.replace(SODIUM_OUT_COLOR, SODIUM_IN_CHROMA + SODIUM_OUT_COLOR)
+			.replace(SODIUM_OUT_COLOR, sodiumChromaInputs() + SODIUM_OUT_COLOR)
 			.replace(SODIUM_SET_COLOR, SODIUM_SPLIT);
 	}
 
@@ -129,7 +141,7 @@ public final class ColorShaderPatcher {
 
 		injectChroma: {
 			String preNormal = entityOnlySource.substring(0, entityOnlySource.indexOf(IN_NORMAL));
-			preNormal = preNormal + IN_GLOWTONE_CHROMA;
+			preNormal = preNormal + chromaInputs();
 			final String postNormal = entityOnlySource.substring(entityOnlySource.indexOf(IN_NORMAL));
 			entityOnlySource = preNormal + postNormal;
 		}
@@ -168,7 +180,7 @@ public final class ColorShaderPatcher {
 
 		injectChroma: {
 			String preNormal = itemOnlySource.substring(0, itemOnlySource.indexOf(IN_NORMAL));
-			preNormal = preNormal + IN_GLOWTONE_CHROMA;
+			preNormal = preNormal + chromaInputs();
 			final String postNormal = itemOnlySource.substring(itemOnlySource.indexOf(IN_NORMAL));
 			itemOnlySource = preNormal + postNormal;
 		}
@@ -207,7 +219,7 @@ public final class ColorShaderPatcher {
 
 		injectChroma: {
 			String preUV2 = leashOnlySource.substring(0, leashOnlySource.indexOf(IN_UV2));
-			preUV2 = preUV2 + IN_GLOWTONE_CHROMA;
+			preUV2 = preUV2 + chromaInputs();
 			final String posUV2 = leashOnlySource.substring(leashOnlySource.indexOf(IN_UV2));
 			leashOnlySource = preUV2 + posUV2;
 		}
@@ -247,7 +259,7 @@ public final class ColorShaderPatcher {
 
 		injectChroma: {
 			String preUniform = terrainOnlySource.substring(0, terrainOnlySource.indexOf(UNIFORM));
-			preUniform = preUniform + IN_GLOWTONE_CHROMA;
+			preUniform = preUniform + chromaInputs();
 			final String postUniform = terrainOnlySource.substring(terrainOnlySource.indexOf(UNIFORM));
 			terrainOnlySource = preUniform + postUniform;
 		}

@@ -56,7 +56,7 @@ public final class MaterialShaderPatcher {
 		.formatted(COLOR, UV, WORLD_POS, BLOCK_POS, LOCAL_POS, NORMAL, SCREEN_PROJ, LIGHT, GAME_TIME, CONTEXT);
 
 	// No normal: terrain carries no normal attribute.
-	private static final String VERTEX_PARAMS = "vec3 %s, vec3 %s, vec3 %s, vec3 %s, vec2 %s, vec2 %s, float %s, int %s, vec2 %s, vec3 %s, vec3 %s"
+	private static final String VERTEX_PARAMS = "vec3 %s, vec3 %s, vec3 %s, vec3 %s, vec2 %s, vec2 %s, float %s, int %s, vec3 %s, vec3 %s, vec3 %s"
 		.formatted(POSITION, BLOCK_POS, LOCAL_POS, CAMERA_POS, UV, LIGHT, GAME_TIME, CONTEXT, QUAD_OFFSET, CAMERA_RIGHT, CAMERA_UP);
 
 	private static final String VERTEX_ARGS = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s"
@@ -140,11 +140,14 @@ public final class MaterialShaderPatcher {
 		return text.toString();
 	}
 
+	private static final String[] COMPONENTS = {".x", ".y", ".z", ".w"};
+
 	private static String parameterArguments(Loaded entry) {
 		final StringBuilder text = new StringBuilder();
-		entry.shader().parameters().entrySet().stream()
-			.sorted(Map.Entry.comparingByKey())
-			.forEach(parameter -> text.append(", float(").append(parameter.getValue()).append(')'));
+		final int parameters = entry.shader().parameters().size();
+		for (int ordinal = 0; ordinal < parameters; ordinal++) {
+			text.append(", glowtone_p").append(ordinal / 4).append(COMPONENTS[ordinal % 4]);
+		}
 
 		final int blockTextures = entry.blockTextures().size();
 		for (int ordinal = 0; ordinal < blockTextures; ordinal++) {
@@ -152,6 +155,17 @@ public final class MaterialShaderPatcher {
 		}
 
 		return text.toString();
+	}
+
+	private static void appendCase(StringBuilder builder, int index, String call, Loaded entry) {
+		final int parameters = entry.shader().parameters().size();
+		final int rectangles = entry.blockTextures().size();
+		builder.append("\t\tcase ").append(index).append(": {\n");
+		for (int texel = 0; texel * 4 < parameters; texel++) {
+			builder.append("\t\t\tvec4 glowtone_p").append(texel).append(" = ")
+				.append(MaterialBlockTextures.fetch("glowtone_base + " + (rectangles + texel))).append(";\n");
+		}
+		builder.append("\t\t\treturn ").append(call).append(parameterArguments(entry)).append(");\n\t\t}\n");
 	}
 
 	private static void appendConstants(StringBuilder builder, Loaded entry, boolean define) {
@@ -205,9 +219,12 @@ public final class MaterialShaderPatcher {
 					.append(" in slots ").append(entry.slots().values());
 			}
 			if (!entry.blockTextures().isEmpty()) {
-				line.append("; block textures ").append(entry.blockTextures().stream().sorted().toList())
-					.append(" in ").append(MaterialBlockTextures.variantCount(index)).append(" variants");
+				line.append("; block textures ").append(entry.blockTextures().stream().sorted().toList());
 			}
+			if (!entry.shader().parameters().isEmpty()) {
+				line.append("; parameters ").append(entry.shader().parameters().keySet().stream().sorted().toList());
+			}
+			line.append("; ").append(MaterialBlockTextures.variantCount(index)).append(" variants");
 
 			lines.add(line.toString());
 		}
@@ -257,11 +274,13 @@ public final class MaterialShaderPatcher {
 			.append(VARIANT_LOOKUP);
 
 		for (int i = 0; i < loaded.size(); i++) {
-			if (loaded.get(i).fragmentSource() == null) continue;
+			final Loaded entry = loaded.get(i);
+			if (entry.fragmentSource() == null) continue;
 
-			builder.append("\t\tcase ").append(i + 1).append(": return ").append(DISPATCH).append('_').append(body[i + 1]).append('(').append(ATLAS);
-			loaded.get(i).slots().values().forEach(slot -> builder.append(", ").append(withSamplers ? MaterialSamplers.name(slot) : ATLAS));
-			builder.append(", ").append(FRAGMENT_ARGS).append(parameterArguments(loaded.get(i))).append(");\n");
+			final StringBuilder call = new StringBuilder(DISPATCH).append('_').append(body[i + 1]).append('(').append(ATLAS);
+			entry.slots().values().forEach(slot -> call.append(", ").append(withSamplers ? MaterialSamplers.name(slot) : ATLAS));
+			call.append(", ").append(FRAGMENT_ARGS);
+			appendCase(builder, i + 1, call.toString(), entry);
 		}
 
 		builder.append("\t}\n\treturn ").append(COLOR).append(";\n}\n\n");
@@ -300,10 +319,10 @@ public final class MaterialShaderPatcher {
 			.append(VARIANT_LOOKUP);
 
 		for (int i = 0; i < loaded.size(); i++) {
-			if (loaded.get(i).vertexSource() == null) continue;
+			final Loaded entry = loaded.get(i);
+			if (entry.vertexSource() == null) continue;
 
-			builder.append("\t\tcase ").append(i + 1).append(": return ").append(VERTEX_DISPATCH).append('_').append(body[i + 1]).append('(').append(VERTEX_ARGS)
-				.append(parameterArguments(loaded.get(i))).append(");\n");
+			appendCase(builder, i + 1, VERTEX_DISPATCH + "_" + body[i + 1] + "(" + VERTEX_ARGS, entry);
 		}
 
 		builder.append("\t}\n\treturn vec3(0.0);\n}\n\n");

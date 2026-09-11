@@ -1,5 +1,6 @@
 package net.frozenblock.glowtone.platform;
 
+import com.mojang.logging.LogUtils;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -11,8 +12,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import org.slf4j.Logger;
 
 public final class FabricPlatform implements CommonPlatform {
+	private static final Logger LOGGER = LogUtils.getLogger();
 
 	@Override
 	public boolean isFabric() {
@@ -45,17 +48,21 @@ public final class FabricPlatform implements CommonPlatform {
 	}
 
 	@Override
-	public void registerResourcePack(String path, boolean required) {
-		PackActivationType type;
-		if (required) type = PackActivationType.ALWAYS_ENABLED;
-		else type = PackActivationType.NORMAL;
-		FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID).ifPresent(container ->
-			ResourceLoader.registerBuiltinPack(
+	public void registerResourcePack(String path, GlowtonePackActivation activation) {
+		final PackActivationType type = switch (activation) {
+			case NORMAL -> PackActivationType.NORMAL;
+			case DEFAULT_ENABLED -> PackActivationType.DEFAULT_ENABLED;
+			case ALWAYS_ENABLED -> PackActivationType.ALWAYS_ENABLED;
+		};
+		FabricLoader.getInstance().getModContainer(GlowtoneConstants.MOD_ID).ifPresent(container -> {
+			final boolean registered = ResourceLoader.registerBuiltinPack(
 				GlowtoneConstants.id(path),
 				container,
 				Component.translatable("pack." + GlowtoneConstants.MOD_ID + "." + path),
 				type
-			));
+			);
+			if (!registered) LOGGER.error("Glowtone could not register its built-in pack from resourcepacks/{}", path);
+		});
 	}
 
 	@Override

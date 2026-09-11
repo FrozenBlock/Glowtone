@@ -49,6 +49,6 @@ public class BlockRendererEdgesMixin {
 	@Inject(method = "bufferQuad", at = @At("HEAD"))
 	private void glowtone$buildEdges(MutableQuadViewImpl quad, float[] brightnesses, Material material, CallbackInfo info) {
 		final GlowtoneSodiumContext context = (GlowtoneSodiumContext) this;
-		SodiumEdges.beginQuad(quad, context.glowtone$level(), context.glowtone$pos(), this.posOffset.x, this.posOffset.z);
+		SodiumEdges.beginQuad(quad, context.glowtone$level(), context.glowtone$pos(), this.posOffset.x, this.posOffset.y, this.posOffset.z);
 	}
 }

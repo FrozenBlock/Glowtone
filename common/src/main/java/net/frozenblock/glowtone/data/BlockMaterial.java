@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -91,7 +92,9 @@ public record BlockMaterial(
 			this.cull.mergedOver(under.cull),
 			this.renderShape.or(under::renderShape),
 			this.blockEntityRender.or(under::blockEntityRender),
-			this.shader.or(under::shader),
+			this.shader.isPresent() && under.shader.isPresent()
+				? Optional.of(this.shader.get().mergedOver(under.shader.get()))
+				: this.shader.or(under::shader),
 			this.target.isEmpty() ? under.target() : this.target
 		);
 	}
@@ -132,10 +135,44 @@ public record BlockMaterial(
 		int shaderIndex,
 		@Nullable List<String> targetSlots,
 		List<BlockTextureSlots.Slot> targets,
-		boolean targetsEmissive
+		boolean targetsEmissive,
+		List<Assigned> extra
 	) {
+		public static final int NOT_TARGETED = Integer.MIN_VALUE;
+
 		public Assigned(@Nullable Identifier id, BlockMaterial material, int shaderIndex) {
-			this(id, material, shaderIndex, null, List.of(), false);
+			this(id, material, shaderIndex, null, List.of(), false, List.of());
+		}
+
+		public Assigned(
+			@Nullable Identifier id, BlockMaterial material, int shaderIndex,
+			@Nullable List<String> targetSlots, List<BlockTextureSlots.Slot> targets, boolean targetsEmissive
+		) {
+			this(id, material, shaderIndex, targetSlots, targets, targetsEmissive, List.of());
+		}
+
+		public Assigned withExtra(Assigned other) {
+			final List<Assigned> extra = new ArrayList<>(this.extra);
+			extra.add(new Assigned(other.id(), other.material(), other.shaderIndex(),
+				other.targetSlots(), other.targets(), other.targetsEmissive(), List.of()));
+			return new Assigned(this.id, this.material, this.shaderIndex,
+				this.targetSlots, this.targets, this.targetsEmissive, List.copyOf(extra));
+		}
+
+		public int indexFor(float u, float v) {
+			for (Assigned other : this.extra) {
+				if (other.targets(u, v) || (other.targetsEmissive() && BlockTextureSlots.withinEmissiveOverlay(u, v))) {
+					return other.shaderIndex();
+				}
+			}
+			return NOT_TARGETED;
+		}
+
+		public int indexFor(TextureAtlasSprite sprite) {
+			for (Assigned other : this.extra) {
+				if (other.targets(sprite)) return other.shaderIndex();
+			}
+			return NOT_TARGETED;
 		}
 
 		public boolean targeted() {

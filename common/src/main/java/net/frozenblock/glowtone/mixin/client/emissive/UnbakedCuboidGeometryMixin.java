@@ -83,7 +83,7 @@ public abstract class UnbakedCuboidGeometryMixin {
 		if (material == null) return null;
 		if (material.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return null;
 
-		BlockTextureSlots.recordEmissiveOverlay(material.sprite());
+		BlockTextureSlots.recordEmissiveOverlay(location, material.sprite());
 		return material;
 	}
 

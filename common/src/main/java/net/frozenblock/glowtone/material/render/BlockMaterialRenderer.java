@@ -37,9 +37,23 @@ public final class BlockMaterialRenderer {
 	public static final String RESOURCE_PACK_DIRECTORY = "glowtone/block_materials";
 	public static final String OVERRIDE_DIRECTORY = "glowtone/block_material_overrides";
 	public static final int NO_SHADER = 0;
-	public static final int MAX_SHADER_INDEX = 255;
+	public static final int MAX_MATERIALS = 255;
+	public static final int MAX_SHADER_INDEX = 4095;
 	public static final int SHADER_INDEX_SHIFT = 24;
+	public static final int SHADER_INDEX_HIGH_SHIFT = 8;
 	public static final int GUI_MARKER = 0x2000;
+	public static final String GLSL_INDEX_DECODE = "((((%1$s).y >> 8) & 255) | ((((%1$s).x >> 8) & 15) << 8))";
+	public static final String SODIUM_GLSL_INDEX_DECODE = "(int((%1$s).g * 255.0 + 0.5) | (int((%1$s).b * 255.0 + 0.5) << 8))";
+
+	public static int withShaderIndex(int lightCoords, int shaderIndex) {
+		return lightCoords
+			| ((shaderIndex & 0xFF) << SHADER_INDEX_SHIFT)
+			| (((shaderIndex >> 8) & 0xF) << SHADER_INDEX_HIGH_SHIFT);
+	}
+
+	public static int sodiumFlags(boolean emissive, int shaderIndex) {
+		return (emissive ? 0xFF : 0) | ((shaderIndex & 0xFF) << 8) | (((shaderIndex >> 8) & 0xF) << 16);
+	}
 
 	private static volatile boolean anyLayers;
 	private static volatile boolean anySelfCulling;
@@ -153,16 +167,15 @@ public final class BlockMaterialRenderer {
 
 	private static final BlockMaterial.Assigned[] INDEXED = new BlockMaterial.Assigned[MAX_SHADER_INDEX + 1];
 
-	static {
-		INDEXED[NO_SHADER] = BlockMaterial.UNASSIGNED;
-		for (int index = 1; index <= MAX_SHADER_INDEX; index++) INDEXED[index] = new BlockMaterial.Assigned(null, BlockMaterial.NONE, index);
-	}
-
 	private static BlockMaterial.Assigned indexed(int shaderIndex) {
 		if (shaderIndex <= NO_SHADER || shaderIndex > MAX_SHADER_INDEX) return BlockMaterial.UNASSIGNED;
 
 		final BlockMaterial.Assigned assigned = ASSIGNED_BY_INDEX[shaderIndex];
-		return assigned == null ? INDEXED[shaderIndex] : assigned;
+		if (assigned != null) return assigned;
+
+		BlockMaterial.Assigned plain = INDEXED[shaderIndex];
+		if (plain == null) INDEXED[shaderIndex] = plain = new BlockMaterial.Assigned(null, BlockMaterial.NONE, shaderIndex);
+		return plain;
 	}
 
 	private static final BlockMaterial.Assigned[] ASSIGNED_BY_INDEX = new BlockMaterial.Assigned[MAX_SHADER_INDEX + 1];
@@ -179,14 +192,20 @@ public final class BlockMaterialRenderer {
 
 		final State state = STATE.get();
 		final BlockMaterial.Assigned assigned = state.stack[state.depth];
+		final TextureAtlasSprite sprite = quad.materialInfo().sprite();
+
+		final int extra = assigned.indexFor(sprite);
+		if (extra != BlockMaterial.Assigned.NOT_TARGETED) {
+			state.quadIndex = extra;
+			return;
+		}
+
 		if (!assigned.targeted()) {
 			state.quadIndex = assigned.shaderIndex();
 			return;
 		}
 
-		final TextureAtlasSprite sprite = quad.materialInfo().sprite();
 		final boolean matched = assigned.targets(sprite) || (assigned.targetsEmissive() && isEmissiveOverlay(sprite));
-
 		state.quadIndex = matched ? assigned.shaderIndex() : NO_SHADER;
 	}
 
@@ -203,6 +222,11 @@ public final class BlockMaterialRenderer {
 
 	public static int indexForAtlasCoord(float u, float v) {
 		final BlockMaterial.Assigned assigned = current();
+		if (anyTargets) {
+			final int extra = assigned.indexFor(u, v);
+			if (extra != BlockMaterial.Assigned.NOT_TARGETED) return extra;
+		}
+
 		final int index = assigned.shaderIndex();
 		if (index == NO_SHADER || !anyTargets || !assigned.targeted()) return index;
 		if (assigned.targetsEmissive() && BlockTextureSlots.withinEmissiveOverlay(u, v)) return index;
@@ -239,7 +263,7 @@ public final class BlockMaterialRenderer {
 
 		final State state = STATE.get();
 		final int index = quadIndex(state);
-		final int marked = index == NO_SHADER ? lightCoords : lightCoords | (index << SHADER_INDEX_SHIFT);
+		final int marked = index == NO_SHADER ? lightCoords : withShaderIndex(lightCoords, index);
 
 		return state.gui ? marked | GUI_MARKER : marked;
 	}
@@ -263,7 +287,7 @@ public final class BlockMaterialRenderer {
 	}
 
 	public static int markShaderIndex(int lightCoords, int shaderIndex) {
-		return shaderIndex == NO_SHADER ? lightCoords : lightCoords | (shaderIndex << SHADER_INDEX_SHIFT);
+		return shaderIndex == NO_SHADER ? lightCoords : withShaderIndex(lightCoords, shaderIndex);
 	}
 
 	public static int markShaderIndex(int lightCoords) {
@@ -275,7 +299,7 @@ public final class BlockMaterialRenderer {
 		final int index = quadIndex(state);
 		if (index == NO_SHADER) return lightCoords;
 
-		return lightCoords | (index << SHADER_INDEX_SHIFT);
+		return withShaderIndex(lightCoords, index);
 	}
 
 	public static @Nullable ChunkSectionLayer overrideLayer() {

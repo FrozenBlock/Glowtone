@@ -26,6 +26,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 @ClientOnly
 public final class GTDefaultVertexFormat {
 	public static final String CHROMA_SEMANTIC_NAME = "GlowtoneChroma";
+	public static final String PIVOT_SEMANTIC_NAME = "GlowtonePivot";
 	public static final String SKY_CHROMA_SEMANTIC_NAME = "GlowtoneSkyChroma";
 	public static final String EDGE_SEMANTIC_NAME = "GlowtoneEdge";
 	public static final String EDGE_MASK_SEMANTIC_NAME = "GlowtoneEdgeMask";
@@ -38,7 +39,8 @@ public final class GTDefaultVertexFormat {
 		CHROMA_SEMANTIC_NAME, SKY_CHROMA_SEMANTIC_NAME,
 		EDGE_SEMANTIC_NAME, EDGE_MASK_SEMANTIC_NAME,
 		CONTACT0_SEMANTIC_NAME, CONTACT1_SEMANTIC_NAME, CONTACT2_SEMANTIC_NAME, CONTACT3_SEMANTIC_NAME,
-		null
+		null,
+		PIVOT_SEMANTIC_NAME
 	);
 	private static final Set<String> GLOWTONE_NAMES = Set.of(
 		CHROMA_SEMANTIC_NAME, SKY_CHROMA_SEMANTIC_NAME,
@@ -74,6 +76,7 @@ public final class GTDefaultVertexFormat {
 			builder.addAttribute(CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 			builder.addAttribute(SKY_CHROMA_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		}
+		if (features.pivot()) builder.addAttribute(PIVOT_SEMANTIC_NAME, GpuFormat.RGBA8_UNORM);
 		return builder;
 	}
 

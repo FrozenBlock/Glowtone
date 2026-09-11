@@ -17,25 +17,31 @@
 
 package net.frozenblock.glowtone.config;
 
+import net.frozenblock.glowtone.config.pack.GlowtonePackOptions;
+import net.frozenblock.glowtone.config.pack.GlowtonePackOptionsScreen;
 import net.frozenblock.glowtone.platform.GlowtonePlatform;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.options.VideoSettingsScreen;
 
 @ClientOnly
 public final class GlowtoneReload {
+	private static final String SODIUM_SCREEN = "net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen";
 	private static volatile boolean pending;
 
 	public static void register() {
 		GlowtonePlatform.INSTANCE.registerOnTickEnd(_ -> {
 			if (pending) request();
+			GlowtonePackOptions.flush();
 		});
 	}
 
 	public static boolean request() {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null || minecraft.getResourceManager() == null) return false;
-		if (minecraft.gui == null || minecraft.gui.overlay() instanceof LoadingOverlay) {
+		if (minecraft.gui == null || minecraft.gui.overlay() instanceof LoadingOverlay || settingsOpen()) {
 			pending = true;
 			return false;
 		}
@@ -43,6 +49,16 @@ public final class GlowtoneReload {
 		pending = false;
 		minecraft.reloadResourcePacks();
 		return true;
+	}
+
+	public static boolean settingsOpen() {
+		final Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft == null || minecraft.gui == null) return false;
+
+		final Screen screen = minecraft.gui.screen();
+		if (screen == null) return false;
+		if (screen instanceof VideoSettingsScreen || screen instanceof GlowtonePackOptionsScreen) return true;
+		return screen.getClass().getName().startsWith(SODIUM_SCREEN);
 	}
 
 	private GlowtoneReload() {}

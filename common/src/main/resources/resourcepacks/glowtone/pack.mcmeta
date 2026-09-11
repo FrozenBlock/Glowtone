@@ -1,0 +1,134 @@
+{
+  "pack": {
+    "pack_format": 88,
+    "min_format": 88,
+    "max_format": 88,
+    "description": "Glowtone's emissive models and optional extras"
+  },
+  "glowtone": {
+    "settings": [
+      {
+        "entries": {
+          "emissives": {
+            "type": "button",
+            "name": "pack.glowtone.glowtone.emissives",
+            "tooltip": "pack.glowtone.glowtone.emissives.tooltip",
+            "default": true,
+            "impact": "medium"
+          }
+        }
+      },
+      {
+        "category": "pack.glowtone.glowtone.experimental",
+        "entries": {
+          "waving_foliage": {
+            "type": "button",
+            "name": "pack.glowtone.glowtone.waving_foliage",
+            "tooltip": "pack.glowtone.glowtone.waving_foliage.tooltip",
+            "default": false,
+            "impact": "low"
+          },
+          "wind": {
+            "type": "slider",
+            "name": "pack.glowtone.glowtone.wind",
+            "tooltip": "pack.glowtone.glowtone.wind.tooltip",
+            "steps": 100,
+            "range": {
+              "min": 1,
+              "max": 100
+            },
+            "default": 50,
+            "impact": "low",
+            "requires": {
+              "setting": "waving_foliage"
+            },
+            "values": {
+              "50": {
+                "name": "pack.glowtone.glowtone.wind.default"
+              }
+            }
+          },
+          "vein_pulse": {
+            "type": "button",
+            "name": "pack.glowtone.glowtone.vein_pulse",
+            "tooltip": "pack.glowtone.glowtone.vein_pulse.tooltip",
+            "default": false,
+            "impact": "low"
+          },
+          "end_portal": {
+            "type": "button",
+            "name": "pack.glowtone.glowtone.end_portal",
+            "tooltip": "pack.glowtone.glowtone.end_portal.tooltip",
+            "default": false,
+            "impact": "low"
+          },
+          "copper_grate": {
+            "type": "button",
+            "name": "pack.glowtone.glowtone.copper_grate",
+            "tooltip": "pack.glowtone.glowtone.copper_grate.tooltip",
+            "default": false,
+            "impact": "low"
+          },
+          "eyeblossom": {
+            "type": "button",
+            "name": "pack.glowtone.glowtone.eyeblossom",
+            "tooltip": "pack.glowtone.glowtone.eyeblossom.tooltip",
+            "default": false,
+            "impact": "low"
+          },
+          "plant_billboards": {
+            "type": "button",
+            "name": "pack.glowtone.glowtone.plant_billboards",
+            "tooltip": "pack.glowtone.glowtone.plant_billboards.tooltip",
+            "default": false,
+            "impact": "low"
+          }
+        }
+      }
+    ],
+    "subpacks": [
+      {
+        "directory": "emissives",
+        "when": {
+          "setting": "emissives"
+        }
+      },
+      {
+        "directory": "waving_foliage",
+        "when": {
+          "setting": "waving_foliage"
+        }
+      },
+      {
+        "directory": "vein_pulse",
+        "when": {
+          "setting": "vein_pulse"
+        }
+      },
+      {
+        "directory": "end_portal",
+        "when": {
+          "setting": "end_portal"
+        }
+      },
+      {
+        "directory": "copper_grate",
+        "when": {
+          "setting": "copper_grate"
+        }
+      },
+      {
+        "directory": "eyeblossom",
+        "when": {
+          "setting": "eyeblossom"
+        }
+      },
+      {
+        "directory": "plant_billboards",
+        "when": {
+          "setting": "plant_billboards"
+        }
+      }
+    ]
+  }
+}

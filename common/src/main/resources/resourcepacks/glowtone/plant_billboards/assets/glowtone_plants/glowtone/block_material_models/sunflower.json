@@ -1,0 +1,5 @@
+{
+  "model": "minecraft:block/sunflower_top",
+  "material": "glowtone:billboard",
+  "target": ["cross"]
+}

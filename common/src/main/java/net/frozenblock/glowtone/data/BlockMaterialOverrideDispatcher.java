@@ -17,6 +17,7 @@
 
 package net.frozenblock.glowtone.data;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.StateHolder;
 import org.slf4j.Logger;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -52,18 +54,19 @@ public record BlockMaterialOverrideDispatcher(Optional<MaterialSelectors> materi
 		return matchedStates;
 	}
 
-	public record Assignment(Identifier material, Map<String, String> parameters) {
+	public record Assignment(Identifier material, Map<String, String> parameters, List<String> target) {
 		private static final Codec<Assignment> FULL = RecordCodecBuilder.create(instance -> instance.group(
 			Identifier.CODEC.fieldOf("material").forGetter(Assignment::material),
-			Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("parameters", Map.of()).forGetter(Assignment::parameters)
+			Codec.unboundedMap(Codec.STRING, Codec.STRING).optionalFieldOf("parameters", Map.of()).forGetter(Assignment::parameters),
+			Codec.STRING.listOf().optionalFieldOf("target", List.of()).forGetter(Assignment::target)
 		).apply(instance, Assignment::new));
 
 		public static final Codec<Assignment> CODEC = Codec.either(Identifier.CODEC, FULL)
 			.xmap(
-				either -> either.map(id -> new Assignment(id, Map.of()), assignment -> assignment),
-				assignment -> assignment.parameters().isEmpty()
-					? com.mojang.datafixers.util.Either.left(assignment.material())
-					: com.mojang.datafixers.util.Either.right(assignment)
+				either -> either.map(id -> new Assignment(id, Map.of(), List.of()), assignment -> assignment),
+				assignment -> assignment.parameters().isEmpty() && assignment.target().isEmpty()
+					? Either.left(assignment.material())
+					: Either.right(assignment)
 			);
 	}
 

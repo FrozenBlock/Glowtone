@@ -1,0 +1,6 @@
+{
+  "parent": "glowtone:portal_surface",
+  "render_shape": "model",
+  "block_entity_render": false,
+  "cull": { "self": "same_material" }
+}

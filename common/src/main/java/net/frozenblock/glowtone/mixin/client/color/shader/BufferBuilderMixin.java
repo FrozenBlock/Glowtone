@@ -146,6 +146,9 @@ public class BufferBuilderMixin implements GlowtoneBufferBuilder {
 				if (corner >= 0) {
 					MemoryUtil.memPutByte(pointer + layout.chroma() + 3L, MaterialShaderPatcher.encodeQuadOffset(state.quadOffsetX(corner)));
 					MemoryUtil.memPutByte(pointer + layout.skyChroma() + 3L, MaterialShaderPatcher.encodeQuadOffset(state.quadOffsetZ(corner)));
+					if (layout.hasPivot()) {
+						MemoryUtil.memPutByte(pointer + layout.pivot(), MaterialShaderPatcher.encodeQuadOffset(state.quadOffsetY(corner)));
+					}
 				}
 			}
 		}

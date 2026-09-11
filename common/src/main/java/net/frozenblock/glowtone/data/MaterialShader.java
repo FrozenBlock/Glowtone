@@ -21,6 +21,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.resources.Identifier;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,5 +48,25 @@ public record MaterialShader(
 
 	public boolean isEmpty() {
 		return this.fragment.isEmpty() && this.vertex.isEmpty();
+	}
+
+	public MaterialShader mergedOver(MaterialShader under) {
+		return new MaterialShader(
+			this.fragment.or(under::fragment),
+			this.vertex.or(under::vertex),
+			merged(under.textures, this.textures),
+			merged(under.constants, this.constants),
+			merged(under.parameters, this.parameters),
+			this.blockTextures.isEmpty() ? under.blockTextures : this.blockTextures
+		);
+	}
+
+	private static <V> Map<String, V> merged(Map<String, V> under, Map<String, V> over) {
+		if (over.isEmpty()) return under;
+		if (under.isEmpty()) return over;
+
+		final Map<String, V> merged = new LinkedHashMap<>(under);
+		merged.putAll(over);
+		return Map.copyOf(merged);
 	}
 }

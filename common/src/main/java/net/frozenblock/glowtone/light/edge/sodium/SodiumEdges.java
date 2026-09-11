@@ -44,13 +44,17 @@ public final class SodiumEdges {
 		state.setModelFaces(GlowtoneModelBoxes.forState(model, level, pos, blockState, blockState.getSeed(pos)));
 	}
 
-	public static void beginQuad(MutableQuadViewImpl quad, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, float offsetX, float offsetZ) {
+	public static void beginQuad(
+		MutableQuadViewImpl quad, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos,
+		float offsetX, float offsetY, float offsetZ
+	) {
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setEmissiveQuad(((GlowtoneSodiumQuad) quad).glowtone$emissive());
 
 		if (MaterialShaderPatcher.anyQuadOffset()) {
 			state.beginQuadCentre(
 				(quad.getX(0) + quad.getX(1) + quad.getX(2) + quad.getX(3)) * 0.25F + offsetX,
+				(quad.getY(0) + quad.getY(1) + quad.getY(2) + quad.getY(3)) * 0.25F + offsetY,
 				(quad.getZ(0) + quad.getZ(1) + quad.getZ(2) + quad.getZ(3)) * 0.25F + offsetZ
 			);
 		}

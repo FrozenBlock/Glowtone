@@ -27,6 +27,7 @@ import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
 import net.frozenblock.glowtone.config.option.ao.OcclusionStrengthOption;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.option.shade.ShadingOption;
+import net.frozenblock.glowtone.config.pack.GlowtonePackOptions;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
@@ -60,6 +61,11 @@ public class VideoSettingsScreenMixin {
 			AmbientOcclusionOption.rebuildFromScreen();
 		}
 		this.glowtone$smoothLighting = smooth;
+	}
+
+	@Inject(method = "addOptions", at = @At("TAIL"))
+	private void glowtone$addPackOptions(CallbackInfo info) {
+		GlowtonePackOptions.addTo(VideoSettingsScreen.class.cast(this).list, null);
 	}
 
 	@Unique

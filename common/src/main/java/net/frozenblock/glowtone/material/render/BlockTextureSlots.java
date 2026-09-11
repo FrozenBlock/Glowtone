@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.frozenblock.glowtone.mixin.client.material.TextureSlotsAccessor;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -39,7 +38,7 @@ import org.jspecify.annotations.Nullable;
 @ClientOnly
 public final class BlockTextureSlots {
 	private static volatile Map<BlockState, List<Map<String, Slot>>> models = Map.of();
-	private static final Set<Slot> EMISSIVE_OVERLAYS = ConcurrentHashMap.newKeySet();
+	private static final Map<Identifier, Slot> EMISSIVE_OVERLAYS = new ConcurrentHashMap<>();
 
 	public record Slot(TextureAtlasSprite sprite, float u0, float u1, float v0, float v1) {
 		public static Slot of(TextureAtlasSprite sprite) {
@@ -106,12 +105,17 @@ public final class BlockTextureSlots {
 		return null;
 	}
 
-	public static void recordEmissiveOverlay(TextureAtlasSprite sprite) {
-		EMISSIVE_OVERLAYS.add(Slot.of(sprite));
+	public static void recordEmissiveOverlay(Identifier base, TextureAtlasSprite sprite) {
+		EMISSIVE_OVERLAYS.put(base, Slot.of(sprite));
+	}
+
+	@Nullable
+	public static Slot overlayOf(Slot slot) {
+		return EMISSIVE_OVERLAYS.get(slot.sprite().contents().name());
 	}
 
 	public static boolean withinEmissiveOverlay(float u, float v) {
-		for (Slot slot : EMISSIVE_OVERLAYS) {
+		for (Slot slot : EMISSIVE_OVERLAYS.values()) {
 			if (slot.contains(u, v)) return true;
 		}
 

@@ -22,15 +22,16 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.jspecify.annotations.Nullable;
 
 @ClientOnly
-public record GlowtoneVertexLayout(int vertexSize, int chroma, int skyChroma, int edge, int edgeMask, int contact0, int flags) {
+public record GlowtoneVertexLayout(int vertexSize, int chroma, int skyChroma, int edge, int edgeMask, int contact0, int flags, int pivot) {
 	public static final int ABSENT = -1;
-	public static final GlowtoneVertexLayout NONE = new GlowtoneVertexLayout(0, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT);
+	public static final GlowtoneVertexLayout NONE = new GlowtoneVertexLayout(0, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT, ABSENT);
 
 	public record Names(
 		String chroma, String skyChroma,
 		String edge, String edgeMask,
 		String contact0, String contact1, String contact2, String contact3,
-		@Nullable String flags
+		@Nullable String flags,
+		String pivot
 	) {}
 
 	public static GlowtoneVertexLayout of(VertexFormat format, Names names) {
@@ -51,7 +52,8 @@ public record GlowtoneVertexLayout(int vertexSize, int chroma, int skyChroma, in
 			offsetOf(format, names.edge()),
 			offsetOf(format, names.edgeMask()),
 			contact0,
-			offsetOf(format, names.flags())
+			offsetOf(format, names.flags()),
+			offsetOf(format, names.pivot())
 		);
 	}
 
@@ -69,6 +71,10 @@ public record GlowtoneVertexLayout(int vertexSize, int chroma, int skyChroma, in
 
 	public boolean hasEdges() {
 		return this.edge != ABSENT;
+	}
+
+	public boolean hasPivot() {
+		return this.pivot != ABSENT;
 	}
 
 	public boolean hasFlags() {

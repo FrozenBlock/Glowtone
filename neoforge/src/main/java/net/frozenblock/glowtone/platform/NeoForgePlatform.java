@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import net.frozenblock.glowtone.GlowtoneConstants;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -66,18 +67,18 @@ public final class NeoForgePlatform implements CommonPlatform {
 		RELOAD_LISTENERS.forEach(event::addListener);
 	}
 
-	public static Set<Pair<Identifier, Boolean>> PACK_LIST = new HashSet<>();
+	public static Set<Pair<Identifier, GlowtonePackActivation>> PACK_LIST = new HashSet<>();
 
 	@Override
-	public void registerResourcePack(String path, boolean required) {
-		PACK_LIST.add(new Pair<>(GlowtoneConstants.id(path), required));
+	public void registerResourcePack(String path, GlowtonePackActivation activation) {
+		PACK_LIST.add(new Pair<>(GlowtoneConstants.id(path), activation));
 	}
 
 	@SubscribeEvent
 	public static void registerResourcePacks(AddPackFindersEvent event) {
-		for (Pair<Identifier, Boolean> pair : PACK_LIST) {
+		for (Pair<Identifier, GlowtonePackActivation> pair : PACK_LIST) {
 			Identifier id = pair.getFirst();
-			boolean required = pair.getSecond();
+			boolean required = pair.getSecond() == GlowtonePackActivation.ALWAYS_ENABLED;
 
 			event.addPackFinders(
 				Identifier.fromNamespaceAndPath(id.getNamespace(), "resourcepacks/" + id.getPath()),

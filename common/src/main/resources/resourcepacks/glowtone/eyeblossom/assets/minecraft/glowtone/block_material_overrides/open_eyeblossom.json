@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "material": "glowtone:billboard", "target": ["eye"], "parameters": { "PITCH": "1.0" } }
+  }
+}

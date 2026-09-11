@@ -181,7 +181,7 @@ public final class ChromaBaker {
 		private final float[] quadPositions = new float[12];
 		private float quadCentreX;
 		private float quadCentreZ;
-		private final float[] quadOffsets = new float[8];
+		private final float[] quadOffsets = new float[12];
 		private int quadOffsetVertex = 4;
 		private int originX;
 		private int originY;
@@ -333,8 +333,9 @@ public final class ChromaBaker {
 			return this.quadPositions;
 		}
 
-		public void beginQuadCentre(float x, float z) {
+		public void beginQuadCentre(float x, float y, float z) {
 			this.quadCentreX = x;
+			this.quadCentreY = y;
 			this.quadCentreZ = z;
 		}
 
@@ -346,21 +347,28 @@ public final class ChromaBaker {
 			return this.quadCentreZ;
 		}
 
+		private float quadCentreY;
+
 		public void beginQuadOffsets(float[] positions) {
 			float centreX = 0F;
+			float centreY = 0F;
 			float centreZ = 0F;
 			for (int vertex = 0; vertex < 4; vertex++) {
 				centreX += positions[vertex * 3];
+				centreY += positions[vertex * 3 + 1];
 				centreZ += positions[vertex * 3 + 2];
 			}
 
 			centreX *= 0.25F;
+			centreY *= 0.25F;
 			centreZ *= 0.25F;
 			for (int vertex = 0; vertex < 4; vertex++) {
-				this.quadOffsets[vertex * 2] = positions[vertex * 3] - centreX;
-				this.quadOffsets[vertex * 2 + 1] = positions[vertex * 3 + 2] - centreZ;
+				this.quadOffsets[vertex * 3] = positions[vertex * 3] - centreX;
+				this.quadOffsets[vertex * 3 + 1] = positions[vertex * 3 + 1] - centreY;
+				this.quadOffsets[vertex * 3 + 2] = positions[vertex * 3 + 2] - centreZ;
 			}
 
+			this.quadCentreY = centreY;
 			this.quadOffsetVertex = 0;
 		}
 
@@ -369,11 +377,19 @@ public final class ChromaBaker {
 		}
 
 		public float quadOffsetX(int vertex) {
-			return this.quadOffsets[vertex * 2];
+			return this.quadOffsets[vertex * 3];
+		}
+
+		public float quadOffsetY(int vertex) {
+			return this.quadOffsets[vertex * 3 + 1];
 		}
 
 		public float quadOffsetZ(int vertex) {
-			return this.quadOffsets[vertex * 2 + 1];
+			return this.quadOffsets[vertex * 3 + 2];
+		}
+
+		public float quadCentreY() {
+			return this.quadCentreY;
 		}
 
 		public boolean smoothLighting() {

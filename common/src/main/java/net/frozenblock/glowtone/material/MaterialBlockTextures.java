@@ -25,7 +25,6 @@ import com.mojang.blaze3d.systems.RenderPassBackend;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.nio.ByteBuffer;
 import java.util.List;
-import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.material.render.BlockTextureSlots;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
@@ -35,14 +34,17 @@ import org.lwjgl.system.MemoryUtil;
 @ClientOnly
 public final class MaterialBlockTextures {
 	public static final String TABLE = "GlowtoneBlockTexTable";
-	public static final int HEADER = BlockMaterialRenderer.MAX_SHADER_INDEX + 1;
 	private static final int TEXEL_BYTES = 16;
 
 	public static final BindGroupLayout LAYOUT = BindGroupLayout.builder()
 		.withUniform(TABLE, UniformType.TEXEL_BUFFER, GpuFormat.RGBA32_FLOAT)
 		.build();
 
-	public record Variant(int materialCase, List<BlockTextureSlots.Slot> rectangles) {}
+	public record Variant(int materialCase, List<BlockTextureSlots.Slot> rectangles, float[] parameters) {
+		public int texels() {
+			return this.rectangles.size() + (this.parameters.length + 3) / 4;
+		}
+	}
 
 	private static volatile List<Variant> variants = List.of();
 	private static volatile @Nullable GpuBuffer buffer;
@@ -94,21 +96,17 @@ public final class MaterialBlockTextures {
 		if (RenderSystem.getDevice() == null) return null;
 
 		final List<Variant> table = variants;
-		int rectangles = 0;
-		for (Variant variant : table) rectangles += variant.rectangles().size();
+		final int header = table.size() + 1;
+		int texels = 0;
+		for (Variant variant : table) texels += variant.texels();
 
-		final ByteBuffer data = MemoryUtil.memAlloc((HEADER + rectangles) * TEXEL_BYTES);
+		final ByteBuffer data = MemoryUtil.memAlloc((header + texels) * TEXEL_BYTES);
 		try {
-			int base = HEADER;
-			for (int index = 0; index < HEADER; index++) {
-				if (index < 1 || index > table.size()) {
-					putTexel(data, 0F, 0F, 0F, 0F);
-					continue;
-				}
-
-				final Variant variant = table.get(index - 1);
-				putTexel(data, variant.materialCase(), base, variant.rectangles().size(), 0F);
-				base += variant.rectangles().size();
+			putTexel(data, 0F, 0F, 0F, 0F);
+			int base = header;
+			for (Variant variant : table) {
+				putTexel(data, variant.materialCase(), base, variant.rectangles().size(), variant.parameters().length);
+				base += variant.texels();
 			}
 
 			for (Variant variant : table) {
@@ -119,6 +117,11 @@ public final class MaterialBlockTextures {
 						putTexel(data, slot.u0(), slot.u1(), slot.v0(), slot.v1());
 					}
 				}
+
+				final float[] parameters = variant.parameters();
+				for (int at = 0; at < parameters.length; at += 4) {
+					putTexel(data, parameters[at], component(parameters, at + 1), component(parameters, at + 2), component(parameters, at + 3));
+				}
 			}
 
 			data.flip();
@@ -128,6 +131,10 @@ public final class MaterialBlockTextures {
 		}
 
 		return buffer;
+	}
+
+	private static float component(float[] parameters, int at) {
+		return at < parameters.length ? parameters[at] : 0F;
 	}
 
 	private static void putTexel(ByteBuffer data, float x, float y, float z, float w) {

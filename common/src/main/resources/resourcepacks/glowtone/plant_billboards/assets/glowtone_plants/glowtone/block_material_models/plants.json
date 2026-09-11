@@ -1,0 +1,24 @@
+{
+  "model": [
+    "minecraft:block/cross",
+    "minecraft:block/tinted_cross",
+    "minecraft:block/cross_emissive",
+    "minecraft:block/pointed_dripstone",
+    "minecraft:block/mangrove_propagule",
+    "minecraft:block/pitcher_plant_bottom",
+    "minecraft:block/pitcher_plant_top",
+    "minecraft:block/pitcher_crop_top_stage_3",
+    "minecraft:block/pitcher_crop_top_stage_4",
+    "minecraft:block/small_dripleaf_bottom",
+    "minecraft:block/big_dripleaf_stem",
+    "minecraft:block/stem_growth0",
+    "minecraft:block/stem_growth1",
+    "minecraft:block/stem_growth2",
+    "minecraft:block/stem_growth3",
+    "minecraft:block/stem_growth4",
+    "minecraft:block/stem_growth5",
+    "minecraft:block/stem_growth6",
+    "minecraft:block/stem_growth7"
+  ],
+  "material": "glowtone:billboard"
+}

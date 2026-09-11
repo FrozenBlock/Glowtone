@@ -1,0 +1,20 @@
+{
+  "pack.glowtone.glowtone.plant_billboards": "Billboard Planes",
+  "pack.glowtone.glowtone.plant_billboards.tooltip": "Cross-shaped plants turn to face you, and vines, dripstone and cobwebs sit square to the screen. Experimental.",
+  "pack.glowtone.glowtone.emissives": "Extra Emissives",
+  "pack.glowtone.glowtone.emissives.tooltip": "Glowtone's own emissive block models and textures.",
+  "pack.glowtone.glowtone.waving_foliage": "Waving Foliage",
+  "pack.glowtone.glowtone.waving_foliage.tooltip": "Leaves sway in the wind. Experimental.",
+  "pack.glowtone.glowtone.vein_pulse": "Pulsing Nether Stems",
+  "pack.glowtone.glowtone.vein_pulse.tooltip": "Light travels along crimson and warped stems and hyphae. Experimental.",
+  "pack.glowtone.glowtone.end_portal": "Non-Entity End Portals",
+  "pack.glowtone.glowtone.end_portal.tooltip": "End portals and gateways gain depth, drawn as a solid block rather than a block entity. Experimental.",
+  "pack.glowtone.glowtone.copper_grate": "Copper Grates Culling",
+  "pack.glowtone.glowtone.copper_grate.tooltip": "Copper grates cull against themselves so you see through the whole stack. Experimental.",
+  "pack.glowtone.glowtone.eyeblossom": "Watching Eyeblossoms",
+  "pack.glowtone.glowtone.eyeblossom.tooltip": "An Open Eyeblossom's eye turns and tilts to follow you. Its petals only turn with Billboard Planes. Experimental.",
+  "pack.glowtone.glowtone.experimental": "Experimental",
+  "pack.glowtone.glowtone.wind": "Wind Strength",
+  "pack.glowtone.glowtone.wind.tooltip": "How far Waving Foliage sways, relative to its normal strength.",
+  "pack.glowtone.glowtone.wind.default": "Default"
+}

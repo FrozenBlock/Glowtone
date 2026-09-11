@@ -25,7 +25,7 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.jspecify.annotations.Nullable;
 
 @ClientOnly
-public record GlowtoneVertexFeatures(boolean chroma, boolean edges, boolean flags) {
+public record GlowtoneVertexFeatures(boolean chroma, boolean edges, boolean flags, boolean pivot) {
 	private static final boolean SODIUM = GlowtonePlatform.INSTANCE.isModLoaded("sodium");
 	private static volatile @Nullable GlowtoneVertexFeatures shaders;
 	private static volatile @Nullable GlowtoneVertexFeatures applied;
@@ -34,7 +34,8 @@ public record GlowtoneVertexFeatures(boolean chroma, boolean edges, boolean flag
 		return new GlowtoneVertexFeatures(
 			GlowtoneConfig.coloredLighting().enabled() || MaterialShaderPatcher.anyQuadOffset(),
 			EmissiveShaderPatcher.edgeDataWanted(),
-			SODIUM && (GlowtoneConfig.bloomEnabled() || MaterialShaderPatcher.any())
+			SODIUM && (GlowtoneConfig.bloomEnabled() || MaterialShaderPatcher.any()),
+			MaterialShaderPatcher.anyQuadOffset()
 		);
 	}
 

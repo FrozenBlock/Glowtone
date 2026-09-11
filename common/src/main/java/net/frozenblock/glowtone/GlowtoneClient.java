@@ -30,6 +30,7 @@ import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLi
 import net.frozenblock.glowtone.light.data.block.BlockStateLightPropertiesLoader;
 import net.frozenblock.glowtone.light.edge.impl.CasterBoxCacheReloader;
 import net.frozenblock.glowtone.light.occlusion.impl.AmbientOcclusionCacheLoader;
+import net.frozenblock.glowtone.platform.GlowtonePackActivation;
 import net.frozenblock.glowtone.platform.GlowtonePlatform;
 
 public final class GlowtoneClient {
@@ -48,8 +49,7 @@ public final class GlowtoneClient {
 		GlowtonePlatform.INSTANCE.registerResourceListener("caster_box_cache_reloader", new CasterBoxCacheReloader());
 		RenderTypeTextureValidityCache.init();
 
-		GlowtonePlatform.INSTANCE.registerResourcePack("builtin_materials", false);
-		GlowtonePlatform.INSTANCE.registerResourcePack("plant_billboards", false);
+		GlowtonePlatform.INSTANCE.registerResourcePack("glowtone", GlowtonePackActivation.DEFAULT_ENABLED);
 
 		// MOD COMPAT
 		GlowtoneDynamicLights.init();

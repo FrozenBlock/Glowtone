@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
+import net.frozenblock.glowtone.config.pack.GlowtonePackApi;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.resources.model.BlockStateDefinitions;
@@ -47,6 +48,15 @@ import java.util.function.Function;
 @ClientOnly
 public final class BlockMaterialOverrideLoader implements PreparableReloadListener {
 	private static final Logger LOGGER = LogUtils.getLogger();
+
+	private static BlockMaterialOverrideDispatcher.Assignment withPackSettings(
+		BlockMaterialOverrideDispatcher.Assignment assignment, String packId
+	) {
+		final Map<String, String> parameters = GlowtonePackApi.resolve(packId, assignment.parameters());
+		return parameters == assignment.parameters()
+			? assignment
+			: new BlockMaterialOverrideDispatcher.Assignment(assignment.material(), parameters, assignment.target());
+	}
 	private static final FileToIdConverter OVERRIDE_LISTER = FileToIdConverter.json(BlockMaterialRenderer.OVERRIDE_DIRECTORY);
 	private static final FileToIdConverter MODEL_RULE_LISTER = FileToIdConverter.json(BlockMaterialModelRule.RESOURCE_PACK_DIRECTORY);
 
@@ -98,7 +108,8 @@ public final class BlockMaterialOverrideLoader implements PreparableReloadListen
 										.parse(JsonOps.INSTANCE, element)
 										.getOrThrow(JsonParseException::new);
 
-									assignments.putAll(definition.instantiate(stateDefinition, () -> stateDefinitionId + "/" + resource.sourcePackId()));
+									definition.instantiate(stateDefinition, () -> stateDefinitionId + "/" + resource.sourcePackId())
+										.forEach((state, assignment) -> assignments.put(state, withPackSettings(assignment, resource.sourcePackId())));
 								} catch (Exception e) {
 									LOGGER.error("Failed to load block material override {} from pack {}", stateDefinitionId, resource.sourcePackId(), e);
 								}

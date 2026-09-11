@@ -33,7 +33,17 @@
   "options.glowtone.shading.non_emissive": "Non-emissive",
   "options.glowtone.shading.all": "All",
   "options.glowtone.shading.tooltip": "Which surfaces are dimmed by the directional lighting.\nNone: nothing is dimmed, including entities.\nNon-emissive: glowing surfaces are lit evenly, everything else is dimmed.\nAll: most glowing surfaces are dimmed like any other.",
-  "options.glowtone.page": "Glowtone",
-  "pack.glowtone.builtin_materials": "Glowtone Materials (Experimental)",
-  "pack.glowtone.plant_billboards": "Glowtone Plant Billboards (Experimental)"
+  "options.glowtone.page": "Rendering",
+  "options.glowtone.packs": "Resource Pack Options",
+  "options.glowtone.packs.none": "No enabled resource pack declares any options",
+  "options.glowtone.packs.broken": "This pack's settings could not be read: %s",
+  "options.glowtone.packs.version": "Resource Pack",
+  "options.glowtone.packs.tooltip": "A setting provided by the %s resource pack.",
+  "options.glowtone.packs.page": "Pack Settings",
+  "options.glowtone.packs.impact": "Performance impact: %s",
+  "options.glowtone.packs.impact.low": "Low",
+  "options.glowtone.packs.impact.medium": "Medium",
+  "options.glowtone.packs.impact.high": "High",
+  "options.glowtone.packs.impact.varies": "Varies",
+  "pack.glowtone.glowtone": "Glowtone"
 }

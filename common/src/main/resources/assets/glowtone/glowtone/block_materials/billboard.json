@@ -1,0 +1,12 @@
+{
+  "shader": {
+    "vertex": "glowtone:billboard",
+    "parameters": {
+      "AXIS_X": "0.0",
+      "AXIS_Y": "1.0",
+      "AXIS_Z": "0.0",
+      "ALIGN": "0.0",
+      "PITCH": "0.0"
+    }
+  }
+}
