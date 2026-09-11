@@ -53,12 +53,23 @@ public record BlockLightProperties(
 		return state.getBlock().glowtone$getLightProperties().get(state);
 	}
 
-	public boolean hasSameColorProperties(BlockLightProperties other) {
-		return this.lightColor.equals(other.lightColor) && this.lightFilterColor.equals(other.lightFilterColor);
+	public boolean hasSameLightColor(BlockLightProperties other) {
+		return this.lightColor.equals(other.lightColor);
 	}
 
-	public static boolean hasSameColorProperties(BlockState state, BlockState other) {
-		return forBlockState(state).hasSameColorProperties(forBlockState(other));
+	public boolean hasSameFilterColor(BlockLightProperties other) {
+		return this.lightFilterColor.equals(other.lightFilterColor);
+	}
+
+	public static boolean hasSameColorProperties(BlockState state, BlockState other, boolean light, boolean filter) {
+		if (!light && !filter) throw new IllegalArgumentException("Neither light color nor filter color are being compared!");
+
+		final BlockLightProperties properties = forBlockState(state);
+		final BlockLightProperties otherProperties = forBlockState(other);
+		if (light && !properties.hasSameLightColor(otherProperties)) return false;
+		if (filter && !properties.hasSameFilterColor(otherProperties)) return false;
+
+		return true;
 	}
 
 	public boolean overridesOcclusion() {

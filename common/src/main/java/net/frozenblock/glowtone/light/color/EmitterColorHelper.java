@@ -24,12 +24,12 @@ import net.minecraft.world.level.block.state.BlockState;
 
 @ClientOnly
 public final class EmitterColorHelper {
-	public static final int NO_COLOUR = -1;
+	public static final int NO_COLOR = -1;
 	public static final int WHITE = 0xFFFFFF;
 
 	public static int rgbFor(BlockState state) {
-		if (!BlockLightPropertiesRenderer.anyLightColors()) return NO_COLOUR;
-		return BlockLightProperties.forBlockState(state).lightColor().orElse(NO_COLOUR);
+		if (!BlockLightPropertiesRenderer.anyLightColors()) return NO_COLOR;
+		return BlockLightProperties.forBlockState(state).lightColor().orElse(NO_COLOR);
 	}
 
 	public static int rgbForOrWhite(BlockState state) {

@@ -121,7 +121,7 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 		if (block == null) return EmitterColorHelper.WHITE;
 
 		final int color = EmitterColorHelper.rgbFor(block.defaultBlockState());
-		return color == EmitterColorHelper.NO_COLOUR ? EmitterColorHelper.WHITE : color;
+		return color == EmitterColorHelper.NO_COLOR ? EmitterColorHelper.WHITE : color;
 	}
 
 	private void tick() throws NoSuchFieldException, IllegalAccessException {

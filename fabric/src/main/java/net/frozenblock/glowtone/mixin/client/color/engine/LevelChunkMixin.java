@@ -34,6 +34,6 @@ public class LevelChunkMixin {
 		@Local(name = "oldState") BlockState oldState
 	) {
 		if (original || !(this.level instanceof ClientLevel)) return original;
-		return !BlockLightProperties.hasSameColorProperties(state, oldState);
+		return !BlockLightProperties.hasSameColorProperties(state, oldState, true, true);
 	}
 }

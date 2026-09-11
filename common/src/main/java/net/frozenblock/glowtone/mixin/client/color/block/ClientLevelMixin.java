@@ -34,14 +34,44 @@ public class ClientLevelMixin {
 
 	@Inject(method = "setBlocksDirty", at = @At("HEAD"))
 	private void glowtone$onColorChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo info) {
-		if (BlockLightProperties.hasSameColorProperties(newState, oldState)) return;
+		// Cancel if light & filter colors haven't changed
+		if (BlockLightProperties.hasSameColorProperties(newState, oldState, true, true)) return;
 
 		final int sectionX = SectionPos.blockToSectionCoord(pos.getX());
 		final int sectionY = SectionPos.blockToSectionCoord(pos.getY());
 		final int sectionZ = SectionPos.blockToSectionCoord(pos.getZ());
-		ClientLevel.class.cast(this).setSectionRangeDirty(
-			sectionX - 1, sectionY - 1, sectionZ - 1,
-			sectionX + 1, sectionY + 1, sectionZ + 1
-		);
+
+		final ClientLevel level = ClientLevel.class.cast(this);
+		// TODO: this does literally absolutely nothing to fix sky light bruh
+		/*
+		runSkyLightUpdates: {
+			// Check if sky light is enabled
+			if (!level.dimensionType().hasSkyLight()) break runSkyLightUpdates;
+			// Check if only the filter color has changed
+			if (BlockLightProperties.hasSameColorProperties(newState, oldState, false, true)) break runSkyLightUpdates;
+
+			final ChunkAccess chunk = level.getChunk(sectionX, sectionZ, ChunkStatus.FULL, false);
+			if (chunk == null) break runSkyLightUpdates;
+
+			// Find the lowest sky light source available, as a Section coordinate
+			final int lowestSkyLightSectionY = SectionPos.blockToSectionCoord(
+				chunk.getSkyLightSources()
+					.getLowestSourceY(
+						SectionPos.sectionRelative(pos.getX()),
+						SectionPos.sectionRelative(pos.getZ())
+					)
+			);
+			// Cancel if lowest sky light source is at the same or a higher Section
+			if (lowestSkyLightSectionY >= sectionY - 1) break runSkyLightUpdates;
+
+			// Set all Sections between the lowest sky light source and the lowest central to-be-updated Section as dirty
+			for (int currentSectionY = lowestSkyLightSectionY; currentSectionY < sectionY - 1; currentSectionY++) {
+				level.levelExtractor.setSectionDirty(sectionX, currentSectionY, sectionZ);
+			}
+		}
+		 */
+
+		// Set all Sections in a 3x3 area as dirty
+		level.setSectionDirtyWithNeighbors(sectionX, sectionY, sectionZ);
 	}
 }

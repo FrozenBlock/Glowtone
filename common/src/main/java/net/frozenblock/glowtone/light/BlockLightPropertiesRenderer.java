@@ -11,7 +11,6 @@ public final class BlockLightPropertiesRenderer {
 	private static volatile boolean anyEmissive;
 	private static volatile boolean anyFilterColors;
 	private static volatile boolean anyLightColors;
-	private static volatile int generation;
 
 	public static boolean anyOcclusionScales() {
 		return anyOcclusionScales;
@@ -47,12 +46,7 @@ public final class BlockLightPropertiesRenderer {
 		return anyLightColors;
 	}
 
-	public static int generation() {
-		return generation;
-	}
-
 	public static void setLoadedFeatures(boolean occlusionScales, boolean emissive, boolean filterColors, boolean lightColors) {
-		generation++;
 		anyOcclusionScales = occlusionScales;
 		anyEmissive = emissive;
 		anyFilterColors = filterColors;

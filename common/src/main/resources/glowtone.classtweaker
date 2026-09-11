@@ -11,6 +11,7 @@ accessible method net/minecraft/world/level/chunk/DataLayer getByteIndex (I)I
 accessible field net/minecraft/util/LightCoordsUtil MAX_SMOOTH_LIGHT_LEVEL I
 accessible field net/minecraft/client/renderer/block/BlockModelLighter faceCubic Z
 accessible field net/minecraft/world/level/block/state/BlockBehaviour hasCollision Z
+accessible field net/minecraft/client/multiplayer/ClientLevel levelExtractor Lnet/minecraft/client/renderer/extract/LevelExtractor;
 
 transitive-inject-interface net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState net/frozenblock/glowtone/light/color/render/impl/LightTinted
 transitive-inject-interface net/minecraft/client/renderer/entity/state/EntityRenderState net/frozenblock/glowtone/light/color/render/impl/LightTinted
