@@ -18,6 +18,7 @@
 package net.frozenblock.glowtone.light.entity;
 
 import net.frozenblock.glowtone.bloom.BloomHelper;
+import net.frozenblock.glowtone.lighting.WorldLightCurves;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -46,6 +47,20 @@ public final class SmoothEntityLightingHelper {
 	}
 
 	public static int smooth(double x, double y, double z, int lightCoords) {
+		return glowtoneBend(x, y, z, smoothOnly(x, y, z, lightCoords));
+	}
+
+	private static int glowtoneBend(double x, double y, double z, int lightCoords) {
+		if (!WorldLightCurves.any()) return lightCoords;
+
+		final Minecraft minecraft = Minecraft.getInstance();
+		final ClientLevel level = minecraft == null ? null : minecraft.level;
+		if (level == null) return lightCoords;
+
+		return WorldLightCurves.remap(level, SCRATCH_POS.set(Mth.floor(x), Mth.floor(y), Mth.floor(z)), lightCoords);
+	}
+
+	private static int smoothOnly(double x, double y, double z, int lightCoords) {
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null || !minecraft.options.ambientOcclusion().get()) return lightCoords;
 

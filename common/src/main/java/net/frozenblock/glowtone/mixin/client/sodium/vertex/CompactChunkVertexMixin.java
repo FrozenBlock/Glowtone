@@ -15,6 +15,7 @@ import net.frozenblock.glowtone.light.color.render.ChromaBaker;
 import net.frozenblock.glowtone.material.render.BlockMaterialRenderer;
 import net.frozenblock.glowtone.light.color.render.ChromaBlender;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.frozenblock.glowtone.lighting.WorldLightCurves;
 import net.frozenblock.glowtone.render.GlowtoneContactRects;
 import net.frozenblock.glowtone.render.sodium.vertex.GTSodiumVertexFormat;
 import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
@@ -86,6 +87,14 @@ public class CompactChunkVertexMixin {
 		edgesRef.set(state.pendingEdges());
 		fluidRef.set(state.fluidQuad());
 		flagsRef.set(BlockMaterialRenderer.sodiumFlags(state.emissiveQuad(), BlockMaterialRenderer.quadShaderIndex()));
+
+		final long worldBlockCurve = state.worldBlockCurve();
+		final long worldSkyCurve = state.worldSkyCurve();
+		if (worldBlockCurve != WorldLightCurves.IDENTITY || worldSkyCurve != WorldLightCurves.IDENTITY) {
+			for (ChunkVertexEncoder.Vertex vertex : vertices) {
+				vertex.light = WorldLightCurves.remap(vertex.light, worldBlockCurve, worldSkyCurve);
+			}
+		}
 	}
 
 	@Inject(

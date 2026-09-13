@@ -19,6 +19,7 @@ package net.frozenblock.glowtone.light.edge.sodium;
 
 import net.caffeinemc.mods.sodium.client.render.model.MutableQuadViewImpl;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.lighting.WorldLightCurves;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.render.GlowtoneModelBoxes;
 import net.frozenblock.glowtone.render.sodium.GlowtoneSodiumQuad;
@@ -50,6 +51,11 @@ public final class SodiumEdges {
 	) {
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setEmissiveQuad(((GlowtoneSodiumQuad) quad).glowtone$emissive());
+		if (level != null && pos != null) {
+			state.setWorldCurves(WorldLightCurves.blockCurveAt(level, pos), WorldLightCurves.skyCurveAt(level, pos));
+		} else {
+			state.setWorldCurves(WorldLightCurves.IDENTITY, WorldLightCurves.IDENTITY);
+		}
 
 		if (MaterialShaderPatcher.anyQuadOffset()) {
 			state.beginQuadCentre(

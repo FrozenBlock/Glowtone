@@ -5,6 +5,7 @@ import com.google.gson.JsonParseException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import net.frozenblock.glowtone.light.BlockLightPropertiesRenderer;
+import net.frozenblock.glowtone.light.SkyTintColumns;
 import net.frozenblock.glowtone.light.color.render.GlowtoneColorWindowCache;
 import net.frozenblock.glowtone.light.color.render.GlowtoneSectionColorStore;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -159,7 +160,9 @@ public final class BlockStateLightPropertiesLoader implements PreparableReloadLi
 		if (minecraft == null) return;
 
 		minecraft.execute(() -> {
-			if (minecraft.level != null) minecraft.levelExtractor.allChanged();
+			if (minecraft.level == null) return;
+			SkyTintColumns.rebuild(minecraft.level);
+			minecraft.levelExtractor.allChanged();
 		});
 	}
 

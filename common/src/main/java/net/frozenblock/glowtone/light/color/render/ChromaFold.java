@@ -62,7 +62,7 @@ public final class ChromaFold {
 
 		if (sky) {
 			if (skyLightShare(lightCoords) <= 0F) return NO_TINT;
-			return skyTintHue(probe, blockX, eyeY, blockZ);
+			return skyTintHue(probe, x, y + eyeHeight, z);
 		}
 
 		final float weight = blockLightShare(lightCoords);
@@ -88,7 +88,7 @@ public final class ChromaFold {
 		final int blockY = pos.getY();
 		final int blockZ = pos.getZ();
 
-		final int sky = skyTint(probe, blockX, blockY, blockZ, lightCoords);
+		final int sky = skyTint(probe, blockX + 0.5D, blockY + 0.5D, blockZ + 0.5D, lightCoords);
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return sky;
 
@@ -122,7 +122,7 @@ public final class ChromaFold {
 		final int blockY = Mth.floor(y);
 		final int blockZ = Mth.floor(z);
 
-		final int sky = skyTint(probe, blockX, blockY, blockZ, lightCoords);
+		final int sky = skyTint(probe, x, y, z, lightCoords);
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return sky;
 
@@ -140,10 +140,10 @@ public final class ChromaFold {
 
 		if (sky) {
 			if (skyLightShare(lightCoords) <= 0F) return NO_TINT;
-			return skyTintHue(ColorProbe.get(), blockX, blockY, blockZ);
+			return skyTintHue(probe, x, y, z);
 		}
 
-		final int skyTint = skyTint(probe, blockX, blockY, blockZ, lightCoords);
+		final int skyTint = skyTint(probe, x, y, z, lightCoords);
 		final float weight = blockLightShare(lightCoords);
 		if (weight <= 0F) return skyTint;
 
@@ -153,31 +153,60 @@ public final class ChromaFold {
 		return combine(fold(ChromaBlender.toEntityArgb(samples), weight), skyTint);
 	}
 
-	private static int skyTintHue(ColorProbe probe, int x, int y, int z) {
-		if (sectionInterior(x) && sectionInterior(y) && sectionInterior(z) && !probe.hasSkyHues(x, y, z)) {
-			return ChromaBlender.skyTintArgb(WHITE_RGB);
-		}
+	private static int skyTintHue(ColorProbe probe, double x, double y, double z) {
+		final int step = GlowtoneRegionFlood.ENTITY_CELL_BLOCKS;
+		final double centreOffset = step / 2D;
+
+		final double gridX = (x - centreOffset) / step;
+		final double gridY = (y - centreOffset) / step;
+		final double gridZ = (z - centreOffset) / step;
+
+		final int cellX = Mth.floor(gridX);
+		final int cellY = Mth.floor(gridY);
+		final int cellZ = Mth.floor(gridZ);
+
+		final int fracX = (int) ((gridX - cellX) * ChromaBlender.WEIGHT_ONE);
+		final int fracY = (int) ((gridY - cellY) * ChromaBlender.WEIGHT_ONE);
+		final int fracZ = (int) ((gridZ - cellZ) * ChromaBlender.WEIGHT_ONE);
 
 		int red = 0;
 		int green = 0;
 		int blue = 0;
-		for (int i = 0; i < SKY_SAMPLES.length; i += 3) {
-			int rgb = probe.getSkyRgb(x + SKY_SAMPLES[i], y + SKY_SAMPLES[i + 1], z + SKY_SAMPLES[i + 2]);
-			red += (rgb >> 16) & 0xFF;
-			green += (rgb >> 8) & 0xFF;
-			blue += rgb & 0xFF;
+		int total = 0;
+		boolean any = false;
+		for (int corner = 0; corner < 8; corner++) {
+			final int offsetX = corner & 1;
+			final int offsetY = (corner >> 1) & 1;
+			final int offsetZ = (corner >> 2) & 1;
+
+			final int weightX = offsetX == 0 ? ChromaBlender.WEIGHT_ONE - fracX : fracX;
+			final int weightY = offsetY == 0 ? ChromaBlender.WEIGHT_ONE - fracY : fracY;
+			final int weightZ = offsetZ == 0 ? ChromaBlender.WEIGHT_ONE - fracZ : fracZ;
+
+			final int weight = weightX * weightY / ChromaBlender.WEIGHT_ONE
+				* weightZ / ChromaBlender.WEIGHT_ONE;
+			if (weight <= 0) continue;
+
+			final int sampleX = (cellX + offsetX) * step;
+			final int sampleY = (cellY + offsetY) * step;
+			final int sampleZ = (cellZ + offsetZ) * step;
+			int rgb = WHITE_RGB;
+			if (probe.hasSkyHues(sampleX, sampleY, sampleZ)) {
+				any = true;
+				rgb = probe.getSkyRgb(sampleX, sampleY, sampleZ);
+			}
+
+			red += ((rgb >> 16) & 0xFF) * weight;
+			green += ((rgb >> 8) & 0xFF) * weight;
+			blue += (rgb & 0xFF) * weight;
+			total += weight;
 		}
 
-		final int count = SKY_SAMPLES.length / 3;
-		return ChromaBlender.skyTintArgb(((red / count) << 16) | ((green / count) << 8) | (blue / count));
+		if (!any || total == 0) return ChromaBlender.skyTintArgb(WHITE_RGB);
+		return ChromaBlender.skyTintArgb(((red / total) << 16) | ((green / total) << 8) | (blue / total));
 	}
 
-	private static boolean sectionInterior(int coord) {
-		final int local = coord & 15;
-		return local > 0 && local < 15;
-	}
-
-	private static int skyTint(ColorProbe probe, int x, int y, int z, int lightCoords) {
+	private static int skyTint(ColorProbe probe, double x, double y, double z, int lightCoords) {
 		final float weight = skyLightShare(lightCoords);
 		if (weight <= 0F) return NO_TINT;
 
@@ -211,13 +240,6 @@ public final class ChromaFold {
 		if (second == NO_TINT) return first;
 		return ARGB.multiply(first, second);
 	}
-
-	private static final int[] SKY_SAMPLES = {
-		0, 0, 0,
-		-1, 0, 0, 1, 0, 0,
-		0, -1, 0, 0, 1, 0,
-		0, 0, -1, 0, 0, 1,
-	};
 
 	private static boolean smoothLighting() {
 		final Minecraft minecraft = Minecraft.getInstance();

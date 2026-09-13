@@ -19,27 +19,34 @@ package net.frozenblock.glowtone.mixin.client.color.block;
 
 import net.frozenblock.glowtone.light.SkyTintColumns;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.ChunkPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @ClientOnly
-@Mixin(ClientLevel.class)
-public class ClientLevelMixin {
+@Mixin(LevelChunk.class)
+public class LevelChunkSkyTintMixin {
 
-	@Inject(method = "onChunkLoaded", at = @At("TAIL"))
-	private void glowtone$indexSkyTint(ChunkPos pos, CallbackInfo info) {
-		final LevelChunk chunk = ClientLevel.class.cast(this).getChunkSource().getChunk(pos.x(), pos.z(), ChunkStatus.FULL, false);
-		if (chunk != null) SkyTintColumns.onChunkLoaded(chunk);
-	}
+	@Shadow
+	@Final
+	private Level level;
 
-	@Inject(method = "unload", at = @At("HEAD"))
-	private void glowtone$dropSkyTint(LevelChunk chunk, CallbackInfo info) {
-		SkyTintColumns.onChunkUnloaded(chunk.getPos());
+	@Inject(
+		method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Lnet/minecraft/world/level/block/state/BlockState;",
+		at = @At("RETURN")
+	)
+	private void glowtone$trackSkyTint(BlockPos pos, BlockState state, int flags, CallbackInfoReturnable<@Nullable BlockState> info) {
+		final BlockState oldState = info.getReturnValue();
+		if (oldState == null || !this.level.isClientSide()) return;
+
+		SkyTintColumns.onBlockChanged(LevelChunk.class.cast(this), pos, oldState, state);
 	}
 }

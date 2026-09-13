@@ -28,6 +28,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.frozenblock.glowtone.light.color.render.ChromaBaker;
+import net.frozenblock.glowtone.lighting.WorldLightCurves;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.frozenblock.glowtone.GlowtoneConstants;
@@ -80,6 +81,7 @@ public class DefaultFluidRendererMixin {
 	) {
 		final ChromaBaker.SectionState state = ChromaBaker.state();
 		state.setEmissiveQuad(GlowtoneConstants.GLOWTONE_EMISSIVES && fluidState.is(FluidTags.LAVA));
+		state.setWorldCurves(WorldLightCurves.blockCurveAt(level, blockPos), WorldLightCurves.skyCurveAt(level, blockPos));
 
 		if (!state.highlightEnabled() || !fluidState.is(FluidTags.WATER)) return;
 

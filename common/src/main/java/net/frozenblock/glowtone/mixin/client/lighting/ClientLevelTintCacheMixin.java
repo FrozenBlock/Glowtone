@@ -15,31 +15,34 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.color.block;
+package net.frozenblock.glowtone.mixin.client.lighting;
 
-import net.frozenblock.glowtone.light.SkyTintColumns;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import net.frozenblock.glowtone.lighting.WorldLightCurves;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.client.color.block.BlockTintCache;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.ColorResolver;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
 @Mixin(ClientLevel.class)
-public class ClientLevelMixin {
+public class ClientLevelTintCacheMixin {
 
-	@Inject(method = "onChunkLoaded", at = @At("TAIL"))
-	private void glowtone$indexSkyTint(ChunkPos pos, CallbackInfo info) {
-		final LevelChunk chunk = ClientLevel.class.cast(this).getChunkSource().getChunk(pos.x(), pos.z(), ChunkStatus.FULL, false);
-		if (chunk != null) SkyTintColumns.onChunkLoaded(chunk);
-	}
+	@Shadow
+	@Final
+	private Object2ObjectArrayMap<ColorResolver, BlockTintCache> tintCaches;
 
-	@Inject(method = "unload", at = @At("HEAD"))
-	private void glowtone$dropSkyTint(LevelChunk chunk, CallbackInfo info) {
-		SkyTintColumns.onChunkUnloaded(chunk.getPos());
+	@Inject(method = "<init>", at = @At("TAIL"))
+	private void glowtone$addLightCurveTintCache(CallbackInfo info) {
+		final BlockTintCache[] caches = WorldLightCurves.newCaches(ClientLevel.class.cast(this));
+		for (int index = 0; index < caches.length; index++) {
+			this.tintCaches.put(WorldLightCurves.RESOLVERS[index], caches[index]);
+		}
 	}
 }

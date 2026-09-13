@@ -46,6 +46,7 @@ import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.config.GlowtoneDebugEntries;
 import net.frozenblock.glowtone.config.option.bloom.BloomOption;
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettings;
+import net.frozenblock.glowtone.lighting.GlowtoneLighting;
 import net.frozenblock.glowtone.render.SceneDepth;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -442,8 +443,8 @@ public final class GlowtoneBloomRenderer {
 
 	private static void updateUniforms(int width, int height, int sceneWidth, int sceneHeight, float strength) {
 		// Without these in the key, a reload changes the settings but never the uniforms.
-		final float packRadius = GlowtonePackSettings.bloomRadius();
-		final float packIntensity = GlowtonePackSettings.bloomIntensity();
+		final float packRadius = GlowtoneLighting.bloomRadius(GlowtonePackSettings.bloomRadius());
+		final float packIntensity = GlowtoneLighting.bloomIntensity(GlowtonePackSettings.bloomIntensity());
 		final float far = SceneDepth.far();
 		if (width == uniformWidth
 			&& height == uniformHeight

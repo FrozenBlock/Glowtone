@@ -77,6 +77,19 @@ final class GlowtoneChannels {
 		return normalise(red, green, blue);
 	}
 
+	static int mixHue(int a, int b) {
+		return normalise(
+			(((a >> 8) & 0xF) + ((b >> 8) & 0xF)) / 2,
+			(((a >> 4) & 0xF) + ((b >> 4) & 0xF)) / 2,
+			((a & 0xF) + (b & 0xF)) / 2
+		);
+	}
+
+	static int meanHue(int red, int green, int blue, int count) {
+		if (count <= 0) return WHITE_HUE;
+		return normalise(red / count, green / count, blue / count);
+	}
+
 	static int emissionLevels(int emission, int rgb) {
 		final int level = Math.min(Math.max(emission, 0), MAX_LEVEL);
 		if (level == 0) return 0;

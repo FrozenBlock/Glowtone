@@ -123,7 +123,7 @@ public final class SodiumEmissiveShaderPatcher {
 
 	private static final String MATERIAL_WRITES =
 		System.lineSeparator()
-			+ "    glowtone_Material = " + BlockMaterialRenderer.GLSL_INDEX_DECODE.formatted("a_GlowtoneFlags") + ";" + System.lineSeparator()
+			+ "    glowtone_Material = " + BlockMaterialRenderer.SODIUM_GLSL_INDEX_DECODE.formatted("a_GlowtoneFlags") + ";" + System.lineSeparator()
 			+ "    glowtone_WorldPos = position;" + System.lineSeparator()
 			+ "    glowtone_AbsPos = position + vec3(CameraBlockPos) - CameraOffset;" + System.lineSeparator()
 			+ "    glowtone_Light = vec2(0.0);" + System.lineSeparator()
@@ -207,7 +207,7 @@ public final class SodiumEmissiveShaderPatcher {
 		}
 
 		final String displace = System.lineSeparator()
-			+ "    int glowtone_vIndex = " + BlockMaterialRenderer.GLSL_INDEX_DECODE.formatted("a_GlowtoneFlags") + ";" + System.lineSeparator()
+			+ "    int glowtone_vIndex = " + BlockMaterialRenderer.SODIUM_GLSL_INDEX_DECODE.formatted("a_GlowtoneFlags") + ";" + System.lineSeparator()
 			+ "    if (glowtone_vIndex != 0) {" + System.lineSeparator()
 			+ "        vec3 glowtone_vAbs = position + vec3(CameraBlockPos) - CameraOffset;" + System.lineSeparator()
 			+ "        vec3 glowtone_vBlock = floor(glowtone_vAbs);" + System.lineSeparator()

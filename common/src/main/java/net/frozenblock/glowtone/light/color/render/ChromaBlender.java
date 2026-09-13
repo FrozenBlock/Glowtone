@@ -26,11 +26,30 @@ public final class ChromaBlender {
 	public static final int NEUTRAL_ARGB = 0xFFFFFFFF;
 	public static final int NEUTRAL_TERRAIN_ARGB = 0xFF808080;
 	public static final float CHROMA_SCALE = 2F;
-	private static final float SUBTLE_SATURATION = 0.85F;
-	private static final float SUBTLE_SKY_STRENGTH = 0.5F;
-	private static final float SUBTLE_EQUALISE = 0.4F;
+
+	public record Tone(
+		float saturation, float skyStrength, float equalise, float targetLuma, int fullTintLevel,
+		float strength, float scaleRed, float scaleGreen, float scaleBlue
+	) {
+		public static final Tone DEFAULT = new Tone(0.85F, 0.5F, 0.4F, 0.8F, 12, 1F, 1F, 1F, 1F);
+
+		public boolean scalesChroma() {
+			return this.strength != 1F || this.scaleRed != 1F || this.scaleGreen != 1F || this.scaleBlue != 1F;
+		}
+	}
 
 	private static volatile ColoredLightingMode mode = ColoredLightingMode.SUBTLE;
+	private static volatile Tone tone = Tone.DEFAULT;
+
+	public static Tone tone() {
+		return tone;
+	}
+
+	public static boolean setTone(Tone value) {
+		final Tone previous = tone;
+		tone = value;
+		return !previous.equals(value);
+	}
 
 	public static void setMode(ColoredLightingMode value) {
 		mode = value;
@@ -45,22 +64,20 @@ public final class ChromaBlender {
 		if (current == ColoredLightingMode.OFF) return NEUTRAL_ARGB;
 		if (current == ColoredLightingMode.INTENSE) return 0xFF000000 | rgb;
 
+		final float strength = tone.skyStrength();
 		return 0xFF000000
-			| (towardWhite((rgb >> 16) & 0xFF) << 16)
-			| (towardWhite((rgb >> 8) & 0xFF) << 8)
-			| towardWhite(rgb & 0xFF);
+			| (towardWhite((rgb >> 16) & 0xFF, strength) << 16)
+			| (towardWhite((rgb >> 8) & 0xFF, strength) << 8)
+			| towardWhite(rgb & 0xFF, strength);
 	}
 
-	private static int towardWhite(int channel) {
-		return Math.round(255F - (255 - channel) * SUBTLE_SKY_STRENGTH);
+	private static int towardWhite(int channel, float strength) {
+		return Math.round(255F - (255 - channel) * strength);
 	}
 
 	public static ColoredLightingMode mode() {
 		return mode;
 	}
-
-	private static final int FULL_TINT_LEVEL = 12;
-	private static final float TARGET_LUMA = 0.8F;
 
 	private static final float LUMA_RED = 0.2126F;
 	private static final float LUMA_GREEN = 0.7152F;
@@ -139,25 +156,26 @@ public final class ChromaBlender {
 		float green = greenSum / brightestSum;
 		float blue = blueSum / brightestSum;
 
-		final float fade = Math.min(1F, strongest / (float) FULL_TINT_LEVEL);
+		final Tone tone = ChromaBlender.tone;
+		final float fade = Math.min(1F, strongest / (float) tone.fullTintLevel());
 		final boolean intense = mode == ColoredLightingMode.INTENSE;
 
 		if (intense) {
 			final float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;
 			if (luma > 0.001F) {
 				float limit = headroom > 0F ? headroom : 1F;
-				float scale = Math.min(TARGET_LUMA / luma, limit);
+				float scale = Math.min(tone.targetLuma() / luma, limit);
 				red *= scale;
 				green *= scale;
 				blue *= scale;
 			}
 		} else {
-			red = 1F + (red - 1F) * SUBTLE_SATURATION;
-			green = 1F + (green - 1F) * SUBTLE_SATURATION;
-			blue = 1F + (blue - 1F) * SUBTLE_SATURATION;
+			red = 1F + (red - 1F) * tone.saturation();
+			green = 1F + (green - 1F) * tone.saturation();
+			blue = 1F + (blue - 1F) * tone.saturation();
 
 			final float luma = LUMA_RED * red + LUMA_GREEN * green + LUMA_BLUE * blue;
-			final float target = luma + (TARGET_LUMA - luma) * SUBTLE_EQUALISE;
+			final float target = luma + (tone.targetLuma() - luma) * tone.equalise();
 			if (luma > target) {
 				float scale = target / luma;
 				red *= scale;
@@ -169,6 +187,12 @@ public final class ChromaBlender {
 				green += (1F - green) * mix;
 				blue += (1F - blue) * mix;
 			}
+		}
+
+		if (tone.scalesChroma()) {
+			red = 1F + (red * tone.scaleRed() - 1F) * tone.strength();
+			green = 1F + (green * tone.scaleGreen() - 1F) * tone.strength();
+			blue = 1F + (blue * tone.scaleBlue() - 1F) * tone.strength();
 		}
 
 		red = 1F + (red - 1F) * fade;

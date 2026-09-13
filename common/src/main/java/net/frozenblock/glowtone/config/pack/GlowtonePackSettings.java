@@ -19,10 +19,11 @@ package net.frozenblock.glowtone.config.pack;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.frozenblock.glowtone.lighting.LightingSettings;
 import net.minecraft.util.StringRepresentable;
 import java.util.Optional;
 
-public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom) {
+public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom, LightingSettings lighting) {
 
 	public enum Style implements StringRepresentable {
 		SMOOTH("smooth"),
@@ -171,12 +172,13 @@ public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom
 	}
 
 	public static final GlowtonePackSettings NONE =
-		new GlowtonePackSettings(Highlight.NONE, Water.NONE, Bloom.NONE);
+		new GlowtonePackSettings(Highlight.NONE, Water.NONE, Bloom.NONE, LightingSettings.NONE);
 
 	public static final Codec<GlowtonePackSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		Highlight.CODEC.optionalFieldOf("highlight", Highlight.NONE).forGetter(GlowtonePackSettings::highlight),
 		Water.CODEC.optionalFieldOf("water_highlight", Water.NONE).forGetter(GlowtonePackSettings::water),
-		Bloom.CODEC.optionalFieldOf("bloom", Bloom.NONE).forGetter(GlowtonePackSettings::bloom)
+		Bloom.CODEC.optionalFieldOf("bloom", Bloom.NONE).forGetter(GlowtonePackSettings::bloom),
+		LightingSettings.CODEC.optionalFieldOf("lighting", LightingSettings.NONE).forGetter(GlowtonePackSettings::lighting)
 	).apply(instance, GlowtonePackSettings::new));
 
 	public static final Style DEFAULT_HIGHLIGHT_STYLE = Style.HARD;
@@ -211,6 +213,10 @@ public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom
 			+ " distance=" + this.water.distance().orElse(this.highlight.distance().orElse(DEFAULT_HIGHLIGHT_DISTANCE))
 			+ "] bloom[intensity=" + this.bloom.intensity().orElse(DEFAULT_BLOOM_INTENSITY)
 			+ " radius=" + this.bloom.radius().orElse(DEFAULT_BLOOM_RADIUS)
+			+ "] lighting[profiles=" + this.lighting.profiles().size()
+			+ " default=" + this.lighting.selection().fallback().map(Object::toString).orElse("vanilla")
+			+ " dimensions=" + this.lighting.selection().dimensions().size()
+			+ " biomes=" + this.lighting.selection().biomes().size()
 			+ "]";
 	}
 
@@ -218,7 +224,8 @@ public record GlowtonePackSettings(Highlight highlight, Water water, Bloom bloom
 		return new GlowtonePackSettings(
 			this.highlight.mergedOver(under.highlight),
 			this.water.mergedOver(under.water),
-			this.bloom.mergedOver(under.bloom)
+			this.bloom.mergedOver(under.bloom),
+			this.lighting.mergedOver(under.lighting)
 		);
 	}
 

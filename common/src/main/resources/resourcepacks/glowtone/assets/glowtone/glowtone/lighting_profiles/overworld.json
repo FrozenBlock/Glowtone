@@ -1,0 +1,17 @@
+{
+  "lightmap": {
+    "ambient_color": "#010101",
+    "sky_light_factor": [
+      {
+        "mode": "multiply",
+        "factor": "glowtone:moon_brightness",
+        "points": [[0.0, 0.0], [1.0, 1.0]]
+      },
+      {
+        "mode": "max",
+        "factor": "glowtone:sky_light_factor",
+        "points": [[0.24, 0.0], [1.0, 1.0], [3.0, 3.0]]
+      }
+    ]
+  }
+}

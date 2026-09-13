@@ -18,7 +18,9 @@
 package net.frozenblock.glowtone.mixin.client.color;
 
 import net.frozenblock.glowtone.light.GlowtoneRegionFlood;
+import net.frozenblock.glowtone.light.SkyTintColumns;
 import net.frozenblock.glowtone.light.color.render.GlowtoneColorWindowCache;
+import net.frozenblock.glowtone.lighting.GlowtoneLighting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
@@ -35,12 +37,16 @@ public class MinecraftLevelSwapMixin {
 	@Inject(method = "setLevel", at = @At("HEAD"))
 	private void glowtone$dropWindowsOnLevelSwap(ClientLevel level, CallbackInfo info) {
 		GlowtoneColorWindowCache.clear();
+		SkyTintColumns.clear();
 		GlowtoneRegionFlood.setSkyTintDimension(level != null && level.dimensionType().hasSkyLight());
+		GlowtoneLighting.onLevelChanged(level);
 	}
 
 	@Inject(method = "disconnectFromWorld", at = @At("HEAD"))
 	private void glowtone$dropWindowsOnDisconnect(@Nullable Component message, CallbackInfo info) {
 		GlowtoneColorWindowCache.clear();
+		SkyTintColumns.clear();
 		GlowtoneRegionFlood.setSkyTintDimension(false);
+		GlowtoneLighting.onLevelChanged(null);
 	}
 }

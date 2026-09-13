@@ -29,6 +29,7 @@ import net.frozenblock.glowtone.light.occlusion.OcclusionOverrideHelper;
 import net.frozenblock.glowtone.light.edge.EdgeNeighbours;
 import net.frozenblock.glowtone.light.edge.FluidEdges;
 import net.frozenblock.glowtone.light.edge.QuadEdges;
+import net.frozenblock.glowtone.lighting.WorldLightCurves;
 import net.frozenblock.glowtone.render.sodium.vertex.GTSodiumVertexFormat;
 import net.frozenblock.glowtone.render.vertex.GlowtoneVertexLayout;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
@@ -176,6 +177,8 @@ public final class ChromaBaker {
 		private boolean highlightEnabled;
 		private boolean contactShading;
 		private boolean emissiveQuad;
+		private long worldBlockCurve = WorldLightCurves.IDENTITY;
+		private long worldSkyCurve = WorldLightCurves.IDENTITY;
 		private boolean sodiumPublished;
 		private @Nullable GlowtoneVertexLayout sodiumLayout;
 		private final float[] quadPositions = new float[12];
@@ -218,6 +221,8 @@ public final class ChromaBaker {
 				(AmbientOcclusionOption.glowtoneActive() && AmbientOcclusionOption.SHADER_CONTACT_SHADING)
 					|| GlowtoneDebugEntries.enabled(GlowtoneDebugEntries.AMBIENT_OCCLUSION);
 			this.emissiveQuad = false;
+			this.worldBlockCurve = WorldLightCurves.IDENTITY;
+			this.worldSkyCurve = WorldLightCurves.IDENTITY;
 
 			final boolean vanilla = AmbientOcclusionOption.vanillaActive();
 			final float scale = OcclusionStrengthOption.scale();
@@ -319,6 +324,19 @@ public final class ChromaBaker {
 		public GlowtoneVertexLayout sodiumLayout() {
 			final GlowtoneVertexLayout layout = this.sodiumLayout;
 			return layout != null ? layout : GTSodiumVertexFormat.currentLayout();
+		}
+
+		public long worldBlockCurve() {
+			return this.worldBlockCurve;
+		}
+
+		public long worldSkyCurve() {
+			return this.worldSkyCurve;
+		}
+
+		public void setWorldCurves(long blockCurve, long skyCurve) {
+			this.worldBlockCurve = blockCurve;
+			this.worldSkyCurve = skyCurve;
 		}
 
 		public boolean emissiveQuad() {

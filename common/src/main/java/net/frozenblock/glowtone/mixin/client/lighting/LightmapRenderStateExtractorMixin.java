@@ -15,31 +15,23 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.mixin.client.color.block;
+package net.frozenblock.glowtone.mixin.client.lighting;
 
-import net.frozenblock.glowtone.light.SkyTintColumns;
+import net.frozenblock.glowtone.lighting.GlowtoneLighting;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.client.renderer.LightmapRenderStateExtractor;
+import net.minecraft.client.renderer.state.LightmapRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @ClientOnly
-@Mixin(ClientLevel.class)
-public class ClientLevelMixin {
+@Mixin(LightmapRenderStateExtractor.class)
+public class LightmapRenderStateExtractorMixin {
 
-	@Inject(method = "onChunkLoaded", at = @At("TAIL"))
-	private void glowtone$indexSkyTint(ChunkPos pos, CallbackInfo info) {
-		final LevelChunk chunk = ClientLevel.class.cast(this).getChunkSource().getChunk(pos.x(), pos.z(), ChunkStatus.FULL, false);
-		if (chunk != null) SkyTintColumns.onChunkLoaded(chunk);
-	}
-
-	@Inject(method = "unload", at = @At("HEAD"))
-	private void glowtone$dropSkyTint(LevelChunk chunk, CallbackInfo info) {
-		SkyTintColumns.onChunkUnloaded(chunk.getPos());
+	@Inject(method = "extract", at = @At("RETURN"))
+	private void glowtone$applyLightingProfile(LightmapRenderState state, float partialTick, CallbackInfo info) {
+		GlowtoneLighting.apply(state, partialTick);
 	}
 }

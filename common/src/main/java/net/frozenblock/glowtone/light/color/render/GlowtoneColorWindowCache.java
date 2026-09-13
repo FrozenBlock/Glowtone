@@ -86,6 +86,19 @@ public final class GlowtoneColorWindowCache {
 		}
 	}
 
+	public static void invalidateSkyColumns(int sectionX, int minSectionY, int maxSectionY, int sectionZ) {
+		synchronized (LOCK) {
+			if (SKY_WINDOWS.isEmpty()) return;
+			for (int x = -1; x <= 1; x++) {
+				for (int z = -1; z <= 1; z++) {
+					for (int y = minSectionY; y <= maxSectionY; y++) {
+						SKY_WINDOWS.remove(SectionPos.asLong(sectionX + x, y, sectionZ + z));
+					}
+				}
+			}
+		}
+	}
+
 	public static void clear() {
 		synchronized (LOCK) {
 			WINDOWS.clear();
