@@ -8,7 +8,7 @@ issueTrackerURL="https://github.com/FrozenBlock/Glowtone/issues"
     version="${mod_version}"
     displayName="Glowtone"
     displayURL="https://modrinth.com/mod/Glowtone"
-    logoFile="assets/glowtone/icon.png"
+    iconFile="assets/glowtone/icon.png"
     authors="Luna/AViewFromTheTop"
     description='''
 Allows for emissive textures to be quickly added as an overlay on both Block and Item models, as well as changing the render layers of blocks.
