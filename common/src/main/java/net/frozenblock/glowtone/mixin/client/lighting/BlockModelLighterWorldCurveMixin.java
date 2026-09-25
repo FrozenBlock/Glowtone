@@ -37,9 +37,9 @@ public class BlockModelLighterWorldCurveMixin {
 
 	@Inject(method = "prepareQuadAmbientOcclusion", at = @At("TAIL"))
 	private void glowtone$bendSmoothLight(
-		BlockAndTintGetter level, BlockState state, BlockPos pos, BakedQuad quad, QuadInstance outputInstance, CallbackInfo info
+		BlockAndTintGetter level, BlockState state, BlockPos centerPosition, BakedQuad quad, QuadInstance outputInstance, CallbackInfo info
 	) {
-		glowtone$bend(level, pos, outputInstance);
+		glowtone$bend(level, centerPosition, outputInstance);
 	}
 
 	@Inject(method = "prepareQuadFlat", at = @At("TAIL"))

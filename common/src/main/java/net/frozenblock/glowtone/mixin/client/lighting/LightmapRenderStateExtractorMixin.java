@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LightmapRenderStateExtractorMixin {
 
 	@Inject(method = "extract", at = @At("RETURN"))
-	private void glowtone$applyLightingProfile(LightmapRenderState state, float partialTick, CallbackInfo info) {
-		GlowtoneLighting.apply(state, partialTick);
+	private void glowtone$applyLightingProfile(LightmapRenderState renderState, float partialTicks, CallbackInfo info) {
+		GlowtoneLighting.apply(renderState, partialTicks);
 	}
 }

@@ -34,10 +34,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class LightmapMixin {
 
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
-	private void glowtone$renderGradedLightmap(LightmapRenderState state, CallbackInfo info) {
+	private void glowtone$renderGradedLightmap(LightmapRenderState renderState, CallbackInfo info) {
 		if (!GlowtoneLighting.gradingActive()) return;
 
-		if (state.needsUpdate) GlowtoneLighting.renderGradedLightmap(state);
+		if (renderState.needsUpdate) GlowtoneLighting.renderGradedLightmap(renderState);
 		info.cancel();
 	}
 
