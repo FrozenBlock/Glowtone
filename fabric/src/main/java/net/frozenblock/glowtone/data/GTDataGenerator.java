@@ -1,6 +1,6 @@
 /*
- * Copyright 2025-2026 FrozenBlock
- * This file is part of Wilder Wild.
+ * Copyright 2026 FrozenBlock
+ * This file is part of Glowtone.
  *
  * This program is free software; you can modify it under
  * the terms of version 1 of the FrozenBlock Modding Oasis License
