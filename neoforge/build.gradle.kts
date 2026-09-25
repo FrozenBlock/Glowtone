@@ -11,12 +11,12 @@ checkstyle {
 
 val mod_id: String by project
 val mod_version: String by project
+val subproject_prefix: String by project
 val minecraft_version: String by project
 val maven_group: String by project
 val archives_base_name: String by project
 
-val neoforge_version: String by project
-val neoforge_loader_version_range: String by project
+val frozenlib_version: String by project
 
 val sodium_version: String by project
 val run_sodium: String by project
@@ -32,9 +32,6 @@ base {
     archivesName.set(archives_base_name)
 }
 
-val release = findProperty("releaseType") == "stable"
-
-version = getModVersion()
 group = maven_group
 
 tasks.jar {
@@ -52,18 +49,40 @@ repositories {
 }
 
 neoforge {
-    dependOn(project(":gt-common"))
-    accessWidener(project(":gt-common"))
+    dependOn(project(":$subproject_prefix-common"))
+    accessWidener(project(":$subproject_prefix-common"))
 }
 
 neoForge {
     accessTransformers {} // Required for transitive AW to apply!
 }
 
+dependencies {
+    // FrozenLib
+    api("net.frozenblock:frozenlib-neoforge:$frozenlib_version")?.let {
+        accessTransformers(it)
+        interfaceInjectionData(it)
+    }
+
+    // LambDynamicLights
+	compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:$lambdynamiclights_version")
+	compileOnly("dev.yumi.mc.core:yumi-mc-foundation:$yumi_mc_foundation_version")
+
+    // Async Particles
+	compileOnly("maven.modrinth:asyncparticles:$asyncparticles_version")
+
+    // Sodium
+    if (shouldRunSodium) {
+        implementation("net.caffeinemc:sodium-neoforge-mod:$sodium_version")
+        implementation("net.caffeinemc:sodium-neoforge:$sodium_version")
+    } else {
+        compileOnly("net.caffeinemc:sodium-neoforge-mod:$sodium_version")
+        compileOnly("net.caffeinemc:sodium-neoforge:$sodium_version")
+    }
+}
+
 val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
 val licenseChecks: Boolean = githubActions
-
-val applyLicenses: Task by tasks
 
 tasks {
     license {
@@ -73,59 +92,6 @@ tasks {
             include("**/*.java")
         }
     }
-
-    processResources {
-        val properties = mapOf(
-            "mod_version" to getModVersion(),
-            "minecraft_version" to minecraft_version,
-            "neoforge_version" to neoforge_version
-        )
-        inputs.properties(properties)
-        filesMatching("META-INF/neoforge.mods.toml") {
-            expand(properties)
-        }
-    }
-
-    withType(JavaCompile::class) {
-        options.encoding = "UTF-8"
-        options.release = 25
-        options.isFork = true
-        options.isIncremental = true
-    }
-}
-
-val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
-val loaderVariants = setOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements")
-configurations.all {
-    if (name in loaderVariants) {
-        attributes {
-            attribute(loaderAttribute, "neoforge")
-        }
-    }
-}
-sourceSets.configureEach {
-    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach { variant ->
-        configurations.named(variant) {
-            attributes {
-                attribute(loaderAttribute, "neoforge")
-            }
-        }
-    }
-}
-
-dependencies {
-	compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${lambdynamiclights_version}")
-	compileOnly("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
-	compileOnly("maven.modrinth:asyncparticles:${asyncparticles_version}")
-
-    // Sodium
-    if (shouldRunSodium) {
-        implementation("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")
-        implementation("net.caffeinemc:sodium-neoforge:${sodium_version}")
-    } else {
-        compileOnly("net.caffeinemc:sodium-neoforge-mod:${sodium_version}")
-        compileOnly("net.caffeinemc:sodium-neoforge:${sodium_version}")
-    }
 }
 
 java {
@@ -133,26 +99,48 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
-fun getModVersion(): String {
-    var version = "$mod_version-mc$minecraft_version"
+val sourcesJar: Jar by tasks
+val javadocJar: Jar by tasks
 
-    if (!release)
-        version += "-unstable"
+artifacts {
+    archives(sourcesJar)
+    archives(javadocJar)
+}
 
-    return version
+val changelogText = run {
+    val split = rootProject.file("CHANGELOG.md").readText().split("-----------------")
+    check(split.size == 2) { "Malformed changelog" }
+    split[1].trim()
 }
 
 upload {
     maven {
-        name.set("glowtone-neoforge")
+        name.set("$mod_id-neoforge")
     }
 
-    modrinth {
+    forEach {
+        changelog = changelogText
+    }
+
+    curseforge {
         dependencies {
+            required("frozenlib")
             optional("wilder-wild")
             optional("trailier-tales")
             optional("the-copperier-age")
             optional("netherier-nether")
+            optional("lambdynamiclights")
+        }
+    }
+
+    modrinth {
+        dependencies {
+            required("frozenlib")
+            optional("wilder-wild")
+            optional("trailier-tales")
+            optional("the-copperier-age")
+            optional("netherier-nether")
+            optional("lambdynamiclights")
         }
     }
 }

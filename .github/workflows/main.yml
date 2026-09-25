@@ -1,20 +1,17 @@
 name: Build
-on:
-  pull_request:
-  push:
-  workflow_dispatch:
-
+on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     strategy:
       matrix:
-        java: [21]
+        java: [25]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     env:
       MAVEN_URL: ${{secrets.SNAPSHOT_MAVEN_URL}}
       MAVEN_USERNAME: ${{secrets.MAVEN_USERNAME}}
       MAVEN_PASSWORD: ${{secrets.MAVEN_PASSWORD}}
+      SNAPSHOT: true
     steps:
       - name: Cache Dependencies
         uses: actions/cache@v3
@@ -30,6 +27,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Checkout FrozenLib
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          repository: FrozenBlock/FrozenLib
+          ref: master
+          submodules: recursive
+          path: FrozenLib
       - name: Setup JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
@@ -42,13 +47,3 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build
         run: ./gradlew build publish -PuseThirdPartyMods=false
-      - name: Extract current branch name
-        shell: bash
-        # bash pattern expansion to grab branch name without slashes
-        run: ref="${GITHUB_REF#refs/heads/}" && echo "::set-output name=branch::${ref////-}"
-        id: ref
-      - name: Capture Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: FrozenLib-Artifacts-${{ steps.ref.outputs.branch }}
-          path: build/libs/

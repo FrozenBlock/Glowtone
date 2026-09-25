@@ -6,7 +6,8 @@ import dev.lambdaurora.lambdynlights.engine.source.DynamicLightSource;
 import dev.lambdaurora.lambdynlights.engine.source.EntityDynamicLightSource;
 import net.frozenblock.glowtone.light.color.EmitterColorHelper;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.event.api.events.client.ClientTickEvents;
+import net.frozenblock.lib.platform.ModLoader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -32,7 +33,7 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 
 	@Override
 	public void init() {
-		GlowtonePlatform.INSTANCE.registerOnTickEnd(minecraft -> {
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			try {
 				tick();
 			} catch (NoSuchFieldException | IllegalAccessException e) { // Only throws if in an IDE, otherwise stays silent
@@ -179,7 +180,7 @@ public final class DynamicLightsCompat implements AbstractDynamicLightsCompat {
 			this.failed = true;
 			this.sources = NONE;
 			LOGGER.warn("Glowtone could not read LambDynamicLights sources, disabling dynamic light tinting: {}", e.toString());
-			if (GlowtonePlatform.INSTANCE.isDevelopmentEnvironment()) throw e;
+			if (ModLoader.isDevelopmentEnvironment()) throw e;
 		}
 	}
 }

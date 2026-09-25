@@ -20,13 +20,12 @@ package net.frozenblock.glowtone.render.vertex;
 import net.frozenblock.glowtone.bloom.shader.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.config.GlowtoneConfig;
 import net.frozenblock.glowtone.material.shader.MaterialShaderPatcher;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.FrozenBools;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import org.jspecify.annotations.Nullable;
 
 @ClientOnly
 public record GlowtoneVertexFeatures(boolean chroma, boolean edges, boolean flags, boolean pivot) {
-	private static final boolean SODIUM = GlowtonePlatform.INSTANCE.isModLoaded("sodium");
 	private static volatile @Nullable GlowtoneVertexFeatures shaders;
 	private static volatile @Nullable GlowtoneVertexFeatures applied;
 
@@ -34,7 +33,7 @@ public record GlowtoneVertexFeatures(boolean chroma, boolean edges, boolean flag
 		return new GlowtoneVertexFeatures(
 			GlowtoneConfig.coloredLighting().enabled() || MaterialShaderPatcher.anyQuadOffset(),
 			EmissiveShaderPatcher.edgeDataWanted(),
-			SODIUM && (GlowtoneConfig.bloomEnabled() || MaterialShaderPatcher.any()),
+			FrozenBools.HAS_SODIUM && (GlowtoneConfig.bloomEnabled() || MaterialShaderPatcher.any()),
 			MaterialShaderPatcher.anyQuadOffset()
 		);
 	}

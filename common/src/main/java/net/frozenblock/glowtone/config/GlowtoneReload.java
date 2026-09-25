@@ -19,7 +19,7 @@ package net.frozenblock.glowtone.config;
 
 import net.frozenblock.glowtone.config.pack.GlowtonePackOptions;
 import net.frozenblock.glowtone.config.pack.GlowtonePackOptionsScreen;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.event.api.events.client.ClientTickEvents;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
@@ -32,7 +32,8 @@ public final class GlowtoneReload {
 	private static volatile boolean pending;
 
 	public static void register() {
-		GlowtonePlatform.INSTANCE.registerOnTickEnd(_ -> {
+		// TODO: only reload on video settings screen close
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (pending) request();
 			GlowtonePackOptions.flush();
 		});

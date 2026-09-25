@@ -2,18 +2,16 @@ package net.frozenblock.glowtone.mixin;
 
 import java.util.List;
 import java.util.Set;
+import net.frozenblock.lib.FrozenBools;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 public final class GlowtoneMixinPlugin implements IMixinConfigPlugin {
-	private boolean hasSodium;
 
 	@Override
-	public void onLoad(String mixinPackage) {
-		this.hasSodium = GlowtoneMixinModList.isLoaded("sodium");
-	}
+	public void onLoad(String mixinPackage) {}
 
 	@Override
 	@Nullable
@@ -24,7 +22,7 @@ public final class GlowtoneMixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
 		if (!GlowtoneMixinOptions.enabled(mixinClassName)) return false;
-		if (mixinClassName.contains(".sodium.")) return this.hasSodium;
+		if (mixinClassName.contains(".sodium.")) return FrozenBools.HAS_SODIUM;
 		return true;
 	}
 

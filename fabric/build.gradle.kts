@@ -9,19 +9,17 @@ checkstyle {
     toolVersion = "10.20.2"
 }
 
-val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
-val licenseChecks: Boolean = githubActions
-
-val fabric_loader_version: String by project
-val min_fabric_loader_version: String by project
 
 val mod_id: String by project
 val mod_version: String by project
+val subproject_prefix: String by project
 val minecraft_version: String by project
 val maven_group: String by project
 val archives_base_name: String by project
+val fabric_loader_version: String by project
 
 val fabric_api_version: String by project
+val frozenlib_version: String by project
 
 val sodium_version: String by project
 val run_sodium: String by project
@@ -51,8 +49,6 @@ base {
     archivesName = archives_base_name
 }
 
-val release = findProperty("releaseType") == "stable"
-
 version = getModVersion()
 group = maven_group
 
@@ -61,10 +57,10 @@ tasks.jar {
 }
 
 fabric {
-    dependOn(project(":gt-common"))
-    accessWidener(project(":gt-common"))
+    dependOn(project(":$subproject_prefix-common"))
+    accessWidener(project(":$subproject_prefix-common"))
     dataGen {
-        owner = project(":gt-common")
+        owner = project(":$subproject_prefix-common")
         splitSourceSet("datagen")
     }
 }
@@ -86,105 +82,66 @@ repositories {
     }
 }
 
-val loaderAttribute = Attribute.of("io.github.mcgradleconventions.loader", String::class.java)
-val loaderVariants = setOf("apiElements", "runtimeElements", "sourcesElements", "javadocElements", "includeInternal", "modCompileClasspath")
-configurations.all {
-    if (name in loaderVariants) {
-        attributes {
-            attribute(loaderAttribute, "fabric")
-        }
-    }
-}
-sourceSets.configureEach {
-    listOf(compileClasspathConfigurationName, runtimeClasspathConfigurationName).forEach { variant ->
-        configurations.named(variant) {
-            attributes {
-                attribute(loaderAttribute, "fabric")
-            }
-        }
-    }
-}
-
 dependencies {
-    implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
-    implementation("net.fabricmc.fabric-api:fabric-api:${fabric_api_version}")
+    // Fabric
+    implementation("net.fabricmc:fabric-loader:$fabric_loader_version")
+    implementation("net.fabricmc.fabric-api:fabric-api:$fabric_api_version")
+
+    // FrozenLib
+    api("net.frozenblock:frozenlib-fabric:$frozenlib_version")
 
     // Sodium
     if (shouldRunSodium)
-        implementation("net.caffeinemc:sodium-fabric:${sodium_version}")
+        implementation("net.caffeinemc:sodium-fabric:$sodium_version")
     else
-        compileOnly("net.caffeinemc:sodium-fabric:${sodium_version}")
+        compileOnly("net.caffeinemc:sodium-fabric:$sodium_version")
 
     // LambDynamicLights
     if (shouldRunLambDynamicLights) {
-        implementation("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
-        implementation("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambdynamiclights_version}")
+        implementation("maven.modrinth:lambdynamiclights:$lambdynamiclights_version")
+        implementation("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:$lambdynamiclights_version")
 
-        implementation("dev.yumi.commons:yumi-commons-core:${yumi_commons_version}")
-        implementation("dev.yumi.commons:yumi-commons-collections:${yumi_commons_version}")
-        implementation("dev.yumi.commons:yumi-commons-event:${yumi_commons_version}")
+        implementation("dev.yumi.commons:yumi-commons-core:$yumi_commons_version")
+        implementation("dev.yumi.commons:yumi-commons-collections:$yumi_commons_version")
+        implementation("dev.yumi.commons:yumi-commons-event:$yumi_commons_version")
 
-        implementation("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+        implementation("dev.yumi.mc.core:yumi-mc-foundation:$yumi_mc_foundation_version")
 
-        implementation("dev.lambdaurora:spruceui:${spruceui_version}")
+        implementation("dev.lambdaurora:spruceui:$spruceui_version")
 
-        implementation("io.github.queerbric:pridelib:${pridelib_version}")
+        implementation("io.github.queerbric:pridelib:$pridelib_version")
     } else {
-        compileOnly("maven.modrinth:lambdynamiclights:${lambdynamiclights_version}")
-        compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:${lambdynamiclights_version}")
+        compileOnly("maven.modrinth:lambdynamiclights:$lambdynamiclights_version")
+        compileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-api:$lambdynamiclights_version")
 
-        compileOnly("dev.yumi.commons:yumi-commons-core:${yumi_commons_version}")
-        compileOnly("dev.yumi.commons:yumi-commons-collections:${yumi_commons_version}")
-        compileOnly("dev.yumi.commons:yumi-commons-event:${yumi_commons_version}")
+        compileOnly("dev.yumi.commons:yumi-commons-core:$yumi_commons_version")
+        compileOnly("dev.yumi.commons:yumi-commons-collections:$yumi_commons_version")
+        compileOnly("dev.yumi.commons:yumi-commons-event:$yumi_commons_version")
 
-        compileOnly("dev.yumi.mc.core:yumi-mc-foundation:${yumi_mc_foundation_version}")
+        compileOnly("dev.yumi.mc.core:yumi-mc-foundation:$yumi_mc_foundation_version")
 
-        compileOnly("dev.lambdaurora:spruceui:${spruceui_version}")
+        compileOnly("dev.lambdaurora:spruceui:$spruceui_version")
 
-        compileOnly("io.github.queerbric:pridelib:${pridelib_version}")
+        compileOnly("io.github.queerbric:pridelib:$pridelib_version")
     }
 
-    if (shouldRunVoxy) implementation("maven.modrinth:voxy:${voxy_version}")
-    if (shouldRunNvidium) implementation("maven.modrinth:nvidium:${nvidium_version}")
+    // Voxy
+    if (shouldRunVoxy) implementation("maven.modrinth:voxy:$voxy_version")
+
+    // Nvidium
+    if (shouldRunNvidium) implementation("maven.modrinth:nvidium:$nvidium_version")
+
+    // Async Particles
     if (shouldRunAsyncParticles)
-        implementation("maven.modrinth:asyncparticles:${asyncparticles_version}")
+        implementation("maven.modrinth:asyncparticles:$asyncparticles_version")
     else
-        compileOnly("maven.modrinth:asyncparticles:${asyncparticles_version}")
+        compileOnly("maven.modrinth:asyncparticles:$asyncparticles_version")
 }
 
+val githubActions: Boolean = System.getenv("GITHUB_ACTIONS") == "true"
+val licenseChecks: Boolean = githubActions
+
 tasks {
-    processResources {
-        val properties = mapOf(
-            "mod_id" to mod_id,
-            "version" to version,
-            "minecraft_version" to "~26.2-",
-
-            "fabric_loader_version" to ">=$min_fabric_loader_version",
-            "fabric_api_version" to ">=$fabric_api_version",
-        )
-
-        properties.forEach { (a, b) -> inputs.property(a, b) }
-
-        filesNotMatching(
-            listOf(
-                "**/*.java",
-                "**/sounds.json",
-                "**/lang/*.json",
-                "**/.cache/*",
-                "**/*.accesswidener",
-                "**/*.classtweaker",
-                "**/*.nbt",
-                "**/*.png",
-                "**/*.ogg",
-                "**/*.mixins.json",
-                "**/schemas/*.json",
-                "**/*.zip"
-            )
-        ) {
-            expand(properties)
-        }
-    }
-
     license {
         if (licenseChecks) {
             rule(rootProject.file("codeformat/HEADER"))
@@ -194,22 +151,20 @@ tasks {
     }
 }
 
-val applyLicenses: Task by tasks
-val test: Task by tasks
-val runClient: Task by tasks
-
-val sourcesJar: Jar by tasks
-val javadocJar: Jar by tasks
-
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
 }
 
+val sourcesJar: Jar by tasks
+val javadocJar: Jar by tasks
+
 artifacts {
     archives(sourcesJar)
     archives(javadocJar)
 }
+
+val release = findProperty("releaseType") == "stable"
 
 fun getModVersion(): String {
     var version = "$mod_version-mc$minecraft_version"
@@ -229,16 +184,29 @@ val changelogText = run {
 
 upload {
     maven {
-        name.set("glowtone-fabric")
+        name.set("$mod_id-fabric")
     }
 
     forEach {
         changelog = changelogText
     }
 
+    curseforge {
+        dependencies {
+            required("fabric-api")
+            required("frozenlib")
+            optional("wilder-wild")
+            optional("trailier-tales")
+            optional("the-copperier-age")
+            optional("netherier-nether")
+            optional("lambdynamiclights")
+        }
+    }
+
     modrinth {
         dependencies {
             required("fabric-api")
+            required("frozenlib")
             optional("wilder-wild")
             optional("trailier-tales")
             optional("the-copperier-age")

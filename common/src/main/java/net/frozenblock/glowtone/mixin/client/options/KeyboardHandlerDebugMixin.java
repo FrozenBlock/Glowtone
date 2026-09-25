@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.mixin.client.options;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.frozenblock.glowtone.bloom.shader.EmissiveShaderPatcher;
 import net.frozenblock.glowtone.bloom.GlowtoneBloomRenderer;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.platform.ModLoader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
@@ -70,13 +70,13 @@ public class KeyboardHandlerDebugMixin {
 		cancellable = true,
 		require = 0
 	)
-	private void glowtone$debugChord(long window, int action, KeyEvent event, CallbackInfo info) {
-		if (!GlowtonePlatform.INSTANCE.isDevelopmentEnvironment()) return;
+	private void glowtone$debugChord(long handle, int action, KeyEvent event, CallbackInfo info) {
+		if (!ModLoader.isDevelopmentEnvironment()) return;
 		if (action != GLFW.GLFW_PRESS) return;
 
 		final Minecraft minecraft = Minecraft.getInstance();
 		if (minecraft == null || minecraft.getWindow() == null) return;
-		if (window != minecraft.getWindow().handle()) return;
+		if (handle != minecraft.getWindow().handle()) return;
 		if (!InputConstants.isKeyDown(minecraft.getWindow(), GLOWTONE_MODIFIER_KEY)) return;
 		if (!InputConstants.isKeyDown(minecraft.getWindow(), GLOWTONE_CHORD_KEY)) return;
 

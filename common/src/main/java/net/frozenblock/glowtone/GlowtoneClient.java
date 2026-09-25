@@ -30,9 +30,12 @@ import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLi
 import net.frozenblock.glowtone.light.data.block.BlockStateLightPropertiesLoader;
 import net.frozenblock.glowtone.light.edge.impl.CasterBoxCacheReloader;
 import net.frozenblock.glowtone.light.occlusion.impl.AmbientOcclusionCacheLoader;
-import net.frozenblock.glowtone.platform.GlowtonePackActivation;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.platform.api.resource.PackActivationType;
+import net.frozenblock.lib.resource.api.ResourceLoaderHelper;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.server.packs.PackType;
 
+@ClientOnly
 public final class GlowtoneClient {
 
 	public static void init() {
@@ -42,16 +45,41 @@ public final class GlowtoneClient {
 		ShadingOption.applyFlags(GlowtoneConfig.shading());
 		ColoredLightingOption.applyMode(GlowtoneConfig.coloredLighting());
 
-		GlowtonePlatform.INSTANCE.registerResourceListener("block_light", new BlockStateLightPropertiesLoader());
-		GlowtonePlatform.INSTANCE.registerResourceListener("block_material", new BlockMaterialOverrideLoader());
-		GlowtonePlatform.INSTANCE.registerResourceListener("settings", new GlowtonePackSettingsLoader());
-		GlowtonePlatform.INSTANCE.registerResourceListener("ambient_occlusion_cache", new AmbientOcclusionCacheLoader());
-		GlowtonePlatform.INSTANCE.registerResourceListener("caster_box_cache_reloader", new CasterBoxCacheReloader());
+		ResourceLoaderHelper.registerReloadListener(
+			PackType.CLIENT_RESOURCES,
+			GlowtoneConstants.id("block_light"),
+			new BlockStateLightPropertiesLoader()
+		);
+		ResourceLoaderHelper.registerReloadListener(
+			PackType.CLIENT_RESOURCES,
+			GlowtoneConstants.id("block_material"),
+			new BlockMaterialOverrideLoader()
+		);
+		ResourceLoaderHelper.registerReloadListener(
+			PackType.CLIENT_RESOURCES,
+			GlowtoneConstants.id("settings"),
+			new GlowtonePackSettingsLoader()
+		);
+		ResourceLoaderHelper.registerReloadListener(
+			PackType.CLIENT_RESOURCES,
+			GlowtoneConstants.id("ambient_occlusion_cache"),
+			new AmbientOcclusionCacheLoader()
+		);
+		ResourceLoaderHelper.registerReloadListener(
+			PackType.CLIENT_RESOURCES,
+			GlowtoneConstants.id("caster_box_cache_reloader"),
+			new CasterBoxCacheReloader()
+		);
 		RenderTypeTextureValidityCache.init();
-
-		GlowtonePlatform.INSTANCE.registerResourcePack("glowtone", GlowtonePackActivation.DEFAULT_ENABLED);
+		ResourceLoaderHelper.registerBuiltinPack(
+			GlowtoneConstants.id("glowtone"),
+			GlowtoneConstants.MOD_ID,
+			PackActivationType.DEFAULT_ENABLED
+		);
 
 		// MOD COMPAT
 		GlowtoneDynamicLights.init();
 	}
+
+	private GlowtoneClient() {}
 }

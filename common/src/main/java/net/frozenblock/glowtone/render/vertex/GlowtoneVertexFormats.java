@@ -31,8 +31,8 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import net.frozenblock.glowtone.mixin.client.vertex.DefaultVertexFormatAccessor;
 import net.frozenblock.glowtone.mixin.client.vertex.LevelRendererAccessor;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
 import net.frozenblock.glowtone.render.sodium.vertex.GTSodiumVertexFormat;
+import net.frozenblock.lib.FrozenBools;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 @ClientOnly
 public final class GlowtoneVertexFormats {
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final boolean SODIUM = GlowtonePlatform.INSTANCE.isModLoaded("sodium");
 	private static final Set<RenderPipeline> PIPELINES = Collections.newSetFromMap(new WeakHashMap<>());
 
 	public static void track(RenderPipeline pipeline) {
@@ -77,7 +76,7 @@ public final class GlowtoneVertexFormats {
 		replaced.put(tinted, newTinted);
 
 		String terrain = "";
-		if (SODIUM) {
+		if (FrozenBools.HAS_SODIUM) {
 			final VertexFormat before = GTSodiumVertexFormat.rebuild(features, replaced);
 			terrain = ", sodium terrain " + before.getVertexSize() + " -> " + replaced.get(before).getVertexSize();
 		}

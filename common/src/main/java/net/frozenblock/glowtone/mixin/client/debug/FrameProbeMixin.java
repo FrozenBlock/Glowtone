@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class FrameProbeMixin {
 
 	@Inject(method = "runTick", at = @At("RETURN"))
-	private void glowtone$sampleFrame(boolean renderLevel, CallbackInfo info) {
+	private void glowtone$sampleFrame(boolean advanceGameTime, CallbackInfo info) {
 		GlowtoneFrameProbe.frame();
 	}
 }

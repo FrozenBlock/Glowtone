@@ -20,7 +20,7 @@ package net.frozenblock.glowtone.config;
 import com.mojang.logging.LogUtils;
 import net.frozenblock.glowtone.light.color.render.ColorProbe;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.event.api.events.client.ClientTickEvents;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -65,7 +65,7 @@ public final class GlowtoneDebugCapture {
 		if (TICKS.length == 0) return;
 
 		LOGGER.info("Glowtone debug capture armed at ticks {} after entering a world", java.util.Arrays.toString(TICKS));
-		GlowtonePlatform.INSTANCE.registerOnTickEnd(GlowtoneDebugCapture::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(GlowtoneDebugCapture::tick);
 	}
 
 	private static void tick(Minecraft minecraft) {

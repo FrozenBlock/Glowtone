@@ -1,10 +1,12 @@
 package net.frozenblock.glowtone.entity;
 
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.lib.resource.api.ResourceLoaderHelper;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.jetbrains.annotations.ApiStatus;
@@ -16,7 +18,7 @@ public final class RenderTypeTextureValidityCache {
 
 	@ApiStatus.Internal
 	public static void init() {
-		GlowtonePlatform.INSTANCE.registerResourceListener("emissive_render_type_validity", RELOADER);
+		ResourceLoaderHelper.registerReloadListener(PackType.CLIENT_RESOURCES, GlowtoneConstants.id("emissive_render_type_validity"), RELOADER);
 	}
 
 	public static boolean getOrComputeValidity(Identifier texture) {

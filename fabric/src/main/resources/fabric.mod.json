@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
   "id": "${mod_id}",
-  "version": "${version}",
-  "name": "Glowtone",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
   "description": "Allows for emissive textures to be quickly added as an overlay on both Block and Item models, as well as changing the render layers of blocks.",
   "authors": [
+    "Lufurrius",
     "Luna/AViewFromTheTop"
   ],
   "contributors": [
-    "Lufurrius"
   ],
   "contact": {
-    "homepage": "https://www.modrinth.com/mod/Glowtone",
-    "sources": "https://github.com/FrozenBlock/Glowtone",
-    "issues": "https://github.com/FrozenBlock/Glowtone/issues"
+    "homepage": "${mod_url}",
+    "sources": "${source_url}",
+    "issues": "${issues_url}"
   },
-  "license": "FrozenBlock Modding Oasis License v1.0",
+  "license": "${mod_license}",
   "icon": "assets/glowtone/icon.png",
   "environment": "client",
   "entrypoints": {
@@ -35,6 +35,7 @@
   ],
   "accessWidener": "glowtone.classtweaker",
   "depends": {
+    "frozenlib": "${frozenlib_version}",
     "fabric-api": "*",
     "fabricloader": "${fabric_loader_version}",
     "minecraft": "${minecraft_version}"

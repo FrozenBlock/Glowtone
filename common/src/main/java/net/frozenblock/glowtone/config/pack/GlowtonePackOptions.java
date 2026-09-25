@@ -38,40 +38,40 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import net.frozenblock.glowtone.GlowtoneConstants;
-import net.minecraft.ChatFormatting;
 import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.frozenblock.glowtone.config.sodium.GlowtoneSodiumConfig;
 import net.frozenblock.glowtone.mixin.client.pack.FileResourcesSupplierAccessor;
 import net.frozenblock.glowtone.mixin.client.pack.PathResourcesSupplierAccessor;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.FrozenBools;
+import net.frozenblock.lib.platform.ModLoader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.OptionsList;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.locale.Language;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.util.GsonHelper;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
+import net.minecraft.ChatFormatting;
 
 @ClientOnly
 public final class GlowtonePackOptions {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final String EXTENSION = ".settings";
 	private static final String SLUG_PREFIX = "glowtone_pack_";
-	private static final boolean SODIUM = GlowtonePlatform.INSTANCE.isModLoaded("sodium");
 	private static final Map<String, GlowtonePackDeclaration> DECLARATIONS = new ConcurrentHashMap<>();
 	private static final Map<String, Path> FILES = new ConcurrentHashMap<>();
 	private static final Map<String, Map<String, String>> VALUES = new ConcurrentHashMap<>();
@@ -257,7 +257,7 @@ public final class GlowtonePackOptions {
 		if (!registerPending || GlowtoneReload.settingsOpen()) return;
 
 		registerPending = false;
-		if (SODIUM) GlowtoneSodiumConfig.packsChanged();
+		if (FrozenBools.HAS_SODIUM) GlowtoneSodiumConfig.packsChanged();
 	}
 
 	public static Component title(String packId) {
@@ -506,10 +506,12 @@ public final class GlowtonePackOptions {
 		if (supplier instanceof FilePackResources.FileResourcesSupplier file) {
 			return sibling(((FileResourcesSupplierAccessor) file).glowtone$content().toPath());
 		}
+
 		if (supplier instanceof PathPackResources.PathResourcesSupplier path) {
 			return sibling(((PathResourcesSupplierAccessor) path).glowtone$content());
 		}
-		return GlowtonePlatform.INSTANCE.getConfigDirectory().resolve("glowtone").resolve("packs").resolve(sanitise(packId) + EXTENSION);
+
+		return ModLoader.getConfigDir().resolve(GlowtoneConstants.MOD_ID).resolve("packs").resolve(sanitise(packId) + EXTENSION);
 	}
 
 	private static Path sibling(Path content) {

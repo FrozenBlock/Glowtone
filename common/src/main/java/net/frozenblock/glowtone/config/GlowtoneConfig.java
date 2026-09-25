@@ -32,7 +32,7 @@ import net.frozenblock.glowtone.config.option.bloom.BloomOption;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingMode;
 import net.frozenblock.glowtone.config.option.edge.EdgeHighlightOption;
 import net.frozenblock.glowtone.config.option.shade.ShadingMode;
-import net.frozenblock.glowtone.platform.GlowtonePlatform;
+import net.frozenblock.lib.platform.ModLoader;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.GraphicsPreset;
@@ -189,7 +189,7 @@ public final class GlowtoneConfig {
 	}
 
 	private static Path path() {
-		return GlowtonePlatform.INSTANCE.getConfigDirectory().resolve(GlowtoneConstants.MOD_ID + ".json");
+		return ModLoader.getConfigDir().resolve(GlowtoneConstants.MOD_ID + ".json");
 	}
 
 	private static void load() {

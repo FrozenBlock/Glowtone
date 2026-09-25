@@ -9,6 +9,7 @@ plugins {
     id("net.frozenblock.candlelight") version("+") apply(false)
 
     id("org.quiltmc.gradle.licenser") version("+") apply(false)
+    id("com.gradleup.shadow") version("+") apply(false)
     checkstyle
 }
 
@@ -26,12 +27,32 @@ checkstyle {
     toolVersion = "10.20.2"
 }
 
+val mod_id: String by project
+val mod_name: String by project
+val mod_version: String by project
+val subproject_prefix: String by project
+val license: String by project
+val mod_url: String by project
+val source_url: String by project
+val issues_url: String by project
 val min_fabric_loader_version: String by project
+val minecraft_version: String by project
+
+val fabric_api_version: String by project
+val frozenlib_version: String by project
 
 mod {
+    additional.add("mod_id", mod_id)
+    additional.add("mod_version", mod_version)
+    additional.add("mod_name", mod_name)
+    additional.add("mod_license", license)
+    additional.add("mod_url", mod_url)
+    additional.add("source_url", source_url)
+    additional.add("issues_url", issues_url)
     additional.add("fabric_loader_version", ">=$min_fabric_loader_version")
-    additional.add("minecraft_version", "~26.2-")
-    additional.add("mod_description")
+    additional.add("fabric_api_version", ">=$fabric_api_version")
+    additional.add("minecraft_version", "~$minecraft_version-")
+    additional.add("frozenlib_version", ">=${frozenlib_version.split('-').firstOrNull()}-")
 }
 
 val changelogText = run {
@@ -45,13 +66,14 @@ fun mainJarTask(project: Project) =
     else project.tasks.named("jar")
 
 val githubRelease by tasks.registering {
-    val fabricJar = mainJarTask(project(":gt-fabric"))
-    dependsOn(fabricJar)
+    val fabricJar = mainJarTask(project(":$subproject_prefix-fabric"))
+    val neoforgeJar = mainJarTask(project(":$subproject_prefix-neoforge"))
+    dependsOn(fabricJar, neoforgeJar)
 
     val token = env["GITHUB_TOKEN"]
     val repository = mod.repository.get()
-    val tag = project(":gt-fabric").version.toString()
-    val releaseTitle = "Glowtone $tag"
+    val tag = project(":$subproject_prefix-fabric").version.toString()
+    val releaseTitle = "$mod_name $tag"
     val isPrerelease = mod.releaseType.get() != "release"
     val commitish = env["GITHUB_SHA"]
 
@@ -71,6 +93,7 @@ val githubRelease by tasks.registering {
 
         val release = releaseBuilder.create()
         release.uploadAsset(fabricJar.get().outputs.files.singleFile, "application/java-archive")
+        release.uploadAsset(neoforgeJar.get().outputs.files.singleFile, "application/java-archive")
     }
 }
 
@@ -115,25 +138,65 @@ subprojects {
 
     dependencies {
         compileOnly("net.frozenblock:candlelight:+")
+        compileOnly("net.frozenblock:frozenlib-common:$frozenlib_version")
     }
 
     repositories {
         maven("https://maven.frozenblock.net/release") {
             name = "FrozenBlock"
         }
-        maven("https://maven.frozenblock.net/snapshot") { // Candlelight & Triangle
+        maven("https://maven.frozenblock.net/snapshot") {
             name = "FrozenBlock Snapshot"
         }
-        maven("https://maven.frozenblock.net/caffeinemc") {
-            name = "CaffeineMC"
+
+        exclusiveContent {
+            forRepository {
+                maven("https://repo.spongepowered.org/repository/maven-public") {
+                    name = "Sponge"
+                }
+            }
+            filter { includeGroupAndSubgroups("org.spongepowered") }
         }
-        maven("https://maven.shedaniel.me/")
-        maven("https://maven.gegy.dev")
         maven("https://maven.minecraftforge.net/") {
             name = "Forge"
         }
+        maven("https://thedarkcolour.github.io/KotlinForForge/") {
+            name = "KotlinForForge"
+            content {
+                includeGroup("thedarkcolour")
+            }
+        }
+        maven("https://registry.somethingcatchy.net/repository/maven-releases/") { // Candlelight & Triangle
+            name = "SomethingCatchy (MehVahdJukaar)"
+        }
+
         maven("https://maven.quiltmc.org/repository/release") {
             name = "Quilt"
+        }
+        maven("https://maven.blamejared.com") {
+            name = "BlameJared"
+        }
+        maven("https://maven.jamieswhiteshirt.com/libs-release") {
+            name = "JamiesWhiteShirt"
+            content {
+                includeGroup("com.jamieswhiteshirt")
+            }
+        }
+        maven("https://maven.shedaniel.me/") {
+            name = "Shedaniel"
+        }
+        maven("https://maven.gegy.dev")
+        maven("https://maven.frozenblock.net/caffeinemc") {
+            name = "CaffeineMC"
+            content {
+                includeGroup("net.caffeinemc")
+            }
+        }
+        maven("https://maven.terraformersmc.com") {
+            name = "TerraformersMC"
+            content {
+                includeGroup("com.terraformersmc")
+            }
         }
 
         exclusiveContent {
