@@ -19,19 +19,20 @@ package net.frozenblock.glowtone.config;
 
 import com.mojang.blaze3d.shaders.ShaderType;
 import com.mojang.logging.LogUtils;
-import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.resources.Identifier;
-import org.slf4j.Logger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import net.frozenblock.lib.platform.ModLoader;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import net.minecraft.resources.Identifier;
+import org.slf4j.Logger;
+import net.minecraft.SharedConstants;
 
 @ClientOnly
 public final class GlowtoneShaderDump {
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final boolean ENABLED = Boolean.getBoolean("glowtone.dumpShaders")
-		|| "true".equalsIgnoreCase(System.getenv("GLOWTONE_DUMP_SHADERS"));
-	private static final Path DIRECTORY = Path.of("glowtone-shader-dump");
+	private static final boolean ENABLED = SharedConstants.debugFlag("GLOWTONE_SHADER_DUMP");
+	private static final Path DIRECTORY = ModLoader.getGameDir().resolve("glowtone-shader-dump");
 	private static boolean failed;
 
 	public static boolean enabled() {

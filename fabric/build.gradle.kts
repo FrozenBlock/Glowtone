@@ -70,6 +70,13 @@ loom {
     interfaceInjection {
         enableDependencyInterfaceInjection = true
     }
+
+    runs {
+        named("client") {
+            vmArg("-DMC_DEBUG_ENABLED=true")
+            vmArg("-DMC_DEBUG_GLOWTONE_SHADER_DUMP=true")
+        }
+    }
 }
 
 repositories {

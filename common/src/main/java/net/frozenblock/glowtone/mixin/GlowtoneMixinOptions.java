@@ -20,14 +20,12 @@ package net.frozenblock.glowtone.mixin;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.jetbrains.annotations.Nullable;
+import net.frozenblock.lib.platform.ModLoader;
 
 final class GlowtoneMixinOptions {
 	private static final String FILE_NAME = "glowtone-mixins.properties";
@@ -68,7 +66,7 @@ final class GlowtoneMixinOptions {
 
 	private static Map<String, Boolean> load() {
 		try {
-			final Path path = directory().resolve(FILE_NAME);
+			final Path path = ModLoader.getConfigDir().resolve(FILE_NAME);
 			if (!Files.exists(path)) {
 				write(path);
 				return Map.of();
@@ -119,41 +117,6 @@ final class GlowtoneMixinOptions {
 			writer.write("# This is for working around potential conflicts with other mods." + LINE);
 			writer.write(LINE);
 			for (String group : GROUPS) writer.write("#" + PREFIX + group + "=true" + LINE);
-		}
-	}
-
-	private static Path directory() {
-		final Path fabric = fabric();
-		if (fabric != null) return fabric;
-
-		final Path neoForge = neoForge();
-		if (neoForge != null) return neoForge;
-
-		return Paths.get("config");
-	}
-
-	private static @Nullable Path fabric() {
-		try {
-			final Class<?> loader = Class.forName("net.fabricmc.loader.api.FabricLoader");
-			final Method getInstance = loader.getMethod("getInstance");
-			final Object instance = getInstance.invoke(null);
-			if (instance == null) return null;
-
-			return (Path) getInstance.getReturnType().getMethod("getConfigDir").invoke(instance);
-		} catch (ReflectiveOperationException | RuntimeException failure) {
-			return null;
-		}
-	}
-
-	private static @Nullable Path neoForge() {
-		try {
-			final Class<?> paths = Class.forName("net.neoforged.fml.loading.FMLPaths");
-			final Object configDirectory = paths.getField("CONFIGDIR").get(null);
-			if (configDirectory == null) return null;
-
-			return (Path) paths.getMethod("get").invoke(configDirectory);
-		} catch (ReflectiveOperationException | RuntimeException failure) {
-			return null;
 		}
 	}
 
