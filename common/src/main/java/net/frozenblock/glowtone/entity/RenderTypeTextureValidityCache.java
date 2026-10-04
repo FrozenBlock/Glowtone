@@ -30,12 +30,11 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ClientOnly
 public final class RenderTypeTextureValidityCache {
-	private static final Reloader RELOADER = new Reloader();
 	private static final Object2BooleanOpenHashMap<Identifier> TEXTURE_VALIDITY_MAP = new Object2BooleanOpenHashMap<>();
 
 	@ApiStatus.Internal
 	public static void init() {
-		ResourceLoaderHelper.registerReloadListener(PackType.CLIENT_RESOURCES, GlowtoneConstants.id("emissive_render_type_validity"), RELOADER);
+		ResourceLoaderHelper.registerReloadListener(PackType.CLIENT_RESOURCES, GlowtoneConstants.id("emissive_render_type_validity"), new Reloader());
 	}
 
 	public static boolean getOrComputeValidity(Identifier texture) {
