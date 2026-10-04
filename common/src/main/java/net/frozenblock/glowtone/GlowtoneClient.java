@@ -24,7 +24,7 @@ import net.frozenblock.glowtone.config.GlowtoneReload;
 import net.frozenblock.glowtone.config.option.color.ColoredLightingOption;
 import net.frozenblock.glowtone.config.option.shade.ShadingOption;
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettingsLoader;
-import net.frozenblock.glowtone.data.BlockMaterialOverrideLoader;
+import net.frozenblock.glowtone.material.data.BlockMaterialOverrideLoader;
 import net.frozenblock.glowtone.entity.RenderTypeTextureValidityCache;
 import net.frozenblock.glowtone.light.compat.lambdynamiclights.GlowtoneDynamicLights;
 import net.frozenblock.glowtone.light.data.block.BlockStateLightPropertiesLoader;

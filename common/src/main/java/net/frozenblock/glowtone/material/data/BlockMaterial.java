@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.data;
+package net.frozenblock.glowtone.material.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -50,8 +50,7 @@ public record BlockMaterial(
 		Optional.empty(),
 		List.of()
 	);
-	public static final Assigned UNASSIGNED = new Assigned(null, NONE, BlockMaterialRenderer.NO_SHADER);
-	public static final Simple EMPTY = new Simple(UNASSIGNED);
+	public static final Simple EMPTY = new Simple(Assigned.UNASSIGNED);
 	public static final MapCodec<BlockMaterial> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 		MaterialLayer.CODEC.optionalFieldOf("layer").forGetter(BlockMaterial::layer),
 		Cull.CODEC.optionalFieldOf("cull", Cull.AUTOMATIC).forGetter(BlockMaterial::cull),
@@ -86,16 +85,16 @@ public record BlockMaterial(
 		return this.equals(NONE);
 	}
 
-	public BlockMaterial mergedOver(BlockMaterial under) {
+	public BlockMaterial mergedOver(BlockMaterial other) {
 		return new BlockMaterial(
-			this.layer.or(under::layer),
-			this.cull.mergedOver(under.cull),
-			this.renderShape.or(under::renderShape),
-			this.blockEntityRender.or(under::blockEntityRender),
-			this.shader.isPresent() && under.shader.isPresent()
-				? Optional.of(this.shader.get().mergedOver(under.shader.get()))
-				: this.shader.or(under::shader),
-			this.target.isEmpty() ? under.target() : this.target
+			this.layer.or(other::layer),
+			this.cull.mergedOver(other.cull),
+			this.renderShape.or(other::renderShape),
+			this.blockEntityRender.or(other::blockEntityRender),
+			this.shader.isPresent() && other.shader.isPresent()
+				? Optional.of(this.shader.get().mergedOver(other.shader.get()))
+				: this.shader.or(other::shader),
+			this.target.isEmpty() ? other.target() : this.target
 		);
 	}
 
@@ -125,7 +124,7 @@ public record BlockMaterial(
 
 		@Override
 		public Assigned get(BlockState state) {
-			return this.map.getOrDefault(state, UNASSIGNED);
+			return this.map.getOrDefault(state, Assigned.UNASSIGNED);
 		}
 	}
 
@@ -136,42 +135,51 @@ public record BlockMaterial(
 		@Nullable List<String> targetSlots,
 		List<BlockTextureSlots.Slot> targets,
 		boolean targetsEmissive,
-		List<Assigned> extra
+		List<Assigned> extras
 	) {
 		public static final int NOT_TARGETED = Integer.MIN_VALUE;
+		public static final Assigned UNASSIGNED = new Assigned(null, NONE, BlockMaterialRenderer.NO_SHADER);
 
 		public Assigned(@Nullable Identifier id, BlockMaterial material, int shaderIndex) {
 			this(id, material, shaderIndex, null, List.of(), false, List.of());
 		}
 
 		public Assigned(
-			@Nullable Identifier id, BlockMaterial material, int shaderIndex,
-			@Nullable List<String> targetSlots, List<BlockTextureSlots.Slot> targets, boolean targetsEmissive
+			@Nullable Identifier id,
+			BlockMaterial material, int shaderIndex,
+			@Nullable List<String> targetSlots,
+			List<BlockTextureSlots.Slot> targets,
+			boolean targetsEmissive
 		) {
 			this(id, material, shaderIndex, targetSlots, targets, targetsEmissive, List.of());
 		}
 
 		public Assigned withExtra(Assigned other) {
-			final List<Assigned> extra = new ArrayList<>(this.extra);
-			extra.add(new Assigned(other.id(), other.material(), other.shaderIndex(),
-				other.targetSlots(), other.targets(), other.targetsEmissive(), List.of()));
-			return new Assigned(this.id, this.material, this.shaderIndex,
-				this.targetSlots, this.targets, this.targetsEmissive, List.copyOf(extra));
+			final List<Assigned> extras = new ArrayList<>(this.extras);
+			extras.add(other.copyWithExtras(List.of()));
+
+			return this.copyWithExtras(List.copyOf(extras));
+		}
+
+		private Assigned copyWithExtras(List<Assigned> extras) {
+			return new Assigned(this.id, this.material, this.shaderIndex, this.targetSlots, this.targets, this.targetsEmissive, extras);
 		}
 
 		public int indexFor(float u, float v) {
-			for (Assigned other : this.extra) {
+			for (Assigned other : this.extras) {
 				if (other.targets(u, v) || (other.targetsEmissive() && BlockTextureSlots.withinEmissiveOverlay(u, v))) {
 					return other.shaderIndex();
 				}
 			}
+
 			return NOT_TARGETED;
 		}
 
 		public int indexFor(TextureAtlasSprite sprite) {
-			for (Assigned other : this.extra) {
+			for (Assigned other : this.extras) {
 				if (other.targets(sprite)) return other.shaderIndex();
 			}
+
 			return NOT_TARGETED;
 		}
 
@@ -215,10 +223,10 @@ public record BlockMaterial(
 			return this.selfMode().decides() || this.castMode().decides();
 		}
 
-		public Cull mergedOver(Cull under) {
+		public Cull mergedOver(Cull other) {
 			return new Cull(
-				this.self.or(under::self),
-				this.cast.or(under::cast)
+				this.self.or(other::self),
+				this.cast.or(other::cast)
 			);
 		}
 	}

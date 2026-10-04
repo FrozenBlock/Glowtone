@@ -17,7 +17,7 @@
 
 package net.frozenblock.glowtone.material.impl;
 
-import net.frozenblock.glowtone.data.BlockMaterial;
+import net.frozenblock.glowtone.material.data.BlockMaterial;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 @ClientOnly

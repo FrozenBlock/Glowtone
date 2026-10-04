@@ -18,15 +18,16 @@
 package net.frozenblock.glowtone.material.render;
 
 import com.mojang.logging.LogUtils;
-import net.frozenblock.glowtone.GlowtoneConstants;
-import net.frozenblock.glowtone.data.BlockMaterial;
-import net.frozenblock.glowtone.material.MaterialLayer;
-import net.frozenblock.glowtone.data.MaterialRenderShape;
-import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.frozenblock.glowtone.GlowtoneConstants;
+import net.frozenblock.glowtone.material.MaterialLayer;
+import net.frozenblock.glowtone.material.data.BlockMaterial;
+import net.frozenblock.glowtone.material.data.MaterialRenderShape;
+import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -72,10 +73,10 @@ public final class BlockMaterialRenderer {
 		private boolean gui;
 
 		private @Nullable BlockState lastState;
-		private BlockMaterial.Assigned lastAssigned = BlockMaterial.UNASSIGNED;
+		private BlockMaterial.Assigned lastAssigned = BlockMaterial.Assigned.UNASSIGNED;
 
 		State() {
-			java.util.Arrays.fill(this.stack, BlockMaterial.UNASSIGNED);
+			Arrays.fill(this.stack, BlockMaterial.Assigned.UNASSIGNED);
 		}
 
 		private int quadIndex = NO_SHADER;
@@ -121,7 +122,7 @@ public final class BlockMaterialRenderer {
 	}
 
 	public static BlockMaterial.Assigned assigned(BlockState state) {
-		if (!any) return BlockMaterial.UNASSIGNED;
+		if (!any) return BlockMaterial.Assigned.UNASSIGNED;
 
 		return state.getBlock().glowtone$getMaterial().get(state);
 	}
@@ -168,7 +169,7 @@ public final class BlockMaterialRenderer {
 	private static final BlockMaterial.Assigned[] INDEXED = new BlockMaterial.Assigned[MAX_SHADER_INDEX + 1];
 
 	private static BlockMaterial.Assigned indexed(int shaderIndex) {
-		if (shaderIndex <= NO_SHADER || shaderIndex > MAX_SHADER_INDEX) return BlockMaterial.UNASSIGNED;
+		if (shaderIndex <= NO_SHADER || shaderIndex > MAX_SHADER_INDEX) return BlockMaterial.Assigned.UNASSIGNED;
 
 		final BlockMaterial.Assigned assigned = ASSIGNED_BY_INDEX[shaderIndex];
 		if (assigned != null) return assigned;

@@ -48,7 +48,7 @@ public class ModelBakerySlotsMixin {
 
 	@Inject(method = "bakeModels", at = @At("HEAD"))
 	private void glowtone$recordTextureSlots(
-		MaterialBaker materials, Executor executor, CallbackInfoReturnable<CompletableFuture<ModelBakery.BakingResult>> info
+		MaterialBaker materials, Executor taskExecutor, CallbackInfoReturnable<CompletableFuture<ModelBakery.BakingResult>> info
 	) {
 		BlockTextureSlots.record(this.unbakedBlockStateModels, this.resolvedModels, materials);
 		BlockModelChains.record(this.unbakedBlockStateModels, this.resolvedModels);

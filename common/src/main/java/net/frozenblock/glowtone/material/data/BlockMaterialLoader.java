@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.data;
+package net.frozenblock.glowtone.material.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
@@ -393,7 +393,7 @@ public final class BlockMaterialLoader {
 		final Map<Integer, BlockMaterial.Assigned> byIndex = new HashMap<>();
 		perBlock.values().forEach(states -> states.values().forEach(assigned1 -> {
 			if (assigned1.shaderIndex() != BlockMaterialRenderer.NO_SHADER) byIndex.putIfAbsent(assigned1.shaderIndex(), assigned1);
-			for (BlockMaterial.Assigned extra : assigned1.extra()) {
+			for (BlockMaterial.Assigned extra : assigned1.extras()) {
 				if (extra.shaderIndex() != BlockMaterialRenderer.NO_SHADER) byIndex.putIfAbsent(extra.shaderIndex(), extra);
 			}
 		}));

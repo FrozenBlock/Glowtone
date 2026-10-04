@@ -15,33 +15,18 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.data;
+package net.frozenblock.glowtone.material.data;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.resources.Identifier;
+import java.util.Optional;
 
 @ClientOnly
-public enum MaterialRenderShape implements StringRepresentable {
-	MODEL("model", RenderShape.MODEL),
-	INVISIBLE("invisible", RenderShape.INVISIBLE);
-	public static final Codec<MaterialRenderShape> CODEC = StringRepresentable.fromEnum(MaterialRenderShape::values);
-
-	private final String name;
-	private final RenderShape shape;
-
-	MaterialRenderShape(String name, RenderShape shape) {
-		this.name = name;
-		this.shape = shape;
-	}
-
-	@Override
-	public String getSerializedName() {
-		return this.name;
-	}
-
-	public RenderShape shape() {
-		return this.shape;
-	}
+public record BlockMaterialDefinition(Optional<Identifier> parent, BlockMaterial material) {
+	public static final Codec<BlockMaterialDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		Identifier.CODEC.optionalFieldOf("parent").forGetter(BlockMaterialDefinition::parent),
+		BlockMaterial.MAP_CODEC.forGetter(BlockMaterialDefinition::material)
+	).apply(instance, BlockMaterialDefinition::new));
 }

@@ -15,7 +15,7 @@
  * along with this program; if not, see <https://github.com/FrozenBlock/Licenses>.
  */
 
-package net.frozenblock.glowtone.data;
+package net.frozenblock.glowtone.material.data;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;

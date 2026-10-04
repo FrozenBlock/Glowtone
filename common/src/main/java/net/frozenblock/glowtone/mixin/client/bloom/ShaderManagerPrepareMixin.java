@@ -18,7 +18,7 @@
 package net.frozenblock.glowtone.mixin.client.bloom;
 
 import net.frozenblock.glowtone.config.pack.GlowtonePackSettingsLoader;
-import net.frozenblock.glowtone.data.BlockMaterialOverrideLoader;
+import net.frozenblock.glowtone.material.data.BlockMaterialOverrideLoader;
 import net.frozenblock.glowtone.render.vertex.GlowtoneVertexFeatures;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
 import net.minecraft.client.renderer.ShaderManager;
