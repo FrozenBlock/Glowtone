@@ -63,17 +63,20 @@ public final class GlowtoneVertexFormats {
 		if (features.equals(GlowtoneVertexFeatures.applied())) return;
 
 		final Map<VertexFormat, VertexFormat> replaced = new IdentityHashMap<>();
+
 		final VertexFormat block = DefaultVertexFormat.BLOCK;
-		final VertexFormat entity = DefaultVertexFormat.ENTITY;
-		final VertexFormat tinted = GTDefaultVertexFormat.tinted();
 		final VertexFormat newBlock = GTDefaultVertexFormat.rebuildBlock(block, features);
-		final VertexFormat newEntity = GTDefaultVertexFormat.rebuildEntity(entity, features);
-		final VertexFormat newTinted = GTDefaultVertexFormat.rebuildTinted(features);
-		DefaultVertexFormatAccessor.glowtone$setBlock(newBlock);
-		DefaultVertexFormatAccessor.glowtone$setEntity(newEntity);
 		replaced.put(block, newBlock);
+		DefaultVertexFormatAccessor.glowtone$setBlock(newBlock);
+
+		final VertexFormat entity = DefaultVertexFormat.ENTITY;
+		final VertexFormat newEntity = GTDefaultVertexFormat.rebuildEntity(entity, features);
 		replaced.put(entity, newEntity);
-		replaced.put(tinted, newTinted);
+		DefaultVertexFormatAccessor.glowtone$setEntity(newEntity);
+
+		final VertexFormat positionColorLightmap = GTDefaultVertexFormat.positionColorLightmap();
+		final VertexFormat newPositionColorLightmap = GTDefaultVertexFormat.rebuildPositionColorLightmap(features);
+		replaced.put(positionColorLightmap, newPositionColorLightmap);
 
 		String terrain = "";
 		if (FrozenBools.HAS_SODIUM) {

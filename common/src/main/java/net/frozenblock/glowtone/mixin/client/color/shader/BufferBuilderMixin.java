@@ -45,7 +45,7 @@ import com.mojang.blaze3d.PrimitiveTopology;
 @Mixin(BufferBuilder.class)
 public class BufferBuilderMixin implements GlowtoneBufferBuilder {
 	@Unique
-	private Kind glowtone$kind;
+	private Type glowtone$type;
 	@Unique
 	private GlowtoneVertexLayout glowtone$layout;
 
@@ -53,26 +53,27 @@ public class BufferBuilderMixin implements GlowtoneBufferBuilder {
 		method = "<init>(Lcom/mojang/blaze3d/vertex/ByteBufferBuilder;Lcom/mojang/blaze3d/PrimitiveTopology;Lcom/mojang/blaze3d/vertex/VertexFormat;)V",
 		at = @At("RETURN")
 	)
-	private void glowtone$snapshotLayout(ByteBufferBuilder buffer, PrimitiveTopology topology, VertexFormat format, CallbackInfo info) {
-		final Kind kind;
+	private void glowtone$snapshotLayout(ByteBufferBuilder buffer, PrimitiveTopology primitiveTopology, VertexFormat format, CallbackInfo info) {
+		final Type type;
 		if (format == DefaultVertexFormat.BLOCK) {
-			kind = Kind.BLOCK;
+			type = Type.BLOCK;
 		} else if (format == DefaultVertexFormat.ENTITY) {
-			kind = Kind.ENTITY;
-		} else if (format == GTDefaultVertexFormat.tinted()) {
-			kind = Kind.TINTED;
+			type = Type.ENTITY;
+		} else if (format == GTDefaultVertexFormat.positionColorLightmap()) {
+			type = Type.POSITION_COLOR_LIGHTMAP;
 		} else {
-			kind = Kind.NONE;
+			type = Type.NONE;
 		}
-		final GlowtoneVertexLayout layout = kind == Kind.NONE ? GlowtoneVertexLayout.NONE : GTDefaultVertexFormat.layoutOf(format);
+
+		final GlowtoneVertexLayout layout = type == Type.NONE ? GlowtoneVertexLayout.NONE : GTDefaultVertexFormat.layoutOf(format);
 		this.glowtone$layout = layout;
-		this.glowtone$kind = layout.isEmpty() ? Kind.NONE : kind;
+		this.glowtone$type = layout.isEmpty() ? Type.NONE : type;
 	}
 
 	@Override
-	public Kind glowtone$kind() {
-		final Kind kind = this.glowtone$kind;
-		return kind != null ? kind : Kind.NONE;
+	public Type glowtone$type() {
+		final Type type = this.glowtone$type;
+		return type != null ? type : Type.NONE;
 	}
 
 	@Override
@@ -97,10 +98,10 @@ public class BufferBuilderMixin implements GlowtoneBufferBuilder {
 		int lightCoords,
 		float nx, float ny, float nz
 	) {
-		switch (this.glowtone$kind()) {
+		switch (this.glowtone$type()) {
 			case BLOCK -> glowtone$writeBlockExtensions(original, this.glowtone$layout, x, y, z);
 			case ENTITY -> glowtone$writeEntityChromaExtension(original, this.glowtone$layout);
-			default -> { }
+			default -> {}
 		}
 
 		return original;
@@ -114,15 +115,15 @@ public class BufferBuilderMixin implements GlowtoneBufferBuilder {
 			ordinal = 0
 		)
 	)
-	private long glowtone$writeChromaAny(
+	private long glowtone$writeAnyExtensions(
 		long original,
 		float x, float y, float z
 	) {
-		switch (this.glowtone$kind()) {
+		switch (this.glowtone$type()) {
 			case BLOCK -> glowtone$writeBlockExtensions(original, this.glowtone$layout, x, y, z);
 			case ENTITY -> glowtone$writeEntityChromaExtension(original, this.glowtone$layout);
-			case TINTED -> glowtone$writePositionColorLightmapTintedChromaExtension(original, this.glowtone$layout);
-			default -> { }
+			case POSITION_COLOR_LIGHTMAP -> glowtone$writePositionColorLightmapTintedChromaExtension(original, this.glowtone$layout);
+			default -> {}
 		}
 		return original;
 	}

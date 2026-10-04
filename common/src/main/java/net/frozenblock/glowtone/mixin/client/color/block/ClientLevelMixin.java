@@ -39,7 +39,7 @@ public class ClientLevelMixin {
 	}
 
 	@Inject(method = "unload", at = @At("HEAD"))
-	private void glowtone$dropSkyTint(LevelChunk chunk, CallbackInfo info) {
-		SkyTintColumns.onChunkUnloaded(chunk.getPos());
+	private void glowtone$dropSkyTint(LevelChunk levelChunk, CallbackInfo info) {
+		SkyTintColumns.onChunkUnloaded(levelChunk.getPos());
 	}
 }

@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(value = BufferBuilder.class, priority = 1500)
 public class BufferBuilderIntrinsicsMixin {
 	public boolean canUseIntrinsics() {
-		return ((GlowtoneBufferBuilder) (Object) this).glowtone$kind() == GlowtoneBufferBuilder.Kind.NONE;
+		return ((GlowtoneBufferBuilder) (Object) this).glowtone$type() == GlowtoneBufferBuilder.Type.NONE;
 	}
 
 	@Dynamic

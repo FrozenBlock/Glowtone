@@ -66,8 +66,7 @@ public class AltModelBlockRendererImplMixin {
 			z += face.getStepZ() * 0.5F;
 		}
 
-		final ChromaBaker.SectionState state = ChromaBaker.state();
-		state.beginFlatQuadLocal(x, y, z);
+		ChromaBaker.beginFlatQuadLocal(x, y, z);
 		return original;
 	}
 }

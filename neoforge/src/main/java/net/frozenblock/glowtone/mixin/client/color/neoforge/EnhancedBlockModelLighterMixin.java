@@ -42,6 +42,7 @@ import net.frozenblock.glowtone.material.shader.MaterialShaderPatcher;
 
 @Mixin(EnhancedBlockModelLighter.class)
 public class EnhancedBlockModelLighterMixin {
+
 	@Inject(method = "prepareQuadAmbientOcclusion", at = @At("TAIL"))
 	private void glowtone$buildAmbientOcclusionEdges(
 		BlockAndTintGetter level,
@@ -55,7 +56,7 @@ public class EnhancedBlockModelLighterMixin {
 	}
 
 	@Inject(method = "prepareQuadFlat", at = @At("TAIL"))
-	private void glowtone$pinFlatQuadColor(
+	private void glowtone$pinFlatQuadColorAndBuildEdges(
 		BlockAndTintGetter level,
 		BlockState state,
 		BlockPos pos,
@@ -75,6 +76,7 @@ public class EnhancedBlockModelLighterMixin {
 				pos.getZ() + direction.getStepZ()
 			);
 		}
+
 		glowtone$buildEdges(level, state, pos, quad, outputInstance, quad.materialInfo().ambientOcclusion());
 	}
 

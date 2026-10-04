@@ -17,10 +17,10 @@
 
 package net.frozenblock.glowtone.render.vertex;
 
-import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import java.util.Set;
 import net.mehvahdjukaar.candlelight.api.ClientOnly;
+import com.mojang.blaze3d.GpuFormat;
 
 // TODO: self emission to offset tint with
 @ClientOnly
@@ -49,10 +49,10 @@ public final class GTDefaultVertexFormat {
 		PIVOT_SEMANTIC_NAME
 	);
 
-	private static volatile VertexFormat tinted = buildTinted(GlowtoneVertexFeatures.startup());
+	private static volatile VertexFormat positionColorLightmap = buildPositionColorLightmap(GlowtoneVertexFeatures.startup());
 
-	public static VertexFormat tinted() {
-		return tinted;
+	public static VertexFormat positionColorLightmap() {
+		return positionColorLightmap;
 	}
 
 	public static VertexFormat.Builder appendBlockAttributes(VertexFormat.Builder builder, GlowtoneVertexFeatures features) {
@@ -91,13 +91,13 @@ public final class GTDefaultVertexFormat {
 		return GlowtoneVertexFormats.verified(current, rebuilt, GLOWTONE_NAMES);
 	}
 
-	static VertexFormat rebuildTinted(GlowtoneVertexFeatures features) {
-		final VertexFormat rebuilt = buildTinted(features);
-		tinted = rebuilt;
+	static VertexFormat rebuildPositionColorLightmap(GlowtoneVertexFeatures features) {
+		final VertexFormat rebuilt = buildPositionColorLightmap(features);
+		positionColorLightmap = rebuilt;
 		return rebuilt;
 	}
 
-	private static VertexFormat buildTinted(GlowtoneVertexFeatures features) {
+	private static VertexFormat buildPositionColorLightmap(GlowtoneVertexFeatures features) {
 		final VertexFormat.Builder builder = VertexFormat.builder(0)
 			.addAttribute("Position", GpuFormat.RGB32_FLOAT)
 			.addAttribute("Color", GpuFormat.RGBA8_UNORM)

@@ -21,14 +21,14 @@ import net.mehvahdjukaar.candlelight.api.ClientOnly;
 
 @ClientOnly
 public interface GlowtoneBufferBuilder {
-	enum Kind {
+	enum Type {
 		NONE,
 		BLOCK,
 		ENTITY,
-		TINTED
+		POSITION_COLOR_LIGHTMAP
 	}
 
-	Kind glowtone$kind();
+	Type glowtone$type();
 
 	GlowtoneVertexLayout glowtone$layout();
 }
