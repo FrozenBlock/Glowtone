@@ -33,7 +33,7 @@ public final class MaterialCullHelper {
 
 		final BlockMaterial.Assigned rendered = BlockMaterialRenderer.anySelfCulling()
 			? BlockMaterialRenderer.assigned(state)
-			: BlockMaterial.UNASSIGNED;
+			: BlockMaterial.Assigned.UNASSIGNED;
 		final CullMode selfMode = rendered.material().cull().selfMode();
 
 		if (!BlockMaterialRenderer.anyCastCulling() && selfMode != CullMode.SAME_MATERIAL) {
